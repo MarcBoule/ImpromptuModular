@@ -1932,7 +1932,7 @@ struct FoundryWidget : ModuleWidget {
 		aseqItem->module = module;
 		menu->addChild(aseqItem);
 
-		MergeTracksItem *mergeItem = createMenuItem<MergeTracksItem>("Merge track A with", RIGHT_ARROW);
+		MergeTracksItem *mergeItem = createMenuItem<MergeTracksItem>("Poly merge into track A outputs", RIGHT_ARROW);
 		mergeItem->module = module;
 		menu->addChild(mergeItem);
 		

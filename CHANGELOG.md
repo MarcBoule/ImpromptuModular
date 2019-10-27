@@ -1,6 +1,9 @@
 ### 1.1.2 (in development)
 
-- Change "Reset when run is turned off" to "Restart when run is:" with a submenu with choices "turned off", "turned on" and "neither"; offer a separate menu choice for emitting the reset pulse when a restart is activated
+- Changed "Reset when run is turned off" to "Restart when run is:" with a submenu with choices "turned off", "turned on" and "neither"; also offer a separate menu choice for emitting the reset pulse when a restart is activated
+- Added option to Foundry to poly merge other tracks into track A outputs
+- Added keyboard shortcuts to SEQ displays in all PhraseSeq, GateSeq and Foundry sequencers: when mouse is over the display, sequence number can be directly typed in; when in song mode, space bar moves to the next phrase in the song; key presses within the span of one second will register as a two digit sequence number
+- Change to GPLv3 license and restart github repository fresh (now back to master branch)
 
 
 ### 1.1.1 (2019-08-03)
