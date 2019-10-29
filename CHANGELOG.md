@@ -1,4 +1,4 @@
-### 1.1.2 (in development)
+### 1.1.2 (2019-10-29)
 
 - Changed "Reset when run is turned off" to "Restart when run is:" with a submenu with choices "turned off", "turned on" and "neither"; also offer a separate menu choice for emitting the reset pulse when a restart is activated
 - Added option to Foundry to poly merge other tracks into track A outputs
