@@ -160,7 +160,6 @@ inline int gateModeToKeyLightIndex(StepAttributes attribute, bool isGate1) {// k
 // Other methods (code in PhraseSeqUtil.cpp)	
 
 int getAdvGate(int ppqnCount, int pulsesPerStep, int gateMode);
-int calcGate1Code(StepAttributes attribute, int ppqnCount, int pulsesPerStep, float randKnob);
 int calcGate2Code(StepAttributes attribute, int ppqnCount, int pulsesPerStep);
 bool moveIndexRunMode(int* index, int numSteps, int runMode, unsigned long* history);
 int keyIndexToGateMode(int keyIndex, int pulsesPerStep);

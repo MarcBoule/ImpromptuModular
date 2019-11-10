@@ -1,4 +1,9 @@
-### 1.1.2 (in development)
+### 1.1.3 (in development)
+
+- Fixed random in tied steps in PhraseSeq16/32, SemiModularSynth and Foundry, i.e. if head step has a probability, make succesive tied steps follow this probability also such that it is one big tied step with one single probability
+
+
+### 1.1.2 (2019-10-27)
 
 - Changed "Reset when run is turned off" to "Restart when run is:" with a submenu with choices "turned off", "turned on" and "neither"; also offer a separate menu choice for emitting the reset pulse when a restart is activated
 - Added option to Foundry to poly merge other tracks into track A outputs

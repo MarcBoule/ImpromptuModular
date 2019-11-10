@@ -193,7 +193,8 @@ class SequencerKernel {
 	unsigned long stepIndexRunHistory;
 	int ppqnCount;
 	int ppqnLeftToSkip;// used in clock delay
-	int gateCode;// -1 = Killed for all pulses of step, 0 = Low for current pulse of step, 1 = High for current pulse of step, 2 = Clk high pulse, 3 = 1ms trig
+	int gateCode;// 0 = Low for current pulse of step, 1 = High for current pulse of step, 2 = Clk high pulse, 3 = 1ms trig
+	bool lastProbGateEnable;// true means gate calc as normal, false means last prob says turn gate off (used by current and consecutive tied steps)
 	unsigned long slideStepsRemain;// 0 when no slide under way, downward step counter when sliding
 	float slideCVdelta;// no need to initialize, this is only used when slideStepsRemain is not 0
 	
@@ -359,7 +360,8 @@ class SequencerKernel {
 		if (gateCode < 2) 
 			return gateCode == 1;
 		if (gateCode == 2)
-			return clockTrigger.isHigh();
+			return clockTrigger.isHigh();// clock period
+		// here gateCode is 3, meaning trigger
 		return clockPeriod < (unsigned long) (sampleRate * 0.01f);
 	}
 	

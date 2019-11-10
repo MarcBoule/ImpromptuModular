@@ -230,6 +230,7 @@ struct SemiModularSynth : Module {
 	int ppqnCount;
 	int gate1Code;
 	int gate2Code;
+	bool lastProbGate1Enable;	
 	unsigned long slideStepsRemain;// 0 when no slide under way, downward step counter when sliding
 	
 	// VCO
@@ -442,7 +443,8 @@ struct SemiModularSynth : Module {
 		stepIndexRunHistory = 0;
 
 		ppqnCount = 0;
-		gate1Code = calcGate1Code(attributes[seq][stepIndexRun], 0, pulsesPerStep, params[GATE1_KNOB_PARAM].getValue());
+		lastProbGate1Enable = true;
+		calcGate1Code(attributes[seq][stepIndexRun]);
 		gate2Code = calcGate2Code(attributes[seq][stepIndexRun], 0, pulsesPerStep);
 		slideStepsRemain = 0ul;
 	}
@@ -753,6 +755,30 @@ struct SemiModularSynth : Module {
 		}
 		cv[seqNum][iRot] = rotCV;
 		attributes[seqNum][iRot] = rotAttributes;
+	}
+	
+	
+	void calcGate1Code(StepAttributes attribute) {
+		int gateType = attribute.getGate1Mode();
+		
+		if (ppqnCount == 0 && !attribute.getTied()) {
+			lastProbGate1Enable = !attribute.getGate1P() || (random::uniform() < params[GATE1_KNOB_PARAM].getValue()); // random::uniform is [0.0, 1.0), see include/util/common.hpp
+		}
+			
+		if (!attribute.getGate1() || !lastProbGate1Enable) {
+			gate1Code = 0;
+		}
+		else if (pulsesPerStep == 1 && gateType == 0) {
+			gate1Code = 2;// clock high
+		}
+		else { 
+			if (gateType == 11) {
+				gate1Code = (ppqnCount == 0 ? 3 : 0);
+			}
+			else {
+				gate1Code = getAdvGate(ppqnCount, pulsesPerStep, gateType);
+			}
+		}
 	}
 	
 
@@ -1286,8 +1312,7 @@ struct SemiModularSynth : Module {
 					if (!editingSequence)
 						newSeq = phrase[phraseIndexRun];
 				}
-				if (gate1Code != -1 || ppqnCount == 0)
-					gate1Code = calcGate1Code(attributes[newSeq][stepIndexRun], ppqnCount, pulsesPerStep, params[GATE1_KNOB_PARAM].getValue());
+				calcGate1Code(attributes[newSeq][stepIndexRun]);
 				gate2Code = calcGate2Code(attributes[newSeq][stepIndexRun], ppqnCount, pulsesPerStep);
 				clockPeriod = 0ul;				
 			}

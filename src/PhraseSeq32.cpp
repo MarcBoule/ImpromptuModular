@@ -146,6 +146,7 @@ struct PhraseSeq32 : Module {
 	int ppqnCount;
 	int gate1Code[2];
 	int gate2Code[2];
+	bool lastProbGate1Enable[2];	
 	unsigned long slideStepsRemain[2];// 0 when no slide under way, downward step counter when sliding
 	
 	// No need to save, no reset
@@ -334,7 +335,8 @@ struct PhraseSeq32 : Module {
 
 		ppqnCount = 0;
 		for (int i = 0; i < 2; i += stepConfig) {
-			gate1Code[i] = calcGate1Code(attributes[seq][(i * 16) + stepIndexRun[i]], 0, pulsesPerStep, params[GATE1_KNOB_PARAM].getValue());
+			lastProbGate1Enable[i] = true;
+			calcGate1Code(attributes[seq][(i * 16) + stepIndexRun[i]], i);
 			gate2Code[i] = calcGate2Code(attributes[seq][(i * 16) + stepIndexRun[i]], 0, pulsesPerStep);
 		}
 		slideStepsRemain[0] = 0ul;
@@ -643,6 +645,30 @@ struct PhraseSeq32 : Module {
 		}
 		cv[seqNum][iRot] = rotCV;
 		attributes[seqNum][iRot] = rotAttributes;
+	}
+	
+
+	void calcGate1Code(StepAttributes attribute, int index) {
+		int gateType = attribute.getGate1Mode();
+		
+		if (ppqnCount == 0 && !attribute.getTied()) {
+			lastProbGate1Enable[index] = !attribute.getGate1P() || (random::uniform() < params[GATE1_KNOB_PARAM].getValue()); // random::uniform is [0.0, 1.0), see include/util/common.hpp
+		}
+			
+		if (!attribute.getGate1() || !lastProbGate1Enable[index]) {
+			gate1Code[index] = 0;
+		}
+		else if (pulsesPerStep == 1 && gateType == 0) {
+			gate1Code[index] = 2;// clock high
+		}
+		else { 
+			if (gateType == 11) {
+				gate1Code[index] = (ppqnCount == 0 ? 3 : 0);
+			}
+			else {
+				gate1Code[index] = getAdvGate(ppqnCount, pulsesPerStep, gateType);
+			}
+		}
 	}
 	
 
@@ -1247,8 +1273,7 @@ struct PhraseSeq32 : Module {
 						newSeq = phrase[phraseIndexRun];
 				}
 				for (int i = 0; i < 2; i += stepConfig) {
-					if (gate1Code[i] != -1 || ppqnCount == 0)
-						gate1Code[i] = calcGate1Code(attributes[newSeq][(i * 16) + stepIndexRun[i]], ppqnCount, pulsesPerStep, params[GATE1_KNOB_PARAM].getValue());
+					calcGate1Code(attributes[newSeq][(i * 16) + stepIndexRun[i]], i);
 					gate2Code[i] = calcGate2Code(attributes[newSeq][(i * 16) + stepIndexRun[i]], ppqnCount, pulsesPerStep);	
 				}
 				clockPeriod = 0ul;

@@ -62,6 +62,7 @@ void SequencerKernel::initRun(bool editingSequence) {
 	moveStepIndexRun(true, editingSequence);// true means init 
 	ppqnCount = 0;
 	ppqnLeftToSkip = delay;
+	lastProbGateEnable = true;
 	calcGateCode(editingSequence);// uses stepIndexRun as the step and {phraseIndexRun or seqIndexEdit} to determine the seq
 	slideStepsRemain = 0ul;
 }
@@ -402,7 +403,7 @@ int SequencerKernel::clockStep(bool editingSequence, int delayedSeqNumberRequest
 			}
 			else
 				slideStepsRemain = 0ul;
-		}
+		}// if (ppqnCount == 0)
 		calcGateCode(editingSequence);// uses stepIndexRun as the step and {phraseIndexRun or seqIndexEdit} to determine the seq
 	}
 	clockPeriod = 0ul;
@@ -536,36 +537,48 @@ void SequencerKernel::deactivateTiedStep(int seqn, int stepn) {// caller sets di
 }
 
 
-void SequencerKernel::calcGateCode(bool editingSequence) {// uses stepIndexRun as the step and {phraseIndexRun or seqIndexEdit} to determine the seq
+void SequencerKernel::calcGateCode(bool editingSequence) {
+	// uses stepIndexRun as the step and {phraseIndexRun or seqIndexEdit} to determine the seq
+	
+	// computes gateCode and lastProbGateEnable
+	
+	// gateCode: 
+	//    0 = gate off for current ppqn,
+	//    1 = gate on, 
+	//    2 = clock high,
+	//    3 = trigger
+	
+	//  lastProbGateEnable:
+	//    true = gate calc as normal
+	//   false = last prob says turn gate off (used by current and consecutive tied steps)
+	
 	int seqn = editingSequence ? seqIndexEdit : phrases[phraseIndexRun].getSeqNum();
 	StepAttributes attribute = attributes[seqn][stepIndexRun];
 	int ppsFiltered = getPulsesPerStep();// must use method
-	int gateType;
-
-	if (gateCode != -1 || ppqnCount == 0) {// always calc on first ppqnCount, avoid thereafter if gate will be off for whole step
-		gateType = attribute.getGateType();
-		
-		// -1 = gate off for whole step, 0 = gate off for current ppqn, 1 = gate on, 2 = clock high, 3 = trigger
-		if ( ppqnCount == 0 && attribute.getGateP() && !(random::uniform() < ((float)attribute.getGatePVal() / 100.0f)) ) {// random::uniform is [0.0, 1.0), see include/util/common.hpp
-			gateCode = -1;// must do this first in this method since it will kill all remaining pulses of the step if prob turns off the step
-		}
-		else if (!attribute.getGate()) {
-			gateCode = 0;
-		}
-		else if (ppsFiltered == 1 && gateType == 0) {
-			gateCode = 2;// clock high pulse
+	int gateType = attribute.getGateType();
+	
+	// calc: ** lastProbGateEnable ** decision only when first ppqn of a non-tied step
+	if (ppqnCount == 0 && !attribute.getTied()) {
+		lastProbGateEnable = !attribute.getGateP() || (random::uniform() < ((float)attribute.getGatePVal() / 100.0f));// random::uniform is [0.0, 1.0), see include/util/common.hpp
+	}
+	
+	// calc: ** gateType ** 
+	if (!attribute.getGate() || !lastProbGateEnable) {
+		gateCode = 0;
+	}
+	else if (ppsFiltered == 1 && gateType == 0) {
+		gateCode = 2;// clock high pulse
+	}
+	else {
+		if (gateType == 11) {
+			gateCode = (ppqnCount == 0 ? 3 : 0);// trig on first ppqnCount
 		}
 		else {
-			if (gateType == 11) {
-				gateCode = (ppqnCount == 0 ? 3 : 0);// trig on first ppqnCount
-			}
-			else {
-				uint64_t shiftAmt = ppqnCount * (96 / ppsFiltered);
-				if (shiftAmt >= 64)
-					gateCode = (int)((advGateHitMaskHigh[gateType] >> (shiftAmt - (uint64_t)64)) & (uint64_t)0x1);
-				else
-					gateCode = (int)((advGateHitMaskLow[gateType] >> shiftAmt) & (uint64_t)0x1);
-			}
+			uint64_t shiftAmt = ppqnCount * (96 / ppsFiltered);
+			if (shiftAmt >= 64)
+				gateCode = (int)((advGateHitMaskHigh[gateType] >> (shiftAmt - (uint64_t)64)) & (uint64_t)0x1);
+			else
+				gateCode = (int)((advGateHitMaskLow[gateType] >> shiftAmt) & (uint64_t)0x1);
 		}
 	}
 }
