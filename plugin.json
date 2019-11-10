@@ -46,7 +46,7 @@
 			"name": "Clocked expander",
 			"description": "Expander for Clocked",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#expanders",
-			"tags": ["Expander"]
+			"tags": ["Clock", "Expander"]
 		},
 		{
 			"slug": "Foundry",
@@ -60,7 +60,7 @@
 			"name": "Foundry expander",
 			"description": "Expander for Foundry",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#expanders",
-			"tags": ["Expander"]
+			"tags": ["Sequencer", "Expander"]
 		},
 		{
 			"slug": "Gate-Seq-64",
@@ -74,7 +74,7 @@
 			"name": "GateSeq64 expander",
 			"description": "Expander for GateSeq64",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#expanders",
-			"tags": ["Expander"]
+			"tags": ["Sequencer", "Expander"]
 		},
 		{
 			"slug": "Phrase-Seq-16",
@@ -95,7 +95,7 @@
 			"name": "PhraseSeq expander",
 			"description": "Expander for PhraseSeq16/32",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#expanders",
-			"tags": ["Expander"]
+			"tags": ["Sequencer", "Expander"]
 		},
 		{
 			"slug": "Write-Seq-32",
