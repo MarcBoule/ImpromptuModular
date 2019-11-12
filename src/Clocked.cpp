@@ -249,6 +249,8 @@ struct Clocked : Module {
 	bool sendResetOnRestart;
 	int ppqn;
 	bool resetClockOutputsHigh;
+	bool momentaryRunInput;// true = trigger (original rising edge only version), false = level sensitive (emulated with rising and falling detection)
+
 
 	// No need to save, with reset
 	long editingBpmMode;// 0 when no edit bpmMode, downward step counter timer when edit, negative upward when show can't edit ("--") 
@@ -276,7 +278,8 @@ struct Clocked : Module {
 	RefreshCounter refresh;
 	float resetLight = 0.0f;
 	Trigger resetTrigger;
-	Trigger runTrigger;
+	Trigger runButtonTrigger;
+	TriggerRiseFall runInputTrigger;
 	Trigger bpmDetectTrigger;
 	Trigger bpmModeUpTrigger;
 	Trigger bpmModeDownTrigger;
@@ -382,6 +385,7 @@ struct Clocked : Module {
 		sendResetOnRestart = false;
 		ppqn = 4;
 		resetClockOutputsHigh = true;
+		momentaryRunInput = true;
 		resetNonJson(false);
 	}
 	void resetNonJson(bool delayed) {// delay thread sensitive parts (i.e. schedule them so that process() will do them)
@@ -457,6 +461,9 @@ struct Clocked : Module {
 		// resetClockOutputsHigh
 		json_object_set_new(rootJ, "resetClockOutputsHigh", json_boolean(resetClockOutputsHigh));
 		
+		// momentaryRunInput
+		json_object_set_new(rootJ, "momentaryRunInput", json_boolean(momentaryRunInput));
+		
 		return rootJ;
 	}
 
@@ -512,6 +519,11 @@ struct Clocked : Module {
 		if (resetClockOutputsHighJ)
 			resetClockOutputsHigh = json_is_true(resetClockOutputsHighJ);
 
+		// momentaryRunInput
+		json_t *momentaryRunInputJ = json_object_get(rootJ, "momentaryRunInput");
+		if (momentaryRunInputJ)
+			momentaryRunInput = json_is_true(momentaryRunInputJ);
+
 		resetNonJson(true);
 	}
 
@@ -553,9 +565,26 @@ struct Clocked : Module {
 		}
 		
 		// Run button
-		if (runTrigger.process(params[RUN_PARAM].getValue() + inputs[RUN_INPUT].getVoltage())) {// no input refresh here, don't want to introduce clock skew
+		if (runButtonTrigger.process(params[RUN_PARAM].getValue())) {
 			toggleRun();
 		}
+		// Run input
+		if (inputs[RUN_INPUT].isConnected()) {
+			int state = runInputTrigger.process(inputs[RUN_INPUT].getVoltage());
+			if (state != 0) {
+				if (momentaryRunInput) {
+					if (state == 1) {
+						toggleRun();
+					}
+				}
+				else {
+					if ( (running && state == -1) || (!running && state == 1) ) {
+						toggleRun();
+					}
+				}
+			}
+		}
+
 
 		// Reset (has to be near top because it sets steps to 0, and 0 not a real step (clock section will move to 1 before reaching outputs)
 		if (resetTrigger.process(inputs[RESET_INPUT].getVoltage() + params[RESET_PARAM].getValue())) {
@@ -870,6 +899,12 @@ struct ClockedWidget : ModuleWidget {
 			module->displayDelayNoteMode = !module->displayDelayNoteMode;
 		}
 	};
+	struct MomentaryRunInputItem : MenuItem {
+		Clocked *module;
+		void onAction(const event::Action &e) override {
+			module->momentaryRunInput = !module->momentaryRunInput;
+		}
+	};
 	struct RestartOnStopStartItem : MenuItem {
 		Clocked *module;
 		
@@ -953,6 +988,10 @@ struct ClockedWidget : ModuleWidget {
 		DelayDisplayNoteItem *ddnItem = createMenuItem<DelayDisplayNoteItem>("Display delay values in notes", CHECKMARK(module->displayDelayNoteMode));
 		ddnItem->module = module;
 		menu->addChild(ddnItem);
+
+		MomentaryRunInputItem *runInItem = createMenuItem<MomentaryRunInputItem>("Run CV input is level sensitive", CHECKMARK(!module->momentaryRunInput));
+		runInItem->module = module;
+		menu->addChild(runInItem);
 
 		menu->addChild(new MenuLabel());// empty line
 
