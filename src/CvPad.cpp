@@ -57,8 +57,10 @@ struct CvPad : Module {
 	// No need to save, no reset
 	RefreshCounter refresh;
 	int bank = 0;
+	float cvKnobValue = 0.0f;
 	Trigger padTriggers[N_PADS];
 	Trigger writeTrigger;
+	Trigger attachTrigger;
 	
 	
 	inline int calcBank() {
@@ -70,6 +72,10 @@ struct CvPad : Module {
 		return params[ATTACH_PARAM].getValue() > 0.5f;
 	}
 	
+	inline float quantize(float cv) {
+		bool enable = params[QUANTIZE_PARAM].getValue() > 0.5f;
+		return enable ? (std::round(cv * 12.0f) / 12.0f) : cv;
+	}
 	
 	
 	CvPad() {
@@ -191,16 +197,37 @@ struct CvPad : Module {
 						readHeads[0] = p;
 					}
 				}
-				
 			}
 			
 			// write
 			if (writeTrigger.process(params[WRITE_PARAM].getValue())) {
-				cvs[bank][writeHead] = inputs[CV_INPUT].getVoltage();
+				cvs[bank][writeHead] = quantize(inputs[CV_INPUT].getVoltage());
 				if (params[AUTOSTEP_PARAM].getValue() > 0.5f) {// autostep
 					writeHead = (writeHead + 1) % N_PADS;
+					if (isAttached()) {
+						readHeads[0] = writeHead;
+					}
 				}
 			}
+			
+			// attach 
+			if (attachTrigger.process(params[ATTACH_PARAM].getValue())) {
+				readHeads[0] = writeHead;
+			}
+			
+			// cv knob 
+			float newCvKnobValue = params[CV_PARAM].getValue();
+			if (newCvKnobValue == 0.0f)// true when constructor or dataFromJson() occured
+				cvKnobValue = 0.0f;
+			float deltaCvKnobValue = newCvKnobValue - cvKnobValue;
+			if (deltaCvKnobValue != 0.0f) {
+				if (abs(deltaCvKnobValue) <= 0.1f) {// avoid discontinuous step (initialize for example)
+					// any changes in here should may also require right click behavior to be updated in the knob's onMouseDown()
+					cvs[bank][writeHead] = quantize(cvs[bank][writeHead] + deltaCvKnobValue);
+				}
+				cvKnobValue = newCvKnobValue;
+			}	
+			
 		}// userInputs refresh
 		
 		
