@@ -20,7 +20,7 @@ struct CvPad : Module {
 		SHARP_PARAM,
 		QUANTIZE_PARAM,
 		AUTOSTEP_PARAM,
-		DETACH_PARAM,
+		ATTACH_PARAM,
 		CONFIG_PARAM,
 		NUM_PARAMS
 	};
@@ -48,7 +48,8 @@ struct CvPad : Module {
 	
 	// Need to save, with reset
 	float cvs[N_BANKS][N_PADS];
-	int readHead;
+	int readHeads[4];
+	int writeHead;
 
 	// No need to save, with reset
 	// none
@@ -65,6 +66,11 @@ struct CvPad : Module {
 		return (int) clamp(std::round(params[BANK_PARAM].getValue() + bankInputValue), 0.0f, (8.0f - 1.0f));		
 	}
 	
+	inline bool isAttached() {
+		return params[ATTACH_PARAM].getValue() > 0.5f;
+	}
+	
+	
 	
 	CvPad() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -78,7 +84,7 @@ struct CvPad : Module {
 		configParam(SHARP_PARAM, 0.0f, 2.0f, 0.0f, "Volts / Notation");// 0 is top position
 		configParam(QUANTIZE_PARAM, 0.0f, 1.0f, 0.0f, "Quantize");
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 0.0f, "Autostep when write");
-		configParam(DETACH_PARAM, 0.0f, 1.0f, 0.0f, "Detach");
+		configParam(ATTACH_PARAM, 0.0f, 1.0f, 1.0f, "Attach");
 		configParam(CONFIG_PARAM, 0.0f, 2.0f, 2.0f, "Configuration");// 0 is top position
 		
 		onReset();
@@ -93,7 +99,10 @@ struct CvPad : Module {
 				cvs[b][p] = 0.0f;
 			}
 		}
-		readHead = 0;
+		for (int i = 0; i < 4; i++) {
+			readHeads[i] = 0;
+		}
+		writeHead = 0;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -119,8 +128,15 @@ struct CvPad : Module {
 		}
 		json_object_set_new(rootJ, "cvs", cvsJ);
 		
-		// readHead
-		json_object_set_new(rootJ, "readHead", json_integer(readHead));
+		// readHeads
+		json_t *readHeadsJ = json_array();
+		for (int i = 0; i < 4; i++) {
+			json_array_insert_new(readHeadsJ, i, json_integer(readHeads[i]));
+		}
+		json_object_set_new(rootJ, "readHeads", readHeadsJ);
+
+		// writeHead
+		json_object_set_new(rootJ, "writeHead", json_integer(writeHead));
 
 		return rootJ;
 	}
@@ -143,10 +159,20 @@ struct CvPad : Module {
 				}
 		}
 
-		// readHead
-		json_t *readHeadJ = json_object_get(rootJ, "readHead");
-		if (readHeadJ)
-			readHead = json_integer_value(readHeadJ);
+		// readHeads
+		json_t *readHeadsJ = json_object_get(rootJ, "readHeads");
+		if (readHeadsJ) {
+			for (int i = 0; i < 4; i++) {
+				json_t *readHeadsArrayJ = json_array_get(readHeadsJ, i);
+				if (readHeadsArrayJ)
+					readHeads[i] = json_number_value(readHeadsArrayJ);
+			}
+		}
+
+		// writeHead
+		json_t *writeHeadJ = json_object_get(rootJ, "writeHead");
+		if (writeHeadJ)
+			writeHead = json_integer_value(writeHeadJ);
 		
 		resetNonJson();
 	}
@@ -160,28 +186,34 @@ struct CvPad : Module {
 			// pads
 			for (int p = 0; p < N_PADS; p++) {
 				if (padTriggers[p].process(params[PAD_PARAMS + p].getValue())) {
-					readHead = p;
+					writeHead = p;
+					if (isAttached()) {
+						readHeads[0] = p;
+					}
 				}
 				
 			}
 			
 			// write
 			if (writeTrigger.process(params[WRITE_PARAM].getValue())) {
-				cvs[bank][readHead] = inputs[CV_INPUT].getVoltage();
+				cvs[bank][writeHead] = inputs[CV_INPUT].getVoltage();
+				if (params[AUTOSTEP_PARAM].getValue() > 0.5f) {// autostep
+					writeHead = (writeHead + 1) % N_PADS;
+				}
 			}
 		}// userInputs refresh
 		
 		
 		
 		// gate output
-		outputs[GATE_OUTPUTS + 3].setVoltage(padTriggers[readHead].isHigh() ? 10.0f : 0.0f);
-		outputs[CV_OUTPUTS + 3].setVoltage(cvs[bank][readHead]);
+		outputs[GATE_OUTPUTS + 3].setVoltage(padTriggers[readHeads[0]].isHigh() && isAttached() ? 10.0f : 0.0f);
+		outputs[CV_OUTPUTS + 3].setVoltage(cvs[bank][readHeads[0]]);
 		
 		// lights
 		if (refresh.processLights()) {
 			for (int l = 0; l < 16; l++) {
-				lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHead == l ? 1.0f : 0.0f);// green
-				lights[PAD_LIGHTS + l * 2 + 1].setBrightness(0.0f);// red
+				lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[0] == l ? 1.0f : 0.0f);// green
+				lights[PAD_LIGHTS + l * 2 + 1].setBrightness(writeHead == l ? 1.0f : 0.0f);// red
 			}
 		}
 	}
@@ -240,7 +272,7 @@ struct CvPadWidget : ModuleWidget {
 			} 
 			else {
 				int bank = module->calcBank();
-				float cvVal = module->cvs[bank][module->readHead];
+				float cvVal = module->cvs[bank][module->writeHead];
 				if (module->params[CvPad::SHARP_PARAM].getValue() > 0.5f) {// show notes
 					text[0] = ' ';
 					printNote(cvVal, &text[1], module->params[CvPad::SHARP_PARAM].getValue() < 1.5f);
@@ -313,16 +345,19 @@ struct CvPadWidget : ModuleWidget {
 		
 		static const int leftX = 35;
 		static const int topY = padY - 64;
+		static const int leftYd = 51;
 		// Volt/sharp/flat switch
 		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(leftX, topY), module, CvPad::SHARP_PARAM));
 		// quantize
 		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, padY), module, CvPad::QUANTIZE_PARAM));
+		// attach
+		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, padY + leftYd), module, CvPad::ATTACH_PARAM));
 		// autostep
-		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, padY + padYd), module, CvPad::AUTOSTEP_PARAM));
-		// detach
-		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, padY + padYd * 2), module, CvPad::DETACH_PARAM));
-		// config
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(leftX, padY + padYd * 3), module, CvPad::CONFIG_PARAM));
+		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, padY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM));
+		// write button
+		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(leftX, padY + leftYd * 3), module, CvPad::WRITE_PARAM, module ? &module->panelTheme : NULL));	
+		// cv input
+		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, padY + leftYd * 4), true, module, CvPad::CV_INPUT, module ? &module->panelTheme : NULL));
 		
 		
 		// right side column
@@ -332,13 +367,11 @@ struct CvPadWidget : ModuleWidget {
 		static const int rightO = 21;
 		
 		// bank knob
-		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(rightX - rightO, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
-		// write button
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(rightX + rightO, topY), module, CvPad::WRITE_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(rightX - rightO - 6, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
 		// bank input
-		addInput(createDynamicPortCentered<IMPort>(Vec(rightX - rightO, padY), true, module, CvPad::BANK_INPUT, module ? &module->panelTheme : NULL));
-		// cv input
-		addInput(createDynamicPortCentered<IMPort>(Vec(rightX + rightO, padY), true, module, CvPad::CV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(Vec(rightX + rightO, topY), true, module, CvPad::BANK_INPUT, module ? &module->panelTheme : NULL));
+		// config
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(rightX - 10, padY), module, CvPad::CONFIG_PARAM));
 		// outputs
 		static const int outY = padY + padYd * 3;
 		static const int outYd = 45;
