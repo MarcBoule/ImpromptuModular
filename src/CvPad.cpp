@@ -18,6 +18,10 @@ struct CvPad : Module {
 		WRITE_PARAM,
 		CV_PARAM,
 		SHARP_PARAM,
+		QUANTIZE_PARAM,
+		AUTOSTEP_PARAM,
+		DETACH_PARAM,
+		CONFIG_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -71,7 +75,11 @@ struct CvPad : Module {
 		configParam(BANK_PARAM, 0.0f, 8.0f - 1.0f, 0.0f, "Bank", "", 0.0f, 1.0f, 1.0f);	// base, multiplier, offset
 		configParam(WRITE_PARAM, 0.0f, 1.0f, 0.0f, "Write");				
 		configParam(CV_PARAM, -INFINITY, INFINITY, 0.0f, "CV");		
-		configParam(SHARP_PARAM, 0.0f, 2.0f, 1.0f, "Volts / Notation");
+		configParam(SHARP_PARAM, 0.0f, 2.0f, 0.0f, "Volts / Notation");// 0 is top position
+		configParam(QUANTIZE_PARAM, 0.0f, 1.0f, 0.0f, "Quantize");
+		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 0.0f, "Autostep when write");
+		configParam(DETACH_PARAM, 0.0f, 1.0f, 0.0f, "Detach");
+		configParam(CONFIG_PARAM, 0.0f, 2.0f, 2.0f, "Configuration");// 0 is top position
 		
 		onReset();
 		
@@ -287,7 +295,7 @@ struct CvPadWidget : ModuleWidget {
 		
 		static const int padX = 71 + 21;
 		static const int padXd = 68;
-		static const int padY = 94 + 21;
+		static const int padY = 98 + 21;
 		static const int padYd = padXd;
 		static const int ledOffsetY = 30;
 		for (int y = 0; y < 4; y++) {
@@ -304,51 +312,62 @@ struct CvPadWidget : ModuleWidget {
 		// ----------------------------
 		
 		static const int leftX = 35;
-		static const int topY = padY - 55;
-		// bank display
-		BankDisplayWidget *displayBank = new BankDisplayWidget();
-		displayBank->box.size = Vec(24, 30);// 1 character
-		displayBank->box.pos = Vec(leftX, topY);
-		displayBank->box.pos = displayBank->box.pos.minus(displayBank->box.size.div(2));// centering
-		displayBank->module = module;
-		addChild(displayBank);	
-		// bank knob
-		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(leftX, padY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
-		// write button
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(leftX, padY + padYd * 1), module, CvPad::WRITE_PARAM, module ? &module->panelTheme : NULL));	
-		// cv input
-		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, padY + padYd * 2), true, module, CvPad::CV_INPUT, module ? &module->panelTheme : NULL));
-		// bank cv input
-		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, padY + padYd * 3), true, module, CvPad::BANK_INPUT, module ? &module->panelTheme : NULL));
+		static const int topY = padY - 64;
+		// Volt/sharp/flat switch
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(leftX, topY), module, CvPad::SHARP_PARAM));
+		// quantize
+		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, padY), module, CvPad::QUANTIZE_PARAM));
+		// autostep
+		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, padY + padYd), module, CvPad::AUTOSTEP_PARAM));
+		// detach
+		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, padY + padYd * 2), module, CvPad::DETACH_PARAM));
+		// config
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(leftX, padY + padYd * 3), module, CvPad::CONFIG_PARAM));
 		
 		
 		// right side column
 		// ----------------------------
 		
 		static const int rightX = 379;
-		// cv display
-		CvDisplayWidget *displayCv = new CvDisplayWidget();
-		displayCv->box.size = Vec(98, 30);// 6 characters (ex.: "-1,234")
-		displayCv->box.pos = Vec(rightX, topY);
-		displayCv->box.pos = displayCv->box.pos.minus(displayCv->box.size.div(2));// centering
-		displayCv->module = module;
-		addChild(displayCv);
-		// cv knob
-		addParam(createDynamicParamCentered<IMBigKnobInf>(Vec(rightX, padY), module, CvPad::CV_PARAM, module ? &module->panelTheme : NULL));
+		static const int rightO = 21;
+		
+		// bank knob
+		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(rightX - rightO, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
+		// write button
+		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(rightX + rightO, topY), module, CvPad::WRITE_PARAM, module ? &module->panelTheme : NULL));	
+		// bank input
+		addInput(createDynamicPortCentered<IMPort>(Vec(rightX - rightO, padY), true, module, CvPad::BANK_INPUT, module ? &module->panelTheme : NULL));
+		// cv input
+		addInput(createDynamicPortCentered<IMPort>(Vec(rightX + rightO, padY), true, module, CvPad::CV_INPUT, module ? &module->panelTheme : NULL));
 		// outputs
 		static const int outY = padY + padYd * 3;
 		static const int outYd = 45;
 		for (int y = 0; y < 4; y++) {
-			addOutput(createDynamicPortCentered<IMPort>(Vec(rightX - 19, outY - outYd * (3 - y)), false, module, CvPad::CV_OUTPUTS + y, module ? &module->panelTheme : NULL));
-			addOutput(createDynamicPortCentered<IMPort>(Vec(rightX + 19, outY - outYd * (3 - y)), false, module, CvPad::GATE_OUTPUTS + y, module ? &module->panelTheme : NULL));
+			addOutput(createDynamicPortCentered<IMPort>(Vec(rightX - rightO, outY - outYd * (3 - y)), false, module, CvPad::CV_OUTPUTS + y, module ? &module->panelTheme : NULL));
+			addOutput(createDynamicPortCentered<IMPort>(Vec(rightX + rightO, outY - outYd * (3 - y)), false, module, CvPad::GATE_OUTPUTS + y, module ? &module->panelTheme : NULL));
 		}
 		
 		
 		// top of pad, first row
 		// ----------------------------
 
-		// Volt/sharp/flat switch
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(padX + padXd * 1, topY), module, CvPad::SHARP_PARAM));
+		// cv display
+		CvDisplayWidget *displayCv = new CvDisplayWidget();
+		displayCv->box.size = Vec(98, 30);// 6 characters (ex.: "-1,234")
+		displayCv->box.pos = Vec(padX + padXd / 2, topY);
+		displayCv->box.pos = displayCv->box.pos.minus(displayCv->box.size.div(2));// centering
+		displayCv->module = module;
+		addChild(displayCv);
+		// cv knob
+		addParam(createDynamicParamCentered<IMBigKnobInf>(Vec(padX + padXd * 2, topY), module, CvPad::CV_PARAM, module ? &module->panelTheme : NULL));
+		// bank display
+		BankDisplayWidget *displayBank = new BankDisplayWidget();
+		displayBank->box.size = Vec(24, 30);// 1 character
+		displayBank->box.pos = Vec(padX + padXd * 3, topY);
+		displayBank->box.pos = displayBank->box.pos.minus(displayBank->box.size.div(2));// centering
+		displayBank->module = module;
+		addChild(displayBank);	
+
 		
 	}
 	
