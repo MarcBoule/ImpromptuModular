@@ -24,6 +24,7 @@ extern Plugin *pluginInstance;
 // All modules that are part of pluginInstance go here
 extern Model *modelTact;
 extern Model *modelTact1;
+extern Model *modelCvPad;
 extern Model *modelTwelveKey;
 extern Model *modelClocked;
 extern Model *modelClockedExpander;

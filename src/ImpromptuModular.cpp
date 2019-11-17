@@ -19,6 +19,7 @@ void init(rack::Plugin *p) {
 
 	p->addModel(modelTact);
 	p->addModel(modelTact1);
+	p->addModel(modelCvPad);
 	p->addModel(modelTwelveKey);
 	p->addModel(modelClocked);
 	p->addModel(modelClockedExpander);

@@ -28,6 +28,13 @@
 			"tags": ["Controller"]
 		},
 		{
+			"slug": "Cv-Pad",
+			"name": "Cv-Pad",
+			"description": "16-pad CV controller",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#cv-pad",
+			"tags": ["Controller"]
+		},
+		{
 			"slug": "Twelve-Key",
 			"name": "TwelveKey",
 			"description": "Chainable one octave keyboard controller",
