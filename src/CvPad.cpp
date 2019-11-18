@@ -42,6 +42,7 @@ struct CvPad : Module {
 	// constants
 	static const int N_BANKS = 8;
 	static const int N_PADS = 16;
+	static constexpr float cvKnobSensitivity = 4.0f;
 		
 	// Need to save, no reset
 	int panelTheme;
@@ -50,6 +51,7 @@ struct CvPad : Module {
 	float cvs[N_BANKS][N_PADS];
 	int readHeads[4];
 	int writeHead;
+	bool highSensitivityCvKnob;
 
 	// No need to save, with reset
 	// none
@@ -66,6 +68,15 @@ struct CvPad : Module {
 	inline int calcBank() {
 		float bankInputValue = inputs[BANK_INPUT].getVoltage() / 10.0f * (8.0f - 1.0f);
 		return (int) clamp(std::round(params[BANK_PARAM].getValue() + bankInputValue), 0.0f, (8.0f - 1.0f));		
+	}
+	
+	inline int calcConfig() {
+		if (params[CONFIG_PARAM].getValue() > 1.5f)// 2 is 1x16
+			return 4;
+		if (params[CONFIG_PARAM].getValue() > 0.5f)// 1 is 2x8
+			return 2;
+		// here it is 0, and 0 is 4x4;
+		return 1;
 	}
 	
 	inline bool isAttached() {
@@ -91,7 +102,7 @@ struct CvPad : Module {
 		configParam(QUANTIZE_PARAM, 0.0f, 1.0f, 0.0f, "Quantize");
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 0.0f, "Autostep when write");
 		configParam(ATTACH_PARAM, 0.0f, 1.0f, 1.0f, "Attach");
-		configParam(CONFIG_PARAM, 0.0f, 2.0f, 2.0f, "Configuration");// 0 is top position
+		configParam(CONFIG_PARAM, 0.0f, 2.0f, 2.0f, "Configuration");// 0 is top position (4x4), 1 is middle (2x8), 2 is bot (1x16)
 		
 		onReset();
 		
@@ -106,9 +117,10 @@ struct CvPad : Module {
 			}
 		}
 		for (int i = 0; i < 4; i++) {
-			readHeads[i] = 0;
+			readHeads[i] = i * 4;
 		}
 		writeHead = 0;
+		highSensitivityCvKnob = true;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -143,6 +155,9 @@ struct CvPad : Module {
 
 		// writeHead
 		json_object_set_new(rootJ, "writeHead", json_integer(writeHead));
+
+		// highSensitivityCvKnob
+		json_object_set_new(rootJ, "highSensitivityCvKnob", json_boolean(highSensitivityCvKnob));
 
 		return rootJ;
 	}
@@ -180,6 +195,11 @@ struct CvPad : Module {
 		if (writeHeadJ)
 			writeHead = json_integer_value(writeHeadJ);
 		
+		// highSensitivityCvKnob
+		json_t *highSensitivityCvKnobJ = json_object_get(rootJ, "highSensitivityCvKnob");
+		if (highSensitivityCvKnobJ)
+			highSensitivityCvKnob = json_is_true(highSensitivityCvKnobJ);
+		
 		resetNonJson();
 	}
 
@@ -187,6 +207,7 @@ struct CvPad : Module {
 	void process(const ProcessArgs &args) override {		
 		
 		bank = calcBank();
+		int config = calcConfig();
 		
 		if (refresh.processInputs()) {
 			// pads
@@ -194,25 +215,27 @@ struct CvPad : Module {
 				if (padTriggers[p].process(params[PAD_PARAMS + p].getValue())) {
 					writeHead = p;
 					if (isAttached()) {
-						readHeads[0] = p;
+						setReadHeadToWrite(config);
 					}
 				}
 			}
 			
 			// write
 			if (writeTrigger.process(params[WRITE_PARAM].getValue())) {
-				cvs[bank][writeHead] = quantize(inputs[CV_INPUT].getVoltage());
-				if (params[AUTOSTEP_PARAM].getValue() > 0.5f) {// autostep
+				cvs[bank][writeHead] = clamp(inputs[CV_INPUT].getVoltage(), -10.0f, 10.0f);
+				// autostep
+				if (params[AUTOSTEP_PARAM].getValue() > 0.5f) {
 					writeHead = (writeHead + 1) % N_PADS;
+					// attached
 					if (isAttached()) {
-						readHeads[0] = writeHead;
+						setReadHeadToWrite(config);
 					}
 				}
 			}
 			
 			// attach 
 			if (attachTrigger.process(params[ATTACH_PARAM].getValue())) {
-				readHeads[0] = writeHead;
+				setReadHeadToWrite(config);
 			}
 			
 			// cv knob 
@@ -223,7 +246,8 @@ struct CvPad : Module {
 			if (deltaCvKnobValue != 0.0f) {
 				if (abs(deltaCvKnobValue) <= 0.1f) {// avoid discontinuous step (initialize for example)
 					// any changes in here should may also require right click behavior to be updated in the knob's onMouseDown()
-					cvs[bank][writeHead] = quantize(cvs[bank][writeHead] + deltaCvKnobValue);
+					float cvDelta = highSensitivityCvKnob ? deltaCvKnobValue * 4.0f : deltaCvKnobValue;
+					cvs[bank][writeHead] = clamp(cvs[bank][writeHead] + cvDelta, -10.0f, 10.0f);
 				}
 				cvKnobValue = newCvKnobValue;
 			}	
@@ -234,18 +258,73 @@ struct CvPad : Module {
 		
 		// gate output
 		outputs[GATE_OUTPUTS + 3].setVoltage(padTriggers[readHeads[0]].isHigh() && isAttached() ? 10.0f : 0.0f);
-		outputs[CV_OUTPUTS + 3].setVoltage(cvs[bank][readHeads[0]]);
+		outputs[CV_OUTPUTS + 3].setVoltage(quantize(cvs[bank][readHeads[0]]));
 		
 		// lights
 		if (refresh.processLights()) {
 			for (int l = 0; l < 16; l++) {
-				lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[0] == l ? 1.0f : 0.0f);// green
 				lights[PAD_LIGHTS + l * 2 + 1].setBrightness(writeHead == l ? 1.0f : 0.0f);// red
+			}
+			if (config == 4) {// 1x16
+				for (int l = 0; l < 16; l++) {
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[0] == l ? 1.0f : 0.0f);// green
+				}
+			}
+			else if (config == 2) {// 2x8
+				for (int l = 0; l < 8; l++) {
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[0] == l ? 1.0f : 0.0f);// green
+				}
+				for (int l = 8; l < 16; l++) {
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[2] == l ? 1.0f : 0.0f);// green
+				}
+			}
+			else {// config == 1 : 4x4
+				for (int l = 0; l < 4; l++) {
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[0] == l ? 1.0f : 0.0f);// green
+				}
+				for (int l = 4; l < 8; l++) {
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[1] == l ? 1.0f : 0.0f);// green
+				}
+				for (int l = 8; l < 12; l++) {
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[2] == l ? 1.0f : 0.0f);// green
+				}
+				for (int l = 12; l < 16; l++) {
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[3] == l ? 1.0f : 0.0f);// green
+				}
 			}
 		}
 	}
 	
-
+	void setReadHeadToWrite(int config) {
+		// param: 0 is top position (4x4), 1 is middle (2x8), 2 is bot (1x16)
+		if (config == 4) {// 1x16
+			readHeads[0] = writeHead;
+		}
+		else if (config == 2) {// 2x8
+			//readHeads[writeHead >> 3] = writeHead;
+			if (writeHead < 8) {
+				readHeads[0] = writeHead;
+			}
+			else {
+				readHeads[2] = writeHead;
+			}
+		}
+		else {// config == 1 : 4x4
+			//readHeads[writeHead >> 2] = writeHead;
+			if (writeHead < 4) {
+				readHeads[0] = writeHead;
+			}
+			else if (writeHead < 8) {
+				readHeads[1] = writeHead;
+			}
+			else if (writeHead < 12) {
+				readHeads[2] = writeHead;
+			}
+			else {
+				readHeads[3] = writeHead;
+			}
+		}
+	}
 };
 
 
@@ -299,7 +378,7 @@ struct CvPadWidget : ModuleWidget {
 			} 
 			else {
 				int bank = module->calcBank();
-				float cvVal = module->cvs[bank][module->writeHead];
+				float cvVal = module->quantize(module->cvs[bank][module->writeHead]);
 				if (module->params[CvPad::SHARP_PARAM].getValue() > 0.5f) {// show notes
 					text[0] = ' ';
 					printNote(cvVal, &text[1], module->params[CvPad::SHARP_PARAM].getValue() < 1.5f);
@@ -329,6 +408,22 @@ struct CvPadWidget : ModuleWidget {
 	};
 
 
+	struct HighSensitivityCvKnobItem : MenuItem {
+		CvPad *module;
+		void onAction(const event::Action &e) override {
+			module->highSensitivityCvKnob = !module->highSensitivityCvKnob;
+		}
+	};
+	void appendContextMenu(Menu *menu) override {
+		MenuLabel *spacerLabel = new MenuLabel();
+		menu->addChild(spacerLabel);
+
+		CvPad *module = (CvPad*)(this->module);
+
+		HighSensitivityCvKnobItem *hscItem = createMenuItem<HighSensitivityCvKnobItem>("High sensitivity CV knob", CHECKMARK(module->highSensitivityCvKnob));
+		hscItem->module = module;
+		menu->addChild(hscItem);
+	}
 	
 	CvPadWidget(CvPad *module) {
 		setModule(module);
