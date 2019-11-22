@@ -160,7 +160,7 @@ struct WriteSeq32 : Module {
 	
 	void onRandomize() override {
 		for (int s = 0; s < 32; s++) {
-			cv[indexChannel][s] = quantize((random::uniform() *10.0f) - 4.0f, params[QUANTIZE_PARAM].getValue() > 0.5f);
+			cv[indexChannel][s] = quantize((random::uniform() * 5.0f) - 2.0f, params[QUANTIZE_PARAM].getValue() > 0.5f);
 			gates[indexChannel][s] = (random::uniform() > 0.5f) ? 1 : 0;
 		}
 		pendingPaste = 0;

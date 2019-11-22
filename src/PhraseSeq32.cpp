@@ -347,7 +347,7 @@ struct PhraseSeq32 : Module {
 	void onRandomize() override {
 		if (isEditingSequence()) {
 			for (int s = 0; s < 32; s++) {
-				cv[seqIndexEdit][s] = ((float)(random::u32() % 7)) + ((float)(random::u32() % 12)) / 12.0f - 3.0f;
+				cv[seqIndexEdit][s] = ((float)(random::u32() % 5)) + ((float)(random::u32() % 12)) / 12.0f - 2.0f;
 				attributes[seqIndexEdit][s].randomize();
 			}
 			sequences[seqIndexEdit].randomize(16 * stepConfig, NUM_MODES);// ok to use stepConfig since CONFIG_PARAM is not randomizable		

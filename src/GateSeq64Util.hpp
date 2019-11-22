@@ -23,7 +23,7 @@ class StepAttributesGS {
 	static const unsigned short ATT_MSK_INITSTATE =  50;
 	
 	inline void init() {attributes = ATT_MSK_INITSTATE;}
-	inline void randomize() {attributes = ( (random::u32() % 101) | (random::u32() & (ATT_MSK_GATEP | ATT_MSK_GATE | ATT_MSK_GATEMODE)) );}
+	inline void randomize() {attributes = ( (random::u32() % 101) | (random::u32() & (ATT_MSK_GATEP | ATT_MSK_GATE/* | ATT_MSK_GATEMODE*/)) );}
 		
 	inline bool getGate() {return (attributes & ATT_MSK_GATE) != 0;}
 	inline bool getGateP() {return (attributes & ATT_MSK_GATEP) != 0;}

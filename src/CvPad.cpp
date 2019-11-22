@@ -488,8 +488,13 @@ struct CvPadWidget : ModuleWidget {
 		static const int rightX = 379;
 		static const int rightO = 21;
 		
-		// bank knob
-		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(rightX - rightO - 6, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
+		// bank display
+		BankDisplayWidget *displayBank = new BankDisplayWidget();
+		displayBank->box.size = Vec(24, 30);// 1 character
+		displayBank->box.pos = Vec(rightX - rightO - 8, topY);
+		displayBank->box.pos = displayBank->box.pos.minus(displayBank->box.size.div(2));// centering
+		displayBank->module = module;
+		addChild(displayBank);	
 		// bank input
 		addInput(createDynamicPortCentered<IMPort>(Vec(rightX + rightO, topY), true, module, CvPad::BANK_INPUT, module ? &module->panelTheme : NULL));
 		// config
@@ -515,13 +520,8 @@ struct CvPadWidget : ModuleWidget {
 		addChild(displayCv);
 		// cv knob
 		addParam(createDynamicParamCentered<IMBigKnobInf>(Vec(padX + padXd * 2, topY), module, CvPad::CV_PARAM, module ? &module->panelTheme : NULL));
-		// bank display
-		BankDisplayWidget *displayBank = new BankDisplayWidget();
-		displayBank->box.size = Vec(24, 30);// 1 character
-		displayBank->box.pos = Vec(padX + padXd * 3, topY);
-		displayBank->box.pos = displayBank->box.pos.minus(displayBank->box.size.div(2));// centering
-		displayBank->module = module;
-		addChild(displayBank);	
+		// bank knob
+		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
 
 		
 	}

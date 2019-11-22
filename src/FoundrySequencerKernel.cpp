@@ -72,7 +72,7 @@ void SequencerKernel::onRandomize(bool editingSequence) {
 	// randomize sequence only
 	sequences[seqIndexEdit].randomize(MAX_STEPS, NUM_MODES);// code below uses lengths so this must be randomized first
 	for (int stepn = 0; stepn < MAX_STEPS; stepn++) {
-		cv[seqIndexEdit][stepn] = ((float)(random::u32() % 7)) + ((float)(random::u32() % 12)) / 12.0f - 3.0f;
+		cv[seqIndexEdit][stepn] = ((float)(random::u32() % 5)) + ((float)(random::u32() % 12)) / 12.0f - 2.0f;
 		attributes[seqIndexEdit][stepn].randomize();
 	}
 	dirty[seqIndexEdit] = 1;
