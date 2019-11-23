@@ -495,6 +495,13 @@ struct CvPadWidget : ModuleWidget {
 	// Menu
 	// --------------------------------
 	
+	struct PanelThemeItem : MenuItem {
+		CvPad *module;
+		void onAction(const event::Action &e) override {
+			module->panelTheme ^= 0x1;
+		}
+	};
+
 	struct HighSensitivityCvKnobItem : MenuItem {
 		CvPad *module;
 		void onAction(const event::Action &e) override {
@@ -712,6 +719,18 @@ struct CvPadWidget : ModuleWidget {
 
 		CvPad *module = (CvPad*)(this->module);
 
+		MenuLabel *themeLabel = new MenuLabel();
+		themeLabel->text = "Panel Theme";
+		menu->addChild(themeLabel);
+
+		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
+		darkItem->module = module;
+		menu->addChild(darkItem);
+		
+		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+
+		menu->addChild(new MenuLabel());// empty line
+		
 		HighSensitivityCvKnobItem *hscItem = createMenuItem<HighSensitivityCvKnobItem>("High sensitivity CV knob", CHECKMARK(module->highSensitivityCvKnob));
 		hscItem->module = module;
 		menu->addChild(hscItem);
@@ -749,7 +768,7 @@ struct CvPadWidget : ModuleWidget {
 		static const int padXd = 68;
 		static const int padY = 98 + 21;
 		static const int padYd = padXd;
-		static const int ledOffsetY = 30;
+		static const int ledOffsetY = 31;
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
 				// pad
