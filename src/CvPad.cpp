@@ -27,6 +27,7 @@ struct CvPad : Module {
 	enum InputIds {
 		BANK_INPUT,
 		CV_INPUT,
+		WRITE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -43,13 +44,16 @@ struct CvPad : Module {
 	static const int N_BANKS = 8;
 	static const int N_PADS = 16;
 	static constexpr float cvKnobSensitivity = 4.0f;
+	static const int read1_16 = 0;// index into readHeads[7]
+	static const int read2_8 = 1;// index into readHeads[7]
+	static const int read4_4 = 3;// index into readHeads[7]
 		
 	// Need to save, no reset
 	int panelTheme;
 	
 	// Need to save, with reset
 	float cvs[N_BANKS][N_PADS];
-	int readHeads[4];
+	int readHeads[7];// values are 0-15 for all heads, for example, in 4x4 mode, last readHead (read4_4 + 3) is 12-15
 	int writeHead;
 	bool highSensitivityCvKnob;
 
@@ -62,7 +66,6 @@ struct CvPad : Module {
 	float cvKnobValue = 0.0f;
 	Trigger padTriggers[N_PADS];
 	Trigger writeTrigger;
-	Trigger attachTrigger;
 	
 	
 	inline int calcBank() {
@@ -116,8 +119,11 @@ struct CvPad : Module {
 				cvs[b][p] = 0.0f;
 			}
 		}
+		readHeads[read1_16] = 0;
+		readHeads[read2_8 + 0] = 0;
+		readHeads[read2_8 + 1] = 8;
 		for (int i = 0; i < 4; i++) {
-			readHeads[i] = i * 4;
+			readHeads[read4_4 + i] = i * 4;
 		}
 		writeHead = 0;
 		highSensitivityCvKnob = true;
@@ -148,7 +154,7 @@ struct CvPad : Module {
 		
 		// readHeads
 		json_t *readHeadsJ = json_array();
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 7; i++) {
 			json_array_insert_new(readHeadsJ, i, json_integer(readHeads[i]));
 		}
 		json_object_set_new(rootJ, "readHeads", readHeadsJ);
@@ -183,7 +189,7 @@ struct CvPad : Module {
 		// readHeads
 		json_t *readHeadsJ = json_object_get(rootJ, "readHeads");
 		if (readHeadsJ) {
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 7; i++) {
 				json_t *readHeadsArrayJ = json_array_get(readHeadsJ, i);
 				if (readHeadsArrayJ)
 					readHeads[i] = json_number_value(readHeadsArrayJ);
@@ -210,6 +216,11 @@ struct CvPad : Module {
 		int config = calcConfig();
 		
 		if (refresh.processInputs()) {
+			// attach 
+			if (isAttached()) {
+				setWriteHeadToRead(config);
+			}
+			
 			// pads
 			for (int p = 0; p < N_PADS; p++) {
 				if (padTriggers[p].process(params[PAD_PARAMS + p].getValue())) {
@@ -221,7 +232,7 @@ struct CvPad : Module {
 			}
 			
 			// write
-			if (writeTrigger.process(params[WRITE_PARAM].getValue())) {
+			if (writeTrigger.process(params[WRITE_PARAM].getValue() + inputs[WRITE_INPUT].getVoltage())) {
 				cvs[bank][writeHead] = clamp(inputs[CV_INPUT].getVoltage(), -10.0f, 10.0f);
 				// autostep
 				if (params[AUTOSTEP_PARAM].getValue() > 0.5f) {
@@ -231,11 +242,6 @@ struct CvPad : Module {
 						setReadHeadToWrite(config);
 					}
 				}
-			}
-			
-			// attach 
-			if (attachTrigger.process(params[ATTACH_PARAM].getValue())) {
-				setReadHeadToWrite(config);
 			}
 			
 			// cv knob 
@@ -257,71 +263,120 @@ struct CvPad : Module {
 		
 		
 		// gate output
-		outputs[GATE_OUTPUTS + 3].setVoltage(padTriggers[readHeads[0]].isHigh() && isAttached() ? 10.0f : 0.0f);
-		outputs[CV_OUTPUTS + 3].setVoltage(quantize(cvs[bank][readHeads[0]]));
+		if (config == 4) {// 1x16
+			outputs[GATE_OUTPUTS + 0].setVoltage(padTriggers[readHeads[read1_16]].isHigh() && isAttached() ? 10.0f : 0.0f);
+			outputs[CV_OUTPUTS + 0].setVoltage(quantize(cvs[bank][readHeads[read1_16]]));
+			for (int i = 1; i < 4; i++) {
+				outputs[GATE_OUTPUTS + i].setVoltage(0.0f);
+				outputs[CV_OUTPUTS + i].setVoltage(0.0f);
+			}
+		}
+		else if (config == 2) {// 2x8
+			outputs[GATE_OUTPUTS + 0].setVoltage(padTriggers[readHeads[read2_8 + 0]].isHigh() && isAttached() ? 10.0f : 0.0f);
+			outputs[CV_OUTPUTS + 0].setVoltage(quantize(cvs[bank][readHeads[read2_8 + 0]]));
+			outputs[GATE_OUTPUTS + 1].setVoltage(0.0f);
+			outputs[CV_OUTPUTS + 1].setVoltage(0.0f);
+			outputs[GATE_OUTPUTS + 2].setVoltage(padTriggers[readHeads[read2_8 + 1]].isHigh() && isAttached() ? 10.0f : 0.0f);
+			outputs[CV_OUTPUTS + 2].setVoltage(quantize(cvs[bank][readHeads[read2_8 + 1]]));
+			outputs[GATE_OUTPUTS + 3].setVoltage(0.0f);
+			outputs[CV_OUTPUTS + 3].setVoltage(0.0f);
+		}
+		else {// config == 1 : 4x4
+			for (int i = 0; i < 4; i++) {
+				outputs[GATE_OUTPUTS + i].setVoltage(padTriggers[readHeads[read4_4 + i]].isHigh() && isAttached() ? 10.0f : 0.0f);
+				outputs[CV_OUTPUTS + i].setVoltage(quantize(cvs[bank][readHeads[read4_4 + i]]));
+			}
+		}		
 		
 		// lights
 		if (refresh.processLights()) {
+			// red
 			for (int l = 0; l < 16; l++) {
-				lights[PAD_LIGHTS + l * 2 + 1].setBrightness(writeHead == l ? 1.0f : 0.0f);// red
+				lights[PAD_LIGHTS + l * 2 + 1].setBrightness(writeHead == l ? 1.0f : 0.0f);
 			}
+			// green
 			if (config == 4) {// 1x16
 				for (int l = 0; l < 16; l++) {
-					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[0] == l ? 1.0f : 0.0f);// green
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read1_16] == l ? 1.0f : 0.0f);
 				}
 			}
 			else if (config == 2) {// 2x8
 				for (int l = 0; l < 8; l++) {
-					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[0] == l ? 1.0f : 0.0f);// green
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read2_8 + 0] == l ? 1.0f : 0.0f);
 				}
 				for (int l = 8; l < 16; l++) {
-					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[2] == l ? 1.0f : 0.0f);// green
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read2_8 + 1] == l ? 1.0f : 0.0f);
 				}
 			}
 			else {// config == 1 : 4x4
 				for (int l = 0; l < 4; l++) {
-					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[0] == l ? 1.0f : 0.0f);// green
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read4_4 + 0] == l ? 1.0f : 0.0f);
 				}
 				for (int l = 4; l < 8; l++) {
-					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[1] == l ? 1.0f : 0.0f);// green
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read4_4 + 1] == l ? 1.0f : 0.0f);
 				}
 				for (int l = 8; l < 12; l++) {
-					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[2] == l ? 1.0f : 0.0f);// green
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read4_4 + 2] == l ? 1.0f : 0.0f);
 				}
 				for (int l = 12; l < 16; l++) {
-					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[3] == l ? 1.0f : 0.0f);// green
+					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read4_4 + 3] == l ? 1.0f : 0.0f);
 				}
 			}
 		}
 	}
 	
 	void setReadHeadToWrite(int config) {
-		// param: 0 is top position (4x4), 1 is middle (2x8), 2 is bot (1x16)
 		if (config == 4) {// 1x16
-			readHeads[0] = writeHead;
+			readHeads[read1_16] = writeHead;
 		}
 		else if (config == 2) {// 2x8
-			//readHeads[writeHead >> 3] = writeHead;
 			if (writeHead < 8) {
-				readHeads[0] = writeHead;
+				readHeads[read2_8 + 0] = writeHead;
 			}
 			else {
-				readHeads[2] = writeHead;
+				readHeads[read2_8 + 1] = writeHead;
 			}
 		}
 		else {// config == 1 : 4x4
-			//readHeads[writeHead >> 2] = writeHead;
 			if (writeHead < 4) {
-				readHeads[0] = writeHead;
+				readHeads[read4_4 + 0] = writeHead;
 			}
 			else if (writeHead < 8) {
-				readHeads[1] = writeHead;
+				readHeads[read4_4 + 1] = writeHead;
 			}
 			else if (writeHead < 12) {
-				readHeads[2] = writeHead;
+				readHeads[read4_4 + 2] = writeHead;
 			}
 			else {
-				readHeads[3] = writeHead;
+				readHeads[read4_4 + 3] = writeHead;
+			}
+		}
+	}
+	
+	void setWriteHeadToRead(int config) {
+		if (config == 4) {// 1x16
+			writeHead = readHeads[read1_16];
+		}
+		else if (config == 2) {// 2x8
+			if (writeHead < 8) {
+				writeHead = readHeads[read2_8 + 0];
+			}
+			else {
+				writeHead = readHeads[read2_8 + 1];
+			}
+		}
+		else {// config == 1 : 4x4
+			if (writeHead < 4) {
+				writeHead = readHeads[read4_4 + 0] ;
+			}
+			else if (writeHead < 8) {
+				writeHead = readHeads[read4_4 + 1];
+			}
+			else if (writeHead < 12) {
+				writeHead = readHeads[read4_4 + 2] ;
+			}
+			else {
+				writeHead = readHeads[read4_4 + 3];
 			}
 		}
 	}
@@ -467,19 +522,19 @@ struct CvPadWidget : ModuleWidget {
 		
 		static const int leftX = 35;
 		static const int topY = padY - 64;
-		static const int leftYd = 51;
-		// Volt/sharp/flat switch
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(leftX, topY), module, CvPad::SHARP_PARAM));
+		static constexpr float leftYd = 53.6f;
 		// quantize
-		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, padY), module, CvPad::QUANTIZE_PARAM));
+		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, topY), module, CvPad::QUANTIZE_PARAM));
 		// attach
-		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, padY + leftYd), module, CvPad::ATTACH_PARAM));
+		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, topY + leftYd), module, CvPad::ATTACH_PARAM));
 		// autostep
-		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, padY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM));
+		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, topY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM));
 		// write button
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(leftX, padY + leftYd * 3), module, CvPad::WRITE_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(leftX, topY + leftYd * 3), module, CvPad::WRITE_PARAM, module ? &module->panelTheme : NULL));	
+		// write input
+		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, topY + leftYd * 4), true, module, CvPad::WRITE_INPUT, module ? &module->panelTheme : NULL));
 		// cv input
-		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, padY + leftYd * 4), true, module, CvPad::CV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, topY + leftYd * 5), true, module, CvPad::CV_INPUT, module ? &module->panelTheme : NULL));
 		
 		
 		// right side column
@@ -491,14 +546,16 @@ struct CvPadWidget : ModuleWidget {
 		// bank display
 		BankDisplayWidget *displayBank = new BankDisplayWidget();
 		displayBank->box.size = Vec(24, 30);// 1 character
-		displayBank->box.pos = Vec(rightX - rightO - 8, topY);
+		displayBank->box.pos = Vec(rightX - rightO - 6, topY);
 		displayBank->box.pos = displayBank->box.pos.minus(displayBank->box.size.div(2));// centering
 		displayBank->module = module;
 		addChild(displayBank);	
 		// bank input
 		addInput(createDynamicPortCentered<IMPort>(Vec(rightX + rightO, topY), true, module, CvPad::BANK_INPUT, module ? &module->panelTheme : NULL));
+		// Volt/sharp/flat switch
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(rightX - 32, padY - 6), module, CvPad::SHARP_PARAM));
 		// config
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(rightX - 10, padY), module, CvPad::CONFIG_PARAM));
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(rightX + 8, padY - 6), module, CvPad::CONFIG_PARAM));
 		// outputs
 		static const int outY = padY + padYd * 3;
 		static const int outYd = 45;
@@ -521,7 +578,7 @@ struct CvPadWidget : ModuleWidget {
 		// cv knob
 		addParam(createDynamicParamCentered<IMBigKnobInf>(Vec(padX + padXd * 2, topY), module, CvPad::CV_PARAM, module ? &module->panelTheme : NULL));
 		// bank knob
-		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigSnapKnob>(Vec(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
 
 		
 	}
