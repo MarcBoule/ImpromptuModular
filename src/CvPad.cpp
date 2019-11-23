@@ -11,6 +11,7 @@
 
 #include "ImpromptuModular.hpp"
 
+
 struct CvPad : Module {
 	enum ParamIds {
 		ENUMS(PAD_PARAMS, 16),// touch pads
@@ -47,18 +48,19 @@ struct CvPad : Module {
 	static const int read1_16 = 0;// index into readHeads[7]
 	static const int read2_8 = 1;// index into readHeads[7]
 	static const int read4_4 = 3;// index into readHeads[7]
+	typedef float cvsArray[N_BANKS][N_PADS];
 		
 	// Need to save, no reset
 	int panelTheme;
 	
 	// Need to save, with reset
-	float cvs[N_BANKS][N_PADS];
+	cvsArray cvs;
 	int readHeads[7];// values are 0-15 for all heads, for example, in 4x4 mode, last readHead (read4_4 + 3) is 12-15
 	int writeHead;
 	bool highSensitivityCvKnob;
 
 	// No need to save, with reset
-	// none
+	float cvsCpBuf[N_PADS];
 	
 	// No need to save, no reset
 	RefreshCounter refresh;
@@ -130,10 +132,16 @@ struct CvPad : Module {
 		resetNonJson();
 	}
 	void resetNonJson() {
+		for (int p = 0; p < N_PADS; p++) {
+			cvsCpBuf[p] = 0.0f;
+		}
 	}
 	
 	
 	void onRandomize() override {
+		for (int p = 0; p < N_PADS; p++) {
+			cvs[bank][p] = random::uniform() * 20.0f - 10.0f;
+		}
 	}
 
 	
@@ -291,12 +299,12 @@ struct CvPad : Module {
 		// lights
 		if (refresh.processLights()) {
 			// red
-			for (int l = 0; l < 16; l++) {
+			for (int l = 0; l < N_PADS; l++) {
 				lights[PAD_LIGHTS + l * 2 + 1].setBrightness(writeHead == l ? 1.0f : 0.0f);
 			}
 			// green
 			if (config == 4) {// 1x16
-				for (int l = 0; l < 16; l++) {
+				for (int l = 0; l < N_PADS; l++) {
 					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read1_16] == l ? 1.0f : 0.0f);
 				}
 			}
@@ -304,7 +312,7 @@ struct CvPad : Module {
 				for (int l = 0; l < 8; l++) {
 					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read2_8 + 0] == l ? 1.0f : 0.0f);
 				}
-				for (int l = 8; l < 16; l++) {
+				for (int l = 8; l < N_PADS; l++) {
 					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read2_8 + 1] == l ? 1.0f : 0.0f);
 				}
 			}
@@ -318,7 +326,7 @@ struct CvPad : Module {
 				for (int l = 8; l < 12; l++) {
 					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read4_4 + 2] == l ? 1.0f : 0.0f);
 				}
-				for (int l = 12; l < 16; l++) {
+				for (int l = 12; l < N_PADS; l++) {
 					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read4_4 + 3] == l ? 1.0f : 0.0f);
 				}
 			}
@@ -386,12 +394,26 @@ struct CvPad : Module {
 struct CvPadWidget : ModuleWidget {
 	SvgPanel* darkPanel;
 	
+	// Widgets
+	// --------------------------------
+	
 	struct Pad : Switch {
 		Pad() {
 			momentary = true;
 			box.size = Vec(42.0f, 42.0f);
 		}
 	};
+
+	struct CvKnob : IMBigKnobInf {
+		CvKnob() {};		
+		void onDoubleClick(const event::DoubleClick &e) override {
+			if (paramQuantity) {
+				CvPad* module = dynamic_cast<CvPad*>(paramQuantity->module);
+				module->cvs[module->bank][module->writeHead] = 0.0f;
+			}
+			ParamWidget::onDoubleClick(e);
+		}
+	};	
 
 	struct BankDisplayWidget : TransparentWidget {
 		CvPad *module;
@@ -440,10 +462,15 @@ struct CvPadWidget : ModuleWidget {
 				}
 				else  {// show volts
 					float cvValPrint = std::fabs(cvVal);
-					cvValPrint = (cvValPrint > 9.999f) ? 9.999f : cvValPrint;
-					snprintf(text, 7, " %4.3f", cvValPrint);// Four-wide, three positions after the decimal, left-justified
+					if (cvValPrint > 9.9995f) {
+						snprintf(text, 7, " %4.2f", 10.0f);
+						text[3] = ',';
+					}
+					else {
+						snprintf(text, 7, " %4.3f", cvValPrint);// Four-wide, three positions after the decimal, left-justified
+						text[2] = ',';
+					}
 					text[0] = (cvVal<0.0f) ? '-' : ' ';
-					text[2] = ',';
 				}
 			}
 		}
@@ -463,12 +490,163 @@ struct CvPadWidget : ModuleWidget {
 	};
 
 
+	// Menu
+	// --------------------------------
+	
 	struct HighSensitivityCvKnobItem : MenuItem {
 		CvPad *module;
 		void onAction(const event::Action &e) override {
 			module->highSensitivityCvKnob = !module->highSensitivityCvKnob;
 		}
 	};
+	
+	struct OffsetDeciQuantity : Quantity {
+		CvPad::cvsArray* cvSrc;
+		int* bankSrc;
+		float valueLocal;// must be reset to 0 when enter menu (i.e. constructor)
+		float valueLocalLast;// must be reset to 0 when enter menu (i.e. constructor)
+		int valueIntLocal;
+		int valueIntLocalLast;
+		float increment;
+		  
+		OffsetDeciQuantity() {
+			valueLocal = 0.0f;
+			valueIntLocal = 0;
+			valueIntLocalLast = 0;
+			increment = 0.1f;
+		}
+		virtual float quantize(float cv) {
+			return std::round(cv * 100.f) / 100.0f;
+		}
+		void setValue(float value) override {
+			valueLocal = math::clamp(value, getMinValue(), getMaxValue());; 
+			valueIntLocal = (int)(std::round(valueLocal));
+			int delta = valueIntLocal - valueIntLocalLast;// delta is number of deci-volts
+			if (delta != 0) {
+				float deltaIncrement = ((float)delta) * increment;
+				for (int i = 0; i < CvPad::N_PADS; i++) {
+					(*cvSrc)[*bankSrc][i] = quantize((*cvSrc)[*bankSrc][i] + deltaIncrement);
+				}
+				valueIntLocalLast = valueIntLocal;
+			}
+		}
+		float getValue() override {
+			return valueLocal;
+		}
+		float getMinValue() override {return -100.0f;}
+		float getMaxValue() override {return 100.0f;}
+		float getDefaultValue() override {return 0.0f;}
+		float getDisplayValue() override {return getValue();}
+		std::string getDisplayValueString() override {
+			return string::f("%.1f", math::normalizeZero(getDisplayValue() * increment));
+		}
+		void setDisplayValue(float displayValue) override {setValue(displayValue);}
+		std::string getLabel() override {return "Offset deci";}
+		std::string getUnit() override {return " V";}
+	};
+
+	struct OffsetCentiQuantity : OffsetDeciQuantity {
+		OffsetCentiQuantity() {
+			increment = 0.01f;
+		}
+		std::string getDisplayValueString() override {
+			return string::f("%.2f", math::normalizeZero(getDisplayValue() * increment));
+		}
+		std::string getLabel() override {return "Offset centi";}
+	};
+	
+	struct OffsetSemitoneQuantity : OffsetDeciQuantity {
+		OffsetSemitoneQuantity() {
+			increment = 1.0f / 12.0f;
+		}
+		float quantize(float cv) override {
+			return std::round(cv * 12.0f) / 12.0f;
+		}
+		std::string getDisplayValueString() override {
+			return string::f("%i", (int)std::round(getDisplayValue()));
+		}
+		std::string getLabel() override {return "Offset note";}
+		std::string getUnit() override {return " semitone(s)";}
+	};
+	
+	template <typename T>
+	struct OffsetSlider : ui::Slider {
+		OffsetSlider(CvPad::cvsArray* cvSrc, int* bankSrc) {
+			quantity = new T();
+			((T*)quantity)->cvSrc = cvSrc;
+			((T*)quantity)->bankSrc = bankSrc;
+		}
+		~OffsetSlider() {
+			delete quantity;
+		}
+	};
+	
+	
+	struct OperationsItem : MenuItem {
+		CvPad::cvsArray* cvSrc;
+		int* bankSrc;
+		float* cvsCpBufSrc;
+
+		struct CopySubItem : MenuItem {
+			CvPad::cvsArray* cvSrc;
+			int* bankSrc;
+			float* cvsCpBufSrc;
+			void onAction(const event::Action &e) override {
+				for (int i = 0; i < CvPad::N_PADS; i++) {
+					cvsCpBufSrc[i] = (*cvSrc)[*bankSrc][i];
+				}
+			}
+		};
+
+		struct PasteSubItem : MenuItem {
+			CvPad::cvsArray* cvSrc;
+			int* bankSrc;
+			float* cvsCpBufSrc;
+			void onAction(const event::Action &e) override {
+				for (int i = 0; i < CvPad::N_PADS; i++) {
+					(*cvSrc)[*bankSrc][i] = cvsCpBufSrc[i];
+				}
+			}
+		};
+
+
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
+			
+			// Copy
+			CopySubItem *copyItem = createMenuItem<CopySubItem>("Copy");
+			copyItem->cvSrc = cvSrc;
+			copyItem->bankSrc = bankSrc;
+			copyItem->cvsCpBufSrc = cvsCpBufSrc;
+			menu->addChild(copyItem);
+		
+			// Paste
+			PasteSubItem *pasteItem = createMenuItem<PasteSubItem>("Paste");
+			pasteItem->cvSrc = cvSrc;
+			pasteItem->bankSrc = bankSrc;
+			pasteItem->cvsCpBufSrc = cvsCpBufSrc;
+			menu->addChild(pasteItem);
+
+			// Offset deci
+			OffsetSlider<OffsetDeciQuantity> *offsetDeciSlider = new OffsetSlider<OffsetDeciQuantity>(cvSrc, bankSrc);
+			offsetDeciSlider->box.size.x = 200.0f;
+			menu->addChild(offsetDeciSlider);
+			
+			// Offset centi
+			OffsetSlider<OffsetCentiQuantity> *offsetCentiSlider = new OffsetSlider<OffsetCentiQuantity>(cvSrc, bankSrc);
+			offsetCentiSlider->box.size.x = 200.0f;
+			menu->addChild(offsetCentiSlider);
+			
+			// Offset semitone
+			OffsetSlider<OffsetSemitoneQuantity> *offsetSemitoneSlider = new OffsetSlider<OffsetSemitoneQuantity>(cvSrc, bankSrc);
+			offsetSemitoneSlider->box.size.x = 200.0f;
+			menu->addChild(offsetSemitoneSlider);
+			
+			return menu;
+		}
+	};
+	
+	
 	void appendContextMenu(Menu *menu) override {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
@@ -478,6 +656,12 @@ struct CvPadWidget : ModuleWidget {
 		HighSensitivityCvKnobItem *hscItem = createMenuItem<HighSensitivityCvKnobItem>("High sensitivity CV knob", CHECKMARK(module->highSensitivityCvKnob));
 		hscItem->module = module;
 		menu->addChild(hscItem);
+		
+		OperationsItem *opItem = createMenuItem<OperationsItem>("Current bank", RIGHT_ARROW);
+		opItem->cvSrc = &(module->cvs);
+		opItem->bankSrc = &(module->bank);
+		opItem->cvsCpBufSrc = module->cvsCpBuf;
+		menu->addChild(opItem);
 	}
 	
 	CvPadWidget(CvPad *module) {
@@ -576,7 +760,7 @@ struct CvPadWidget : ModuleWidget {
 		displayCv->module = module;
 		addChild(displayCv);
 		// cv knob
-		addParam(createDynamicParamCentered<IMBigKnobInf>(Vec(padX + padXd * 2, topY), module, CvPad::CV_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<CvKnob>(Vec(padX + padXd * 2, topY), module, CvPad::CV_PARAM, module ? &module->panelTheme : NULL));
 		// bank knob
 		addParam(createDynamicParamCentered<IMBigSnapKnob>(Vec(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
 
