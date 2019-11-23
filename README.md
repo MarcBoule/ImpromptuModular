@@ -17,6 +17,8 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [TwelveKey](#twelve-key): Chainable one-octave keyboard controller.
 
+* [CvPad](#cv-pad): CV controller with 16 programmable pads (can be configured as 1x16, 2x8 or 4x4).
+
 * [Clocked](#clocked): Chainable clock module with swing, clock delay and pulse width control.
 
 * [Foundry](#foundry): 4-track phrase sequencer with 32 steps per sequence, 64 sequences per track, 99 phrases per song/track.
@@ -211,6 +213,34 @@ Two options are also available in the right-click menu:
 * **Inverted velocity range**: When this option is active, the maximum velocity will be at the top-most part of the keys, instead of at the default bottom-most part of the keys.
 
 * **Link velocity settings from left**: When linking multiple TwelveKey, this option can be activated to propagate the velocity settings (Max Vel, Bipol and Velocity Inversion) from the first module in the chain down to all the other ones placed to the right; no spaces between modules are allowed in this case.
+
+([Back to module list](#modules))
+
+
+
+## CvPad <a id="cv-pad"></a>
+
+![IM](res/img/CvPad.jpg)
+
+A programmable CV controller with 16 pads, that can be configured into 1x16, 2x8 or 4x4 group(s). **Will be available in the 1.1.3 release of Impromptu Modular**.
+
+* **CV**: The main CV display and its knob can be used to set the CV for the currently selected pad, as indicated by the yellow/red light above a pad when attached/detached respectively. By default this knob is set to high sensitivity such that the range from -10V to 10V can be easier to scan; however, an option is available in the module's right-click menu to lower the sensitivity. 
+
+* **QUANTIZE**: When activated, this option quantizes only the main CV display and the CV outputs, it does not affect the actual CVs stored in the module.
+
+* **ATTACH**: When attached is activated (default), clicking on a pad to edit its CV will also move the read head(s) to that location. If a pad is to be edited without affecting the currently selected pad, turning attach off will move the editing head only.
+
+* **AUTOSTEP**: When activated, a write operation will automatically move to the next pad after writing the CV, such that the entire array can be filled with CVs from an external source ([TwelveKey](#twelve-key) for example).
+
+* **WRITE**: Writes the CV present on the CV IN jack into the currently selected pad. The unlabeled jack below this button can be used to send a trigger to automate the writing. For example, by connecting the CV output of TwelveKey to the CV IN input of CvPad, the GATE output of TwelveKey into the WRITE input in CvPad, and with AUTOSTEP on, a series of notes can be entered directly into the 16 pads. These notes can be used to manually select the sequence to play in Foundry and many of the Phrase Sequencers.
+
+* **V, sharp, flat**: This three-position switch is used to select the display mode of the main CV display.
+
+* **4x4, 2x8, 1x16**: This is the main configuration switch of the module, and allows the grid of pads to be used as one group of 16 pads (top outputs only), or two groups of 8 pads (top and third row outputs only), or four groups of 4 pads (all rows of outputs).
+
+* **BANK**: This is used to select one of 8 sets of pad values stored in memory, and can itseld be CV controlled.
+
+The module also features sliders and menu items to copy paste the CVs in a bank, and also to offset/multiply/divide the stored CVs.
 
 ([Back to module list](#modules))
 

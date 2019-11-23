@@ -1,7 +1,7 @@
 ### 1.1.3 (in development)
 
 - Added a new module called CV-Pad
-- Fixed random in tied steps in PhraseSeq16/32, SemiModularSynth and Foundry, i.e. if head step has a probability, make succesive tied steps follow this probability also such that it is one big tied step with one single probability
+- Fixed random in tied steps in PhraseSeq16/32, SemiModularSynth and Foundry, i.e. if head step has a probability, make successive tied steps follow this probability also such that it is one big tied step with one single probability
 - Reduced range of randomization of notes in all sequencers when module is randomized
 - Added an option in Clocked to make the Run CV input level sensitive, default is trigger sensitive as before
 
