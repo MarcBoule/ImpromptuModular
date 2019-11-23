@@ -404,6 +404,7 @@ struct CvPadWidget : ModuleWidget {
 		}
 	};
 
+
 	struct CvKnob : IMBigKnobInf {
 		CvKnob() {};		
 		void onDoubleClick(const event::DoubleClick &e) override {
@@ -414,6 +415,7 @@ struct CvPadWidget : ModuleWidget {
 			ParamWidget::onDoubleClick(e);
 		}
 	};	
+
 
 	struct BankDisplayWidget : TransparentWidget {
 		CvPad *module;
@@ -500,6 +502,7 @@ struct CvPadWidget : ModuleWidget {
 		}
 	};
 	
+	
 	struct OffsetDeciQuantity : Quantity {
 		CvPad::cvsArray* cvSrc;
 		int* bankSrc;
@@ -545,6 +548,7 @@ struct CvPadWidget : ModuleWidget {
 		std::string getUnit() override {return " V";}
 	};
 
+
 	struct OffsetCentiQuantity : OffsetDeciQuantity {
 		OffsetCentiQuantity() {
 			increment = 0.01f;
@@ -554,6 +558,7 @@ struct CvPadWidget : ModuleWidget {
 		}
 		std::string getLabel() override {return "Offset centi";}
 	};
+	
 	
 	struct OffsetSemitoneQuantity : OffsetDeciQuantity {
 		OffsetSemitoneQuantity() {
@@ -568,6 +573,7 @@ struct CvPadWidget : ModuleWidget {
 		std::string getLabel() override {return "Offset note";}
 		std::string getUnit() override {return " semitone(s)";}
 	};
+
 	
 	template <typename T>
 	struct OffsetSlider : ui::Slider {
@@ -609,6 +615,17 @@ struct CvPadWidget : ModuleWidget {
 			}
 		};
 
+		struct MultiplyItem : MenuItem {
+			CvPad::cvsArray* cvSrc;
+			int* bankSrc;
+			float factor;		
+			void onAction(const event::Action &e) override {
+				for (int i = 0; i < CvPad::N_PADS; i++) {
+					(*cvSrc)[*bankSrc][i] *= factor;
+				}
+			}
+		};
+
 
 		Menu *createChildMenu() override {
 			Menu *menu = new Menu;
@@ -641,7 +658,49 @@ struct CvPadWidget : ModuleWidget {
 			OffsetSlider<OffsetSemitoneQuantity> *offsetSemitoneSlider = new OffsetSlider<OffsetSemitoneQuantity>(cvSrc, bankSrc);
 			offsetSemitoneSlider->box.size.x = 200.0f;
 			menu->addChild(offsetSemitoneSlider);
-			
+	
+			// Divide 5
+			MultiplyItem* dfItem = createMenuItem<MultiplyItem>("Divide by 5");
+			dfItem->cvSrc = cvSrc;
+			dfItem->bankSrc = bankSrc;
+			dfItem->factor = 1.0f / 5.0f;
+			menu->addChild(dfItem);
+	
+			// Divide 2
+			MultiplyItem* dtItem = createMenuItem<MultiplyItem>("Divide by 2");
+			dtItem->cvSrc = cvSrc;
+			dtItem->bankSrc = bankSrc;
+			dtItem->factor = 1.0f / 2.0f;
+			menu->addChild(dtItem);
+	
+			// Divide 1.5
+			MultiplyItem* dofItem = createMenuItem<MultiplyItem>("Divide by 1.5");
+			dofItem->cvSrc = cvSrc;
+			dofItem->bankSrc = bankSrc;
+			dofItem->factor = 1.0f / 1.5f;
+			menu->addChild(dofItem);
+	
+			// Multiply 1.5
+			MultiplyItem* mofItem = createMenuItem<MultiplyItem>("Multiply by 1.5");
+			mofItem->cvSrc = cvSrc;
+			mofItem->bankSrc = bankSrc;
+			mofItem->factor = 1.5f;
+			menu->addChild(mofItem);
+	
+			// Multiply 2
+			MultiplyItem* mtItem = createMenuItem<MultiplyItem>("Multiply by 2");
+			mtItem->cvSrc = cvSrc;
+			mtItem->bankSrc = bankSrc;
+			mtItem->factor = 2.0f;
+			menu->addChild(mtItem);
+
+			// Multiply 5
+			MultiplyItem* mfItem = createMenuItem<MultiplyItem>("Multiply by 5");
+			mfItem->cvSrc = cvSrc;
+			mfItem->bankSrc = bankSrc;
+			mfItem->factor = 5.0f;
+			menu->addChild(mfItem);
+
 			return menu;
 		}
 	};
@@ -657,7 +716,7 @@ struct CvPadWidget : ModuleWidget {
 		hscItem->module = module;
 		menu->addChild(hscItem);
 		
-		OperationsItem *opItem = createMenuItem<OperationsItem>("Current bank", RIGHT_ARROW);
+		OperationsItem *opItem = createMenuItem<OperationsItem>("CVs of selected bank", RIGHT_ARROW);
 		opItem->cvSrc = &(module->cvs);
 		opItem->bankSrc = &(module->bank);
 		opItem->cvsCpBufSrc = module->cvsCpBuf;
