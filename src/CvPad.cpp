@@ -632,6 +632,17 @@ struct CvPadWidget : ModuleWidget {
 				}
 			}
 		};
+		
+		struct FillNotesItem : MenuItem {
+			CvPad::cvsArray* cvSrc;
+			int* bankSrc;
+			float rootVoct;		
+			void onAction(const event::Action &e) override {
+				for (int i = 0; i < CvPad::N_PADS; i++) {
+					(*cvSrc)[*bankSrc][i] = rootVoct + ((float)i) / 12.0f;
+				}
+			}
+		};
 
 
 		Menu *createChildMenu() override {
@@ -707,6 +718,13 @@ struct CvPadWidget : ModuleWidget {
 			mfItem->bankSrc = bankSrc;
 			mfItem->factor = 5.0f;
 			menu->addChild(mfItem);
+
+			// Fill with notes
+			FillNotesItem* notesItem = createMenuItem<FillNotesItem>("Fill with notes C4-D5#");
+			notesItem->cvSrc = cvSrc;
+			notesItem->bankSrc = bankSrc;
+			notesItem->rootVoct = 0.0f;
+			menu->addChild(notesItem);
 
 			return menu;
 		}
