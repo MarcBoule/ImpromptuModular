@@ -107,7 +107,7 @@ struct CvPad : Module {
 		configParam(QUANTIZE_PARAM, 0.0f, 1.0f, 0.0f, "Quantize");
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 0.0f, "Autostep when write");
 		configParam(ATTACH_PARAM, 0.0f, 1.0f, 1.0f, "Attach");
-		configParam(CONFIG_PARAM, 0.0f, 2.0f, 2.0f, "Configuration");// 0 is top position (4x4), 1 is middle (2x8), 2 is bot (1x16)
+		configParam(CONFIG_PARAM, 0.0f, 2.0f, 0.0f, "Configuration");// 0 is top position (4x4), 1 is middle (2x8), 2 is bot (1x16)
 		
 		onReset();
 		
