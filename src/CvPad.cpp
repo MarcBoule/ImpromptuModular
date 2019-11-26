@@ -61,6 +61,7 @@ struct CvPad : Module {
 
 	// No need to save, with reset
 	float cvsCpBuf[N_PADS];
+	float cvCpBuf;
 	
 	// No need to save, no reset
 	RefreshCounter refresh;
@@ -135,6 +136,7 @@ struct CvPad : Module {
 		for (int p = 0; p < N_PADS; p++) {
 			cvsCpBuf[p] = 0.0f;
 		}
+		cvCpBuf = 0.0f;
 	}
 	
 	
@@ -442,6 +444,39 @@ struct CvPadWidget : ModuleWidget {
 	};
 
 
+	struct CvParamField : ui::TextField {
+		float* valueSrc;
+
+		void step() override {
+			// Keep selected
+			APP->event->setSelected(this);
+			TextField::step();
+		}
+
+		void setValueSrc(float* _valueSrc) {
+			valueSrc = _valueSrc;
+			text = string::f("%.*g", 5, math::normalizeZero(*valueSrc));
+			selectAll();
+		}
+
+		void onSelectKey(const event::SelectKey& e) override {
+			if (e.action == GLFW_PRESS && (e.key == GLFW_KEY_ENTER || e.key == GLFW_KEY_KP_ENTER)) {
+				float v = 0.f;
+				if (std::sscanf(text.c_str(), "%f", &v) >= 1) {
+					*valueSrc = v;
+				}
+				
+				ui::MenuOverlay* overlay = getAncestorOfType<ui::MenuOverlay>();
+				overlay->requestDelete();
+				e.consume(this);
+			}
+
+			if (!e.getTarget())
+				TextField::onSelectKey(e);
+		}
+	};
+	
+
 	struct CvDisplayWidget : TransparentWidget {
 		CvPad *module;
 		std::shared_ptr<Font> font;
@@ -488,6 +523,30 @@ struct CvPadWidget : ModuleWidget {
 			nvgFillColor(args.vg, textColor);
 			cvToStr();
 			nvgText(args.vg, textPos.x, textPos.y, text, NULL);
+		}
+		
+		void createContextMenu() {
+			ui::Menu* menu = createMenu();
+
+			MenuLabel *cvLabel = new MenuLabel();
+			cvLabel->text = "Voltage (V)";
+			menu->addChild(cvLabel);
+			
+			CvParamField* paramField = new CvParamField;
+			paramField->box.size.x = 100;
+			int bank = module->calcBank();
+			paramField->setValueSrc(&(module->cvs[bank][module->writeHead]));
+			menu->addChild(paramField);
+		}	
+
+		void onButton(const event::Button& e) override {
+			// Right click to open context menu
+			if (e.action == GLFW_PRESS && e.button == GLFW_MOUSE_BUTTON_RIGHT && (e.mods & RACK_MOD_MASK) == 0) {
+				createContextMenu();
+				e.consume(this);
+				return;
+			}
+			TransparentWidget::onButton(e);
 		}
 	};
 
@@ -731,6 +790,20 @@ struct CvPadWidget : ModuleWidget {
 	};
 	
 	
+	struct CopyPadItem : MenuItem {
+		CvPad *module;
+		void onAction(const event::Action &e) override {
+			module->cvCpBuf = module->cvs[module->calcBank()][module->writeHead];
+		}
+	};
+	struct PastePadItem : MenuItem {
+		CvPad *module;
+		void onAction(const event::Action &e) override {
+			module->cvs[module->calcBank()][module->writeHead] = module->cvCpBuf;
+		}
+	};
+	
+	
 	void appendContextMenu(Menu *menu) override {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
@@ -752,6 +825,14 @@ struct CvPadWidget : ModuleWidget {
 		HighSensitivityCvKnobItem *hscItem = createMenuItem<HighSensitivityCvKnobItem>("High sensitivity CV knob", CHECKMARK(module->highSensitivityCvKnob));
 		hscItem->module = module;
 		menu->addChild(hscItem);
+		
+		CopyPadItem *cvCopyItem = createMenuItem<CopyPadItem>("Copy pad voltage");
+		cvCopyItem->module = module;
+		menu->addChild(cvCopyItem);
+		
+		PastePadItem *cvPasteItem = createMenuItem<PastePadItem>("Paste pad voltage");
+		cvPasteItem->module = module;
+		menu->addChild(cvPasteItem);	
 		
 		OperationsItem *opItem = createMenuItem<OperationsItem>("CVs of selected bank", RIGHT_ARROW);
 		opItem->cvSrc = &(module->cvs);

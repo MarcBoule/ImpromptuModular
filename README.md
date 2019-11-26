@@ -224,7 +224,7 @@ Two options are also available in the right-click menu:
 
 A programmable CV controller with 16 pads, that can be configured into 1x16, 2x8 or 4x4 group(s). **Will be available in the 1.1.3 release of Impromptu Modular**. Many use cases are possible, one of which can be to manually select sequences to play in Foundry and many of the Phrase Sequencers, and more generally to control parameters for a live performance by providing quick access to different CV values.
 
-* **CV**: The main CV display and its knob can be used to set the CV for the currently selected pad, as indicated by the yellow/red light above a pad when attached/detached respectively. By default this knob is set to high sensitivity such that the range from -10V to 10V can be easier to scan; however, an option is available in the module's right-click menu to lower the sensitivity. 
+* **CV**: The main CV display and its knob can be used to set the CV for the currently selected pad, as indicated by the yellow/red light above a pad when attached/detached respectively. By default this knob is set to high sensitivity such that the range from -10V to 10V can be easier to scan; however, an option is available in the module's right-click menu to lower the sensitivity. Values can also be entered directly for the selected pad by **right-clicking the display** and typing in a specific voltage. 
 
 * **QUANTIZE**: When activated, this option quantizes only the main CV display and the CV outputs, it does not affect the actual CVs stored in the module.
 

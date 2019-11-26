@@ -179,7 +179,7 @@ struct BigButtonSeq2 : Module {
 		int chanRnd = calcChan();
 		randomizeGates(chanRnd, bank[chanRnd]);
 		for (int s = 0; s < 128; s++)
-			writeCV(chanRnd, bank[chanRnd], s, ((float)(random::u32() % 7)) + ((float)(random::u32() % 12)) / 12.0f - 3.0f);
+			writeCV(chanRnd, bank[chanRnd], s, ((float)(random::u32() % 5)) + ((float)(random::u32() % 12)) / 12.0f - 2.0f);
 	}
 
 	
