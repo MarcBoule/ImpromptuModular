@@ -1,4 +1,4 @@
-### 1.1.3 (in development)
+### 1.1.3 (2019-11-27)
 
 - Added a new module called CV-Pad
 - Fixed random in tied steps in PhraseSeq16/32, SemiModularSynth and Foundry, i.e. if head step has a probability, make successive tied steps follow this probability also such that it is one big tied step with one single probability

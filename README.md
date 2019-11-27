@@ -4,7 +4,7 @@
 
 Modules for [VCV Rack](https://vcvrack.com), available in the [plugin manager](https://vcvrack.com/plugins.html).
 
-Version 1.1.2
+Version 1.1.3
 
 [//]: # (!!!!!UPDATE VERSION NUMBER IN PLUGIN.JSON ALSO!!!!!   120% Zoom for jpgs)
 
@@ -17,7 +17,7 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [TwelveKey](#twelve-key): Chainable one-octave keyboard controller.
 
-* [CvPad](#cv-pad): CV controller with 16 programmable pads (can be configured as 1x16, 2x8 or 4x4). **Will be available in the 1.1.3 release of Impromptu Modular**
+* [CvPad](#cv-pad): CV controller with 16 programmable pads (can be configured as 1x16, 2x8 or 4x4).
 
 * [Clocked](#clocked): Chainable clock module with swing, clock delay and pulse width control.
 
@@ -222,7 +222,7 @@ Two options are also available in the right-click menu:
 
 ![IM](res/img/CvPad.jpg)
 
-A programmable CV controller with 16 pads, that can be configured into 1x16, 2x8 or 4x4 group(s). **Will be available in the 1.1.3 release of Impromptu Modular**. Many use cases are possible, one of which can be to manually select sequences to play in Foundry and many of the Phrase Sequencers, and more generally to control parameters for a live performance by providing quick access to different CV values.
+A programmable CV controller with 16 pads, that can be configured into 1x16, 2x8 or 4x4 group(s). Many use cases are possible, one of which can be to manually select sequences to play in Foundry and many of the Phrase Sequencers, and more generally to control parameters for a live performance by providing quick access to different CV values.
 
 * **CV**: The main CV display and its knob can be used to set the CV for the currently selected pad, as indicated by the yellow/red light above a pad when attached/detached respectively. By default this knob is set to high sensitivity such that the range from -10V to 10V can be easier to scan; however, an option is available in the module's right-click menu to lower the sensitivity. Values can also be entered directly for the selected pad by **right-clicking the display** and typing in a specific voltage. 
 
@@ -268,9 +268,7 @@ In place of a detailed explanation of these three main controls (Swing, PW and D
 
 PW and Swing CV inputs are aso avaialable in the Clocked [expander module](#expanders). These inputs have a range of -5V to 5V when the corresponding knobs are be in their default position. With the corresponding knobs turned full left, the usable range on the inputs becomes 0V to 10V, with no-swing and normal-pulse-width correspond to 5V on the CV inputs.
 
-<!---
 Many options are available in the module's **right-click menu**, and can be used to setup Clocked for your particular needs. In particular, the RUN CV input is trigger sensitive by default, but can be made level sensitive (gate mode) by turning on the "_Run CV input is level sensitive_" option; when chaining multiple Clocked modules, only the first module in the chain should have this option turned on.
--->
 
 
 ### External synchronization <a id="clocked-sync"></a>
