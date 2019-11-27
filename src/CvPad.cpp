@@ -402,7 +402,7 @@ struct CvPadWidget : ModuleWidget {
 	struct Pad : Switch {
 		Pad() {
 			momentary = true;
-			box.size = Vec(42.0f, 42.0f);
+			box.size = Vec(40.0f, 40.0f);
 		}
 	};
 
@@ -870,11 +870,11 @@ struct CvPadWidget : ModuleWidget {
 		// pads and lights
 		// ----------------------------
 		
-		static const int padX = 71 + 21;
-		static const int padXd = 68;
-		static const int padY = 98 + 21;
+		static const int padX = 71 + 20;
+		static const int padXd = 64;
+		static const int padY = 112 + 20;
 		static const int padYd = padXd;
-		static const int ledOffsetY = 31;
+		static const int ledOffsetY = 30;
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
 				// pad
@@ -889,7 +889,7 @@ struct CvPadWidget : ModuleWidget {
 		// ----------------------------
 		
 		static const int leftX = 35;
-		static const int topY = padY - 64;
+		static const int topY = 60;
 		static constexpr float leftYd = 53.6f;
 		// quantize
 		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, topY), module, CvPad::QUANTIZE_PARAM));
@@ -900,15 +900,15 @@ struct CvPadWidget : ModuleWidget {
 		// write button
 		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(leftX, topY + leftYd * 3), module, CvPad::WRITE_PARAM, module ? &module->panelTheme : NULL));	
 		// write input
-		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, topY + leftYd * 4), true, module, CvPad::WRITE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, topY + leftYd * 4 - 5), true, module, CvPad::WRITE_INPUT, module ? &module->panelTheme : NULL));
 		// cv input
-		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, topY + leftYd * 5), true, module, CvPad::CV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, topY + leftYd * 5 - 5), true, module, CvPad::CV_INPUT, module ? &module->panelTheme : NULL));
 		
 		
 		// right side column
 		// ----------------------------
 		
-		static const int rightX = 379;
+		static const int rightX = 364;
 		static const int rightO = 21;
 		
 		// bank display
@@ -921,11 +921,12 @@ struct CvPadWidget : ModuleWidget {
 		// bank input
 		addInput(createDynamicPortCentered<IMPort>(Vec(rightX + rightO, topY), true, module, CvPad::BANK_INPUT, module ? &module->panelTheme : NULL));
 		// Volt/sharp/flat switch
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(rightX - 32, padY - 6), module, CvPad::SHARP_PARAM));
+		static const int triSwitchY = 119;
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(rightX - 32, triSwitchY - 6), module, CvPad::SHARP_PARAM));
 		// config
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(rightX + 8, padY - 6), module, CvPad::CONFIG_PARAM));
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(rightX + 8, triSwitchY - 6), module, CvPad::CONFIG_PARAM));
 		// outputs
-		static const int outY = padY + padYd * 3;
+		static const int outY = triSwitchY + 68 * 3;
 		static const int outYd = 45;
 		for (int y = 0; y < 4; y++) {
 			addOutput(createDynamicPortCentered<IMPort>(Vec(rightX - rightO, outY - outYd * (3 - y)), false, module, CvPad::CV_OUTPUTS + y, module ? &module->panelTheme : NULL));
