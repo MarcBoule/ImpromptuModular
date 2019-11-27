@@ -692,13 +692,14 @@ struct CvPadWidget : ModuleWidget {
 			}
 		};
 		
-		struct FillNotesItem : MenuItem {
+		struct FillVoltsItem : MenuItem {
 			CvPad::cvsArray* cvSrc;
 			int* bankSrc;
-			float rootVoct;		
+			float rootVoct = 0.0f;		
+			float incVoct = 1.0f / 12.0f;		
 			void onAction(const event::Action &e) override {
 				for (int i = 0; i < CvPad::N_PADS; i++) {
-					(*cvSrc)[*bankSrc][i] = rootVoct + ((float)i) / 12.0f;
+					(*cvSrc)[*bankSrc][i] = rootVoct + ((float)i) * incVoct;
 				}
 			}
 		};
@@ -779,11 +780,17 @@ struct CvPadWidget : ModuleWidget {
 			menu->addChild(mfItem);
 
 			// Fill with notes
-			FillNotesItem* notesItem = createMenuItem<FillNotesItem>("Fill with notes C4-D5#");
+			FillVoltsItem* notesItem = createMenuItem<FillVoltsItem>("Fill with notes C4-D5#");
 			notesItem->cvSrc = cvSrc;
 			notesItem->bankSrc = bankSrc;
-			notesItem->rootVoct = 0.0f;
 			menu->addChild(notesItem);
+
+			// Fill with 0.1 increasing volts
+			FillVoltsItem* voltsItem = createMenuItem<FillVoltsItem>("Fill with 0V, 0.1V ... 1.5V");
+			voltsItem->cvSrc = cvSrc;
+			voltsItem->bankSrc = bankSrc;
+			voltsItem->incVoct = 0.1f;
+			menu->addChild(voltsItem);
 
 			return menu;
 		}
@@ -826,11 +833,11 @@ struct CvPadWidget : ModuleWidget {
 		hscItem->module = module;
 		menu->addChild(hscItem);
 		
-		CopyPadItem *cvCopyItem = createMenuItem<CopyPadItem>("Copy pad voltage");
+		CopyPadItem *cvCopyItem = createMenuItem<CopyPadItem>("CV of selected pad - copy");
 		cvCopyItem->module = module;
 		menu->addChild(cvCopyItem);
 		
-		PastePadItem *cvPasteItem = createMenuItem<PastePadItem>("Paste pad voltage");
+		PastePadItem *cvPasteItem = createMenuItem<PastePadItem>("CV of selected pad - paste");
 		cvPasteItem->module = module;
 		menu->addChild(cvPasteItem);	
 		
