@@ -1,8 +1,6 @@
-# Impromptu Modular
+Modules for [VCV Rack](https://vcvrack.com), available in the [plugin manager](https://vcvrack.com/plugins.html).
 
 ![IM](res/img/Blank.jpg)
-
-Modules for [VCV Rack](https://vcvrack.com), available in the [plugin manager](https://vcvrack.com/plugins.html).
 
 Version 1.1.3
 
@@ -62,7 +60,7 @@ For sequencers and clock modules, it is advisable to have a core audio module ad
 
 ## License
 
-Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics from the Component Library by Wes Milholen. See ./LICENSE.md for licenses (and ./res/fonts/ for font licenses).
+Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics from the Component Library by Wes Milholen. See [LICENSE.md](LICENSE.md) for licenses (and ./res/fonts/ for font licenses).
 
 
 ## Acknowledgements
