@@ -1,4 +1,4 @@
-Modules for [VCV Rack](https://vcvrack.com), available in the [plugin manager](https://vcvrack.com/plugins.html).
+Modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://vcvrack.com/plugins.html).
 
 ![IM](res/img/Blank.jpg)
 
