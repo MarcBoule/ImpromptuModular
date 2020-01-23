@@ -1,3 +1,9 @@
+### 1.1.4 (in development)
+
+- Reduced width of Cv-Pad by 1HP
+- Fix bug in Foundry when using expander to sync select sequences with different run modes
+
+
 ### 1.1.3 (2019-11-27)
 
 - Added a new module called CV-Pad

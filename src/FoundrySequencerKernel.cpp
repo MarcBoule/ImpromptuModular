@@ -375,6 +375,7 @@ int SequencerKernel::clockStep(bool editingSequence, int delayedSeqNumberRequest
 				if (editingSequence) {
 					if (delayedSeqNumberRequest >= 0) {
 						seqIndexEdit = delayedSeqNumberRequest;
+						moveStepIndexRun(true, editingSequence);// true means init; must always refresh after seqIndexEdit has changed (when editingSequence)
 					}
 				}
 				else {
@@ -387,7 +388,7 @@ int SequencerKernel::clockStep(bool editingSequence, int delayedSeqNumberRequest
 						phraseIndexRun = oldPhraseIndexRun;
 					}
 					else {					
-						moveStepIndexRun(true, editingSequence);// true means init; must always refresh after phraseIndexRun has changed
+						moveStepIndexRun(true, editingSequence);// true means init; must always refresh after phraseIndexRun has changed (when !editingSequence)
 					}
 				}
 			}

@@ -870,10 +870,10 @@ struct CvPadWidget : ModuleWidget {
 		// pads and lights
 		// ----------------------------
 		
-		static const int padX = 71 + 20;
-		static const int padXd = 64;
+		static const int padX = 64 + 20;
+		static const int padXd = 63;
 		static const int padY = 112 + 20;
-		static const int padYd = padXd;
+		static const int padYd = 64;
 		static const int ledOffsetY = 30;
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
@@ -888,7 +888,7 @@ struct CvPadWidget : ModuleWidget {
 		// left side column
 		// ----------------------------
 		
-		static const int leftX = 35;
+		static const int leftX = 31;
 		static const int topY = 60;
 		static constexpr float leftYd = 53.6f;
 		// quantize
@@ -908,7 +908,7 @@ struct CvPadWidget : ModuleWidget {
 		// right side column
 		// ----------------------------
 		
-		static const int rightX = 364;
+		static const int rightX = 352;
 		static const int rightO = 21;
 		
 		// bank display
