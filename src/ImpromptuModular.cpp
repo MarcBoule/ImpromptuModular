@@ -36,6 +36,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelBigButtonSeq2);
 	p->addModel(modelFourView);
 	p->addModel(modelSemiModularSynth);
+	p->addModel(modelHotkey);
 	p->addModel(modelBlankPanel);
 }
 

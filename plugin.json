@@ -146,6 +146,13 @@
 			"tags": ["Synth voice"]
 		},
 		{
+			"slug": "Hotkey",
+			"name": "Hotkey",
+			"description": "Triggers when mouse is over module and hotkey is pressed",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#hotkey",
+			"tags": ["Utility"]
+		},
+		{
 			"slug": "Blank-Panel",
 			"name": "BlankPanel",
 			"description": "Blank panel",
