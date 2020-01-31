@@ -16,6 +16,7 @@
 struct Hotkey : Module {
 	enum ParamIds {
 		RECORD_KEY_PARAM,
+		DELAY_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -32,7 +33,7 @@ struct Hotkey : Module {
 	
 	
 	// Need to save, no reset
-	// int panelTheme;
+	int panelTheme;
 	
 	// Need to save, with reset
 	char hotkey;
@@ -43,6 +44,7 @@ struct Hotkey : Module {
 	
 	// No need to save, no reset
 	dsp::PulseGenerator trigOutPulse;
+	RefreshCounter refresh;
 
 	
 	Hotkey() {
@@ -51,7 +53,7 @@ struct Hotkey : Module {
 		configParam(RECORD_KEY_PARAM, 0.0f, 1.0f, 0.0f, "Record hotkey");
 		onReset();
 		
-		//panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
 	
 
@@ -71,7 +73,7 @@ struct Hotkey : Module {
 		json_t *rootJ = json_object();
 		
 		// panelTheme
-		// json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
 
 		// hotkey
 		json_object_set_new(rootJ, "hotkey", json_integer(hotkey));
@@ -82,64 +84,107 @@ struct Hotkey : Module {
 
 	void dataFromJson(json_t *rootJ) override {
 		// panelTheme
-		// json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
-		// if (panelThemeJ)
-			// panelTheme = json_integer_value(panelThemeJ);
+		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+		if (panelThemeJ)
+			panelTheme = json_integer_value(panelThemeJ);
 
 		// hotkey
 		json_t *hotkeyJ = json_object_get(rootJ, "hotkey");
 		if (hotkeyJ)
 			hotkey = json_integer_value(hotkeyJ);
 
+		params[RECORD_KEY_PARAM].setValue(0.0f);
+
 		resetNonJson(true);
 	}
-
 
 	
 	void onSampleRateChange() override {
 	}		
 	
+	
+	bool hotkeyPressed(int newKey) {// return true if processed the key	
+		bool processed = false;
+		
+		if (params[RECORD_KEY_PARAM].getValue() >= 0.5f) {// if recording the keypress
+			hotkey = (char)newKey;
+			params[RECORD_KEY_PARAM].setValue(0.0f);
+			processed = true;
+		}
+		else {// normal key press when not recording
+			if (newKey == hotkey) {
+				requestTrig = true;
+				processed = true;
+			}
+		}
+		
+		return processed;
+	}
+
 
 	void process(const ProcessArgs &args) override {
+		
+		// Inputs
+		if (refresh.processInputs()) {
+
+		}// userInputs refresh
+
+
 		if (requestTrig) {
-			trigOutPulse.trigger(0.001f);
+			trigOutPulse.trigger(0.002f);
 			requestTrig = false;
 		}
 
 		outputs[TRIG_OUTPUT].setVoltage((trigOutPulse.process(args.sampleTime) ? 10.0f : 0.0f));
+		
+		// lights
+		if (refresh.processLights()) {
+			lights[RECORD_KEY_LIGHT].setBrightness(params[RECORD_KEY_PARAM].getValue());
+		}// lightRefreshCounter
 	}// process()
+	
 };
 
 
 struct HotkeyWidget : ModuleWidget {
-	// SvgPanel* darkPanel;
+	SvgPanel* darkPanel;
 	
-	// struct PanelThemeItem : MenuItem {
-		// Clocked *module;
-		// void onAction(const event::Action &e) override {
-			// module->panelTheme ^= 0x1;
-		// }
-	// };
+	struct PanelThemeItem : MenuItem {
+		Hotkey *module;
+		void onAction(const event::Action &e) override {
+			module->panelTheme ^= 0x1;
+		}
+	};
 
-	// void appendContextMenu(Menu *menu) override {
-		// MenuLabel *spacerLabel = new MenuLabel();
-		// menu->addChild(spacerLabel);
+	void appendContextMenu(Menu *menu) override {
+		MenuLabel *spacerLabel = new MenuLabel();
+		menu->addChild(spacerLabel);
 
-		// Clocked *module = dynamic_cast<Clocked*>(this->module);
-		// assert(module);
+		Hotkey *module = dynamic_cast<Hotkey*>(this->module);
+		assert(module);
 
-		// MenuLabel *themeLabel = new MenuLabel();
-		// themeLabel->text = "Panel Theme";
-		// menu->addChild(themeLabel);
+		MenuLabel *themeLabel = new MenuLabel();
+		themeLabel->text = "Panel Theme";
+		menu->addChild(themeLabel);
 
-		// PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
-		// darkItem->module = module;
-		// menu->addChild(darkItem);
+		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
+		darkItem->module = module;
+		menu->addChild(darkItem);
 		
-		// menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
 
-		// menu->addChild(new MenuLabel());// empty line
-	// }	
+		menu->addChild(new MenuLabel());// empty line
+		
+		MenuLabel *settingsLabel = new MenuLabel();
+		settingsLabel->text = "Settings";
+		menu->addChild(settingsLabel);
+		
+		MenuLabel *hotkeyLabel = new MenuLabel();
+		char strBuf[32];
+		snprintf(strBuf, 32, "Current hotkey: '%c'", module->hotkey);
+		hotkeyLabel->text = strBuf;
+		menu->addChild(hotkeyLabel);
+	}	
 
 	
 	HotkeyWidget(Hotkey *module) {
@@ -163,9 +208,11 @@ struct HotkeyWidget : ModuleWidget {
 
 
 		
-		// Run LED bezel and light
-		// addParam(createParam<LEDBezel>(Vec(colRulerT1 + offsetLEDbezel, rowRuler1 + offsetLEDbezel), module, Clocked::RUN_PARAM));
-		// addChild(createLight<MuteLight<GreenLight>>(Vec(colRulerT1 + offsetLEDbezel + offsetLEDbezelLight, rowRuler1 + offsetLEDbezel + offsetLEDbezelLight), module, Clocked::RUN_LIGHT));
+		// Record-key LED bezel and light
+		SvgSwitch *ledBez;
+		addParam(ledBez = createParamCentered<LEDBezel>(Vec(30.0f, 50.0f), module, Hotkey::RECORD_KEY_PARAM));
+		ledBez->momentary = false;
+		addChild(createLightCentered<MuteLight<RedLight>>(Vec(30.0f, 50.0f), module, Hotkey::RECORD_KEY_LIGHT));
 
 		// trig out
 		addOutput(createDynamicPortCentered<IMPort>(Vec(30.0f, 380.0f - mm2px(31.25f)), false, module, Hotkey::TRIG_OUTPUT, NULL));//module ? &module->panelTheme : NULL));
@@ -181,9 +228,8 @@ struct HotkeyWidget : ModuleWidget {
 	
 	void onHoverKey(const event::HoverKey& e) override {
 		if (e.action == GLFW_PRESS) {
-			if ( e.key == (((Hotkey*)module)->hotkey) && ((e.mods & RACK_MOD_MASK) == 0) ) {
-				Hotkey *module = dynamic_cast<Hotkey*>(this->module);
-				(((Hotkey*)module)->requestTrig) = true;
+			Hotkey *module = dynamic_cast<Hotkey*>(this->module);
+			if ((e.mods & RACK_MOD_MASK) == 0 && module->hotkeyPressed(e.key)) {
 				e.consume(this);
 				return;
 			}
