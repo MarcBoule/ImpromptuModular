@@ -58,17 +58,17 @@ static const char* get_key_name(int key)
         case GLFW_KEY_SPACE:        return "SPACE";
         case GLFW_KEY_MINUS:        return "MINUS";
         case GLFW_KEY_EQUAL:        return "EQUAL";
-        case GLFW_KEY_LEFT_BRACKET: return "LEFT BRACKET";
-        case GLFW_KEY_RIGHT_BRACKET: return "RIGHT BRACKET";
+        case GLFW_KEY_LEFT_BRACKET: return "LEFT_BRACKET";
+        case GLFW_KEY_RIGHT_BRACKET: return "RIGHT_BRACKET";
         case GLFW_KEY_BACKSLASH:    return "BACKSLASH";
         case GLFW_KEY_SEMICOLON:    return "SEMICOLON";
         case GLFW_KEY_APOSTROPHE:   return "APOSTROPHE";
-        case GLFW_KEY_GRAVE_ACCENT: return "GRAVE ACCENT";
+        case GLFW_KEY_GRAVE_ACCENT: return "GRAVE_ACCENT";
         case GLFW_KEY_COMMA:        return "COMMA";
         case GLFW_KEY_PERIOD:       return "PERIOD";
         case GLFW_KEY_SLASH:        return "SLASH";
-        case GLFW_KEY_WORLD_1:      return "WORLD 1";
-        case GLFW_KEY_WORLD_2:      return "WORLD 2";
+        case GLFW_KEY_WORLD_1:      return "WORLD_1";
+        case GLFW_KEY_WORLD_2:      return "WORLD_2";
 
         // Function keys
         case GLFW_KEY_ESCAPE:       return "ESCAPE";
@@ -101,73 +101,78 @@ static const char* get_key_name(int key)
         case GLFW_KEY_DOWN:         return "DOWN";
         case GLFW_KEY_LEFT:         return "LEFT";
         case GLFW_KEY_RIGHT:        return "RIGHT";
-        case GLFW_KEY_LEFT_SHIFT:   return "LEFT SHIFT";
-        case GLFW_KEY_RIGHT_SHIFT:  return "RIGHT SHIFT";
-        case GLFW_KEY_LEFT_CONTROL: return "LEFT CONTROL";
-        case GLFW_KEY_RIGHT_CONTROL: return "RIGHT CONTROL";
-        case GLFW_KEY_LEFT_ALT:     return "LEFT ALT";
-        case GLFW_KEY_RIGHT_ALT:    return "RIGHT ALT";
+        case GLFW_KEY_LEFT_SHIFT:   return "LEFT_SHIFT";
+        case GLFW_KEY_RIGHT_SHIFT:  return "RIGHT_SHIFT";
+        case GLFW_KEY_LEFT_CONTROL: return "LEFT_CONTROL";
+        case GLFW_KEY_RIGHT_CONTROL: return "RIGHT_CONTROL";
+        case GLFW_KEY_LEFT_ALT:     return "LEFT_ALT";
+        case GLFW_KEY_RIGHT_ALT:    return "RIGHT_ALT";
         case GLFW_KEY_TAB:          return "TAB";
         case GLFW_KEY_ENTER:        return "ENTER";
         case GLFW_KEY_BACKSPACE:    return "BACKSPACE";
         case GLFW_KEY_INSERT:       return "INSERT";
         case GLFW_KEY_DELETE:       return "DELETE";
-        case GLFW_KEY_PAGE_UP:      return "PAGE UP";
-        case GLFW_KEY_PAGE_DOWN:    return "PAGE DOWN";
+        case GLFW_KEY_PAGE_UP:      return "PAGE_UP";
+        case GLFW_KEY_PAGE_DOWN:    return "PAGE_DOWN";
         case GLFW_KEY_HOME:         return "HOME";
         case GLFW_KEY_END:          return "END";
-        case GLFW_KEY_KP_0:         return "KEYPAD 0";
-        case GLFW_KEY_KP_1:         return "KEYPAD 1";
-        case GLFW_KEY_KP_2:         return "KEYPAD 2";
-        case GLFW_KEY_KP_3:         return "KEYPAD 3";
-        case GLFW_KEY_KP_4:         return "KEYPAD 4";
-        case GLFW_KEY_KP_5:         return "KEYPAD 5";
-        case GLFW_KEY_KP_6:         return "KEYPAD 6";
-        case GLFW_KEY_KP_7:         return "KEYPAD 7";
-        case GLFW_KEY_KP_8:         return "KEYPAD 8";
-        case GLFW_KEY_KP_9:         return "KEYPAD 9";
-        case GLFW_KEY_KP_DIVIDE:    return "KEYPAD DIVIDE";
-        case GLFW_KEY_KP_MULTIPLY:  return "KEYPAD MULTIPLY";
-        case GLFW_KEY_KP_SUBTRACT:  return "KEYPAD SUBTRACT";
-        case GLFW_KEY_KP_ADD:       return "KEYPAD ADD";
-        case GLFW_KEY_KP_DECIMAL:   return "KEYPAD DECIMAL";
-        case GLFW_KEY_KP_EQUAL:     return "KEYPAD EQUAL";
-        case GLFW_KEY_KP_ENTER:     return "KEYPAD ENTER";
-        case GLFW_KEY_PRINT_SCREEN: return "PRINT SCREEN";
-        case GLFW_KEY_NUM_LOCK:     return "NUM LOCK";
-        case GLFW_KEY_CAPS_LOCK:    return "CAPS LOCK";
-        case GLFW_KEY_SCROLL_LOCK:  return "SCROLL LOCK";
+        case GLFW_KEY_KP_0:         return "KEYPAD_0";
+        case GLFW_KEY_KP_1:         return "KEYPAD_1";
+        case GLFW_KEY_KP_2:         return "KEYPAD_2";
+        case GLFW_KEY_KP_3:         return "KEYPAD_3";
+        case GLFW_KEY_KP_4:         return "KEYPAD_4";
+        case GLFW_KEY_KP_5:         return "KEYPAD_5";
+        case GLFW_KEY_KP_6:         return "KEYPAD_6";
+        case GLFW_KEY_KP_7:         return "KEYPAD_7";
+        case GLFW_KEY_KP_8:         return "KEYPAD_8";
+        case GLFW_KEY_KP_9:         return "KEYPAD_9";
+        case GLFW_KEY_KP_DIVIDE:    return "KEYPAD_DIVIDE";
+        case GLFW_KEY_KP_MULTIPLY:  return "KEYPAD_MULTIPLY";
+        case GLFW_KEY_KP_SUBTRACT:  return "KEYPAD_SUBTRACT";
+        case GLFW_KEY_KP_ADD:       return "KEYPAD_ADD";
+        case GLFW_KEY_KP_DECIMAL:   return "KEYPAD_DECIMAL";
+        case GLFW_KEY_KP_EQUAL:     return "KEYPAD_EQUAL";
+        case GLFW_KEY_KP_ENTER:     return "KEYPAD_ENTER";
+        case GLFW_KEY_PRINT_SCREEN: return "PRINT_SCREEN";
+        case GLFW_KEY_NUM_LOCK:     return "NUM_LOCK";
+        case GLFW_KEY_CAPS_LOCK:    return "CAPS_LOCK";
+        case GLFW_KEY_SCROLL_LOCK:  return "SCROLL_LOCK";
         case GLFW_KEY_PAUSE:        return "PAUSE";
-        case GLFW_KEY_LEFT_SUPER:   return "LEFT SUPER";
-        case GLFW_KEY_RIGHT_SUPER:  return "RIGHT SUPER";
+        case GLFW_KEY_LEFT_SUPER:   return "LEFT_SUPER";
+        case GLFW_KEY_RIGHT_SUPER:  return "RIGHT_SUPER";
         case GLFW_KEY_MENU:         return "MENU";
 
         default:                    return "UNKNOWN";
     }
 }
-static const char* get_mods_name(int mods)
+static void get_mods_name(char *name, int mods)
 {
-    static char name[512];
-
-    if (mods == 0)
-        return " no mods";
-
-    name[0] = '\0';
-
-    if (mods & GLFW_MOD_SHIFT)
-        strcat(name, " shift");
-    if (mods & GLFW_MOD_CONTROL)
-        strcat(name, " control");
-    if (mods & GLFW_MOD_ALT)
-        strcat(name, " alt");
-    if (mods & GLFW_MOD_SUPER)
-        strcat(name, " super");
-    if (mods & GLFW_MOD_CAPS_LOCK)
-        strcat(name, " capslock-on");
-    if (mods & GLFW_MOD_NUM_LOCK)
-        strcat(name, " numlock-on");
-
-    return name;
+	name[0] = 0;
+    if (mods & GLFW_MOD_SHIFT) {
+		if (name[0] != '\0') strcat(name, "+");
+        strcat(name, "Shift");
+	}
+    if (mods & GLFW_MOD_CONTROL) {
+		if (name[0] != '\0') strcat(name, "+");
+        strcat(name, "Ctrl");
+	}
+    if (mods & GLFW_MOD_ALT) {
+		if (name[0] != '\0') strcat(name, "+");
+        strcat(name, "Alt");
+	}
+    if (mods & GLFW_MOD_SUPER) {
+		if (name[0] != '\0') strcat(name, "+");
+        strcat(name, "Super");
+	}
+	// caps and num locks treated as normal keys
+    // if (mods & GLFW_MOD_CAPS_LOCK) {
+		// if (name[0] != '\0') strcat(name, "+");
+        // strcat(name, "Capslock-on");
+	// }
+    // if (mods & GLFW_MOD_NUM_LOCK) {
+		// if (name[0] != '\0') strcat(name, "+");
+        // strcat(name, "Numlock-on");
+	// }
 }
 
 
@@ -201,6 +206,7 @@ struct Hotkey : Module {
 	
 	// Need to save, with reset
 	int hotkey;
+	int hotkeyMods;
 	bool requestTrig;// will stay high as long as delayCnt is not at 0
 
 	// No need to save, with reset
@@ -223,7 +229,8 @@ struct Hotkey : Module {
 	
 
 	void onReset() override {
-		hotkey = ' ';
+		hotkey = GLFW_KEY_SPACE;
+		hotkeyMods = 0;
 		requestTrig = false;
 		resetNonJson(false);
 	}
@@ -244,6 +251,9 @@ struct Hotkey : Module {
 		// hotkey
 		json_object_set_new(rootJ, "hotkey", json_integer(hotkey));
 
+		// hotkeyMods
+		json_object_set_new(rootJ, "hotkeyMods", json_integer(hotkeyMods));
+
 		return rootJ;
 	}
 
@@ -259,6 +269,11 @@ struct Hotkey : Module {
 		if (hotkeyJ)
 			hotkey = json_integer_value(hotkeyJ);
 
+		// hotkeyMods
+		json_t *hotkeyModsJ = json_object_get(rootJ, "hotkeyMods");
+		if (hotkeyModsJ)
+			hotkeyMods = json_integer_value(hotkeyModsJ);
+
 		params[RECORD_KEY_PARAM].setValue(0.0f);
 
 		resetNonJson(true);
@@ -269,16 +284,17 @@ struct Hotkey : Module {
 	}		
 	
 	
-	bool hotkeyPressed(int newCodepoint) {// return true if processed the key	
+	bool hotkeyPressed(int newKey, int newMods) {// return true if processed the key	
 		bool processed = false;
 		
 		if (params[RECORD_KEY_PARAM].getValue() >= 0.5f) {// if recording the keypress
-			hotkey = newCodepoint;
+			hotkey = newKey;
+			hotkeyMods = newMods;
 			params[RECORD_KEY_PARAM].setValue(0.0f);
 			processed = true;
 		}
 		else {// normal key press when not recording
-			if (newCodepoint == hotkey) {
+			if (newKey == hotkey && newMods == hotkeyMods) {
 				delayCnt = (unsigned long)(APP->engine->getSampleRate() * maxDelay * params[DELAY_PARAM].getValue());
 				requestTrig = true;
 				processed = true;
@@ -287,26 +303,6 @@ struct Hotkey : Module {
 		
 		return processed;
 	}
-
-/*	bool hotkeyPressed(int newKey, int newMods) {// return true if processed the key	
-		bool processed = false;
-		INFO("key = %s, mod = %s", get_key_name(newKey), get_mods_name(newMods));
-		
-		if (params[RECORD_KEY_PARAM].getValue() >= 0.5f) {// if recording the keypress
-			hotkey = newKey;
-			params[RECORD_KEY_PARAM].setValue(0.0f);
-			processed = true;
-		}
-		else {// normal key press when not recording
-			if (newKey == hotkey) {
-				delayCnt = (unsigned long)(APP->engine->getSampleRate() * maxDelay * params[DELAY_PARAM].getValue());
-				requestTrig = true;
-				processed = true;
-			}
-		}
-		
-		return processed;
-	}*/
 
 
 	void process(const ProcessArgs &args) override {
@@ -340,6 +336,7 @@ struct Hotkey : Module {
 
 struct HotkeyWidget : ModuleWidget {
 	SvgPanel* darkPanel;
+	char strBuf[512];
 	
 	struct PanelThemeItem : MenuItem {
 		Hotkey *module;
@@ -368,17 +365,13 @@ struct HotkeyWidget : ModuleWidget {
 		menu->addChild(new MenuLabel());// empty line
 		
 		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
+		settingsLabel->text = "Current hotkey";
 		menu->addChild(settingsLabel);
 		
 		MenuLabel *hotkeyLabel = new MenuLabel();
-		char strBuf[32]; 
-		if (module->hotkey == ' ') {
-			snprintf(strBuf, 32, "Current hotkey: [spacebar]");
-		}
-		else {
-			snprintf(strBuf, 32, "Current hotkey: '%lc'", module->hotkey);
-		}
+		get_mods_name(strBuf, module->hotkeyMods);
+		if (strBuf[0] != '\0') strcat(strBuf, "+");
+		strcat(strBuf, get_key_name(module->hotkey));
 		hotkeyLabel->text = strBuf;
 		menu->addChild(hotkeyLabel);
 	}	
@@ -389,15 +382,15 @@ struct HotkeyWidget : ModuleWidget {
 		
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Hotkey.svg")));
-        // if (module) {
-			// darkPanel = new SvgPanel();
-			// darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/Clocked_dark.svg")));
-			// darkPanel->visible = false;
-			// addChild(darkPanel);
-		// }
+        if (module) {
+			darkPanel = new SvgPanel();
+			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/Hotkey_dark.svg")));
+			darkPanel->visible = false;
+			addChild(darkPanel);
+		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(Vec(15, 0), NULL));//module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(Vec(15, 0), module ? &module->panelTheme : NULL));
 		addChild(createDynamicWidget<IMScrew>(Vec(15, 365), module ? &module->panelTheme : NULL));
 		// addChild(createDynamicWidget<IMScrew>(Vec(box.size.x-30, 0), module ? &module->panelTheme : NULL));
 		// addChild(createDynamicWidget<IMScrew>(Vec(box.size.x-30, 365), NULL));//module ? &module->panelTheme : NULL));
@@ -413,39 +406,30 @@ struct HotkeyWidget : ModuleWidget {
 		addChild(createLightCentered<MuteLight<RedLight>>(Vec(centerX, buttonY), module, Hotkey::RECORD_KEY_LIGHT));
 		
 		// Delay knob
-		addParam(createDynamicParamCentered<IMSmallKnob>(Vec(centerX, 220.0f), module, Hotkey::DELAY_PARAM, NULL));//module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob>(Vec(centerX, 220.0f), module, Hotkey::DELAY_PARAM, module ? &module->panelTheme : NULL));
 
 		// trig out
 		addOutput(createDynamicPortCentered<IMPort>(Vec(centerX, 380.0f - mm2px(31.25f)), false, module, Hotkey::TRIG_OUTPUT, NULL));//module ? &module->panelTheme : NULL));
 	}
 	
-	// void step() override {
-		// if (module) {
-			// panel->visible = ((((Clocked*)module)->panelTheme) == 0);
-			// darkPanel->visible  = ((((Clocked*)module)->panelTheme) == 1);
-		// }
-		// Widget::step();
-	// }
-	
-	void onHoverText(const event::HoverText& e) override {
-		Hotkey *module = dynamic_cast<Hotkey*>(this->module);
-		if (module->hotkeyPressed(e.codepoint)) {
-			e.consume(this);
-			return;
+	void step() override {
+		if (module) {
+			panel->visible = ((((Hotkey*)module)->panelTheme) == 0);
+			darkPanel->visible  = ((((Hotkey*)module)->panelTheme) == 1);
 		}
-		ModuleWidget::onHoverText(e); 
+		Widget::step();
 	}
-	
-/*	void onHoverKey(const event::HoverKey& e) override {
+		
+	void onHoverKey(const event::HoverKey& e) override {
 		if (e.action == GLFW_PRESS) {
 			Hotkey *module = dynamic_cast<Hotkey*>(this->module);
-			if (module->hotkeyPressed(e.key, e.mods)) {
+			if (module->hotkeyPressed(e.key, e.mods & RACK_MOD_MASK)) {
 				e.consume(this);
 				return;
 			}
 		}
 		ModuleWidget::onHoverKey(e); 
-	}*/
+	}
 	
 };
 

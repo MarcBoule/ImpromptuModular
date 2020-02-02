@@ -35,7 +35,7 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [WriteSeq32/64](#write-seq): Multi-channel 32/64-step sequencers with CV inputs for easy sequence programming.
 
-* Four-View: Small chord viewer module that shows the note names of up to 4 CVs. Sharp or flat notation is selectable in the right-click menu.
+* [Four-View and Hotkey](#utilities): Small chord viewer module that shows the note names of up to 4 CVs; Utility module that sends a trigger when a given key is pressed (mouse must be over module).
 
 Details about each module are given in the links above, and a feature comparison table is given below for the sequencers. Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -647,6 +647,27 @@ WriteSeq64 is a four-channel 64-step writable sequencer module. This sequencer i
 WriteSeq64 has dual clock inputs, where each controls a pair of channels. When no wire is connected to **CLOCK 3,4**, the **CLOCK 1,2** signal is used internally as the clock for channels 3 and 4. 
 
 ([Back to module list](#modules))
+
+
+
+## Four-View and Hotkey <a id="utilities"></a>
+
+![IM](res/img/Utilities.jpg)
+
+### Four-View
+A chord viewer module that shows the note names of up to 4 CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs.
+
+### Hotkey
+Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize recording audio (using VCV Recorder) with recording video (using OBS Studio). Set a hotkey in OBS to automatically have it start recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same hotkey in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press.
+
+* **SET**: The hotkey can be programmed using the SET button. When armed, any key press will be captured and used as the hotkey. For key combinations, like ALT+K for example, all modifyers (ALT, CTRL/CMD, SHIFT) must be pressed before arming the SET button. Once armed the next key is automatically taken, along with any modifyers that are pressed. This allows the CTRL key itself to be used as a hotkey (when pressed after arming).
+
+* **DELAY**: Delay the trigger output by an amount of time between 0 and 1 second. To enter an amout of time more precisely, use Rack's parameter right-click to enter a value directly. 
+
+The current hotkey is visible in the right-click menu of the module and is automatically saved. 
+
+([Back to module list](#modules))
+
 
 
 # Hall of Fame <a id="hall-of-fame"></a>

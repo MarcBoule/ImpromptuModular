@@ -14,7 +14,7 @@
    version="1.1"
    id="svg20"
    sodipodi:docname="ScrewSilver.svg"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
      id="metadata24">
     <rdf:RDF>
@@ -23,6 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -39,7 +40,7 @@
      inkscape:window-height="1017"
      id="namedview22"
      showgrid="false"
-     inkscape:zoom="65.226974"
+     inkscape:zoom="65.380811"
      inkscape:cx="7.4999998"
      inkscape:cy="7.4976104"
      inkscape:window-x="-8"
@@ -53,12 +54,14 @@
       <stop
          offset="0"
          stop-color="#272727"
-         id="stop2" />
+         id="stop2"
+         style="stop-color:#3c3c3c;stop-opacity:1" />
       <stop
          offset="1"
          stop-color="#eaeaea"
          stop-opacity=".928"
-         id="stop4" />
+         id="stop4"
+         style="stop-color:#c8c8c8;stop-opacity:0.92941177" />
     </linearGradient>
     <linearGradient
        xlink:href="#a"
@@ -75,22 +78,21 @@
      stroke="#acacac"
      stroke-width=".265"
      transform="translate(-30.138 -67.088)"
-     id="path10" />
+     id="path10"
+     style="stroke-width:0.21168;stroke-miterlimit:4;stroke-dasharray:none" />
   <path
-     d="M2.18 1.79h-.39V.956h.39z"
-     fill="#262626"
-     id="path12" />
+     d="M 2.8496523,2.5743562 2.5738662,2.8501423 1.1193473,1.3956234 1.3951334,1.1198373 Z"
+     id="path12"
+     inkscape:connector-curvature="0"
+     style="fill:#464646;fill-opacity:1;stroke-width:1" />
   <path
-     d="M1.79 2.18H.956v-.39h.834zM3.013 2.18h-.834v-.39h.834z"
-     fill="#4d4d4d"
-     id="path14" />
+     d="M 1.1193473,2.5743562 1.3951334,2.8501423 2.8496523,1.3956234 2.5738662,1.1198373 Z"
+     id="path12-3"
+     inkscape:connector-curvature="0"
+     style="fill:#464646;fill-opacity:1;stroke-width:1" />
   <path
-     d="M2.18 3.013h-.39v-.834h.39z"
-     fill="#ccc"
-     id="path16"
-     style="fill:#8c8c8c;fill-opacity:1" />
-  <path
-     fill="#4d4d4d"
-     d="M1.79 1.79h.389v.389h-.39z"
-     id="path18" />
+     inkscape:connector-curvature="0"
+     style="fill:#464646;stroke-width:1;fill-opacity:1"
+     d="m 2.0003008,2.3680668 a 0.4,0.4 0 1 1 0,-0.8 0.4,0.4 0 0 1 0,0.8"
+     id="path8" />
 </svg>
