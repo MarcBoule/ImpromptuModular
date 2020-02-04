@@ -658,7 +658,7 @@ WriteSeq64 has dual clock inputs, where each controls a pair of channels. When n
 A chord viewer module that shows the note names of up to 4 CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs.
 
 ### Hotkey
-Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize audio recording using VCV Recorder with video recording (using OBS Studio for example). Set a hotkey in OBS to automatically have it start recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same key in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press.
+**To be released in version v1.1.4**: Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize audio recording using VCV Recorder with video recording (using OBS Studio for example). Set a hotkey in OBS to automatically have it start/stop recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same key in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press. Send the trig output of Hotkey into the trig input of VCV Recorder.
 
 * **SET**: The hotkey can be programmed using the SET button. When armed, any key press will be captured and used as the hotkey. For key combinations, like ALT+K for example, all modifyers (ALT, CTRL/CMD, SHIFT) must be pressed before arming the SET button. Once armed the next key is automatically taken, along with any modifyers that are pressed. This allows the CTRL key itself to be used as a hotkey (when pressed after arming).
 
