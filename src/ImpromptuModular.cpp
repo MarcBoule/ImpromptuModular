@@ -23,6 +23,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelTwelveKey);
 	p->addModel(modelClocked);
 	p->addModel(modelClockedExpander);
+	p->addModel(modelClkd);
 	p->addModel(modelFoundry);
 	p->addModel(modelFoundryExpander);
 	p->addModel(modelGateSeq64);

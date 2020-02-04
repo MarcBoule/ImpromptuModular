@@ -28,6 +28,7 @@ extern Model *modelCvPad;
 extern Model *modelTwelveKey;
 extern Model *modelClocked;
 extern Model *modelClockedExpander;
+extern Model *modelClkd;
 extern Model *modelFoundry;
 extern Model *modelFoundryExpander;
 extern Model *modelGateSeq64;
