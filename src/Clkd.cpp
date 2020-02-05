@@ -14,16 +14,16 @@
 
 
 class Clock {
-	// The -1.0 step is used as a reset state every double-period so that 
+	// The -1.0 step is used as a reset state every period so that 
 	//   lengths can be re-computed; it will stay at -1.0 when a clock is inactive.
 	// a clock frame is defined as "length * iterations + syncWait", and
 	//   for master, syncWait does not apply and iterations = 1
 
 	
-	double step;// -1.0 when stopped, [0 to 2*period[ for clock steps (*2 is because of swing, so we do groups of 2 periods)
-	double length;// double period
+	double step;// -1.0 when stopped, [0 to period[ for clock steps 
+	double length;// period
 	double sampleTime;
-	int iterations;// run this many double periods before going into sync if sub-clock
+	int iterations;// run this many periods before going into sync if sub-clock
 	Clock* syncSrc = nullptr; // only subclocks will have this set to master clock
 	static constexpr double guard = 0.0005;// in seconds, region for sync to occur right before end of length of last iteration; sub clocks must be low during this period
 	bool *resetClockOutputsHigh;
@@ -52,7 +52,7 @@ class Clock {
 	}
 	
 	void setup(double lengthGiven, int iterationsGiven, double sampleTimeGiven) {
-		length = lengthGiven;
+		length = lengthGiven / 2.0;
 		iterations = iterationsGiven;
 		sampleTime = sampleTimeGiven;
 	}
@@ -83,32 +83,10 @@ class Clock {
 	}
 	
 	int isHigh() {
-		// last 0.5ms (guard time) must be low so that sync mechanism will work properly (i.e. no missed pulses)
-		//   this will automatically be the case, since code below disallows any pulses or inter-pulse times less than 1ms
-		int high = 0;
 		if (step >= 0.0) {
-			// all following values are in seconds
-			float onems = 0.001f;
-			float period = (float)length / 2.0f;
-			float p2min = onems;
-			float p2max = period - onems;
-			if (p2max < p2min) {
-				p2max = p2min;
-			}
-			
-			//double p1 = 0.0;// implicit, no need 
-			double p2 = (double)((p2max - p2min) * 0.5f + p2min);
-			double p3 = (double)(period);
-			double p4 = ((double)(period)) + p2;
-			
-			if (step < p2)
-				high = 1;
-			else if ((step >= p3) && (step < p4))
-				high = 2;
+			return (step < (length * 0.5)) ? 1 : 0;
 		}
-		else if (*resetClockOutputsHigh)
-			high = 1;
-		return high;
+		return (*resetClockOutputsHigh) ? 1 : 0;
 	}	
 };
 
@@ -609,13 +587,12 @@ struct Clkd : Module {
 						ratioDoubled *= -1;
 						length = masterLength * ((double)ratioDoubled) / 2.0;
 						iterations = 1l + (ratioDoubled % 2);		
-						clk[i].setup(length, iterations, sampleTime);
 					}
 					else {// mult 
 						length = (2.0f * masterLength) / ((double)ratioDoubled);
 						iterations = ratioDoubled / (2l - (ratioDoubled % 2l));							
-						clk[i].setup(length, iterations, sampleTime);
 					}
+					clk[i].setup(length, iterations, sampleTime);
 					clk[i].start();
 				}
 				clkOutputs[i] = clk[i].isHigh() ? 10.0f : 0.0f;

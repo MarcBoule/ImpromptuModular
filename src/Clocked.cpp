@@ -729,13 +729,12 @@ struct Clocked : Module {
 						ratioDoubled *= -1;
 						length = masterLength * ((double)ratioDoubled) / 2.0;
 						iterations = 1l + (ratioDoubled % 2);		
-						clk[i].setup(length, iterations, sampleTime);
 					}
 					else {// mult 
 						length = (2.0f * masterLength) / ((double)ratioDoubled);
 						iterations = ratioDoubled / (2l - (ratioDoubled % 2l));							
-						clk[i].setup(length, iterations, sampleTime);
 					}
+					clk[i].setup(length, iterations, sampleTime);
 					clk[i].start();
 				}
 				delay[i - 1].write(clk[i].isHigh(swingAmount[i], pulseWidth[i]));
