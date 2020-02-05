@@ -51,7 +51,7 @@
 		{
 			"slug": "Clocked-Clkd",
 			"name": "Clkd",
-			"description": "Half-sized simplified version of Clocked",
+			"description": "Half-sized version of Clocked without PW, Swing and Delay",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#clocked",
 			"tags": ["Clock"]
 		},

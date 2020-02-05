@@ -1,5 +1,5 @@
 //***********************************************************************************************
-//Half-sized simplified version of Clocked for VCV Rack by Marc Boulé
+//Half-sized version of Clocked without PW, Swing and Delay for VCV Rack by Marc Boulé
 //
 //Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics  
 //  from the Component Library by Wes Milholen. 
@@ -277,7 +277,7 @@ struct Clkd : Module {
 				newMasterLength = 0.5f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage());// bpm = 120*2^V, T = 60/bpm = 60/(120*2^V) = 0.5/2^V
 		}
 		else
-			newMasterLength = 60.0f / bufferedKnobs[3];//params[BPM_PARAM].getValue();
+			newMasterLength = 60.0f / bufferedKnobs[3];
 		newMasterLength = clamp(newMasterLength, masterLengthMin, masterLengthMax);
 		masterLength = newMasterLength;
 	}	
@@ -815,7 +815,7 @@ struct ClkdWidget : ModuleWidget {
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Clkd.svg")));
         if (module) {
 			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/Clocked_dark.svg")));
+			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/Clkd_dark.svg")));
 			darkPanel->visible = false;
 			addChild(darkPanel);
 		}
@@ -869,7 +869,8 @@ struct ClkdWidget : ModuleWidget {
 		addChild(bpmRatioDisplay);
 		// Display index lights
 		static const int delY = 10;
-		for (int y = 0; y < 4; y++) {
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(colC + 11, row2  -2 * delY - 4 ), module, Clkd::CLK_LIGHTS + 0 * 2));		
+		for (int y = 1; y < 4; y++) {
 			addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(colC + 11, row2 + delY * (y - 2) ), module, Clkd::CLK_LIGHTS + y * 2));		
 		}
 		// Clock master out

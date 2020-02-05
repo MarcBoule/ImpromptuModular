@@ -258,6 +258,7 @@ struct Clocked : Module {
 	double sampleTime;
 	Clock clk[4];
 	ClockDelay delay[3];// only channels 1 to 3 have delay
+	float bufferedRatioKnobs[4];// 0 = mast bpm knob, 1..3 is ratio knobs
 	bool syncRatios[4];// 0 index unused
 	int ratiosDoubled[4];
 	int extPulseNumber;// 0 to ppqn * 2 - 1
@@ -293,7 +294,7 @@ struct Clocked : Module {
 		if (ratioKnobIndex < 1) 
 			return 1;
 		bool isDivision = false;
-		int i = (int) std::round( params[RATIO_PARAMS + ratioKnobIndex].getValue() );// [ -(numRatios-1) ; (numRatios-1) ]
+		int i = (int) std::round( bufferedRatioKnobs[ratioKnobIndex] );// [ -(numRatios-1) ; (numRatios-1) ]
 		if (i < 0) {
 			i *= -1;
 			isDivision = true;
@@ -410,6 +411,7 @@ struct Clocked : Module {
 			clk[i].reset();
 			if (i < 3) 
 				delay[i].reset(resetClockOutputsHigh);
+			bufferedRatioKnobs[i] = params[RATIO_PARAMS + i].getValue();// must be done before the getRatioDoubled() a few lines down
 			syncRatios[i] = false;
 			ratiosDoubled[i] = getRatioDoubled(i);
 			clkOutputs[i] = resetClockOutputsHigh ? 10.0f : 0.0f;
@@ -428,7 +430,7 @@ struct Clocked : Module {
 				newMasterLength = 1.0f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage());// bpm = 120*2^V, 2T = 120/bpm = 120/(120*2^V) = 1/2^V
 		}
 		else
-			newMasterLength = 120.0f / params[RATIO_PARAMS + 0].getValue();
+			newMasterLength = 120.0f / bufferedRatioKnobs[0];
 		newMasterLength = clamp(newMasterLength, masterLengthMin, masterLengthMax);
 		masterLength = newMasterLength;
 	}	
@@ -596,6 +598,17 @@ struct Clocked : Module {
 		if (refresh.processInputs()) {
 			updatePulseSwingDelay();
 		
+			// Detect bpm and ratio knob changes and update bufferedRatioKnobs
+			for (int i = 0; i < 4; i++) {				
+				if (bufferedRatioKnobs[i] != params[RATIO_PARAMS + i].getValue()) {
+					bufferedRatioKnobs[i] = params[RATIO_PARAMS + i].getValue();
+					if (i > 0) {
+						syncRatios[i] = true;
+					}
+					notifyInfo[i] = 0l;
+				}
+			}			
+		
 			// BPM mode
 			bool trigUp = bpmModeUpTrigger.process(params[BPMMODE_UP_PARAM].getValue());
 			bool trigDown = bpmModeDownTrigger.process(params[BPMMODE_DOWN_PARAM].getValue());
@@ -688,7 +701,7 @@ struct Clocked : Module {
 			}
 		}
 		else {// BPM_INPUT not active
-			newMasterLength = clamp(120.0f / params[RATIO_PARAMS + 0].getValue(), masterLengthMin, masterLengthMax);
+			newMasterLength = clamp(120.0f / bufferedRatioKnobs[0], masterLengthMin, masterLengthMax);
 		}
 		if (newMasterLength != masterLength) {
 			double lengthStretchFactor = ((double)newMasterLength) / ((double)masterLength);
@@ -1029,23 +1042,6 @@ struct ClockedWidget : ModuleWidget {
 			snap = true;
 		}
 	};
-	struct IMBigSnapKnobNotify : IMBigSnapKnob {
-		IMBigSnapKnobNotify() {}
-		void randomize() override {ParamWidget::randomize();}
-		void onChange(const event::Change &e) override {
-			if (paramQuantity) {
-				Clocked *module = dynamic_cast<Clocked*>(paramQuantity->module);
-				int dispIndex = 0;
-				int paramId = paramQuantity->paramId;
-				if ( (paramId >= Clocked::RATIO_PARAMS + 1) && (paramId <= Clocked::RATIO_PARAMS + 3) ) {
-					dispIndex = paramId - Clocked::RATIO_PARAMS;
-					module->syncRatios[dispIndex] = true;
-				}
-				module->notifyInfo[dispIndex] = 0l;
-			}
-			SvgKnob::onChange(e);		
-		}
-	};
 
 	
 	ClockedWidget(Clocked *module) {
@@ -1100,7 +1096,7 @@ struct ClockedWidget : ModuleWidget {
 		// In input
 		addInput(createDynamicPort<IMPort>(Vec(colRulerT2, rowRuler0), true, module, Clocked::BPM_INPUT, module ? &module->panelTheme : NULL));
 		// Master BPM knob
-		addParam(createDynamicParam<IMBigSnapKnobNotify>(Vec(colRulerT3 + 1 + offsetIMBigKnob, rowRuler0 + offsetIMBigKnob), module, Clocked::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		addParam(createDynamicParam<IMBigSnapKnob>(Vec(colRulerT3 + 1 + offsetIMBigKnob, rowRuler0 + offsetIMBigKnob), module, Clocked::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		// BPM display
 		displayRatios[0] = new RatioDisplayWidget();
 		displayRatios[0]->box.pos = Vec(colRulerT4 + 11, rowRuler0 + vOffsetDisplay);
@@ -1132,7 +1128,7 @@ struct ClockedWidget : ModuleWidget {
 		// Row 2-4 (sub clocks)		
 		for (int i = 0; i < 3; i++) {
 			// Ratio1 knob
-			addParam(createDynamicParam<IMBigSnapKnobNotify>(Vec(colRulerM0 + offsetIMBigKnob, rowRuler2 + i * rowSpacingClks + offsetIMBigKnob), module, Clocked::RATIO_PARAMS + 1 + i, module ? &module->panelTheme : NULL));		
+			addParam(createDynamicParam<IMBigSnapKnob>(Vec(colRulerM0 + offsetIMBigKnob, rowRuler2 + i * rowSpacingClks + offsetIMBigKnob), module, Clocked::RATIO_PARAMS + 1 + i, module ? &module->panelTheme : NULL));		
 			// Ratio display
 			displayRatios[i + 1] = new RatioDisplayWidget();
 			displayRatios[i + 1]->box.pos = Vec(colRulerM1, rowRuler2 + i * rowSpacingClks + vOffsetDisplay);

@@ -1,7 +1,9 @@
 ### 1.1.4 (in development)
 
+- Add new module called Clkd: a half-sized version of Clocked without PW, Swing and Delay
 - Reduced width of Cv-Pad by 1HP
 - Fix bug in Foundry when using expander to sync select sequences with different run modes
+- Fix bug in divided clocks in Clocked when launching Rack
 
 
 ### 1.1.3 (2019-11-27)
