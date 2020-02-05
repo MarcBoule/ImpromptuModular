@@ -49,9 +49,9 @@
 			"tags": ["Clock"]
 		},
 		{
-			"slug": "Clkd",
+			"slug": "Clocked-Clkd",
 			"name": "Clkd",
-			"description": "Chainable clock generator based on Clocked",
+			"description": "Half-sized simplified version of Clocked",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#clocked",
 			"tags": ["Clock"]
 		},

@@ -43,7 +43,7 @@ class Clock {
 	double getStep() {
 		return step;
 	}
-	void setup(Clock* clkGiven, bool *resetClockOutputsHighPtr) {
+	void construct(Clock* clkGiven, bool *resetClockOutputsHighPtr) {
 		syncSrc = clkGiven;
 		resetClockOutputsHigh = resetClockOutputsHighPtr;
 	}
@@ -57,7 +57,7 @@ class Clock {
 		sampleTime = sampleTimeGiven;
 	}
 
-	void stepClock() {// here the clock was output on step "step", this function is called at end of module::step()
+	void stepClock() {// here the clock was output on step "step", this function is called near end of module::process()
 		if (step >= 0.0) {// if active clock
 			step += sampleTime;
 			if ( (syncSrc != nullptr) && (iterations == 1) && (step > (length - guard)) ) {// if in sync region
@@ -118,7 +118,8 @@ class Clock {
 
 struct Clkd : Module {
 	enum ParamIds {
-		ENUMS(RATIO_PARAMS, 4),// master is index 0
+		ENUMS(RATIO_PARAMS, 3),
+		BPM_PARAM,
 		RESET_PARAM,
 		RUN_PARAM,
 		BPMMODE_DOWN_PARAM,
@@ -168,21 +169,21 @@ struct Clkd : Module {
 	int ppqn;
 	bool resetClockOutputsHigh;
 	bool momentaryRunInput;// true = trigger (original rising edge only version), false = level sensitive (emulated with rising and falling detection)
-	int displayIndex;
 
 	// No need to save, with reset
 	long editingBpmMode;// 0 when no edit bpmMode, downward step counter timer when edit, negative upward when show can't edit ("--") 
 	double sampleRate;
 	double sampleTime;
 	Clock clk[4];
-	bool syncRatios[4];// 0 index unused
-	int ratiosDoubled[4];
+	bool syncRatios[3];
+	int ratiosDoubled[3];
 	int extPulseNumber;// 0 to ppqn - 1
 	double extIntervalTime;
 	double timeoutTime;
 	float newMasterLength;
 	float masterLength;
 	float clkOutputs[4];
+	int displayIndex;
 	
 	// No need to save, no reset
 	bool scheduledReset = false;
@@ -202,10 +203,8 @@ struct Clkd : Module {
 
 	
 	int getRatioDoubled(int ratioKnobIndex) {
-		// ratioKnobIndex is 0 for master BPM's ratio (1 is implicitly returned), and 1 to 3 for other ratio knobs
+		// ratioKnobIndex is 0 to 2 for ratio knobs
 		// returns a positive ratio for mult, negative ratio for div (0 never returned)
-		if (ratioKnobIndex < 1) 
-			return 1;
 		bool isDivision = false;
 		int i = (int) std::round( params[RATIO_PARAMS + ratioKnobIndex].getValue() );// [ -(numRatios-1) ; (numRatios-1) ]
 		if (i < 0) {
@@ -225,7 +224,6 @@ struct Clkd : Module {
 	Clkd() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-		configParam(RATIO_PARAMS + 0, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");
 		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
 		configParam(BPMMODE_DOWN_PARAM, 0.0f, 1.0f, 0.0f, "Bpm mode prev");
@@ -235,12 +233,13 @@ struct Clkd : Module {
 		char strBuf[32];
 		for (int i = 0; i < 3; i++) {// Row 2-4 (sub clocks)
 			// Ratio1 knob
-			snprintf(strBuf, 32, "Ratio clk %i", i);
-			configParam(RATIO_PARAMS + 1 + i, (34.0f - 1.0f)*-1.0f, 34.0f - 1.0f, 0.0f, strBuf);		
+			snprintf(strBuf, 32, "Ratio clk %i", i + 1);
+			configParam(RATIO_PARAMS + i, (34.0f - 1.0f)*-1.0f, 34.0f - 1.0f, 0.0f, strBuf);		
 		}
+		configParam(BPM_PARAM, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		
 		for (int i = 1; i < 4; i++) {
-			clk[i].setup(&clk[0], &resetClockOutputsHigh);		
+			clk[i].construct(&clk[0], &resetClockOutputsHigh);		
 		}
 		onReset();
 		
@@ -256,7 +255,6 @@ struct Clkd : Module {
 		ppqn = 4;
 		resetClockOutputsHigh = true;
 		momentaryRunInput = true;
-		displayIndex = 0;// show BPM (knob 0) by default
 		resetNonJson(false);
 	}
 	void resetNonJson(bool delayed) {// delay thread sensitive parts (i.e. schedule them so that process() will do them)
@@ -279,8 +277,10 @@ struct Clkd : Module {
 		sampleTime = 1.0 / sampleRate;
 		for (int i = 0; i < 4; i++) {
 			clk[i].reset();
-			syncRatios[i] = false;
-			ratiosDoubled[i] = getRatioDoubled(i);
+			if (i < 3) {
+				syncRatios[i] = false;
+				ratiosDoubled[i] = getRatioDoubled(i);
+			}
 			clkOutputs[i] = resetClockOutputsHigh ? 10.0f : 0.0f;
 		}
 		extPulseNumber = -1;
@@ -296,9 +296,11 @@ struct Clkd : Module {
 				newMasterLength = 1.0f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage());// bpm = 120*2^V, 2T = 120/bpm = 120/(120*2^V) = 1/2^V
 		}
 		else
-			newMasterLength = 120.0f / params[RATIO_PARAMS + 0].getValue();
+			newMasterLength = 120.0f / params[BPM_PARAM].getValue();
 		newMasterLength = clamp(newMasterLength, masterLengthMin, masterLengthMax);
 		masterLength = newMasterLength;
+		// INFO("displayIndex = 0"); 
+		displayIndex = 0;// show BPM (knob 0) by default
 	}	
 	
 	
@@ -330,7 +332,7 @@ struct Clkd : Module {
 		json_object_set_new(rootJ, "momentaryRunInput", json_boolean(momentaryRunInput));
 		
 		// displayIndex
-		json_object_set_new(rootJ, "displayIndex", json_integer(displayIndex));
+		// json_object_set_new(rootJ, "displayIndex", json_integer(displayIndex));
 		
 		return rootJ;
 	}
@@ -378,9 +380,9 @@ struct Clkd : Module {
 			momentaryRunInput = json_is_true(momentaryRunInputJ);
 
 		// displayIndex
-		json_t *displayIndexJ = json_object_get(rootJ, "displayIndex");
-		if (displayIndexJ)
-			displayIndex = json_integer_value(displayIndexJ);
+		// json_t *displayIndexJ = json_object_get(rootJ, "displayIndex");
+		// if (displayIndexJ)
+			// displayIndex = json_integer_value(displayIndexJ);
 
 		resetNonJson(true);
 	}
@@ -554,7 +556,7 @@ struct Clkd : Module {
 			}
 		}
 		else {// BPM_INPUT not active
-			newMasterLength = clamp(120.0f / params[RATIO_PARAMS + 0].getValue(), masterLengthMin, masterLengthMax);
+			newMasterLength = clamp(120.0f / params[BPM_PARAM].getValue(), masterLengthMin, masterLengthMax);
 		}
 		if (newMasterLength != masterLength) {
 			double lengthStretchFactor = ((double)newMasterLength) / ((double)masterLength);
@@ -573,9 +575,9 @@ struct Clkd : Module {
 			// Master clock
 			if (clk[0].isReset()) {
 				// See if ratio knobs changed (or unitinialized)
-				for (int i = 1; i < 4; i++) {
+				for (int i = 0; i < 3; i++) {
 					if (syncRatios[i]) {// unused (undetermined state) for master
-						clk[i].reset();// force reset (thus refresh) of that sub-clock
+						clk[i + 1].reset();// force reset (thus refresh) of that sub-clock
 						ratiosDoubled[i] = getRatioDoubled(i);
 						syncRatios[i] = false;
 					}
@@ -590,7 +592,7 @@ struct Clkd : Module {
 				if (clk[i].isReset()) {
 					double length;
 					int iterations;
-					int ratioDoubled = ratiosDoubled[i];
+					int ratioDoubled = ratiosDoubled[i - 1];
 					if (ratioDoubled < 0) { // if div 
 						ratioDoubled *= -1;
 						length = masterLength * ((double)ratioDoubled) / 2.0;
@@ -639,7 +641,7 @@ struct Clkd : Module {
 			
 			// ratios synched lights
 			for (int i = 0; i < 4; i++) {
-				if (i > 0 && running && syncRatios[i]) {// red
+				if (i > 0 && running && syncRatios[i - 1]) {// red
 					lights[CLK_LIGHTS + i * 2 + 0].setBrightness(0.0f);
 					lights[CLK_LIGHTS + i * 2 + 1].setBrightness(1.0f);
 				}
@@ -698,7 +700,7 @@ struct ClkdWidget : ModuleWidget {
 			}
 			else if (module->displayIndex > 0) {// Ratio to display
 				bool isDivision = false;
-				int ratioDoubled = module->getRatioDoubled(module->displayIndex);
+				int ratioDoubled = module->getRatioDoubled(module->displayIndex - 1);
 				if (ratioDoubled < 0) {
 					ratioDoubled = -1 * ratioDoubled;
 					isDivision = true;
@@ -823,11 +825,16 @@ struct ClkdWidget : ModuleWidget {
 			if (paramQuantity) {
 				Clkd *module = dynamic_cast<Clkd*>(paramQuantity->module);
 				int paramId = paramQuantity->paramId;
-				int dispIndex = paramId - Clkd::RATIO_PARAMS;
-				if ( (paramId >= Clkd::RATIO_PARAMS + 1) && (paramId <= Clkd::RATIO_PARAMS + 3) ) {
+				if ( (paramId >= Clkd::RATIO_PARAMS + 0) && (paramId <= Clkd::RATIO_PARAMS + 2) ) {
+					int dispIndex = (paramId - Clkd::RATIO_PARAMS);
 					module->syncRatios[dispIndex] = true;
+					// INFO("*displayIndex = %i", dispIndex);
+					module->displayIndex = dispIndex + 1;
 				}
-				module->displayIndex = dispIndex;
+				else if (paramId == Clkd::BPM_PARAM) {
+					// INFO("*displayIndex = 0");
+					module->displayIndex = 0;
+				}
 			}
 			SvgKnob::onChange(e);		
 		}
@@ -873,6 +880,13 @@ struct ClkdWidget : ModuleWidget {
 		// Bpm input
 		addInput(createDynamicPortCentered<IMPort>(Vec(colR, row0), true, module, Clkd::BPM_INPUT, module ? &module->panelTheme : NULL));
 		
+		// Row 4 		
+		// Ratio knobs
+		addParam(createDynamicParamCentered<IMSmallSnapKnobNotify>(Vec(colL, row4), module, Clkd::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMSmallSnapKnobNotify>(Vec(colC, row4), module, Clkd::RATIO_PARAMS + 1, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMSmallSnapKnobNotify>(Vec(colR, row4), module, Clkd::RATIO_PARAMS + 2, module ? &module->panelTheme : NULL));		
+
+
 		// Row 1
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(Vec(colL, row1), module, Clkd::RESET_PARAM));
@@ -881,7 +895,7 @@ struct ClkdWidget : ModuleWidget {
 		addParam(createParamCentered<LEDBezel>(Vec(colC, row1), module, Clkd::RUN_PARAM));
 		addChild(createLightCentered<MuteLight<GreenLight>>(Vec(colC, row1), module, Clkd::RUN_LIGHT));
 		// Master BPM knob
-		addParam(createDynamicParamCentered<IMSmallSnapKnobNotify>(Vec(colR, row1), module, Clkd::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		addParam(createDynamicParamCentered<IMSmallSnapKnobNotify>(Vec(colR, row1), module, Clkd::BPM_PARAM, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		
 		// Row 2
 		// BPM display
@@ -909,12 +923,6 @@ struct ClkdWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(Vec(colR, row3), module, Clkd::BPMMODE_UP_PARAM, module ? &module->panelTheme : NULL));
 
 		
-		// Row 4 		
-		// Ratio knobs
-		addParam(createDynamicParamCentered<IMSmallSnapKnobNotify>(Vec(colL, row4), module, Clkd::RATIO_PARAMS + 1, module ? &module->panelTheme : NULL));		
-		addParam(createDynamicParamCentered<IMSmallSnapKnobNotify>(Vec(colC, row4), module, Clkd::RATIO_PARAMS + 2, module ? &module->panelTheme : NULL));		
-		addParam(createDynamicParamCentered<IMSmallSnapKnobNotify>(Vec(colR, row4), module, Clkd::RATIO_PARAMS + 3, module ? &module->panelTheme : NULL));		
-
 		// Row 5
 		// Sub-clock outputs
 		addOutput(createDynamicPortCentered<IMPort>(Vec(colL, row5), false, module, Clkd::CLK_OUTPUTS + 1, module ? &module->panelTheme : NULL));	
@@ -952,4 +960,4 @@ struct ClkdWidget : ModuleWidget {
 	}
 };
 
-Model *modelClkd = createModel<Clkd, ClkdWidget>("Clkd");
+Model *modelClkd = createModel<Clkd, ClkdWidget>("Clocked-Clkd");

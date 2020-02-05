@@ -43,7 +43,7 @@ class Clock {
 	double getStep() {
 		return step;
 	}
-	void setup(Clock* clkGiven, bool *resetClockOutputsHighPtr) {
+	void construct(Clock* clkGiven, bool *resetClockOutputsHighPtr) {
 		syncSrc = clkGiven;
 		resetClockOutputsHigh = resetClockOutputsHighPtr;
 	}
@@ -57,7 +57,7 @@ class Clock {
 		sampleTime = sampleTimeGiven;
 	}
 
-	void stepClock() {// here the clock was output on step "step", this function is called at end of module::step()
+	void stepClock() {// here the clock was output on step "step", this function is called near end of module::process()
 		if (step >= 0.0) {// if active clock
 			step += sampleTime;
 			if ( (syncSrc != nullptr) && (iterations == 1) && (step > (length - guard)) ) {// if in sync region
@@ -369,7 +369,7 @@ struct Clocked : Module {
 		}
 		
 		for (int i = 1; i < 4; i++) {
-			clk[i].setup(&clk[0], &resetClockOutputsHigh);		
+			clk[i].construct(&clk[0], &resetClockOutputsHigh);		
 		}
 		onReset();
 		
