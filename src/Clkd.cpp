@@ -1,5 +1,5 @@
 //***********************************************************************************************
-//Chain-able clock module based on Clocked for VCV Rack by Marc Boulé
+//Half-sized simplified version of Clocked for VCV Rack by Marc Boulé
 //
 //Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics  
 //  from the Component Library by Wes Milholen. 
@@ -52,7 +52,7 @@ class Clock {
 	}
 	
 	void setup(double lengthGiven, int iterationsGiven, double sampleTimeGiven) {
-		length = lengthGiven / 2.0;
+		length = lengthGiven;
 		iterations = iterationsGiven;
 		sampleTime = sampleTimeGiven;
 	}
@@ -132,8 +132,8 @@ struct Clkd : Module {
 	const float ratioValues[34] = {1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 23, 24, 29, 31, 32, 37, 41, 43, 47, 48, 53, 59, 61, 64};
 	static const int bpmMax = 300;
 	static const int bpmMin = 30;
-	static constexpr float masterLengthMax = 120.0f / bpmMin;// a length is a double period
-	static constexpr float masterLengthMin = 120.0f / bpmMax;// a length is a double period
+	static constexpr float masterLengthMax = 60.0f / bpmMin;// a length is a period
+	static constexpr float masterLengthMin = 60.0f / bpmMax;// a length is a period
 	
 	
 	// Need to save, no reset
@@ -147,6 +147,7 @@ struct Clkd : Module {
 	int ppqn;
 	bool resetClockOutputsHigh;
 	bool momentaryRunInput;// true = trigger (original rising edge only version), false = level sensitive (emulated with rising and falling detection)
+	int displayIndex;
 
 	// No need to save, with reset
 	long editingBpmMode;// 0 when no edit bpmMode, downward step counter timer when edit, negative upward when show can't edit ("--") 
@@ -162,7 +163,6 @@ struct Clkd : Module {
 	float newMasterLength;
 	float masterLength;
 	float clkOutputs[4];
-	int displayIndex;
 	
 	// No need to save, no reset
 	bool scheduledReset = false;
@@ -234,6 +234,7 @@ struct Clkd : Module {
 		ppqn = 4;
 		resetClockOutputsHigh = true;
 		momentaryRunInput = true;
+		displayIndex = 0;// show BPM (knob 0) by default
 		resetNonJson(false);
 	}
 	void resetNonJson(bool delayed) {// delay thread sensitive parts (i.e. schedule them so that process() will do them)
@@ -270,16 +271,15 @@ struct Clkd : Module {
 		if (inputs[BPM_INPUT].isConnected()) {
 			if (bpmDetectionMode) {
 				if (hardReset)
-					newMasterLength = 1.0f;// 120 BPM
+					newMasterLength = 0.5f;// 120 BPM
 			}
 			else
-				newMasterLength = 1.0f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage());// bpm = 120*2^V, 2T = 120/bpm = 120/(120*2^V) = 1/2^V
+				newMasterLength = 0.5f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage());// bpm = 120*2^V, T = 60/bpm = 60/(120*2^V) = 0.5/2^V
 		}
 		else
-			newMasterLength = 120.0f / bufferedKnobs[3];//params[BPM_PARAM].getValue();
+			newMasterLength = 60.0f / bufferedKnobs[3];//params[BPM_PARAM].getValue();
 		newMasterLength = clamp(newMasterLength, masterLengthMin, masterLengthMax);
 		masterLength = newMasterLength;
-		displayIndex = 0;// show BPM (knob 0) by default
 	}	
 	
 	
@@ -311,7 +311,7 @@ struct Clkd : Module {
 		json_object_set_new(rootJ, "momentaryRunInput", json_boolean(momentaryRunInput));
 		
 		// displayIndex
-		// json_object_set_new(rootJ, "displayIndex", json_integer(displayIndex));
+		json_object_set_new(rootJ, "displayIndex", json_integer(displayIndex));
 		
 		return rootJ;
 	}
@@ -359,9 +359,9 @@ struct Clkd : Module {
 			momentaryRunInput = json_is_true(momentaryRunInputJ);
 
 		// displayIndex
-		// json_t *displayIndexJ = json_object_get(rootJ, "displayIndex");
-		// if (displayIndexJ)
-			// displayIndex = json_integer_value(displayIndexJ);
+		json_t *displayIndexJ = json_object_get(rootJ, "displayIndex");
+		if (displayIndexJ)
+			displayIndex = json_integer_value(displayIndexJ);
 
 		resetNonJson(true);
 	}
@@ -511,13 +511,13 @@ struct Clkd : Module {
 					}
 					if (running) {
 						extPulseNumber++;
-						if (extPulseNumber >= ppqn * 2)// *2 because working with double_periods
+						if (extPulseNumber >= ppqn)
 							extPulseNumber = 0;
 						if (extPulseNumber == 0)// if first pulse, start interval timer
 							extIntervalTime = 0.0;
 						else {
 							// all other ppqn pulses except the first one. now we have an interval upon which to plan a strecth 
-							double timeLeft = extIntervalTime * (double)(ppqn * 2 - extPulseNumber) / ((double)extPulseNumber);
+							double timeLeft = extIntervalTime * (double)(ppqn - extPulseNumber) / ((double)extPulseNumber);
 							newMasterLength = clamp(clk[0].getStep() + timeLeft, masterLengthMin / 1.5f, masterLengthMax * 1.5f);// extended range for better sync ability (20-450 BPM)
 							timeoutTime = extIntervalTime * ((double)(1 + extPulseNumber) / ((double)extPulseNumber)) + 0.1; // when a second or higher clock edge is received, 
 							//  the timeout is the predicted next edge (whici is extIntervalTime + extIntervalTime / extPulseNumber) plus epsilon
@@ -541,12 +541,12 @@ struct Clkd : Module {
 			}
 			// BPM CV method
 			else {// bpmDetectionMode not active
-				newMasterLength = clamp(1.0f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage()), masterLengthMin, masterLengthMax);// bpm = 120*2^V, 2T = 120/bpm = 120/(120*2^V) = 1/2^V
+				newMasterLength = clamp(0.5f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage()), masterLengthMin, masterLengthMax);// bpm = 120*2^V, T = 60/bpm = 60/(120*2^V) = 0.5/2^V
 				// no need to round since this clocked's master's BPM knob is a snap knob thus already rounded, and with passthru approach, no cumul error
 			}
 		}
 		else {// BPM_INPUT not active
-			newMasterLength = clamp(120.0f / bufferedKnobs[3]/*params[BPM_PARAM].getValue()*/, masterLengthMin, masterLengthMax);
+			newMasterLength = clamp(60.0f / bufferedKnobs[3], masterLengthMin, masterLengthMax);
 		}
 		if (newMasterLength != masterLength) {
 			double lengthStretchFactor = ((double)newMasterLength) / ((double)masterLength);
@@ -609,7 +609,7 @@ struct Clkd : Module {
 		}
 		outputs[RESET_OUTPUT].setVoltage((resetPulse.process((float)sampleTime) ? 10.0f : 0.0f));
 		outputs[RUN_OUTPUT].setVoltage((runPulse.process((float)sampleTime) ? 10.0f : 0.0f));
-		outputs[BPM_OUTPUT].setVoltage( inputs[BPM_INPUT].isConnected() ? inputs[BPM_INPUT].getVoltage() : log2f(1.0f / masterLength));
+		outputs[BPM_OUTPUT].setVoltage( inputs[BPM_INPUT].isConnected() ? inputs[BPM_INPUT].getVoltage() : log2f(0.5f / masterLength));
 			
 		
 		// lights
@@ -703,7 +703,7 @@ struct ClkdWidget : ModuleWidget {
 				}
 			}
 			else {// BPM to display
-				snprintf(displayStr, 4, "%3u", (unsigned)((120.0f / module->masterLength) + 0.5f));
+				snprintf(displayStr, 4, "%3u", (unsigned)((60.0f / module->masterLength) + 0.5f));
 			}
 			displayStr[3] = 0;// more safety
 			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);

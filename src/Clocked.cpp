@@ -260,7 +260,7 @@ struct Clocked : Module {
 	ClockDelay delay[3];// only channels 1 to 3 have delay
 	bool syncRatios[4];// 0 index unused
 	int ratiosDoubled[4];
-	int extPulseNumber;// 0 to ppqn - 1
+	int extPulseNumber;// 0 to ppqn * 2 - 1
 	double extIntervalTime;
 	double timeoutTime;
 	float pulseWidth[4];
@@ -350,21 +350,21 @@ struct Clocked : Module {
 		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
 		configParam(BPMMODE_DOWN_PARAM, 0.0f, 1.0f, 0.0f, "Bpm mode prev");
 		configParam(BPMMODE_UP_PARAM, 0.0f, 1.0f, 0.0f,  "Bpm mode next");
-		configParam(SWING_PARAMS + 0, -1.0f, 1.0f, 0.0f, "Swing clk 0");
-		configParam(PW_PARAMS + 0, 0.0f, 1.0f, 0.5f, "Pulse width clk 0");			
+		configParam(SWING_PARAMS + 0, -1.0f, 1.0f, 0.0f, "Swing clk");
+		configParam(PW_PARAMS + 0, 0.0f, 1.0f, 0.5f, "Pulse width clk");			
 		char strBuf[32];
 		for (int i = 0; i < 3; i++) {// Row 2-4 (sub clocks)
-			// Ratio1 knob
-			snprintf(strBuf, 32, "Ratio clk %i", i);
+			// Ratio knobs
+			snprintf(strBuf, 32, "Ratio clk %i", i + 1);
 			configParam(RATIO_PARAMS + 1 + i, (34.0f - 1.0f)*-1.0f, 34.0f - 1.0f, 0.0f, strBuf);		
 			// Swing knobs
-			snprintf(strBuf, 32, "Swing clk %i", i);
+			snprintf(strBuf, 32, "Swing clk %i", i + 1);
 			configParam(SWING_PARAMS + 1 + i, -1.0f, 1.0f, 0.0f, strBuf);
 			// PW knobs
-			snprintf(strBuf, 32, "Pulse width clk %i", i);
+			snprintf(strBuf, 32, "Pulse width clk %i", i + 1);
 			configParam(PW_PARAMS + 1 + i, 0.0f, 1.0f, 0.5f,strBuf);
 			// Delay knobs
-			snprintf(strBuf, 32, "Delay clk %i", i);
+			snprintf(strBuf, 32, "Delay clk %i", i + 1);
 			configParam(DELAY_PARAMS + 1 + i, 0.0f, 8.0f - 1.0f, 0.0f, strBuf);
 		}
 		
