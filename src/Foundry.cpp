@@ -504,7 +504,14 @@ struct Foundry : Module {
 				seq.attach(editingSequence);
 			}
 			
-	
+			// CP mode switch
+			int newCPMode = getCPMode();
+			if (cpSeqLength != newCPMode) {
+				cpSeqLength = newCPMode;
+				if (displayState == DISP_COPY_SONG_CUST)
+					displayState = DISP_NORMAL;
+			}
+
 			// Copy 
 			if (copyTrigger.process(params[COPY_PARAM].getValue())) {
 				if (!attached) {
@@ -556,7 +563,7 @@ struct Foundry : Module {
 					attachedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 			}			
 			
-
+			
 			// Write input (must be before Left and Right in case route gate simultaneously to Right and Write for example)
 			//  (write must be to correct step)
 			bool writeTrig = writeTrigger.process(inputs[WRITE_INPUT].getVoltage());
@@ -1532,40 +1539,6 @@ struct FoundryWidget : ModuleWidget {
 								module->seq.setPhraseSeqNum(totalNum - 1, module->multiTracks);
 						}
 					}	
-
-
-
-/*
-					bool editingSequence = module->isEditingSequence();
-					if (module->infoCopyPaste != 0l) {
-					}
-					else if (module->editingPpqn != 0ul) {
-					}
-					else if (module->displayState == Foundry::DISP_MODE) {
-					}
-					else if (module->displayState == Foundry::DISP_LENGTH) {
-						totalNum = clamp(totalNum, 1, 16);
-						if (editingSequence)
-							module->sequences[module->seqIndexEdit].setLength(totalNum);
-						else
-							module->phrases = totalNum;
-					}
-					else if (module->displayState == Foundry::DISP_TRANSPOSE) {
-					}
-					else if (module->displayState == Foundry::DISP_ROTATE) {
-					}
-					else {// DISP_NORMAL
-						totalNum = clamp(totalNum, 1, 16);
-						if (editingSequence) {
-							if (!module->inputs[Foundry::SEQCV_INPUT].isConnected())
-								module->seqIndexEdit = totalNum - 1;
-						}
-						else {
-							if (!module->attached || (module->attached && !module->running))
-								module->phrase[module->phraseIndexEdit] = totalNum - 1;
-						}
-
-					}*/
 				}
 				
 				lastTime = currentTime;
@@ -1963,18 +1936,6 @@ struct FoundryWidget : ModuleWidget {
 			SvgSwitch::onChange(e);		
 		}
 	};
-	struct CPModeSwitch : CKSSThreeInvNoRandom {
-		CPModeSwitch() {};
-		void onChange(const event::Change &e) override {
-			SvgSwitch::onChange(e);	
-			if (paramQuantity) {
-				Foundry* module = dynamic_cast<Foundry*>(paramQuantity->module);			
-				module->cpSeqLength = module->getCPMode();
-				if (module->displayState == Foundry::DISP_COPY_SONG_CUST)
-					module->displayState = Foundry::DISP_NORMAL;
-			}
-		}
-	};
 	// Velocity edit knob
 	struct VelocityKnob : IMMediumKnobInf {
 		VelocityKnob() {};		
@@ -2130,7 +2091,7 @@ struct FoundryWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(Vec(columnRulerT1, rowRulerT0), module, Foundry::SEL_PARAM, module ? &module->panelTheme : NULL));
 		
 		// Copy-paste and select mode switch (3 position)
-		addParam(createParamCentered<CPModeSwitch>(Vec(columnRulerT2, rowRulerT0), module, Foundry::CPMODE_PARAM));	// 0.0f is top position
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(columnRulerT2, rowRulerT0), module, Foundry::CPMODE_PARAM));	// 0.0f is top position
 		
 		// Copy/paste buttons
 		// see under Track display
