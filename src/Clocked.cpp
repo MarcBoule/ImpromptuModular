@@ -1018,8 +1018,7 @@ struct ClockedWidget : ModuleWidget {
 		menu->addChild(expItem);	
 	}	
 	
-	struct IMSmallKnobNotify : IMSmallKnob {
-		IMSmallKnobNotify() {};
+	struct IMSmallKnobNotify : IMSmallKnob<true, false> {// for Swing and PW
 		void onDragMove(const event::DragMove &e) override {
 			if (paramQuantity) {
 				Clocked *module = dynamic_cast<Clocked*>(paramQuantity->module);
@@ -1027,8 +1026,6 @@ struct ClockedWidget : ModuleWidget {
 				int paramId = paramQuantity->paramId;
 				if ( (paramId >= Clocked::SWING_PARAMS + 0) && (paramId <= Clocked::SWING_PARAMS + 3) )
 					dispIndex = paramId - Clocked::SWING_PARAMS;
-				else if ( (paramId >= Clocked::DELAY_PARAMS + 1) && (paramId <= Clocked::DELAY_PARAMS + 3) )
-					dispIndex = paramId - Clocked::DELAY_PARAMS;
 				else if ( (paramId >= Clocked::PW_PARAMS + 0) && (paramId <= Clocked::PW_PARAMS + 3) )
 					dispIndex = paramId - Clocked::PW_PARAMS;
 				module->notifyingSource[dispIndex] = paramId;
@@ -1037,9 +1034,18 @@ struct ClockedWidget : ModuleWidget {
 			Knob::onDragMove(e);
 		}
 	};
-	struct IMSmallSnapKnobNotify : IMSmallKnobNotify {
-		IMSmallSnapKnobNotify() {
-			snap = true;
+	struct IMSmallSnapKnobNotify : IMSmallKnob<true, true> {// used for Delay
+		void onDragMove(const event::DragMove &e) override {
+			if (paramQuantity) {
+				Clocked *module = dynamic_cast<Clocked*>(paramQuantity->module);
+				int dispIndex = 0;
+				int paramId = paramQuantity->paramId;
+				if ( (paramId >= Clocked::DELAY_PARAMS + 1) && (paramId <= Clocked::DELAY_PARAMS + 3) )
+					dispIndex = paramId - Clocked::DELAY_PARAMS;
+				module->notifyingSource[dispIndex] = paramId;
+				module->notifyInfo[dispIndex] = (long) (Clocked::delayInfoTime * module->sampleRate / RefreshCounter::displayRefreshStepSkips);
+			}
+			Knob::onDragMove(e);
 		}
 	};
 

@@ -189,6 +189,7 @@ struct IMBigKnobInf : IMKnob {
 	}
 };
 
+template<bool allowRandom, bool makeSnap>
 struct IMSmallKnob : IMKnob {
 	IMSmallKnob() {
 		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundSmallBlackKnob.svg")));
@@ -197,14 +198,11 @@ struct IMSmallKnob : IMKnob {
 		shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
 		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
+		snap = makeSnap;
 	}
-};
-struct IMSmallKnobNoRandom : IMSmallKnob {
-	void randomize() override {}
-};
-struct IMSmallSnapKnob : IMSmallKnob {
-	IMSmallSnapKnob() {
-		snap = true;
+	void randomize() override {
+		if (allowRandom) 
+			IMKnob::randomize();
 	}
 };
 
@@ -220,13 +218,12 @@ struct IMMediumKnobInf : IMKnob {
 	}
 };
 
-struct IMFivePosSmallKnob : IMSmallSnapKnob {
+struct IMFivePosSmallKnob : IMSmallKnob<false, true> {
 	IMFivePosSmallKnob() {
 		speed = 1.6f;
 		minAngle = -0.5*M_PI;
 		maxAngle = 0.5*M_PI;
 	}
-	void randomize() override {}
 };
 
 struct IMSixPosBigKnob : IMBigSnapKnob {

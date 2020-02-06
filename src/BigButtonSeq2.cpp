@@ -740,7 +740,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		
 		
 		// Rnd knob
-		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(colRulerT0, rowRuler0), module, BigButtonSeq2::RND_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(colRulerT0, rowRuler0), module, BigButtonSeq2::RND_PARAM, module ? &module->panelTheme : NULL));
 		// Channel knob
 		addParam(createDynamicParamCentered<IMSixPosBigKnob>(Vec(colRulerCenter - clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::CHAN_PARAM, module ? &module->panelTheme : NULL));	
 		// Channel display

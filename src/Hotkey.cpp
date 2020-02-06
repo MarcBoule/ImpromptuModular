@@ -406,7 +406,7 @@ struct HotkeyWidget : ModuleWidget {
 		addChild(createLightCentered<MuteLight<RedLight>>(Vec(centerX, buttonY), module, Hotkey::RECORD_KEY_LIGHT));
 		
 		// Delay knob
-		addParam(createDynamicParamCentered<IMSmallKnob>(Vec(centerX, 220.0f), module, Hotkey::DELAY_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(Vec(centerX, 220.0f), module, Hotkey::DELAY_PARAM, module ? &module->panelTheme : NULL));
 
 		// trig out
 		addOutput(createDynamicPortCentered<IMPort>(Vec(centerX, 380.0f - mm2px(31.25f)), false, module, Hotkey::TRIG_OUTPUT, NULL));//module ? &module->panelTheme : NULL));

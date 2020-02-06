@@ -857,7 +857,7 @@ struct ClkdWidget : ModuleWidget {
 		addParam(createParamCentered<LEDBezel>(Vec(colC, row1), module, Clkd::RUN_PARAM));
 		addChild(createLightCentered<MuteLight<GreenLight>>(Vec(colC, row1), module, Clkd::RUN_LIGHT));
 		// Master BPM knob
-		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(colR, row1), module, Clkd::BPM_PARAM, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(colR, row1), module, Clkd::BPM_PARAM, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		
 
 		// Row 2
@@ -891,9 +891,9 @@ struct ClkdWidget : ModuleWidget {
 		
 		// Row 4 		
 		// Ratio knobs
-		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(colL, row4), module, Clkd::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));		
-		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(colC, row4), module, Clkd::RATIO_PARAMS + 1, module ? &module->panelTheme : NULL));		
-		addParam(createDynamicParamCentered<IMSmallSnapKnob>(Vec(colR, row4), module, Clkd::RATIO_PARAMS + 2, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(colL, row4), module, Clkd::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(colC, row4), module, Clkd::RATIO_PARAMS + 1, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(colR, row4), module, Clkd::RATIO_PARAMS + 2, module ? &module->panelTheme : NULL));		
 
 
 		// Row 5
