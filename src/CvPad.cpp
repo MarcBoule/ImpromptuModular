@@ -947,7 +947,7 @@ struct CvPadWidget : ModuleWidget {
 		// cv knob
 		addParam(createDynamicParamCentered<CvKnob>(Vec(padX + padXd * 2, topY), module, CvPad::CV_PARAM, module ? &module->panelTheme : NULL));
 		// bank knob
-		addParam(createDynamicParamCentered<IMBigSnapKnob>(Vec(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(Vec(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
 
 		
 	}

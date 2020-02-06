@@ -2327,7 +2327,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		static const int colRulerVCO0 = 460;
 		static const int colRulerVCO1 = colRulerVCO0 + 55;// exact value from svg
 
-		addParam(createDynamicParam<IMBigKnob>(Vec(colRulerVCO0 + offsetIMBigKnob + 55 / 2, rowRulerVCO0 + offsetIMBigKnob), module, SemiModularSynth::VCO_FREQ_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParam<IMBigKnob<false, false>>(Vec(colRulerVCO0 + offsetIMBigKnob + 55 / 2, rowRulerVCO0 + offsetIMBigKnob), module, SemiModularSynth::VCO_FREQ_PARAM, module ? &module->panelTheme : NULL));
 		
 		addParam(createDynamicParam<IMSmallKnob<false, true>>(Vec(colRulerVCO0 + offsetIMSmallKnob, rowRulerVCO1 + offsetIMSmallKnob), module, SemiModularSynth::VCO_FINE_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParam<IMSmallKnob<false, true>>(Vec(colRulerVCO1 + offsetIMSmallKnob, rowRulerVCO1 + offsetIMSmallKnob), module, SemiModularSynth::VCO_PW_PARAM, module ? &module->panelTheme : NULL));
@@ -2382,7 +2382,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		// VCF
 		static const int colRulerVCF0 = colRulerVca1 + 55;// exact value from svg
 		static const int colRulerVCF1 = colRulerVCF0 + 55;// exact value from svg
-		addParam(createDynamicParam<IMBigKnob>(Vec(colRulerVCF0 + offsetIMBigKnob + 55 / 2, rowRulerVCO0 + offsetIMBigKnob), module, SemiModularSynth::VCF_FREQ_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParam<IMBigKnob<false, false>>(Vec(colRulerVCF0 + offsetIMBigKnob + 55 / 2, rowRulerVCO0 + offsetIMBigKnob), module, SemiModularSynth::VCF_FREQ_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParam<IMSmallKnob<false, true>>(Vec(colRulerVCF0 + offsetIMSmallKnob + 55 / 2, rowRulerVCO1 + offsetIMSmallKnob), module, SemiModularSynth::VCF_RES_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParam<IMSmallKnob<false, true>>(Vec(colRulerVCF0 + offsetIMSmallKnob , rowRulerVCO2 + offsetIMSmallKnob), module, SemiModularSynth::VCF_FREQ_CV_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParam<IMSmallKnob<false, true>>(Vec(colRulerVCF1 + offsetIMSmallKnob , rowRulerVCO2 + offsetIMSmallKnob), module, SemiModularSynth::VCF_DRIVE_PARAM, module ? &module->panelTheme : NULL));

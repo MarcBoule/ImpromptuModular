@@ -776,7 +776,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		displaySteps->module = module;
 		addChild(displaySteps);
 		// Steps knob
-		addParam(createDynamicParam<IMBigSnapKnob>(Vec(columnRuler3+offsetIMBigKnob, rowRuler1+offsetIMBigKnob), module, WriteSeq32::STEPS_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParam<IMBigKnob<false, true>>(Vec(columnRuler3+offsetIMBigKnob, rowRuler1+offsetIMBigKnob), module, WriteSeq32::STEPS_PARAM, module ? &module->panelTheme : NULL));		
 		// Monitor
 		addParam(createParam<CKSSHNoRandom>(Vec(columnRuler3+hOffsetCKSSH, rowRuler2+vOffsetCKSSH), module, WriteSeq32::MONITOR_PARAM));		
 		// Write input

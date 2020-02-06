@@ -750,7 +750,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		displayChan->module = module;
 		addChild(displayChan);	
 		// Len knob
-		addParam(createDynamicParamCentered<IMBigSnapKnob>(Vec(colRulerCenter + clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::LEN_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(Vec(colRulerCenter + clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::LEN_PARAM, module ? &module->panelTheme : NULL));
 		// Length display
 		StepsDisplayWidget *displaySteps = new StepsDisplayWidget();
 		displaySteps->box.pos = Vec(colRulerT5 - 27 + lengthDisplayOffsetX, rowRuler0 - 15);
