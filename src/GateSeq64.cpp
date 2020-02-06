@@ -99,6 +99,7 @@ struct GateSeq64 : Module {
 	int blinkNum;// number of blink cycles to do, downward counter
 	long editingPhraseSongRunning;// downward step counter
 	int stepConfig;
+	int oldStepConfig;
 	long clockIgnoreOnReset;
 	int phraseIndexRun;
 	unsigned long phraseIndexRunHistory;
@@ -108,7 +109,7 @@ struct GateSeq64 : Module {
 	int gateCode[4];
 
 	// No need to save, no reset
-	int stepConfigSync = 0;// 0 means no sync requested, 1 means soft sync (no reset lengths), 2 means hard (reset lengths)
+	int stepConfigSync = 0;// 0 means no sync requested, 1 means synchronous read of lengths requested
 	RefreshCounter refresh;
 	float resetLight = 0.0f;
 	int sequenceKnob = 0;
@@ -247,6 +248,7 @@ struct GateSeq64 : Module {
 		}
 		else {
 			stepConfig = getStepConfig();
+			oldStepConfig = stepConfig;
 			initRun();
 		}
 	}
@@ -553,19 +555,21 @@ struct GateSeq64 : Module {
 				blinkNum = blinkNumInit;
 
 			// Config switch
-			if (stepConfigSync != 0) {
-				stepConfig = getStepConfig();
-				if (stepConfigSync == 1) {// sync from dataFromJson, so read lengths from seqAttribBuffer
-					for (int i = 0; i < MAX_SEQS; i++)
-						sequences[i].setSeqAttrib(seqAttribBuffer[i].getSeqAttrib());
-				}
-				else if (stepConfigSync == 2) {// sync from a real mouse drag event on the switch itself, so init lengths
-					for (int i = 0; i < MAX_SEQS; i++)
-						sequences[i].setLength(16 * stepConfig);
-				}
+			// switch may move in the pre-fromJson, but no problem, it will trigger the init lenght below, but then when the lengths are loaded
+			//   and we see the stepConfigSync request later, they will get overwritten anyways.
+			stepConfig = getStepConfig();
+			if (stepConfigSync != 0) {// sync from dataFromJson, so read lengths from seqAttribBuffer
+				for (int i = 0; i < MAX_SEQS; i++)
+					sequences[i].setSeqAttrib(seqAttribBuffer[i].getSeqAttrib());
 				initRun();	
 				stepConfigSync = 0;
 			}
+			else if (stepConfig != oldStepConfig) {// switch moved, so init lengths
+				for (int i = 0; i < MAX_SEQS; i++)
+					sequences[i].setLength(16 * stepConfig);
+				initRun();
+			}
+			oldStepConfig = stepConfig;
 			
 			// Seq CV input
 			if (inputs[SEQCV_INPUT].isConnected()) {
@@ -1442,16 +1446,6 @@ struct GateSeq64Widget : ModuleWidget {
 		menu->addChild(expItem);	
 	}	
 	
-	struct CKSSThreeInvNotify : CKSSThreeInvNoRandom {
-		CKSSThreeInvNotify() {}
-		void onDragStart(const event::DragStart &e) override {
-			Switch::onDragStart(e);
-			if (paramQuantity) {
-				GateSeq64* module = dynamic_cast<GateSeq64*>(paramQuantity->module);
-				module->stepConfigSync = 2;// signal a sync from switch so that steps get initialized
-			}
-		}	
-	};
 	
 	struct SequenceKnob : IMBigKnobInf {
 		SequenceKnob() {};		
@@ -1647,7 +1641,7 @@ struct GateSeq64Widget : ModuleWidget {
 		// Seq/Song selector
 		addParam(createParam<CKSSNoRandom>(Vec(colRulerC4 + 2 + hOffsetCKSS, rowRulerC0 + vOffsetCKSS), module, GateSeq64::EDIT_PARAM));
 		// Config switch (3 position)
-		addParam(createParam<CKSSThreeInvNotify>(Vec(colRulerC4 + 2 + hOffsetCKSS, rowRulerC1 - 2 + vOffsetCKSSThree), module, GateSeq64::CONFIG_PARAM));// 0.0f is top position
+		addParam(createParam<CKSSThreeInvNoRandom>(Vec(colRulerC4 + 2 + hOffsetCKSS, rowRulerC1 - 2 + vOffsetCKSSThree), module, GateSeq64::CONFIG_PARAM));// 0.0f is top position
 		// Copy paste mode
 		addParam(createParam<CKSSThreeInvNoRandom>(Vec(colRulerC4 + 2 + hOffsetCKSS, rowRulerC2 + vOffsetCKSSThree), module, GateSeq64::CPMODE_PARAM));
 

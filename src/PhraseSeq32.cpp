@@ -138,6 +138,7 @@ struct PhraseSeq32 : Module {
 	long editingPpqn;// 0 when no info, positive downward step counter timer when editing ppqn
 	bool attachedChanB;
 	int stepConfig;
+	int oldStepConfig;
 	long clockIgnoreOnReset;
 	int phraseIndexRun;	
 	unsigned long phraseIndexRunHistory;
@@ -150,7 +151,7 @@ struct PhraseSeq32 : Module {
 	unsigned long slideStepsRemain[2];// 0 when no slide under way, downward step counter when sliding
 	
 	// No need to save, no reset
-	int stepConfigSync = 0;// 0 means no sync requested, 1 means soft sync (no reset lengths), 2 means hard (reset lengths)
+	int stepConfigSync = 0;// 0 means no sync requested, 1 means synchronous read of lengths requested
 	RefreshCounter refresh;
 	float slideCVdelta[2];// no need to initialize, this is a companion to slideStepsRemain	
 	float editingGateCV;// no need to initialize, this is a companion to editingGate (output this only when editingGate > 0)
@@ -320,6 +321,7 @@ struct PhraseSeq32 : Module {
 		}
 		else {
 			stepConfig = getStepConfig();
+			oldStepConfig = stepConfig;
 			initRun();
 		}
 	}
@@ -703,20 +705,23 @@ struct PhraseSeq32 : Module {
 
 		if (refresh.processInputs()) {
 			// Config switch
-			if (stepConfigSync != 0) {
-				stepConfig = getStepConfig();
-				if (stepConfigSync == 1) {// sync from dataFromJson, so read lengths from seqAttribBuffer
-					for (int i = 0; i < 32; i++)
-						sequences[i].setSeqAttrib(seqAttribBuffer[i].getSeqAttrib());
-				}
-				else if (stepConfigSync == 2) {// sync from a real mouse drag event on the switch itself, so init lengths
-					for (int i = 0; i < 32; i++)
-						sequences[i].setLength(16 * stepConfig);
-				}
+			// switch may move in the pre-fromJson, but no problem, it will trigger the init lenght below, but then when the lengths are loaded
+			//   and we see the stepConfigSync request later, they will get overwritten anyways.
+			stepConfig = getStepConfig();
+			if (stepConfigSync != 0) {// sync from dataFromJson, so read lengths from seqAttribBuffer
+				for (int i = 0; i < 32; i++)
+					sequences[i].setSeqAttrib(seqAttribBuffer[i].getSeqAttrib());
 				initRun();			
 				attachedChanB = false;
 				stepConfigSync = 0;
 			}
+			else if (stepConfig != oldStepConfig) {// switch moved, so init lengths
+				for (int i = 0; i < 32; i++)
+					sequences[i].setLength(16 * stepConfig);
+				initRun();			
+				attachedChanB = false;
+			}				
+			oldStepConfig = stepConfig;
 			
 			// Seq CV input
 			if (inputs[SEQCV_INPUT].isConnected()) {
@@ -1963,16 +1968,6 @@ struct PhraseSeq32Widget : ModuleWidget {
 		menu->addChild(expItem);	
 	}	
 	
-	struct CKSSNotify : CKSSNoRandom {
-		CKSSNotify() {}
-		void onDragStart(const event::DragStart &e) override {
-			Switch::onDragStart(e);
-			if (paramQuantity) {
-				PhraseSeq32* module = dynamic_cast<PhraseSeq32*>(paramQuantity->module);
-				module->stepConfigSync = 2;// signal a sync from switch so that steps get initialized
-			}
-		}	
-	};
 	
 	struct SequenceKnob : IMBigKnobInf {
 		SequenceKnob() {};		
@@ -2073,7 +2068,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		addParam(createDynamicParam<IMPushButton>(Vec(columnRulerT3 - 4, rowRulerT0 - 6 + 2 + offsetTL1105), module, PhraseSeq32::ATTACH_PARAM, module ? &module->panelTheme : NULL));
 		addChild(createLight<MediumLight<RedLight>>(Vec(columnRulerT3 + 12 + offsetMediumLight, rowRulerT0 - 6 + offsetMediumLight), module, PhraseSeq32::ATTACH_LIGHT));		
 		// Config switch
-		addParam(createParam<CKSSNotify>(Vec(columnRulerT4 + hOffsetCKSS + 1, rowRulerT0 - 6 + vOffsetCKSS), module, PhraseSeq32::CONFIG_PARAM));
+		addParam(createParam<CKSSNoRandom>(Vec(columnRulerT4 + hOffsetCKSS + 1, rowRulerT0 - 6 + vOffsetCKSS), module, PhraseSeq32::CONFIG_PARAM));
 
 		
 		
