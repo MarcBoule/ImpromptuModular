@@ -227,6 +227,7 @@ class SequencerKernel {
 	int getBegin() {return songBeginIndex;}
 	int getEnd() {return songEndIndex;}
 	int getLength() {return sequences[seqIndexEdit].getLength();}
+	int getLength(int seqn) {return sequences[seqn].getLength();}
 	int getPhraseSeq(int phrn) {return phrases[phrn].getSeqNum();}
 	int getPhraseReps(int phrn) {return phrases[phrn].getReps();}
 	int getPulsesPerStep() {return (pulsesPerStep > 2 ? ((pulsesPerStep - 1) << 1) : pulsesPerStep);}

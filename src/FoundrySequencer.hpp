@@ -58,7 +58,8 @@ class Sequencer {
 	int getPhraseIndexEdit() {return phraseIndexEdit;}
 	int getTrackIndexEdit() {return trackIndexEdit;}
 	int getStepIndexRun(int trkn) {return sek[trkn].getStepIndexRun();}
-	int getLength() {return sek[trackIndexEdit].getLength();}
+	int getLength() {return sek[trackIndexEdit].getLength();}// uses seqIndexEdit
+	int getLength(int seqn) {return sek[trackIndexEdit].getLength(seqn);}
 	float getCV(bool editingSequence) {
 		if (editingSequence)
 			return sek[trackIndexEdit].getCV(stepIndexEdit);

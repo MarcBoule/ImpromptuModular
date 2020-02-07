@@ -339,6 +339,40 @@ struct Foundry : Module {
 
 		return rootJ;
 	}
+	void interopCopySequence() {
+		json_t* clipboard = json_object();		
+		
+		// vcvrack-sequence
+		// **************
+		json_t* vcvrackSequence = json_object();
+
+		// length (sequence)
+		int seqNumber = editingSequence ? seq.getSeqIndexEdit() : seq.getPhraseSeq();
+		int seqLen = seq.getLength(seqNumber);
+		json_object_set_new(vcvrackSequence, "length", json_real(seqLen));
+		
+		// notes
+		json_t* notesJ = json_array();
+		for (int i = 0; i < seqLen; i++) {
+			json_t* noteJ = json_object();
+			json_object_set_new(noteJ, "type", json_string("note"));
+			json_object_set_new(noteJ, "pitch", json_real(1.33f));// TODO		
+			json_object_set_new(noteJ, "length", json_real(1.0f));// TODO
+			json_object_set_new(noteJ, "start", json_real(i));
+			json_array_append_new(notesJ, noteJ);
+		}
+		json_object_set_new(vcvrackSequence, "notes", notesJ);
+		
+		// clipboard
+		// **************
+		// clipboard only has a vcvrack-sequence for now
+		json_object_set_new(clipboard, "vcvrack-sequence", vcvrackSequence);
+		//json_object_set_new(clipboard, "impromptu-sequence", impromptuSequence);
+		
+		char* interopJson = json_dumps(clipboard, JSON_INDENT(2) | JSON_REAL_PRECISION(9));
+		glfwSetClipboardString(APP->window->win, interopJson);
+	}
+
 
 	
 	void dataFromJson(json_t *rootJ) override {
@@ -1315,8 +1349,6 @@ struct Foundry : Module {
 				clkInSources[trkn] = clkInSources[trkn - 1];
 		}
 	}
-	
-	
 };
 
 
@@ -1859,13 +1891,24 @@ struct FoundryWidget : ModuleWidget {
 			return menu;
 		}
 	};
-	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
+	struct InteropCopySeqItem : MenuItem {
+		Foundry *module;
+		void onAction(const event::Action &e) override {
+			module->interopCopySequence();
+		}
+	};
 
+	void appendContextMenu(Menu *menu) override {
 		Foundry *module = dynamic_cast<Foundry*>(this->module);
 		assert(module);
-
+		
+		InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy sequence", "");
+		interopCopySeqItem->module = module;
+		menu->addChild(interopCopySeqItem);		
+		
+		MenuLabel *spacerLabel = new MenuLabel();
+		menu->addChild(spacerLabel);
+		
 		MenuLabel *themeLabel = new MenuLabel();
 		themeLabel->text = "Panel Theme";
 		menu->addChild(themeLabel);
