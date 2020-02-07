@@ -117,6 +117,7 @@ struct Foundry : Module {
 	int mergeTracks;// 0 = none, 1 = merge A with B, 2 = merge A with B and C, 3 = merge A with All
 
 	// No need to save, with reset
+	bool editingSequence;
 	int displayState;
 	long tiedWarning;// 0 when no warning, positive downward step counter timer when warning
 	long attachedWarning;// 0 when no warning, positive downward step counter timer when warning
@@ -256,6 +257,7 @@ struct Foundry : Module {
 		resetNonJson(false);// no need to propagate initRun calls in seq, since seq.onReset() has initRun() in it
 	}
 	void resetNonJson(bool propagateInitRun) {
+		editingSequence = isEditingSequence();
 		displayState = DISP_NORMAL;
 		tiedWarning = 0l;
 		attachedWarning = 0l;
@@ -270,14 +272,14 @@ struct Foundry : Module {
 	void initRun(bool propagateInitRun) {
 		clockIgnoreOnReset = (long) (clockIgnoreOnResetDuration * APP->engine->getSampleRate());
 		if (propagateInitRun) {
-			seq.initRun(isEditingSequence(), true);
+			seq.initRun(editingSequence, true);
 		}
 	}
 	
 	
 	void onRandomize() override {
-		if (isEditingSequence())
-			seq.onRandomize(isEditingSequence());
+		if (editingSequence)
+			seq.onRandomize(editingSequence);
 	}
 	
 	
@@ -440,8 +442,6 @@ struct Foundry : Module {
 		
 		//********** Buttons, knobs, switches and inputs **********
 		
-		bool editingSequence = isEditingSequence();
-		
 		// Run button
 		if (runningTrigger.process(params[RUN_PARAM].getValue() + inputs[RUNCV_INPUT].getVoltage())) {// no input refresh here, don't want to introduce startup skew
 			running = !running;
@@ -456,6 +456,15 @@ struct Foundry : Module {
 		}
 
 		if (refresh.processInputs()) {
+			// Seq / song switch
+			bool newEditingSequence = isEditingSequence();
+			if (newEditingSequence != editingSequence) {
+				displayState = DISP_NORMAL;
+				seq.initDelayedSeqNumberRequest();
+				multiSteps = false;
+				editingSequence = newEditingSequence;
+			}
+		
 			// Track CV input
 			if (expanderPresent) {
 				float trkCVin = messagesFromExpander[Sequencer::NUM_TRACKS * 2 + 0];
@@ -1391,7 +1400,7 @@ struct FoundryWidget : ModuleWidget {
 			else {
 				StepAttributes attributesVisual;
 				attributesVisual.clear();
-				bool editingSequence = module->isEditingSequence();
+				bool editingSequence = module->editingSequence;
 				if (editingSequence || (module->attached && module->running)) {
 					attributesVisual = module->seq.getAttribute(editingSequence);
 				}
@@ -1484,7 +1493,7 @@ struct FoundryWidget : ModuleWidget {
 					}
 					else {
 						if (!module->attached || !module->running) {
-							if (!module->isEditingSequence()) {
+							if (!module->editingSequence) {
 								if (module->displayState != Foundry::DISP_PPQN && module->displayState != Foundry::DISP_DELAY) {
 									module->seq.movePhraseIndexEdit(1);// argument is a delta
 									if (module->displayState != Foundry::DISP_REPS && module->displayState != Foundry::DISP_COPY_SONG_CUST)
@@ -1503,7 +1512,7 @@ struct FoundryWidget : ModuleWidget {
 					}
 
 
-					bool editingSequence = module->isEditingSequence();
+					bool editingSequence = module->editingSequence;
 					if (module->displayState == Foundry::DISP_LEN) {
 						module->seq.setLength(clamp(totalNum, 1, SequencerKernel::MAX_STEPS), module->multiTracks);
 					}
@@ -1588,7 +1597,7 @@ struct FoundryWidget : ModuleWidget {
 					break;
 					default :
 					{
-						if (module->isEditingSequence()) {
+						if (module->editingSequence) {
 							snprintf(displayStr, 4, " %2u", (unsigned)(module->seq.getSeqIndexEdit() + 1) );
 						}
 						else {
@@ -1630,7 +1639,7 @@ struct FoundryWidget : ModuleWidget {
 					runModeToStr(module->seq.getRunModeSeq());
 				}
 				else { 
-					if (module->isEditingSequence()) {
+					if (module->editingSequence) {
 						snprintf(displayStr, 4, " - ");
 					}
 					else { // editing song
@@ -1922,20 +1931,6 @@ struct FoundryWidget : ModuleWidget {
 		menu->addChild(expItem);	
 	}	
 		
-	struct CKSSNotify : CKSSNoRandom {
-		CKSSNotify() {}
-		void onChange(const event::Change &e) override {
-			if (paramQuantity) {
-				Foundry* module = dynamic_cast<Foundry*>(paramQuantity->module);
-				module->displayState = Foundry::DISP_NORMAL;
-				module->seq.initDelayedSeqNumberRequest();
-				if (paramQuantity->paramId != Foundry::KEY_GATE_PARAM) {
-					module->multiSteps = false;
-				}
-			}
-			SvgSwitch::onChange(e);		
-		}
-	};
 	// Velocity edit knob
 	struct VelocityKnob : IMMediumKnobInf {
 		VelocityKnob() {};		
@@ -1943,7 +1938,7 @@ struct FoundryWidget : ModuleWidget {
 			if (paramQuantity) {
 				Foundry* module = dynamic_cast<Foundry*>(paramQuantity->module);
 				// same code structure below as in velocity knob in main step()
-				if (module->isEditingSequence()) {
+				if (module->editingSequence) {
 					module->displayState = Foundry::DISP_NORMAL;
 					int multiStepsCount = module->multiSteps ? module->getCPMode() : 1;
 					if (module->velEditMode == 2) {
@@ -1982,7 +1977,7 @@ struct FoundryWidget : ModuleWidget {
 				else if (module->displayState == Foundry::DISP_PPQN || module->displayState == Foundry::DISP_DELAY) {
 				}
 				else {// DISP_NORMAL
-					if (module->isEditingSequence()) {
+					if (module->editingSequence) {
 						for (int trkn = 0; trkn < Sequencer::NUM_TRACKS; trkn++) {
 							bool expanderPresent = (module->rightExpander.module && module->rightExpander.module->model == modelFoundryExpander);
 							float *messagesFromExpander = (float*)module->rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
@@ -2023,7 +2018,7 @@ struct FoundryWidget : ModuleWidget {
 				}
 				else {
 					if (!module->attached || !module->running) {
-						if (!module->isEditingSequence()) {
+						if (!module->editingSequence) {
 							if (module->displayState != Foundry::DISP_PPQN && module->displayState != Foundry::DISP_DELAY) {
 								module->seq.setPhraseIndexEdit(0);
 								if (module->displayState != Foundry::DISP_REPS && module->displayState != Foundry::DISP_COPY_SONG_CUST)
@@ -2097,7 +2092,7 @@ struct FoundryWidget : ModuleWidget {
 		// see under Track display
 		
 		// Main switch
-		addParam(createParamCentered<CKSSNotify>(Vec(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM));// 1.0f is top position
+		addParam(createParamCentered<CKSSNoRandom>(Vec(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM));// 1.0f is top position
 
 		
 		
@@ -2213,7 +2208,7 @@ struct FoundryWidget : ModuleWidget {
 		
 		// Key mode LED buttons	
 		static const int colRulerKM = 61;
-		addParam(createParamCentered<CKSSNotify>(Vec(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM));
+		addParam(createParamCentered<CKSSNoRandom>(Vec(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM));
 		
 		// Gate 1 light and button
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(columnRulerMB1 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_LIGHT));		

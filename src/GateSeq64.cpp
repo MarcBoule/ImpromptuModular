@@ -99,7 +99,6 @@ struct GateSeq64 : Module {
 	int blinkNum;// number of blink cycles to do, downward counter
 	long editingPhraseSongRunning;// downward step counter
 	int stepConfig;
-	int oldStepConfig;
 	long clockIgnoreOnReset;
 	int phraseIndexRun;
 	unsigned long phraseIndexRunHistory;
@@ -248,7 +247,6 @@ struct GateSeq64 : Module {
 		}
 		else {
 			stepConfig = getStepConfig();
-			oldStepConfig = stepConfig;
 			initRun();
 		}
 	}
@@ -555,8 +553,10 @@ struct GateSeq64 : Module {
 				blinkNum = blinkNumInit;
 
 			// Config switch
-			// switch may move in the pre-fromJson, but no problem, it will trigger the init lenght below, but then when the lengths are loaded
-			//   and we see the stepConfigSync request later, they will get overwritten anyways.
+			// switch may move in the pre-fromJson, but no problem, it will trigger the init lenght below, but then when
+			//    the lengths are loaded and we see the stepConfigSync request later,
+			//    they will get overwritten anyways. Is simultaneous, also ok.
+			int oldStepConfig = stepConfig;
 			stepConfig = getStepConfig();
 			if (stepConfigSync != 0) {// sync from dataFromJson, so read lengths from seqAttribBuffer
 				for (int i = 0; i < MAX_SEQS; i++)
@@ -569,7 +569,6 @@ struct GateSeq64 : Module {
 					sequences[i].setLength(16 * stepConfig);
 				initRun();
 			}
-			oldStepConfig = stepConfig;
 			
 			// Seq CV input
 			if (inputs[SEQCV_INPUT].isConnected()) {

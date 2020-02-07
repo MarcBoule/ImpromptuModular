@@ -138,7 +138,6 @@ struct PhraseSeq32 : Module {
 	long editingPpqn;// 0 when no info, positive downward step counter timer when editing ppqn
 	bool attachedChanB;
 	int stepConfig;
-	int oldStepConfig;
 	long clockIgnoreOnReset;
 	int phraseIndexRun;	
 	unsigned long phraseIndexRunHistory;
@@ -321,7 +320,6 @@ struct PhraseSeq32 : Module {
 		}
 		else {
 			stepConfig = getStepConfig();
-			oldStepConfig = stepConfig;
 			initRun();
 		}
 	}
@@ -705,8 +703,10 @@ struct PhraseSeq32 : Module {
 
 		if (refresh.processInputs()) {
 			// Config switch
-			// switch may move in the pre-fromJson, but no problem, it will trigger the init lenght below, but then when the lengths are loaded
-			//   and we see the stepConfigSync request later, they will get overwritten anyways.
+			// switch may move in the pre-fromJson, but no problem, it will trigger the init lenght below, but then when
+			//    the lengths are loaded and we see the stepConfigSync request later,
+			//    they will get overwritten anyways. Is simultaneous, also ok.
+			int oldStepConfig = stepConfig;
 			stepConfig = getStepConfig();
 			if (stepConfigSync != 0) {// sync from dataFromJson, so read lengths from seqAttribBuffer
 				for (int i = 0; i < 32; i++)
@@ -721,7 +721,6 @@ struct PhraseSeq32 : Module {
 				initRun();			
 				attachedChanB = false;
 			}				
-			oldStepConfig = stepConfig;
 			
 			// Seq CV input
 			if (inputs[SEQCV_INPUT].isConnected()) {
