@@ -238,6 +238,7 @@ class SequencerKernel {
 	int getPhraseIndexRun() {return phraseIndexRun;}
 	float getCV(bool editingSequence) {return getCVi(editingSequence, stepIndexRun);}
 	float getCV(int stepn) {return getCVi(true, stepn);}
+	float getCV(int seqn, int stepn) {return cv[seqn][stepn];}
 	float getCVi(bool editingSequence, int stepn) {
 		if (editingSequence)
 			return cv[seqIndexEdit][stepn];
@@ -245,6 +246,7 @@ class SequencerKernel {
 	}
 	StepAttributes getAttribute(bool editingSequence) {return getAttributei(editingSequence, stepIndexRun);}
 	StepAttributes getAttribute(int stepn) {return getAttributei(true, stepn);}
+	StepAttributes getAttribute(int seqn, int stepn) {return attributes[seqn][stepn];}
 	StepAttributes getAttributei(bool editingSequence, int stepn) {
 		if (editingSequence)
 			return attributes[seqIndexEdit][stepn];

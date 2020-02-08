@@ -65,6 +65,7 @@ class Sequencer {
 			return sek[trackIndexEdit].getCV(stepIndexEdit);
 		return sek[trackIndexEdit].getCV(editingSequence);
 	}
+	float getCV(int seqn, int stepn) {return sek[trackIndexEdit].getCV(seqn, stepn);}
 	StepAttributes getAttribute(bool editingSequence) {
 		if (editingSequence)
 			return sek[trackIndexEdit].getAttribute(stepIndexEdit);

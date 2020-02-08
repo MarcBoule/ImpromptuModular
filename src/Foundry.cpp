@@ -13,6 +13,7 @@
 #include <time.h>
 #include "FoundrySequencer.hpp"
 #include "comp/PianoKey.hpp"
+#include "interop.hpp"
 
 
 struct Foundry : Module {	
@@ -339,40 +340,27 @@ struct Foundry : Module {
 
 		return rootJ;
 	}
-	void interopCopySequence() {
-		json_t* clipboard = json_object();		
-		
-		// vcvrack-sequence
-		// **************
-		json_t* vcvrackSequence = json_object();
-
-		// length (sequence)
+	
+	IoStep* fillIoSteps(int *seqLenPtr) {// caller must delete return array
 		int seqNumber = editingSequence ? seq.getSeqIndexEdit() : seq.getPhraseSeq();
 		int seqLen = seq.getLength(seqNumber);
-		json_object_set_new(vcvrackSequence, "length", json_real(seqLen));
 		
-		// notes
-		json_t* notesJ = json_array();
+		IoStep* ioSteps = new IoStep[seqLen];
+		
+		// populate ioSteps array
 		for (int i = 0; i < seqLen; i++) {
-			json_t* noteJ = json_object();
-			json_object_set_new(noteJ, "type", json_string("note"));
-			json_object_set_new(noteJ, "pitch", json_real(1.33f));// TODO		
-			json_object_set_new(noteJ, "length", json_real(1.0f));// TODO
-			json_object_set_new(noteJ, "start", json_real(i));
-			json_array_append_new(notesJ, noteJ);
+			StepAttributes stepAttrib = seq.getAttribute(seqNumber, i);
+			ioSteps[i].pitch = seq.getCV(seqNumber, i);
+			ioSteps[i].vel = (float)stepAttrib.getVelocityVal() * 10.0f / (float)StepAttributes::MAX_VELOCITY;
+			ioSteps[i].prob = stepAttrib.getGateP() ? ((float)stepAttrib.getGatePVal() / (float)100.0f) : 1.0f;
+			ioSteps[i].gate = stepAttrib.getGate();
+			ioSteps[i].tied = stepAttrib.getTied();
 		}
-		json_object_set_new(vcvrackSequence, "notes", notesJ);
 		
-		// clipboard
-		// **************
-		// clipboard only has a vcvrack-sequence for now
-		json_object_set_new(clipboard, "vcvrack-sequence", vcvrackSequence);
-		//json_object_set_new(clipboard, "impromptu-sequence", impromptuSequence);
-		
-		char* interopJson = json_dumps(clipboard, JSON_INDENT(2) | JSON_REAL_PRECISION(9));
-		glfwSetClipboardString(APP->window->win, interopJson);
+		// return values 
+		*seqLenPtr = seqLen;
+		return ioSteps;
 	}
-
 
 	
 	void dataFromJson(json_t *rootJ) override {
@@ -1894,7 +1882,10 @@ struct FoundryWidget : ModuleWidget {
 	struct InteropCopySeqItem : MenuItem {
 		Foundry *module;
 		void onAction(const event::Action &e) override {
-			module->interopCopySequence();
+			int seqLen;
+			IoStep* ioSteps = module->fillIoSteps(&seqLen);
+			interopCopySequence(seqLen, ioSteps);
+			delete[] ioSteps;
 		}
 	};
 
