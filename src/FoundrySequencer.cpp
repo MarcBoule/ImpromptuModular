@@ -291,6 +291,12 @@ void Sequencer::writeCV(int trkn, float cvVal, int multiStepsCount, float sample
 		}
 	}
 }
+void Sequencer::writeCV(int seqn, int stepn, float cvVal) {
+	sek[trackIndexEdit].writeCV(seqn, stepn, cvVal);
+}
+void Sequencer::writeAttribute(int seqn, int stepn, StepAttributes newAttrib) {
+	sek[trackIndexEdit].writeAttribute(seqn, stepn, newAttrib);
+}
 void Sequencer::autostep(bool autoseq, bool autostepLen, bool multiTracks) {
 	moveStepIndexEdit(1, autostepLen);
 	if (stepIndexEdit == 0 && autoseq) {

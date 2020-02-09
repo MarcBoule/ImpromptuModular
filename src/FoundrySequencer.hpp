@@ -106,6 +106,7 @@ class Sequencer {
 	void setTrackIndexEdit(int _trackIndexEdit) {trackIndexEdit = _trackIndexEdit % NUM_TRACKS;}
 	void setVelocityVal(int trkn, int intVel, int multiStepsCount, bool multiTracks);
 	void setLength(int length, bool multiTracks);
+	void setLength(int seqn, int _length) {sek[trackIndexEdit].setLength(seqn, _length);}
 	void setPhraseReps(int reps, bool multiTracks);
 	void setPhraseSeqNum(int seqn, bool multiTracks);
 	void setBegin(bool multiTracks);
@@ -142,6 +143,8 @@ class Sequencer {
 	
 	
 	void writeCV(int trkn, float cvVal, int multiStepsCount, float sampleRate, bool multiTracks);
+	void writeCV(int seqn, int stepn, float cvVal);
+	void writeAttribute(int seqn, int stepn, StepAttributes newAttrib);
 	void autostep(bool autoseq, bool autostepLen, bool multiTracks);
 	bool applyNewOctave(int octn, int multiSteps, float sampleRate, bool multiTracks); // returns true if tied
 	bool applyNewKey(int keyn, int multiSteps, float sampleRate, bool autostepClick, bool multiTracks); // returns true if tied

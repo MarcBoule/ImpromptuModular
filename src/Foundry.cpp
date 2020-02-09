@@ -341,27 +341,6 @@ struct Foundry : Module {
 		return rootJ;
 	}
 	
-	IoStep* fillIoSteps(int *seqLenPtr) {// caller must delete return array
-		int seqNumber = editingSequence ? seq.getSeqIndexEdit() : seq.getPhraseSeq();
-		int seqLen = seq.getLength(seqNumber);
-		
-		IoStep* ioSteps = new IoStep[seqLen];
-		
-		// populate ioSteps array
-		for (int i = 0; i < seqLen; i++) {
-			StepAttributes stepAttrib = seq.getAttribute(seqNumber, i);
-			ioSteps[i].pitch = seq.getCV(seqNumber, i);
-			ioSteps[i].vel = (float)stepAttrib.getVelocityVal() * 10.0f / (float)StepAttributes::MAX_VELOCITY;
-			ioSteps[i].prob = stepAttrib.getGateP() ? ((float)stepAttrib.getGatePVal() / (float)100.0f) : 1.0f;
-			ioSteps[i].gate = stepAttrib.getGate();
-			ioSteps[i].tied = stepAttrib.getTied();
-		}
-		
-		// return values 
-		*seqLenPtr = seqLen;
-		return ioSteps;
-	}
-
 	
 	void dataFromJson(json_t *rootJ) override {
 		// panelTheme
@@ -454,6 +433,52 @@ struct Foundry : Module {
 	}
 
 
+	IoStep* fillIoSteps(int *seqLenPtr) {// caller must delete return array
+		int seqNumber = editingSequence ? seq.getSeqIndexEdit() : seq.getPhraseSeq();
+		int seqLen = seq.getLength(seqNumber);
+		
+		IoStep* ioSteps = new IoStep[seqLen];
+		
+		// populate ioSteps array
+		for (int i = 0; i < seqLen; i++) {
+			ioSteps[i].pitch = seq.getCV(seqNumber, i);
+			
+			StepAttributes stepAttrib = seq.getAttribute(seqNumber, i);
+			ioSteps[i].gate = stepAttrib.getGate();
+			ioSteps[i].tied = stepAttrib.getTied();
+			ioSteps[i].vel = (float)stepAttrib.getVelocityVal() * 10.0f / (float)StepAttributes::MAX_VELOCITY;// every note has a vel in Foundry
+			ioSteps[i].prob = stepAttrib.getGateP() ? ((float)stepAttrib.getGatePVal() / (float)100.0f) : -1.0f;// negative means prob is not on for this note
+		}
+		
+		// return values 
+		*seqLenPtr = seqLen;
+		return ioSteps;
+	}
+	
+	
+	void emptyIoSteps(IoStep* ioSteps, int seqLen) {
+		int seqNumber = editingSequence ? seq.getSeqIndexEdit() : seq.getPhraseSeq();
+		seq.setLength(seqNumber, seqLen);
+		
+		// populate steps in the sequencer
+		for (int i = 0; i < seqLen; i++) {
+			seq.writeCV(seqNumber, i, ioSteps[i].pitch);
+			
+			StepAttributes stepAttrib;
+			stepAttrib.setGate(ioSteps[i].gate);
+			if (ioSteps[i].vel >= 0.0f) {
+				stepAttrib.setVelocityVal(ioSteps[i].vel * (float)StepAttributes::MAX_VELOCITY / 10.0f);
+			}
+			if (ioSteps[i].prob >= 0.0f) {
+				stepAttrib.setGatePVal(ioSteps[i].prob * (float)StepAttributes::MAX_VELOCITY / 10.0f);
+			}
+			stepAttrib.setGateP(ioSteps[i].prob >= 0.0f);
+			stepAttrib.setTied(ioSteps[i].tied);// has to be done last since if tied it will clear gate and gateP bits
+			seq.writeAttribute(seqNumber, i, stepAttrib);
+		}
+	}
+	
+	
 	void process(const ProcessArgs &args) override {
 		const float sampleRate = args.sampleRate;
 		static const float revertDisplayTime = 0.7f;// seconds
@@ -1889,6 +1914,18 @@ struct FoundryWidget : ModuleWidget {
 		}
 	};
 
+	struct InteropPasteSeqItem : MenuItem {
+		Foundry *module;
+		void onAction(const event::Action &e) override {
+			int seqLen;
+			IoStep* ioSteps = interopPasteSequence(SequencerKernel::MAX_STEPS, &seqLen);
+			if (ioSteps != nullptr) {
+				module->emptyIoSteps(ioSteps, seqLen);
+				delete[] ioSteps;
+			}
+		}
+	};
+
 	void appendContextMenu(Menu *menu) override {
 		Foundry *module = dynamic_cast<Foundry*>(this->module);
 		assert(module);
@@ -1896,6 +1933,10 @@ struct FoundryWidget : ModuleWidget {
 		InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy sequence", "");
 		interopCopySeqItem->module = module;
 		menu->addChild(interopCopySeqItem);		
+		
+		// InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>("Paste sequence", "");
+		// interopPasteSeqItem->module = module;
+		// menu->addChild(interopPasteSeqItem);		
 		
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);

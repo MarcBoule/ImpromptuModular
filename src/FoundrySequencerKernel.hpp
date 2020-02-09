@@ -257,7 +257,8 @@ class SequencerKernel {
 	void setPhraseIndexRun(int _phraseIndexRun) {phraseIndexRun = _phraseIndexRun;}
 	void setPulsesPerStep(int _pps) {pulsesPerStep = _pps;}
 	void setDelay(int _delay) {delay = _delay;}
-	void setLength(int _length) {sequences[seqIndexEdit].setLength(_length);}
+	void setLength(int _length) {setLength(seqIndexEdit, _length);}
+	void setLength(int seqn, int _length) {sequences[seqn].setLength(_length);}
 	void setPhraseReps(int phrn, int _reps) {phrases[phrn].setReps(_reps);}
 	void setPhraseSeqNum(int phrn, int _seqn) {phrases[phrn].setSeqNum(_seqn);}
 	void setBegin(int phrn) {songBeginIndex = phrn; songEndIndex = std::max(phrn, songEndIndex);}
@@ -355,6 +356,8 @@ class SequencerKernel {
 	float applyNewOctave(int stepn, int newOct, int count);
 	float applyNewKey(int stepn, int newKeyIndex, int count);
 	void writeCV(int stepn, float newCV, int count);
+	void writeCV(int seqn, int stepn, float newCV);// straight write, not attributes touched
+	void writeAttribute(int seqn, int stepn, StepAttributes newAttrib);
 	
 	float calcSlideOffset() {return (slideStepsRemain > 0ul ? (slideCVdelta * (float)slideStepsRemain) : 0.0f);}
 	bool calcGate(Trigger clockTrigger, float sampleRate) {
