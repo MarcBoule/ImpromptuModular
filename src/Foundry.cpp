@@ -475,6 +475,11 @@ struct Foundry : Module {
 			}
 			stepAttrib.setGateP(ioSteps[i].prob >= 0.0f);
 			stepAttrib.setTied(ioSteps[i].tied);// has to be done last since if tied it will clear gate and gateP bits
+			
+			
+			// TODO: bug since it has to set the gate types internally according to the length of the tie, so this is wrong
+			
+			
 			seq.writeAttribute(seqNumber, i, stepAttrib);
 		}
 	}

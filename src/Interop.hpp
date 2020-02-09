@@ -16,6 +16,10 @@ struct IoStep {// common intermediate format for interop conversion
 	float pitch;
 	float vel;// 0.0 to 10.0, -1.0 will indicate that the note is not using velocity
 	float prob;// 0.0 to 1.0, -1.0 will indicate that the note is not using probability
+	
+	void init(bool _gate, bool _tied, float _pitch, float _vel, float _prob) {
+		gate = _gate; tied = _tied; pitch = _pitch, vel = _vel, prob = _prob;
+	}
 };
 
 
@@ -32,47 +36,37 @@ struct IoNote {
 // *****************
 
 
-IoNote* ioConvertToNotes(int seqLen, IoStep* ioSteps, int *newSeqLenPtr) {
-	IoNote* ioNotes = new IoNote[seqLen];// seqLen is upper bound on required array size, will be lower when some gates are off and/or some steps are tied
-	
-	int si = 0;// index into ioSteps
-	int ni = 0;// index into ioNotes
-	
-	for (; si < seqLen; si++) {
+void ioConvertToNotes(int seqLen, IoStep* ioSteps, std::vector<IoNote> &ioNotes) {
+	for (int si = 0; si < seqLen; si++) {
 		if (ioSteps[si].gate) {
 			int si2 = si + 1;
 			while (si2 < seqLen && ioSteps[si2].tied) {si2++;}
-			ioNotes[ni].start = (float)si;
-			ioNotes[ni].length = (float)(si2 - si - 0.5f);
-			ioNotes[ni].pitch = ioSteps[si].pitch;
-			ioNotes[ni].vel = ioSteps[si].vel;
-			ioNotes[ni].prob = ioSteps[si].prob;
+			IoNote ioNote;
+			ioNote.start = (float)si;
+			ioNote.length = (float)(si2 - si - 0.5f);
+			ioNote.pitch = ioSteps[si].pitch;
+			ioNote.vel = ioSteps[si].vel;
+			ioNote.prob = ioSteps[si].prob;
+			ioNotes.push_back(ioNote);
 			si = si2 - 1;
-			ni++;
 		}
 	}
-	
-	*newSeqLenPtr = ni;
-	return ioNotes;
 }
 
 
 void interopCopySequence(int seqLen, IoStep* ioSteps) {
-	int newSeqLen;
-	IoNote* ioNotes = ioConvertToNotes(seqLen, ioSteps, &newSeqLen);	
-	// here we have an array of ioNotes of size newSeqLen
+	std::vector<IoNote> ioNotes;
+	ioConvertToNotes(seqLen, ioSteps, ioNotes);	
 
-	
 	// vcvrack-sequence
-	// **************
 	json_t* vcvrackSequenceJ = json_object();
 	
 	// length
-	json_object_set_new(vcvrackSequenceJ, "length", json_real(newSeqLen));
+	json_object_set_new(vcvrackSequenceJ, "length", json_real(ioNotes.size()));
 	
 	// notes
 	json_t* notesJ = json_array();
-	for (int i = 0; i < newSeqLen; i++) {
+	for (unsigned int i = 0; i < ioNotes.size(); i++) {
 		json_t* noteJ = json_object();
 		json_object_set_new(noteJ, "type", json_string("note"));
 		json_object_set_new(noteJ, "start", json_real(ioNotes[i].start));
@@ -86,12 +80,9 @@ void interopCopySequence(int seqLen, IoStep* ioSteps) {
 		}
 		json_array_append_new(notesJ, noteJ);
 	}
-	json_object_set_new(vcvrackSequenceJ, "notes", notesJ);
-	delete[] ioNotes;
-	
+	json_object_set_new(vcvrackSequenceJ, "notes", notesJ);	
 	
 	// clipboard
-	// **************
 	json_t* clipboardJ = json_object();		
 	json_object_set_new(clipboardJ, "vcvrack-sequence", vcvrackSequenceJ);
 	//json_object_set_new(clipboardJ, "impromptu-sequence", impromptuSequence);
@@ -107,9 +98,19 @@ void interopCopySequence(int seqLen, IoStep* ioSteps) {
 // *****************
 
 
-
 IoStep* ioConvertToSteps(const std::vector<IoNote> &ioNotes, int maxSeqLen) {
 	IoStep* ioSteps = new IoStep[maxSeqLen];
+	
+	for (int i = 0; i < maxSeqLen; i++) {
+		ioSteps[i].init(false, false, 0.0f, -1.0f, -1.0f);
+	}
+	
+	// Scan notes and write into steps
+	for (int ni = 0; ni < ioNotes.size(); ni++) {
+		int si = (int)ioNotes[ni].start;
+		if (si >= maxSeqLen) continue;
+		
+	}
 	
 	return ioSteps;
 }
@@ -216,9 +217,7 @@ IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr) {// will return an a
 		return nullptr;		
 	}
 	
-	IoStep* ioSteps = ioConvertToSteps(ioNotes, maxSeqLen);
-
-	return ioSteps;
+	return ioConvertToSteps(ioNotes, maxSeqLen);
 }
 
 

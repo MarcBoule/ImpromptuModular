@@ -296,6 +296,7 @@ void Sequencer::writeCV(int seqn, int stepn, float cvVal) {
 }
 void Sequencer::writeAttribute(int seqn, int stepn, StepAttributes newAttrib) {
 	sek[trackIndexEdit].writeAttribute(seqn, stepn, newAttrib);
+	
 }
 void Sequencer::autostep(bool autoseq, bool autostepLen, bool multiTracks) {
 	moveStepIndexEdit(1, autostepLen);
