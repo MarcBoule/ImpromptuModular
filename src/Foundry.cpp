@@ -465,6 +465,7 @@ struct Foundry : Module {
 			seq.writeCV(seqNumber, i, ioSteps[i].pitch);
 			
 			StepAttributes stepAttrib;
+			stepAttrib.init();
 			stepAttrib.setGate(ioSteps[i].gate);
 			if (ioSteps[i].vel >= 0.0f) {
 				stepAttrib.setVelocityVal(ioSteps[i].vel * (float)StepAttributes::MAX_VELOCITY / 10.0f);
