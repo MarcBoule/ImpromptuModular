@@ -227,7 +227,6 @@ class SequencerKernel {
 	int getBegin() {return songBeginIndex;}
 	int getEnd() {return songEndIndex;}
 	int getLength() {return sequences[seqIndexEdit].getLength();}
-	int getLength(int seqn) {return sequences[seqn].getLength();}
 	int getPhraseSeq(int phrn) {return phrases[phrn].getSeqNum();}
 	int getPhraseReps(int phrn) {return phrases[phrn].getReps();}
 	int getPulsesPerStep() {return (pulsesPerStep > 2 ? ((pulsesPerStep - 1) << 1) : pulsesPerStep);}
@@ -238,7 +237,6 @@ class SequencerKernel {
 	int getPhraseIndexRun() {return phraseIndexRun;}
 	float getCV(bool editingSequence) {return getCVi(editingSequence, stepIndexRun);}
 	float getCV(int stepn) {return getCVi(true, stepn);}
-	float getCV(int seqn, int stepn) {return cv[seqn][stepn];}
 	float getCVi(bool editingSequence, int stepn) {
 		if (editingSequence)
 			return cv[seqIndexEdit][stepn];
@@ -246,7 +244,6 @@ class SequencerKernel {
 	}
 	StepAttributes getAttribute(bool editingSequence) {return getAttributei(editingSequence, stepIndexRun);}
 	StepAttributes getAttribute(int stepn) {return getAttributei(true, stepn);}
-	StepAttributes getAttribute(int seqn, int stepn) {return attributes[seqn][stepn];}
 	StepAttributes getAttributei(bool editingSequence, int stepn) {
 		if (editingSequence)
 			return attributes[seqIndexEdit][stepn];
@@ -257,8 +254,7 @@ class SequencerKernel {
 	void setPhraseIndexRun(int _phraseIndexRun) {phraseIndexRun = _phraseIndexRun;}
 	void setPulsesPerStep(int _pps) {pulsesPerStep = _pps;}
 	void setDelay(int _delay) {delay = _delay;}
-	void setLength(int _length) {setLength(seqIndexEdit, _length);}
-	void setLength(int seqn, int _length) {sequences[seqn].setLength(_length);}
+	void setLength(int _length) {sequences[seqIndexEdit].setLength(_length);}
 	void setPhraseReps(int phrn, int _reps) {phrases[phrn].setReps(_reps);}
 	void setPhraseSeqNum(int phrn, int _seqn) {phrases[phrn].setSeqNum(_seqn);}
 	void setBegin(int phrn) {songBeginIndex = phrn; songEndIndex = std::max(phrn, songEndIndex);}
@@ -356,8 +352,9 @@ class SequencerKernel {
 	float applyNewOctave(int stepn, int newOct, int count);
 	float applyNewKey(int stepn, int newKeyIndex, int count);
 	void writeCV(int stepn, float newCV, int count);
-	void writeCV(int seqn, int stepn, float newCV);// straight write, not attributes touched
-	void writeAttribute(int seqn, int stepn, StepAttributes newAttrib);
+	void writeAttribNoTies(int stepn, StepAttributes &stepAttrib) {// does not handle tied notes
+		attributes[seqIndexEdit][stepn] = stepAttrib;
+	}
 	
 	float calcSlideOffset() {return (slideStepsRemain > 0ul ? (slideCVdelta * (float)slideStepsRemain) : 0.0f);}
 	bool calcGate(Trigger clockTrigger, float sampleRate) {

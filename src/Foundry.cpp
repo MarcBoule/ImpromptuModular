@@ -434,16 +434,13 @@ struct Foundry : Module {
 
 
 	IoStep* fillIoSteps(int *seqLenPtr) {// caller must delete return array
-		int seqNumber = editingSequence ? seq.getSeqIndexEdit() : seq.getPhraseSeq();
-		int seqLen = seq.getLength(seqNumber);
-		
+		int seqLen = seq.getLength();
 		IoStep* ioSteps = new IoStep[seqLen];
 		
 		// populate ioSteps array
 		for (int i = 0; i < seqLen; i++) {
-			ioSteps[i].pitch = seq.getCV(seqNumber, i);
-			
-			StepAttributes stepAttrib = seq.getAttribute(seqNumber, i);
+			ioSteps[i].pitch = seq.getCV(true, i);
+			StepAttributes stepAttrib = seq.getAttribute(true, i);
 			ioSteps[i].gate = stepAttrib.getGate();
 			ioSteps[i].tied = stepAttrib.getTied();
 			ioSteps[i].vel = (float)stepAttrib.getVelocityVal() * 10.0f / (float)StepAttributes::MAX_VELOCITY;// every note has a vel in Foundry
@@ -457,14 +454,14 @@ struct Foundry : Module {
 	
 	
 	void emptyIoSteps(IoStep* ioSteps, int seqLen) {
-		int seqNumber = editingSequence ? seq.getSeqIndexEdit() : seq.getPhraseSeq();
-		seq.setLength(seqNumber, seqLen);
+		seq.setLength(seqLen, false);
 		
 		// populate steps in the sequencer
+		// first pass is done without ties
 		for (int i = 0; i < seqLen; i++) {
-			seq.writeCV(seqNumber, i, ioSteps[i].pitch);
+			seq.writeCV(i, ioSteps[i].pitch);
 			
-			StepAttributes stepAttrib;
+ 			StepAttributes stepAttrib;
 			stepAttrib.init();
 			stepAttrib.setGate(ioSteps[i].gate);
 			if (ioSteps[i].vel >= 0.0f) {
@@ -474,13 +471,14 @@ struct Foundry : Module {
 				stepAttrib.setGatePVal(ioSteps[i].prob * (float)StepAttributes::MAX_VELOCITY / 10.0f);
 			}
 			stepAttrib.setGateP(ioSteps[i].prob >= 0.0f);
-			stepAttrib.setTied(ioSteps[i].tied);// has to be done last since if tied it will clear gate and gateP bits
-			
-			
-			// TODO: bug since it has to set the gate types internally according to the length of the tie, so this is wrong
-			
-			
-			seq.writeAttribute(seqNumber, i, stepAttrib);
+			seq.writeAttribNoTies(i, stepAttrib);
+		}
+		// now do ties, has to be done in a separate pass such that non tied that follows tied can be 
+		//   there in advance for proper gate types
+		for (int i = 0; i < seqLen; i++) {
+			if (ioSteps[i].tied) {
+				seq.toggleTied(i);
+			}
 		}
 	}
 	
@@ -1910,40 +1908,54 @@ struct FoundryWidget : ModuleWidget {
 			return menu;
 		}
 	};
-	struct InteropCopySeqItem : MenuItem {
-		Foundry *module;
-		void onAction(const event::Action &e) override {
-			int seqLen;
-			IoStep* ioSteps = module->fillIoSteps(&seqLen);
-			interopCopySequence(seqLen, ioSteps);
-			delete[] ioSteps;
-		}
-	};
-
-	struct InteropPasteSeqItem : MenuItem {
-		Foundry *module;
-		void onAction(const event::Action &e) override {
-			int seqLen;
-			IoStep* ioSteps = interopPasteSequence(SequencerKernel::MAX_STEPS, &seqLen);
-			if (ioSteps != nullptr) {
-				module->emptyIoSteps(ioSteps, seqLen);
+	struct InteropSeqItem : MenuItem {
+		struct InteropCopySeqItem : MenuItem {
+			Foundry *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				IoStep* ioSteps = module->fillIoSteps(&seqLen);
+				interopCopySequence(seqLen, ioSteps);
 				delete[] ioSteps;
 			}
+		};
+		struct InteropPasteSeqItem : MenuItem {
+			Foundry *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				IoStep* ioSteps = interopPasteSequence(SequencerKernel::MAX_STEPS, &seqLen);
+				if (ioSteps != nullptr) {
+					module->emptyIoSteps(ioSteps, seqLen);
+					delete[] ioSteps;
+				}
+			}
+		};
+		Foundry *module;
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
+
+			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy sequence", "");
+			interopCopySeqItem->module = module;
+			interopCopySeqItem->disabled = disabled;
+			menu->addChild(interopCopySeqItem);		
+			
+			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>("Paste sequence", "");
+			interopPasteSeqItem->module = module;
+			interopPasteSeqItem->disabled = disabled;
+			menu->addChild(interopPasteSeqItem);		
+
+			return menu;
 		}
-	};
+	};		
 
 	void appendContextMenu(Menu *menu) override {
 		Foundry *module = dynamic_cast<Foundry*>(this->module);
 		assert(module);
-		
-		InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy sequence", "");
-		interopCopySeqItem->module = module;
-		menu->addChild(interopCopySeqItem);		
-		
-		// InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>("Paste sequence", "");
-		// interopPasteSeqItem->module = module;
-		// menu->addChild(interopPasteSeqItem);		
-		
+
+		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>("Portable sequence", RIGHT_ARROW);
+		interopSeqItem->module = module;
+		interopSeqItem->disabled = !module->editingSequence;
+		menu->addChild(interopSeqItem);		
+				
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
 		

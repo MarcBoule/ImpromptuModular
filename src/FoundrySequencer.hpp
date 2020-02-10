@@ -58,14 +58,13 @@ class Sequencer {
 	int getPhraseIndexEdit() {return phraseIndexEdit;}
 	int getTrackIndexEdit() {return trackIndexEdit;}
 	int getStepIndexRun(int trkn) {return sek[trkn].getStepIndexRun();}
-	int getLength() {return sek[trackIndexEdit].getLength();}// uses seqIndexEdit
-	int getLength(int seqn) {return sek[trackIndexEdit].getLength(seqn);}
+	int getLength() {return sek[trackIndexEdit].getLength();}
 	float getCV(bool editingSequence) {
 		if (editingSequence)
 			return sek[trackIndexEdit].getCV(stepIndexEdit);
 		return sek[trackIndexEdit].getCV(editingSequence);
 	}
-	float getCV(int seqn, int stepn) {return sek[trackIndexEdit].getCV(seqn, stepn);}
+	float getCV(bool editingSequence, int stepn) {return sek[trackIndexEdit].getCVi(editingSequence, stepn);}
 	StepAttributes getAttribute(bool editingSequence) {
 		if (editingSequence)
 			return sek[trackIndexEdit].getAttribute(stepIndexEdit);
@@ -106,7 +105,6 @@ class Sequencer {
 	void setTrackIndexEdit(int _trackIndexEdit) {trackIndexEdit = _trackIndexEdit % NUM_TRACKS;}
 	void setVelocityVal(int trkn, int intVel, int multiStepsCount, bool multiTracks);
 	void setLength(int length, bool multiTracks);
-	void setLength(int seqn, int _length) {sek[trackIndexEdit].setLength(seqn, _length);}
 	void setPhraseReps(int reps, bool multiTracks);
 	void setPhraseSeqNum(int seqn, bool multiTracks);
 	void setBegin(bool multiTracks);
@@ -142,9 +140,13 @@ class Sequencer {
 	void pasteSong(bool multiTracks);
 	
 	
+	void writeCV(int stepn, float cvVal) {
+		sek[trackIndexEdit].writeCV(stepn, cvVal, 1);
+	}
 	void writeCV(int trkn, float cvVal, int multiStepsCount, float sampleRate, bool multiTracks);
-	void writeCV(int seqn, int stepn, float cvVal);
-	void writeAttribute(int seqn, int stepn, StepAttributes newAttrib);
+	void writeAttribNoTies(int stepn, StepAttributes &stepAttrib) {// does not handle tied notes
+		sek[trackIndexEdit].writeAttribNoTies(stepn, stepAttrib);
+	}
 	void autostep(bool autoseq, bool autostepLen, bool multiTracks);
 	bool applyNewOctave(int octn, int multiSteps, float sampleRate, bool multiTracks); // returns true if tied
 	bool applyNewKey(int keyn, int multiSteps, float sampleRate, bool autostepClick, bool multiTracks); // returns true if tied
@@ -183,7 +185,9 @@ class Sequencer {
 	bool toggleGateP(int multiSteps, bool multiTracks); // returns true if tied
 	bool toggleSlide(int multiSteps, bool multiTracks); // returns true if tied
 	void toggleTied(int multiSteps, bool multiTracks);
-
+	void toggleTied(int stepn) {
+		sek[trackIndexEdit].toggleTied(stepn, 1);// will clear other attribs if new state is on
+	}
 
 	float calcCvOutputAndDecSlideStepsRemain(int trkn, bool running, bool editingSequence) {
 		float cvout = 0.0f;

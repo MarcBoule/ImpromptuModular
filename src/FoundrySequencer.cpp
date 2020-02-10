@@ -278,7 +278,6 @@ void Sequencer::pasteSong(bool multiTracks) {
 	}
 }
 
-
 void Sequencer::writeCV(int trkn, float cvVal, int multiStepsCount, float sampleRate, bool multiTracks) {
 	sek[trkn].writeCV(stepIndexEdit, cvVal, multiStepsCount);
 	editingGateCV[trkn] = cvVal;
@@ -290,13 +289,6 @@ void Sequencer::writeCV(int trkn, float cvVal, int multiStepsCount, float sample
 			sek[i].writeCV(stepIndexEdit, cvVal, multiStepsCount);
 		}
 	}
-}
-void Sequencer::writeCV(int seqn, int stepn, float cvVal) {
-	sek[trackIndexEdit].writeCV(seqn, stepn, cvVal);
-}
-void Sequencer::writeAttribute(int seqn, int stepn, StepAttributes newAttrib) {
-	sek[trackIndexEdit].writeAttribute(seqn, stepn, newAttrib);
-	
 }
 void Sequencer::autostep(bool autoseq, bool autostepLen, bool multiTracks) {
 	moveStepIndexEdit(1, autostepLen);

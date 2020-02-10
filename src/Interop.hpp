@@ -12,10 +12,10 @@
 struct IoStep {// common intermediate format for interop conversion
 	// Impromptu 
 	bool gate;
-	bool tied;
+	bool tied;// when tied is true, gate is always true and prob is always -1.0
 	float pitch;
 	float vel;// 0.0 to 10.0, -1.0 will indicate that the note is not using velocity
-	float prob;// 0.0 to 1.0, -1.0 will indicate that the note is not using probability
+	float prob;// 0.0 to 1.0, -1.0 will indicate that the note is not using probability (always so when tied)
 	
 	void init(bool _gate, bool _tied, float _pitch, float _vel, float _prob) {
 		gate = _gate; tied = _tied; pitch = _pitch, vel = _vel, prob = _prob;
@@ -106,10 +106,19 @@ IoStep* ioConvertToSteps(const std::vector<IoNote> &ioNotes, int maxSeqLen) {
 	}
 	
 	// Scan notes and write into steps
-	for (int ni = 0; ni < ioNotes.size(); ni++) {
+	for (unsigned int ni = 0; ni < ioNotes.size(); ni++) {
 		int si = (int)ioNotes[ni].start;
 		if (si >= maxSeqLen) continue;
-		
+		int si2 = si + std::max((int)1, (int)std::ceil(ioNotes[ni].length));
+		bool headStep = true;
+		for (; si < si2 && si < maxSeqLen; si++) {
+			ioSteps[si].gate = true;
+			ioSteps[si].tied = !headStep;
+			ioSteps[si].pitch = ioNotes[ni].pitch;
+			ioSteps[si].vel = ioNotes[ni].vel;
+			ioSteps[si].prob = headStep ? ioNotes[ni].prob : -1.0f;
+			headStep = false;
+		}
 	}
 	
 	return ioSteps;

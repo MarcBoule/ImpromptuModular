@@ -312,15 +312,6 @@ void SequencerKernel::writeCV(int stepn, float newCV, int count) {// does not ov
 	}
 	dirty[seqIndexEdit] = 1;
 }
-void SequencerKernel::writeCV(int seqn, int stepn, float newCV) {// straight write, not attributes touched
-	cv[seqn][stepn] = newCV;
-	dirty[seqn] = 1;
-}
-void SequencerKernel::writeAttribute(int seqn, int stepn, StepAttributes newAttrib) {
-	attributes[seqn][stepn] = newAttrib;
-	dirty[seqn] = 1;
-}
-
 
 
 void SequencerKernel::copySequence(SeqCPbuffer* seqCPbuf, int startCP, int countCP) {
