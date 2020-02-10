@@ -1933,12 +1933,12 @@ struct FoundryWidget : ModuleWidget {
 		Menu *createChildMenu() override {
 			Menu *menu = new Menu;
 
-			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy sequence", "");
+			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>(portableSequenceCopyID, "");
 			interopCopySeqItem->module = module;
 			interopCopySeqItem->disabled = disabled;
 			menu->addChild(interopCopySeqItem);		
 			
-			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>("Paste sequence", "");
+			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>(portableSequencePasteID, "");
 			interopPasteSeqItem->module = module;
 			interopPasteSeqItem->disabled = disabled;
 			menu->addChild(interopPasteSeqItem);		
@@ -1951,7 +1951,7 @@ struct FoundryWidget : ModuleWidget {
 		Foundry *module = dynamic_cast<Foundry*>(this->module);
 		assert(module);
 
-		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>("Portable sequence", RIGHT_ARROW);
+		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		interopSeqItem->disabled = !module->editingSequence;
 		menu->addChild(interopSeqItem);		
