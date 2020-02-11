@@ -655,6 +655,56 @@ struct PhraseSeq16 : Module {
 	}
 
 
+	IoStep* fillIoSteps(int *seqLenPtr) {// caller must delete return array
+		int seqLen = sequences[seqIndexEdit].getLength();
+		IoStep* ioSteps = new IoStep[seqLen];
+		
+		// populate ioSteps array
+		for (int i = 0; i < seqLen; i++) {
+			ioSteps[i].pitch = cv[seqIndexEdit][i];
+			StepAttributes stepAttrib = attributes[seqIndexEdit][i];
+			ioSteps[i].gate = stepAttrib.getGate1();
+			ioSteps[i].tied = stepAttrib.getTied();
+			ioSteps[i].vel = -1.0f;// no concept of velocity in PhraseSequencers
+			ioSteps[i].prob = stepAttrib.getGate1P() ? params[GATE1_PROB_PARAM].getValue() : -1.0f;// negative means prob is not on for this note
+		}
+		
+		// return values 
+		*seqLenPtr = seqLen;
+		return ioSteps;
+	}
+	
+	
+	void emptyIoSteps(IoStep* ioSteps, int seqLen) {
+		sequences[seqIndexEdit].setLength(seqLen);
+		
+		// populate steps in the sequencer
+		// first pass is done without ties
+		for (int i = 0; i < seqLen; i++) {
+			cv[seqIndexEdit][i] = ioSteps[i].pitch;
+			
+ 			StepAttributes stepAttrib;
+			stepAttrib.init();
+			stepAttrib.setGate1(ioSteps[i].gate);
+			// if (ioSteps[i].vel >= 0.0f) {// no concept of velocity in PhraseSequencers
+				// stepAttrib.setVelocityVal(ioSteps[i].vel * (float)StepAttributes::MAX_VELOCITY / 10.0f);
+			// }
+			// if (ioSteps[i].prob >= 0.0f) {// probablity is a global knob, so nothing to set
+				// stepAttrib.setGatePVal(ioSteps[i].prob * (float)StepAttributes::MAX_VELOCITY / 10.0f);
+			// }
+			stepAttrib.setGate1P(ioSteps[i].prob >= 0.0f);
+			attributes[seqIndexEdit][i] = stepAttrib;
+		}
+		// now do ties, has to be done in a separate pass such that non tied that follows tied can be 
+		//   there in advance for proper gate types
+		for (int i = 0; i < seqLen; i++) {
+			if (ioSteps[i].tied) {
+				activateTiedStep(seqIndexEdit, i);
+			}
+		}
+	}
+	
+	
 	void rotateSeq(int seqNum, bool directionRight, int seqLength) {
 		float rotCV;
 		StepAttributes rotAttributes;
@@ -1805,12 +1855,56 @@ struct PhraseSeq16Widget : ModuleWidget {
 			return menu;
 		}
 	};
-	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
+	struct InteropSeqItem : MenuItem {
+		struct InteropCopySeqItem : MenuItem {
+			PhraseSeq16 *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				IoStep* ioSteps = module->fillIoSteps(&seqLen);
+				interopCopySequence(seqLen, ioSteps);
+				delete[] ioSteps;
+			}
+		};
+		struct InteropPasteSeqItem : MenuItem {
+			PhraseSeq16 *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				IoStep* ioSteps = interopPasteSequence(16, &seqLen);
+				if (ioSteps != nullptr) {
+					module->emptyIoSteps(ioSteps, seqLen);
+					delete[] ioSteps;
+				}
+			}
+		};
+		PhraseSeq16 *module;
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
 
+			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>(portableSequenceCopyID, "");
+			interopCopySeqItem->module = module;
+			interopCopySeqItem->disabled = disabled;
+			menu->addChild(interopCopySeqItem);		
+			
+			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>(portableSequencePasteID, "");
+			interopPasteSeqItem->module = module;
+			interopPasteSeqItem->disabled = disabled;
+			menu->addChild(interopPasteSeqItem);		
+
+			return menu;
+		}
+	};		
+	
+	void appendContextMenu(Menu *menu) override {
 		PhraseSeq16 *module = dynamic_cast<PhraseSeq16*>(this->module);
 		assert(module);
+
+		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
+		interopSeqItem->module = module;
+		interopSeqItem->disabled = !module->isEditingSequence();
+		menu->addChild(interopSeqItem);		
+				
+		MenuLabel *spacerLabel = new MenuLabel();
+		menu->addChild(spacerLabel);
 
 		MenuLabel *themeLabel = new MenuLabel();
 		themeLabel->text = "Panel Theme";

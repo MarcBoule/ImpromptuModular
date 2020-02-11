@@ -39,7 +39,7 @@ void interopCopySequence(int seqLen, IoStep* ioSteps) {
 	json_t* vcvrackSequenceJ = json_object();
 	
 	// length
-	json_object_set_new(vcvrackSequenceJ, "length", json_real(ioNotes.size()));
+	json_object_set_new(vcvrackSequenceJ, "length", json_real((float)seqLen));
 	
 	// notes
 	json_t* notesJ = json_array();
@@ -84,7 +84,7 @@ IoStep* ioConvertToSteps(const std::vector<IoNote> &ioNotes, int maxSeqLen) {
 	
 	// Scan notes and write into steps
 	for (unsigned int ni = 0; ni < ioNotes.size(); ni++) {
-		int si = (int)ioNotes[ni].start;
+		int si = std::max((int)0, (int)ioNotes[ni].start);
 		if (si >= maxSeqLen) continue;
 		int si2 = si + std::max((int)1, (int)std::ceil(ioNotes[ni].length));
 		bool headStep = true;
@@ -131,7 +131,7 @@ IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr) {// will return an a
         WARN("IOP error vcvrack-seqence length missing");
 		return nullptr;
 	}
-	*seqLenPtr = (int)json_number_value(jsonLength);
+	*seqLenPtr = (int)std::ceil(json_number_value(jsonLength));
 	if (*seqLenPtr < 1) {
         WARN("IOP error vcvrack-sequence must have positive length");
 		return nullptr;
@@ -159,7 +159,7 @@ IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr) {// will return an a
 		// type
 		json_t* typeJ = json_object_get(noteJ, "type");
 		if (!typeJ || (std::string("note").compare(json_string_value(typeJ)) != 0)) {
-			WARN("IOP unrecognized note type in notes array, skipping it");
+			WARN("IOP missing or unrecognized note type, skipping it");
 			continue;
 		}
 		IoNote newNote;
@@ -188,18 +188,18 @@ IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr) {// will return an a
 		}
 		newNote.pitch = json_number_value(pitchJ);
 		
-		// vel
+		// vel (optional)
 		json_t* velJ = json_object_get(noteJ, "velocity");
 		newNote.vel = velJ ? json_number_value(velJ) : -1.0f;
 
-		// prob
+		// prob (optional)
 		json_t* probJ = json_object_get(noteJ, "playProbability");
 		newNote.prob = probJ ? json_number_value(probJ) : -1.0f;
 
 		ioNotes.push_back(newNote);
 	}
 	if (ioNotes.size() < 1) {
-		WARN("IOP error vcvrack-sequence no notes in notes array ");
+		WARN("IOP error in vcvrack-sequence, no notes in notes array ");
 		return nullptr;		
 	}
 	

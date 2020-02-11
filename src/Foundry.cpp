@@ -13,7 +13,7 @@
 #include <time.h>
 #include "FoundrySequencer.hpp"
 #include "comp/PianoKey.hpp"
-#include "interop.hpp"
+#include "Interop.hpp"
 
 
 struct Foundry : Module {	
