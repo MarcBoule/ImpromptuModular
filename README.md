@@ -158,9 +158,11 @@ Further information for developpers is available in a short summary of the [code
 
 ### Portable sequence <a id="portable_seq"></a>
 
-**New feature in the upcoming version v1.1.4**: The _Portable sequence_ standard is supported in the following Impromptu sequencers: PhraseSeq16/32, SemiModularSynth16 and Foundry. Sequences can be copy to the clipboard to then be pasted in other compliant sequencers that support the standard (or even the same sequencer in a different sequence if wanted). These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence".
+**New feature in the upcoming version v1.1.4**: The _Portable sequence_ standard is supported in the following Impromptu sequencers: PhraseSeq16/32, SemiModularSynth16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence".
 
-Limitations: The advanced gate types are not use to create eighth notes since no assumption regarding clock resolution can be made when pasting into the receiving sequencer. As a general rule, the Impromptu sequencers are not as expressive as timeline-based sequencers, so it can be anticipated that some features of the sequence will be pruned or quantized. In other words, the finest supported resolution is the quarter note, i.e. a step, and any content with finer musical resolution will be temporally quantized to quarter notes. Tied steps are automatically set during a paste operation to produce half notes or anything longer that quarter notes. Rack's log file can be used to identify major problems with pastingm operations. Polyphony is not supported.
+![IM](res/img/PortableSequence.jpg)
+
+Limitations: As a general rule, the Impromptu sequencers are not as expressive as timeline-based sequencers, so it can be anticipated that some features of the sequence will be pruned or quantized. In other words, the finest supported resolution is the quarter note (i.e. a step) and any content with finer musical resolution will be temporally quantized to quarter notes. The advanced gate types are not use to create eighth notes, for example, since no assumption regarding clock resolution can be made when pasting into the receiving sequencer. Tied steps are automatically set during a paste operation to produce half notes or anything longer that quarter notes. Rack's log file can be used to identify major problems with pasting operations. Polyphony is not supported, and the copy/paste operations are only available when the sequencers are in SEQ mode (as opposed to SONG mode).
 
 
 

@@ -465,10 +465,12 @@ struct Foundry : Module {
 			stepAttrib.init();
 			stepAttrib.setGate(ioSteps[i].gate);
 			if (ioSteps[i].vel >= 0.0f) {
-				stepAttrib.setVelocityVal(ioSteps[i].vel * (float)StepAttributes::MAX_VELOCITY / 10.0f);
+				float pValue = std::round(ioSteps[i].vel * (float)StepAttributes::MAX_VELOCITY / 10.0f);
+				stepAttrib.setVelocityVal(clamp((int)pValue, 0 , StepAttributes::MAX_VELOCITY));
 			}
 			if (ioSteps[i].prob >= 0.0f) {
-				stepAttrib.setGatePVal(ioSteps[i].prob * (float)StepAttributes::MAX_VELOCITY / 10.0f);
+				float vValue = std::round(ioSteps[i].prob * 100.0f);
+				stepAttrib.setGatePVal(clamp((int)vValue, 0, 100));
 			}
 			stepAttrib.setGateP(ioSteps[i].prob >= 0.0f);
 			seq.writeAttribNoTies(i, stepAttrib);

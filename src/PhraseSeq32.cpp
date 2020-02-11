@@ -634,7 +634,7 @@ struct PhraseSeq32 : Module {
 			ioSteps[i].gate = stepAttrib.getGate1();
 			ioSteps[i].tied = stepAttrib.getTied();
 			ioSteps[i].vel = -1.0f;// no concept of velocity in PhraseSequencers
-			ioSteps[i].prob = stepAttrib.getGate1P() ? params[GATE1_PROB_PARAM].getValue() : -1.0f;// negative means prob is not on for this note
+			ioSteps[i].prob = stepAttrib.getGate1P() ? params[GATE1_KNOB_PARAM].getValue() : -1.0f;// negative means prob is not on for this note
 		}
 		
 		// return values 
@@ -654,12 +654,6 @@ struct PhraseSeq32 : Module {
  			StepAttributes stepAttrib;
 			stepAttrib.init();
 			stepAttrib.setGate1(ioSteps[i].gate);
-			// if (ioSteps[i].vel >= 0.0f) {// no concept of velocity in PhraseSequencers
-				// stepAttrib.setVelocityVal(ioSteps[i].vel * (float)StepAttributes::MAX_VELOCITY / 10.0f);
-			// }
-			// if (ioSteps[i].prob >= 0.0f) {// probablity is a global knob, so nothing to set
-				// stepAttrib.setGatePVal(ioSteps[i].prob * (float)StepAttributes::MAX_VELOCITY / 10.0f);
-			// }
 			stepAttrib.setGate1P(ioSteps[i].prob >= 0.0f);
 			attributes[seqIndexEdit][i] = stepAttrib;
 		}
