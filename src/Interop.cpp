@@ -98,6 +98,17 @@ IoStep* ioConvertToSteps(const std::vector<IoNote> &ioNotes, int maxSeqLen) {
 		}
 	}
 	
+	// Scan steps and extend pitches into unused steps
+	float lastPitch = 0.0f;
+	for (int si = 0; si < maxSeqLen; si++) {
+		if (ioSteps[si].gate) {
+			lastPitch = ioSteps[si].pitch;
+		}
+		else {
+			ioSteps[si].pitch = lastPitch;
+		}
+	}
+	
 	return ioSteps;
 }
 
