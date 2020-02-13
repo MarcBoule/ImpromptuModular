@@ -832,9 +832,9 @@ struct ClkdWidget : ModuleWidget {
 		static const int colR = 120;
 		
 		static const int row0 = 58;// reset, run, bpm inputs
-		static const int row1 = 94;// reset and run switches, bpm knob
-		static const int row2 = 144;// bpm display, display index lights, master clk out
-		static const int row3 = 194;// display and mode buttons
+		static const int row1 = 95;// reset and run switches, bpm knob
+		static const int row2 = 148;// bpm display, display index lights, master clk out
+		static const int row3 = 198;// display and mode buttons
 		static const int row4 = 227;// sub clock ratio knobs
 		static const int row5 = 281;// sub clock outs
 		static const int row6 = 328;// reset, run, bpm outputs
@@ -857,7 +857,7 @@ struct ClkdWidget : ModuleWidget {
 		addParam(createParamCentered<LEDBezel>(Vec(colC, row1), module, Clkd::RUN_PARAM));
 		addChild(createLightCentered<MuteLight<GreenLight>>(Vec(colC, row1), module, Clkd::RUN_LIGHT));
 		// Master BPM knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(colR, row1), module, Clkd::BPM_PARAM, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		addParam(createDynamicParamCentered<IMMediumKnob<true, true>>(Vec(colR, row1), module, Clkd::BPM_PARAM, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		
 
 		// Row 2

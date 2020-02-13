@@ -14,7 +14,7 @@
    version="1.1"
    id="svg20"
    sodipodi:docname="ScrewSilver.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
   <metadata
      id="metadata24">
     <rdf:RDF>
@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,13 +40,15 @@
      inkscape:window-height="1017"
      id="namedview22"
      showgrid="false"
-     inkscape:zoom="65.380811"
-     inkscape:cx="7.4999998"
-     inkscape:cy="7.4976104"
+     inkscape:zoom="46.231215"
+     inkscape:cx="3.4470045"
+     inkscape:cy="6.2317966"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg20" />
+     inkscape:current-layer="svg20"
+     showguides="true"
+     inkscape:guide-bbox="true" />
   <defs
      id="defs8">
     <linearGradient
@@ -92,7 +94,7 @@
      style="fill:#464646;fill-opacity:1;stroke-width:1" />
   <path
      inkscape:connector-curvature="0"
-     style="fill:#464646;stroke-width:1;fill-opacity:1"
-     d="m 2.0003008,2.3680668 a 0.4,0.4 0 1 1 0,-0.8 0.4,0.4 0 0 1 0,0.8"
+     style="fill:#464646;fill-opacity:1;stroke-width:1"
+     d="m 1.988854,2.3795136 a 0.4,0.4 0 1 1 0,-0.8 0.4,0.4 0 0 1 0,0.8"
      id="path8" />
 </svg>

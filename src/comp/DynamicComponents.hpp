@@ -167,7 +167,7 @@ struct IMBigKnob : IMKnob {
 	IMBigKnob() {
 		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/BlackKnobLargeWithMark.svg")));
 		addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeWithMark.svg"));
-		addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeWithMarkEffects.svg"));
+		addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeEffects.svg"));
 		shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
 		snap = makeSnap;
@@ -210,11 +210,27 @@ struct IMMediumKnobInf : IMKnob {// implicitly no random and no snap
 	IMMediumKnobInf() {
 		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundMediumBlackKnobNoMark.svg")));
 		addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobNoMark.svg"));
-		addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobNoMarkEffects.svg"));
+		addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobEffects.svg"));
 		shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
 		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
 		speed = 0.9f;				
+	}
+};
+template<bool allowRandom, bool makeSnap>
+struct IMMediumKnob : IMKnob {
+	IMMediumKnob() {
+		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundMediumBlackKnob.svg")));
+		addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnob.svg"));
+		addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobEffects.svg"));
+		shadow->blurRadius = box.size.y * blurRadiusRatio;
+		// shadow->opacity = 0.1;
+		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
+		snap = makeSnap;			
+	}
+	void randomize() override {
+		if (allowRandom) 
+			IMKnob::randomize();
 	}
 };
 
