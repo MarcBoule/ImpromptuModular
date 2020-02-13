@@ -935,24 +935,24 @@ struct GateSeq64 : Module {
 				
 				int newSeq = sequence;// good value when editingSequence, overwrite if not editingSequence
 				if (ppqnCount == 0) {
+					int oldStepIndexRun[4] = {stepIndexRun[0], stepIndexRun[1], stepIndexRun[2], stepIndexRun[3]};
 					if (editingSequence) {
-						moveIndexRunMode(&stepIndexRun[0], sequences[sequence].getLength(), sequences[sequence].getRunMode(), &stepIndexRunHistory);
+						bool seqLoopOver = moveIndexRunMode(&stepIndexRun[0], sequences[sequence].getLength(), sequences[sequence].getRunMode(), &stepIndexRunHistory);
+						if (seqLoopOver && stopAtEndOfSong) {						
+							running = false;
+							for (int i = 0; i < 4; i++) 
+								stepIndexRun[i] = oldStepIndexRun[i];
+						}
 					}
 					else {
-						int oldStepIndexRun0 = stepIndexRun[0];
-						int oldStepIndexRun1 = stepIndexRun[1];
-						int oldStepIndexRun2 = stepIndexRun[2];
-						int oldStepIndexRun3 = stepIndexRun[3];
 						if (moveIndexRunMode(&stepIndexRun[0], sequences[phrase[phraseIndexRun]].getLength(), sequences[phrase[phraseIndexRun]].getRunMode(), &stepIndexRunHistory)) {
 							int oldPhraseIndexRun = phraseIndexRun;
 							bool songLoopOver = moveIndexRunMode(&phraseIndexRun, phrases, runModeSong, &phraseIndexRunHistory);
 							// check for end of song if needed
 							if (songLoopOver && stopAtEndOfSong) {
 								running = false;
-								stepIndexRun[0] = oldStepIndexRun0;
-								stepIndexRun[1] = oldStepIndexRun1;
-								stepIndexRun[2] = oldStepIndexRun2;
-								stepIndexRun[3] = oldStepIndexRun3;
+								for (int i = 0; i < 4; i++) 
+									stepIndexRun[i] = oldStepIndexRun[i];
 								phraseIndexRun = oldPhraseIndexRun;
 							}
 							else {							
@@ -1420,7 +1420,7 @@ struct GateSeq64Widget : ModuleWidget {
 		rorItem->module = module;
 		menu->addChild(rorItem);
 
-		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Stop at end of song", CHECKMARK(module->stopAtEndOfSong));
+		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot", CHECKMARK(module->stopAtEndOfSong));
 		loopItem->module = module;
 		menu->addChild(loopItem);
 

@@ -1271,16 +1271,21 @@ struct PhraseSeq32 : Module {
 				int newSeq = seqIndexEdit;// good value when editingSequence, overwrite if not editingSequence
 				if (ppqnCount == 0) {
 					float slideFromCV[2] = {0.0f, 0.0f};
+					int oldStepIndexRun0 = stepIndexRun[0];
+					int oldStepIndexRun1 = stepIndexRun[1];
 					if (editingSequence) {
 						for (int i = 0; i < 2; i += stepConfig)
 							slideFromCV[i] = cv[seqIndexEdit][(i * 16) + stepIndexRun[i]];
-						moveIndexRunMode(&stepIndexRun[0], sequences[seqIndexEdit].getLength(), sequences[seqIndexEdit].getRunMode(), &stepIndexRunHistory);
+						bool seqLoopOver = moveIndexRunMode(&stepIndexRun[0], sequences[seqIndexEdit].getLength(), sequences[seqIndexEdit].getRunMode(), &stepIndexRunHistory);
+						if (seqLoopOver && stopAtEndOfSong) {
+							running = false;
+							stepIndexRun[0] = oldStepIndexRun0;
+							stepIndexRun[1] = oldStepIndexRun1;
+						}
 					}
 					else {
 						for (int i = 0; i < 2; i += stepConfig)
 							slideFromCV[i] = cv[phrase[phraseIndexRun]][(i * 16) + stepIndexRun[i]];
-						int oldStepIndexRun0 = stepIndexRun[0];
-						int oldStepIndexRun1 = stepIndexRun[1];
 						if (moveIndexRunMode(&stepIndexRun[0], sequences[phrase[phraseIndexRun]].getLength(), sequences[phrase[phraseIndexRun]].getRunMode(), &stepIndexRunHistory)) {
 							int oldPhraseIndexRun = phraseIndexRun;
 							bool songLoopOver = moveIndexRunMode(&phraseIndexRun, phrases, runModeSong, &phraseIndexRunHistory);
@@ -2023,7 +2028,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		holdItem->module = module;
 		menu->addChild(holdItem);
 
-		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Stop at end of song", CHECKMARK(module->stopAtEndOfSong));
+		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot", CHECKMARK(module->stopAtEndOfSong));
 		loopItem->module = module;
 		menu->addChild(loopItem);
 

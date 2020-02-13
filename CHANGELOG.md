@@ -1,5 +1,7 @@
 ### 1.1.4 (in development)
 
+- Allow single shot to work in SEQ mode also in Foundry, PhraseSeq16/32, GateSeq64 and SemiModularSynth
+- Implement Portable sequence copy/paste in Foundry, PhraseSeq16/32 and SemiModularSynth
 - Add new module called Clkd: a half-sized version of Clocked without PW, Swing and Delay
 - Reduced width of Cv-Pad by 1HP
 - Fix bug in Foundry when using expander to sync select sequences with different run modes

@@ -17,7 +17,7 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [CvPad](#cv-pad): CV controller with 16 programmable pads (can be configured as 1x16, 2x8 or 4x4).
 
-* [Clocked](#clocked): Chainable clock module with swing, clock delay and pulse width control.
+* [Clocked/Clkd](#clocked): Chainable clock generator modules with external synchronization.
 
 * [Foundry](#foundry): 4-track phrase sequencer with 32 steps per sequence, 64 sequences per track, 99 phrases per song/track.
 
@@ -254,17 +254,19 @@ The module also features sliders and menu items to copy and paste the CVs, and a
 
 
 
-## Clocked <a id="clocked"></a>
+## Clocked/Clkd <a id="clocked"></a>
 
 ![IM](res/img/Clocked.jpg)
 
-A chainable master clock module with swing, clock delay and pulse width controls, with master BPM from 30 to 300 and all mult/div ratios up to 16, including 1.5 and 2.5, and with additional ratios spanning prime numbers and powers of two up to 64. The clock can produce waveforms with adjustable pulse widths for use with envelope generators or sequencers that use the clock pulse to produce their gate signals. The clock can also be synchronized to an external clock source.
+Clocked: A chainable master clock module with swing, clock delay and pulse width controls, with master BPM from 30 to 300 and all mult/div ratios up to 16, including 1.5 and 2.5, and with additional ratios spanning prime numbers and powers of two up to 64. The clock can produce waveforms with adjustable pulse widths for use with envelope generators or sequencers that use the clock pulse to produce their gate signals. The clock can also be synchronized to an external clock source.
+
+Clkd: A smaller version of Clocked but without swing, clock delay and pulse width. **To be released in version v1.1.4**
 
 For a tutorial on Clocked regarding chaining, clock multiplications and divisions, swing and clock delay features, please see Nigel Sixsmith's [Talking Rackheads episode 12](https://www.youtube.com/watch?v=ymfOh1yCzU4). It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here. 
 
 * **RESET**: Restart all channels' time keeping. The clock outputs are held high when a stopped clock is reset (instead of low). This is required so that when controlling sequential switches (which are assumed to also be reset on the same event) will not get triggered and moved to step 2 when the clock is started again. The right-click menu option "*Outputs reset high when not running*" can be turned off, to allow the outputs to be held low when resetting a stopped clock.
 
-* **RUN**: The run button functions as a pause/play button. When turned off, the clock outputs are held in their current states. When run is turned on again, the clock engine resumes where it left off, such that when using multiple outputs with different clock ratios, a large patch with multiple sequencers playing at different speeds will not be out of sync. This effectively makes for proper pausing behavior in multi-track and multi-clock patches. For sequencers with RUN inputs, it may be beneficial to connect the RUN output of Clocked to the RUN input of the sequencers. In the case of the Phrase Sequencers (see below), this will ensure gates are not kept high while stopped, and will also allow feedback of the notes that are entered when programming a stopped sequencer. For more detailed explanations on this, please see this section on [resets, clocks and run states](#clk_rst_run).
+* **RUN**: The run button functions as a pause/play button. When turned off, the clock outputs are held in their current states. When run is turned on again, the clock engine resumes where it left off, such that when using multiple outputs with different clock ratios, a large patch with multiple sequencers playing at different speeds will not be out of sync. This effectively makes for proper pausing behavior in multi-track and multi-clock patches. For sequencers with RUN inputs, it may be beneficial to connect the RUN output of Clocked/Clkd to the RUN input of the sequencers. In the case of the Phrase Sequencers (see below), this will ensure gates are not kept high while stopped, and will also allow feedback of the notes that are entered when programming a stopped sequencer. For more detailed explanations on this, please see this section on [resets, clocks and run states](#clk_rst_run).
 
 * **SWING**: The clock swing is loosely based on the [Roger Linn method](https://www.attackmagazine.com/technique/passing-notes/daw-drum-machine-swing/). For a given clock, all even clocks pulses are offset forward/backward according to the setting of the Swing knob; at 0 (top) everything is aligned as normal. At -100, all even clocks would coincide with odd clocks preceding them, and at +100 they would line up with subsequent clock pulses). The knob thus goes from -99 to +99 such that no beats are missed. In its extreme positions, the timing is tighter than 99 percent of a clock period (the 99 value is only a rough indication). 
 
@@ -274,9 +276,9 @@ For a tutorial on Clocked regarding chaining, clock multiplications and division
 
 In place of a detailed explanation of these three main controls (Swing, PW and Delay), it is recommended to connect the outputs to a scope or a logic analyzer, such as the VCV Scope (pictured above) or the SubmarineFree LA-108, to observe the effects of the different controls. 
 
-PW and Swing CV inputs are aso avaialable in the Clocked [expander module](#expanders). These inputs have a range of -5V to 5V when the corresponding knobs are be in their default position. With the corresponding knobs turned full left, the usable range on the inputs becomes 0V to 10V, with no-swing and normal-pulse-width correspond to 5V on the CV inputs.
+PW and Swing CV inputs are aso avaialable in the Clocked [expander module](#expanders) (available for Clocked only). These inputs have a range of -5V to 5V when the corresponding knobs are be in their default position. With the corresponding knobs turned full left, the usable range on the inputs becomes 0V to 10V, with no-swing and normal-pulse-width correspond to 5V on the CV inputs.
 
-Many options are available in the module's **right-click menu**, and can be used to setup Clocked for your particular needs. In particular, the RUN CV input is trigger sensitive by default, but can be made level sensitive (gate mode) by turning on the "_Run CV input is level sensitive_" option; when chaining multiple Clocked modules, only the first module in the chain should have this option turned on.
+Many options are available in the modules' **right-click menu**, and can be used to setup Clocked/Clkd for your particular needs. In particular, the RUN CV input is trigger sensitive by default, but can be made level sensitive (gate mode) by turning on the "_Run CV input is level sensitive_" option; when chaining multiple Clocked/Clkd modules, only the first module in the chain should have this option turned on.
 
 
 ### External synchronization <a id="clocked-sync"></a>
@@ -357,7 +359,7 @@ Here are some further details on the different functions of the sequencer. It is
 
 * **TRAN/ROT**: Transpose all 32 steps, or rotate steps 1 to LENGTH. These numbers are stored in the sequencer for each sequence. Resetting the values of a given sequence can be done by copy-pasting an unused sequence (sequence 64 typically, for example) over into the current sequence. If all 64 sequences were used, simply press paste after closing and restarting Rack as an uninitialized sequence is automatically held in the sequence copy-paste buffer upon power-up.
 
-By default the sequencer always restarts the song when in song mode; however, this may not always be wanted. To play the song just once, activate the option **Stop at end of song** in the right-click menu of the module. Since Foundry is a multitrack sequencer and there is only one global run state, one of the four tracks (songs) has to be used as the reference to stop the sequencer. This option is only well-defined when the song's run mode is either FWD or REV.
+By default the sequencer always restarts the sequences or songs when in seq/song mode respectively; however, this may not always be wanted. To play the sequences or songs just once, activate the option **Single shot** in the right-click menu of the module. Since Foundry is a multitrack sequencer and there is only one global run state, one of the four tracks has to be used as the reference to stop the sequencer. In song mode this option is only well-defined when the song's run mode is either FWD or REV.
 
 For chords or polyphonic content, an option in the module's right-click menu can be used to poly merge other tracks into track A outputs. For example, when the **Poly merge into track A outputs** is set to _Tracks B and C_, each of the CV, GATE, CV2 outputs of track A becomes polyphonic, with the content of track A in the channel 1, the content of track B in channel 2 and track C in channel 3. When a track is poly merged into track A, its output ports are set to a constant 0V. This is perfect for creating chords for polyphonic oscillators/ADSRs etc.
 
