@@ -707,8 +707,9 @@ struct Foundry : Module {
 							}
 						}
 					}
-					else if (attached)
+					else {// attached and running
 						attachedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
+					}
 				}
 			}
 			

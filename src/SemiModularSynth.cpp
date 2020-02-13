@@ -1070,8 +1070,9 @@ struct SemiModularSynth : Module {
 								phraseIndexRun = phraseIndexEdit;
 						}
 					}
-					else if (attached)
+					else {// attached and running
 						attachedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
+					}
 					displayState = DISP_NORMAL;
 				}
 			} 

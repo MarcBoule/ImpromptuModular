@@ -136,7 +136,6 @@ struct PhraseSeq32 : Module {
 	long editingGateLength;// 0 when no info, positive when gate1, negative when gate2
 	long lastGateEdit;
 	long editingPpqn;// 0 when no info, positive downward step counter timer when editing ppqn
-	bool attachedChanB;
 	int stepConfig;
 	long clockIgnoreOnReset;
 	int phraseIndexRun;	
@@ -314,7 +313,6 @@ struct PhraseSeq32 : Module {
 		editingGateLength = 0l;
 		lastGateEdit = 1l;
 		editingPpqn = 0l;
-		attachedChanB = false;
 		if (delayed) {
 			stepConfigSync = 1;// signal a sync from dataFromJson so that step will get lengths from seqAttribBuffer
 		}
@@ -627,10 +625,12 @@ struct PhraseSeq32 : Module {
 		int seqLen = sequences[seqIndexEdit].getLength();
 		IoStep* ioSteps = new IoStep[seqLen];
 		
+		int ofs16 = (stepIndexEdit >= 16 && stepConfig == 1 && seqLen <= 16) ? 16 : 0;// offset needed to grab correct seq when in 2x16  (last condition is safety)
+		
 		// populate ioSteps array
 		for (int i = 0; i < seqLen; i++) {
-			ioSteps[i].pitch = cv[seqIndexEdit][i];
-			StepAttributes stepAttrib = attributes[seqIndexEdit][i];
+			ioSteps[i].pitch = cv[seqIndexEdit][i + ofs16];
+			StepAttributes stepAttrib = attributes[seqIndexEdit][i + ofs16];
 			ioSteps[i].gate = stepAttrib.getGate1();
 			ioSteps[i].tied = stepAttrib.getTied();
 			ioSteps[i].vel = -1.0f;// no concept of velocity in PhraseSequencers
@@ -643,19 +643,21 @@ struct PhraseSeq32 : Module {
 	}
 	
 	
-	void emptyIoSteps(IoStep* ioSteps, int seqLen) {
+	void emptyIoSteps(IoStep* ioSteps, int seqLen) {// seqLen is max 32 when in 1x32 and max 16 when in 2x16
 		sequences[seqIndexEdit].setLength(seqLen);
+		
+		int ofs16 = (stepIndexEdit >= 16 && stepConfig == 1 && seqLen <= 16) ? 16 : 0;// offset needed to put correct seq when in 2x16  (last condition is safety)
 		
 		// populate steps in the sequencer
 		// first pass is done without ties
 		for (int i = 0; i < seqLen; i++) {
-			cv[seqIndexEdit][i] = ioSteps[i].pitch;
+			cv[seqIndexEdit][i + ofs16] = ioSteps[i].pitch;
 			
  			StepAttributes stepAttrib;
 			stepAttrib.init();
 			stepAttrib.setGate1(ioSteps[i].gate);
 			stepAttrib.setGate1P(ioSteps[i].prob >= 0.0f);
-			attributes[seqIndexEdit][i] = stepAttrib;
+			attributes[seqIndexEdit][i + ofs16] = stepAttrib;
 		}
 		// now do ties, has to be done in a separate pass such that non tied that follows tied can be 
 		//   there in advance for proper gate types
@@ -741,7 +743,6 @@ struct PhraseSeq32 : Module {
 				if (resetOnRun) {
 					initRun();
 				}
-				attachedChanB = stepIndexEdit >= 16;
 			}
 			displayState = DISP_NORMAL;
 		}
@@ -757,14 +758,12 @@ struct PhraseSeq32 : Module {
 				for (int i = 0; i < 32; i++)
 					sequences[i].setSeqAttrib(seqAttribBuffer[i].getSeqAttrib());
 				initRun();			
-				attachedChanB = false;
 				stepConfigSync = 0;
 			}
 			else if (stepConfig != oldStepConfig) {// switch moved, so init lengths
 				for (int i = 0; i < 32; i++)
 					sequences[i].setLength(16 * stepConfig);
 				initRun();			
-				attachedChanB = false;
 			}				
 			
 			// Seq CV input
@@ -793,13 +792,11 @@ struct PhraseSeq32 : Module {
 			// Attach button
 			if (attachedTrigger.process(params[ATTACH_PARAM].getValue())) {
 				attached = !attached;
-				if (running && attached && editingSequence && stepConfig == 1 ) 
-					attachedChanB = (stepIndexEdit >= 16);
 				displayState = DISP_NORMAL;			
 			}
 			if (running && attached) {
 				if (editingSequence) {
-					if (attachedChanB && stepConfig == 1)
+					if (stepIndexEdit >= 16 && stepConfig == 1)
 						stepIndexEdit = stepIndexRun[1] + 16;
 					else
 						stepIndexEdit = stepIndexRun[0] + 0;
@@ -1001,13 +998,12 @@ struct PhraseSeq32 : Module {
 						}
 					}
 					else {// attached and running
-						if (attached)
-							attachedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
+						attachedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 						if (editingSequence) {
-							if ((stepPressed < 16) && attachedChanB)
-								attachedChanB = false;
-							if ((stepPressed >= 16) && !attachedChanB)
-								attachedChanB = true;					
+							if (stepPressed >= 16 && stepConfig == 1)
+								stepIndexEdit = stepIndexRun[1] + 16;
+							else
+								stepIndexEdit = stepIndexRun[0] + 0;
 						}
 					}
 					displayState = DISP_NORMAL;
@@ -1966,7 +1962,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 			PhraseSeq32 *module;
 			void onAction(const event::Action &e) override {
 				int seqLen;
-				IoStep* ioSteps = interopPasteSequence(32, &seqLen);
+				IoStep* ioSteps = interopPasteSequence(module->stepConfig * 16, &seqLen);
 				if (ioSteps != nullptr) {
 					module->emptyIoSteps(ioSteps, seqLen);
 					delete[] ioSteps;
