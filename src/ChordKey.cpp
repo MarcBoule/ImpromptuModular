@@ -48,7 +48,7 @@ struct ChordKey : Module {
 	
 	// Need to save, with reset
 	int octs[NUM_CHORDS][4];// -1 to 9 (-1 means not used, i.e. no gate can be emitted)
-	float cvs[NUM_CHORDS][4];
+	int keys[NUM_CHORDS][4];// 0 to 11 for the 12 keys
 	
 	
 	// No need to save, with reset
@@ -92,7 +92,7 @@ struct ChordKey : Module {
 		for (int ci = 0; ci < NUM_CHORDS; ci++) { // chord index
 			for (int cni = 0; cni < 4; cni++) {// chord note index
 				octs[ci][cni] = 4;
-				cvs[ci][cni] = 0.0f;
+				keys[ci][cni] = 0;
 			}
 		}
 		resetNonJson();
@@ -105,7 +105,7 @@ struct ChordKey : Module {
 		for (int ci = 0; ci < NUM_CHORDS; ci++) { // chord index
 			for (int cni = 0; cni < 4; cni++) {// chord note index
 				octs[ci][cni] = random::u32() % 10;
-				cvs[ci][cni] = ((float)(octs[ci][cni]  - 4)) + ((float)(random::u32() % 12)) / 12.0f;
+				keys[ci][cni] = random::u32() % 12;
 			}
 		}					
 	}
@@ -117,22 +117,22 @@ struct ChordKey : Module {
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
 
 		// octs
-		json_t *cvJ = json_array();
-		for (int ci = 0; ci < NUM_CHORDS; ci++) {// chord index
-			for (int cni = 0; cni < 4; cni++) {// chord note index
-				json_array_insert_new(cvJ, cni + (ci * 4), json_integer(octs[ci][cni]));
-			}
-		}
-		json_object_set_new(rootJ, "octs", cvJ);
-		
-		// cvs
 		json_t *octJ = json_array();
 		for (int ci = 0; ci < NUM_CHORDS; ci++) {// chord index
 			for (int cni = 0; cni < 4; cni++) {// chord note index
-				json_array_insert_new(octJ, cni + (ci * 4), json_real(cvs[ci][cni]));
+				json_array_insert_new(octJ, cni + (ci * 4), json_integer(octs[ci][cni]));
 			}
 		}
-		json_object_set_new(rootJ, "cvs", octJ);
+		json_object_set_new(rootJ, "octs", octJ);
+		
+		// keys
+		json_t *keyJ = json_array();
+		for (int ci = 0; ci < NUM_CHORDS; ci++) {// chord index
+			for (int cni = 0; cni < 4; cni++) {// chord note index
+				json_array_insert_new(keyJ, cni + (ci * 4), json_integer(keys[ci][cni]));
+			}
+		}
+		json_object_set_new(rootJ, "keys", keyJ);
 		
 		return rootJ;
 	}
@@ -155,18 +155,17 @@ struct ChordKey : Module {
 			}
 		}
 
-		// cvs
-		json_t *cvJ = json_object_get(rootJ, "cvs");
-		if (cvJ) {
+		// keys
+		json_t *keyJ = json_object_get(rootJ, "keys");
+		if (keyJ) {
 			for (int ci = 0; ci < NUM_CHORDS; ci++) {// chord index
 				for (int cni = 0; cni < 4; cni++) {// chord note index
-					json_t *cvArrayJ = json_array_get(cvJ, cni + (ci * 4));
-					if (cvArrayJ)
-						cvs[ci][cni] = json_number_value(cvArrayJ);
+					json_t *keyArrayJ = json_array_get(keyJ, cni + (ci * 4));
+					if (keyArrayJ)
+						keys[ci][cni] = json_number_value(keyArrayJ);
 				}
 			}
 		}
-
 		
 		resetNonJson();
 	}
@@ -191,9 +190,7 @@ struct ChordKey : Module {
 			// piano keys
 			if (keyTrigger.process(pkInfo.gate)) {
 				int cni = clamp((int)(pkInfo.vel * 4.0f), 0, 3);
-				if (octs[index][cni] >= 0) {
-					cvs[index][cni] = ((float)(octs[index][cni] - 4)) + ((float) pkInfo.key) / 12.0f;
-				}
+				keys[index][cni] = pkInfo.key;
 			}			
 		}// userInputs refresh
 
@@ -207,7 +204,8 @@ struct ChordKey : Module {
 		for (int cni = 0; cni < 4; cni++) {
 			float gateOut = ((octs[index][cni] >= 0) && ((inputs[GATE_INPUT].getVoltage() >= 1.0f) || forcedGate))  ? 10.0f : 0.0f;
 			outputs[GATE_OUTPUTS + cni].setVoltage(gateOut);
-			outputs[CV_OUTPUTS + cni].setVoltage(cvs[index][cni]);
+			float cvOut = (octs[index][cni] >= 0) ? (((float)(octs[index][cni] - 4)) + ((float)keys[index][cni]) / 12.0f) : 0.0f;
+			outputs[CV_OUTPUTS + cni].setVoltage(cvOut);
 		}
 		
 
@@ -341,39 +339,40 @@ struct ChordKeyWidget : ModuleWidget {
 
 		// ****** Top portion (keys) ******
 
-		static const int offsetKeyLEDx = 12;
-		static const int offsetKeyLEDy = 41;// 32
+		static const float olx = 12;
+		static const float oly = 41;// 32
 		
 		static const int posWhiteY = 115;
 		static const int posBlackY = 40;
 
 		// Black keys
 		addChild(createPianoKey<PianoKeyBig>(Vec(37.5f, posBlackY), 1, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(37.5f+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 1));
+		//for (int y = 0; y < 4; y++) 
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(37.5f+olx+4.7f, posBlackY+oly+4.7f), module, ChordKey::KEY_LIGHTS + 1));
 		addChild(createPianoKey<PianoKeyBig>(Vec(78.5f, posBlackY), 3, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(78.5f+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 3));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(78.5f+olx, posBlackY+oly), module, ChordKey::KEY_LIGHTS + 3));
 		addChild(createPianoKey<PianoKeyBig>(Vec(161.5f, posBlackY), 6, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(161.5f+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 6));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(161.5f+olx, posBlackY+oly), module, ChordKey::KEY_LIGHTS + 6));
 		addChild(createPianoKey<PianoKeyBig>(Vec(202.5f, posBlackY), 8, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(202.5f+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 8));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(202.5f+olx, posBlackY+oly), module, ChordKey::KEY_LIGHTS + 8));
 		addChild(createPianoKey<PianoKeyBig>(Vec(243.5f, posBlackY), 10, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(243.5f+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 10));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(243.5f+olx, posBlackY+oly), module, ChordKey::KEY_LIGHTS + 10));
 
 		// White keys
 		addChild(createPianoKey<PianoKeyBig>(Vec(17.5, posWhiteY), 0, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(17.5+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 0));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(17.5+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 0));
 		addChild(createPianoKey<PianoKeyBig>(Vec(58.5f, posWhiteY), 2, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(58.5f+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 2));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(58.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 2));
 		addChild(createPianoKey<PianoKeyBig>(Vec(99.5f, posWhiteY), 4, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(99.5f+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 4));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(99.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 4));
 		addChild(createPianoKey<PianoKeyBig>(Vec(140.5f, posWhiteY), 5, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(140.5f+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 5));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(140.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 5));
 		addChild(createPianoKey<PianoKeyBig>(Vec(181.5f, posWhiteY), 7, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(181.5f+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 7));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(181.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 7));
 		addChild(createPianoKey<PianoKeyBig>(Vec(222.5f, posWhiteY), 9, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(222.5f+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 9));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(222.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 9));
 		addChild(createPianoKey<PianoKeyBig>(Vec(263.5f, posWhiteY), 11, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(263.5f+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, ChordKey::KEY_LIGHTS + 11));
+		addChild(createLight<MediumLight<GreenLight>>(Vec(263.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 11));
 		
 		
 		// ****** Bottom portion ******
