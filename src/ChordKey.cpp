@@ -49,7 +49,8 @@ struct ChordKey : Module {
 	// Need to save, with reset
 	int octs[NUM_CHORDS][4];// -1 to 9 (-1 means not used, i.e. no gate can be emitted)
 	int keys[NUM_CHORDS][4];// 0 to 11 for the 12 keys
-	
+	int mergeOutputs;// 0 = none, 1 = merge A with B, 2 = merge A with B and C, 3 = merge A with All
+
 	
 	// No need to save, with reset
 	unsigned long noteLightCounter;// 0 when no key to light, downward step counter timer when key lit
@@ -81,7 +82,7 @@ struct ChordKey : Module {
 			configParam(OCTINC_PARAMS + cni, 0.0, 1.0, 0.0, strBuf);
 		}
 		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
-		configParam(INDEX_PARAM, 0.0f, 1.0f, 0.0f, "Force gate on");
+		configParam(FORCE_PARAM, 0.0f, 1.0f, 0.0f, "Force gate on");
 		
 		onReset();
 		
@@ -90,11 +91,17 @@ struct ChordKey : Module {
 
 	void onReset() override {
 		for (int ci = 0; ci < NUM_CHORDS; ci++) { // chord index
-			for (int cni = 0; cni < 4; cni++) {// chord note index
-				octs[ci][cni] = 4;
-				keys[ci][cni] = 0;
-			}
+			// C-major triad with base note on C4
+			keys[ci][0] = 0;
+			keys[ci][1] = 4;
+			keys[ci][2] = 7;
+			keys[ci][3] = 0;
+			octs[ci][0] = 4;
+			octs[ci][1] = 4;
+			octs[ci][2] = 4;
+			octs[ci][3] = -1;// turned off
 		}
+		mergeOutputs = 0;// no merging
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -134,6 +141,9 @@ struct ChordKey : Module {
 		}
 		json_object_set_new(rootJ, "keys", keyJ);
 		
+		// mergeOutputs
+		json_object_set_new(rootJ, "mergeOutputs", json_integer(mergeOutputs));
+
 		return rootJ;
 	}
 
@@ -167,6 +177,11 @@ struct ChordKey : Module {
 			}
 		}
 		
+		// mergeOutputs
+		json_t *mergeOutputsJ = json_object_get(rootJ, "mergeOutputs");
+		if (mergeOutputsJ)
+			mergeOutputs = json_integer_value(mergeOutputsJ);
+
 		resetNonJson();
 	}
 
@@ -201,17 +216,70 @@ struct ChordKey : Module {
 		
 		// gate and cv outputs
 		bool forcedGate = params[FORCE_PARAM].getValue() >= 0.5f;
+		float gateOuts[4];
+		float cvOuts[4];
 		for (int cni = 0; cni < 4; cni++) {
-			float gateOut = ((octs[index][cni] >= 0) && ((inputs[GATE_INPUT].getVoltage() >= 1.0f) || forcedGate))  ? 10.0f : 0.0f;
-			outputs[GATE_OUTPUTS + cni].setVoltage(gateOut);
-			float cvOut = (octs[index][cni] >= 0) ? (((float)(octs[index][cni] - 4)) + ((float)keys[index][cni]) / 12.0f) : 0.0f;
-			outputs[CV_OUTPUTS + cni].setVoltage(cvOut);
+			gateOuts[cni] = ((octs[index][cni] >= 0) && ((inputs[GATE_INPUT].getVoltage() >= 1.0f) || forcedGate))  ? 10.0f : 0.0f;
+			cvOuts[cni] = (octs[index][cni] >= 0) ? (((float)(octs[index][cni] - 4)) + ((float)keys[index][cni]) / 12.0f) : 0.0f;
 		}
+		if (mergeOutputs == 0) {
+			outputs[GATE_OUTPUTS + 0].setChannels(1);
+			outputs[CV_OUTPUTS + 0].setChannels(1);
+			for (int cni = 0; cni < 4; cni++) {			
+				outputs[GATE_OUTPUTS + cni].setVoltage(gateOuts[cni]);
+				outputs[CV_OUTPUTS + cni].setVoltage(cvOuts[cni]);
+			}
+		}
+		else if (mergeOutputs == 1) {
+			outputs[GATE_OUTPUTS + 0].setChannels(2);
+			outputs[CV_OUTPUTS + 0].setChannels(2);
+			outputs[GATE_OUTPUTS + 1].setVoltage(0.0f);
+			outputs[CV_OUTPUTS + 1].setVoltage(0.0f);
+			for (int cni = 0; cni < 2; cni++) {			
+				outputs[GATE_OUTPUTS + 0].setVoltage(gateOuts[cni], cni);
+				outputs[CV_OUTPUTS + 0].setVoltage(cvOuts[cni], cni);
+			}	
+			for (int cni = 2; cni < 4; cni++) {			
+				outputs[GATE_OUTPUTS + cni].setVoltage(gateOuts[cni]);
+				outputs[CV_OUTPUTS + cni].setVoltage(cvOuts[cni]);
+			}			
+		}
+		else if (mergeOutputs == 2) {
+			outputs[GATE_OUTPUTS + 0].setChannels(3);
+			outputs[CV_OUTPUTS + 0].setChannels(3);
+			for (int cni = 1; cni < 3; cni++) {
+				outputs[GATE_OUTPUTS + cni].setVoltage(0.0f);
+				outputs[CV_OUTPUTS + cni].setVoltage(0.0f);
+			}
+			for (int cni = 0; cni < 3; cni++) {			
+				outputs[GATE_OUTPUTS + 0].setVoltage(gateOuts[cni], cni);
+				outputs[CV_OUTPUTS + 0].setVoltage(cvOuts[cni], cni);
+			}	
+			outputs[GATE_OUTPUTS + 3].setVoltage(gateOuts[3]);
+			outputs[CV_OUTPUTS + 3].setVoltage(cvOuts[3]);
+		}
+		else {
+			outputs[GATE_OUTPUTS + 0].setChannels(4);
+			outputs[CV_OUTPUTS + 0].setChannels(4);
+			for (int cni = 1; cni < 4; cni++) {
+				outputs[GATE_OUTPUTS + cni].setVoltage(0.0f);
+				outputs[CV_OUTPUTS + cni].setVoltage(0.0f);
+			}
+			for (int cni = 0; cni < 4; cni++) {			
+				outputs[GATE_OUTPUTS + 0].setVoltage(gateOuts[cni], cni);
+				outputs[CV_OUTPUTS + 0].setVoltage(cvOuts[cni], cni);
+			}	
+		}
+		
 		
 
 		// lights
 		if (refresh.processLights()) {
-
+			for (int ki = 0; ki < 12; ki++) {
+				for (int cni = 0; cni < 4; cni++) {
+					lights[KEY_LIGHTS + ki * 4 + cni].setBrightness((ki == keys[index][cni] && octs[index][cni] >= 0) ? 1.0f : 0.0f);
+				}
+			}
 		}// processLights()
 	}
 };
@@ -292,6 +360,40 @@ struct ChordKeyWidget : ModuleWidget {
 			module->panelTheme ^= 0x1;
 		}
 	};
+	struct MergeOutputsItem : MenuItem {
+		struct MergeOutputsSubItem : MenuItem {
+			ChordKey *module;
+			int setVal = 0;
+			void onAction(const event::Action &e) override {
+				module->mergeOutputs = setVal;
+			}
+		};
+		ChordKey *module;
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
+
+			MergeOutputsSubItem *merge0Item = createMenuItem<MergeOutputsSubItem>("None", CHECKMARK(module->mergeOutputs == 0));
+			merge0Item->module = this->module;
+			menu->addChild(merge0Item);
+
+			MergeOutputsSubItem *merge1Item = createMenuItem<MergeOutputsSubItem>("Second", CHECKMARK(module->mergeOutputs == 1));
+			merge1Item->module = this->module;
+			merge1Item->setVal = 1;
+			menu->addChild(merge1Item);
+
+			MergeOutputsSubItem *merge2Item = createMenuItem<MergeOutputsSubItem>("Second and third", CHECKMARK(module->mergeOutputs == 2));
+			merge2Item->module = this->module;
+			merge2Item->setVal = 2;
+			menu->addChild(merge2Item);
+
+			MergeOutputsSubItem *merge3Item = createMenuItem<MergeOutputsSubItem>("Second, third and fourth", CHECKMARK(module->mergeOutputs == 3));
+			merge3Item->module = this->module;
+			merge3Item->setVal = 3;
+			menu->addChild(merge3Item);
+
+			return menu;
+		}
+	};
 	void appendContextMenu(Menu *menu) override {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
@@ -309,11 +411,15 @@ struct ChordKeyWidget : ModuleWidget {
 		
 		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
 		
-		// menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuLabel());// empty line
 		
-		// MenuLabel *settingsLabel = new MenuLabel();
-		// settingsLabel->text = "Settings";
-		// menu->addChild(settingsLabel);
+		MenuLabel *settingsLabel = new MenuLabel();
+		settingsLabel->text = "Settings";
+		menu->addChild(settingsLabel);
+
+		MergeOutputsItem *mergeItem = createMenuItem<MergeOutputsItem>("Poly merge outputs into top note", RIGHT_ARROW);
+		mergeItem->module = module;
+		menu->addChild(mergeItem);
 	}	
 	
 	
@@ -339,40 +445,52 @@ struct ChordKeyWidget : ModuleWidget {
 
 		// ****** Top portion (keys) ******
 
-		static const float olx = 12;
-		static const float oly = 41;// 32
+		static const float olx = 16.7f;
+		static const float dly = 70.0f / 4.0f;
+		static const float dlyd2 = 70.0f / 8.0f;
 		
 		static const int posWhiteY = 115;
-		static const int posBlackY = 40;
+		static const float posBlackY = 40.0f;
 
 		// Black keys
 		addChild(createPianoKey<PianoKeyBig>(Vec(37.5f, posBlackY), 1, module ? &module->pkInfo : NULL));
-		//for (int y = 0; y < 4; y++) 
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(37.5f+olx+4.7f, posBlackY+oly+4.7f), module, ChordKey::KEY_LIGHTS + 1));
+		for (int y = 0; y < 4; y++) 
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(37.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 1 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(78.5f, posBlackY), 3, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(78.5f+olx, posBlackY+oly), module, ChordKey::KEY_LIGHTS + 3));
+		for (int y = 0; y < 4; y++) 
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(78.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 3 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(161.5f, posBlackY), 6, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(161.5f+olx, posBlackY+oly), module, ChordKey::KEY_LIGHTS + 6));
+		for (int y = 0; y < 4; y++) 
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(161.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 6 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(202.5f, posBlackY), 8, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(202.5f+olx, posBlackY+oly), module, ChordKey::KEY_LIGHTS + 8));
+		for (int y = 0; y < 4; y++) 
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(202.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 8 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(243.5f, posBlackY), 10, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(243.5f+olx, posBlackY+oly), module, ChordKey::KEY_LIGHTS + 10));
+		for (int y = 0; y < 4; y++) 
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(243.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 10 * 4 + y));
 
 		// White keys
 		addChild(createPianoKey<PianoKeyBig>(Vec(17.5, posWhiteY), 0, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(17.5+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 0));
+		for (int y = 0; y < 4; y++)
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(17.5+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 0 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(58.5f, posWhiteY), 2, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(58.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 2));
+		for (int y = 0; y < 4; y++)
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(58.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 2 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(99.5f, posWhiteY), 4, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(99.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 4));
+		for (int y = 0; y < 4; y++)
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(99.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 4 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(140.5f, posWhiteY), 5, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(140.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 5));
+		for (int y = 0; y < 4; y++)
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(140.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 5 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(181.5f, posWhiteY), 7, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(181.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 7));
+		for (int y = 0; y < 4; y++)
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(181.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 7 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(222.5f, posWhiteY), 9, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(222.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 9));
+		for (int y = 0; y < 4; y++)
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(222.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 9 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(263.5f, posWhiteY), 11, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(263.5f+olx, posWhiteY+oly), module, ChordKey::KEY_LIGHTS + 11));
+		for (int y = 0; y < 4; y++)
+			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(263.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 11 * 4 + y));
 		
 		
 		// ****** Bottom portion ******
