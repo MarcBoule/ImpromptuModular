@@ -63,8 +63,9 @@ struct ChordKey : Module {
 	dsp::BooleanTrigger keyTrigger;
 	PianoKeyInfo pkInfo;
 	
+	
 	int getIndex() {
-		int index = (int)std::round(params[INDEX_PARAM].getValue() + inputs[INDEX_INPUT].getVoltage());
+		int index = (int)std::round(params[INDEX_PARAM].getValue() + inputs[INDEX_INPUT].getVoltage() * 12.0f);
 		return clamp(index, 0, NUM_CHORDS - 1 );
 	}
 
@@ -79,15 +80,16 @@ struct ChordKey : Module {
 			snprintf(strBuf, 32, "Oct up %i", cni + 1);
 			configParam(OCTINC_PARAMS + cni, 0.0, 1.0, 0.0, strBuf);
 		}
-		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index");
-			
+		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
+		configParam(INDEX_PARAM, 0.0f, 1.0f, 0.0f, "Force gate on");
+		
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
 
 	void onReset() override {
-		for (int ci = 0; ci < 4; ci++) { // chord index
+		for (int ci = 0; ci < NUM_CHORDS; ci++) { // chord index
 			for (int cni = 0; cni < 4; cni++) {// chord note index
 				octs[ci][cni] = 4;
 				cvs[ci][cni] = 0.0f;
@@ -100,7 +102,7 @@ struct ChordKey : Module {
 	}
 
 	void onRandomize() override {
-		for (int ci = 0; ci < 4; ci++) { // chord index
+		for (int ci = 0; ci < NUM_CHORDS; ci++) { // chord index
 			for (int cni = 0; cni < 4; cni++) {// chord note index
 				octs[ci][cni] = random::u32() % 10;
 				cvs[ci][cni] = ((float)(octs[ci][cni]  - 4)) + ((float)(random::u32() % 12)) / 12.0f;
@@ -171,11 +173,28 @@ struct ChordKey : Module {
 
 	
 	void process(const ProcessArgs &args) override {		
+		int index = getIndex();
 		
 		//********** Buttons, knobs, switches and inputs **********
 		
 		if (refresh.processInputs()) {
-
+			// oct inc/dec
+			for (int cni = 0; cni < 4; cni++) {
+				if (octIncTriggers[cni].process(params[OCTINC_PARAMS + cni].getValue())) {
+					octs[index][cni] = clamp(octs[index][cni] + 1, -1, 9);
+				}
+				if (octDecTriggers[cni].process(params[OCTDEC_PARAMS + cni].getValue())) {
+					octs[index][cni] = clamp(octs[index][cni] - 1, -1, 9);
+				}
+			}
+			
+			// piano keys
+			if (keyTrigger.process(pkInfo.gate)) {
+				int cni = clamp((int)(pkInfo.vel * 4.0f), 0, 3);
+				if (octs[index][cni] >= 0) {
+					cvs[index][cni] = ((float)(octs[index][cni] - 4)) + ((float) pkInfo.key) / 12.0f;
+				}
+			}			
 		}// userInputs refresh
 
 
@@ -184,9 +203,11 @@ struct ChordKey : Module {
 		//********** Outputs and lights **********
 		
 		// gate and cv outputs
-		for (int ci = 0; ci < 4; ci++) {
-			outputs[GATE_OUTPUTS + ci].setVoltage(0.0f);
-			outputs[CV_OUTPUTS + ci].setVoltage(0.0f);
+		bool forcedGate = params[FORCE_PARAM].getValue() >= 0.5f;
+		for (int cni = 0; cni < 4; cni++) {
+			float gateOut = ((octs[index][cni] >= 0) && ((inputs[GATE_INPUT].getVoltage() >= 1.0f) || forcedGate))  ? 10.0f : 0.0f;
+			outputs[GATE_OUTPUTS + cni].setVoltage(gateOut);
+			outputs[CV_OUTPUTS + cni].setVoltage(cvs[index][cni]);
 		}
 		
 
@@ -221,18 +242,51 @@ struct ChordKeyWidget : ModuleWidget {
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
 
-			Vec textPos = Vec(5.7f, textOffsetY);
+			Vec textPos = Vec(6.7f, textOffsetY);
 			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
 			nvgFillColor(args.vg, textColor);
 			int octaveNum = module ? module->octs[module->getIndex()][index] : 4;
 			char displayStr[2];
-			displayStr[0] = 0x30 + (char)(octaveNum);
+			if (octaveNum >= 0) {
+				displayStr[0] = 0x30 + (char)(octaveNum);
+			}
+			else {
+				displayStr[0] = '-';
+			}
 			displayStr[1] = 0;
 			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};
-	
+	struct IndexDisplayWidget : TransparentWidget {
+		ChordKey *module;
+		std::shared_ptr<Font> font;
+		static const int textFontSize = 15;
+		static constexpr float textOffsetY = 19.9f; // 18.2f for 14 pt, 19.7f for 15pt
+		
+		IndexDisplayWidget(Vec _pos, Vec _size, ChordKey *_module) {
+			box.size = _size;
+			box.pos = _pos.minus(_size.div(2));
+			module = _module;
+			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+		}
+
+		void draw(const DrawArgs &args) override {
+			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize);
+			nvgFontFaceId(args.vg, font->handle);
+			nvgTextLetterSpacing(args.vg, -0.4);
+
+			Vec textPos = Vec(6.7f, textOffsetY);
+			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
+			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
+			nvgFillColor(args.vg, textColor);
+			char displayStr[3];
+			int indexNum = module ? module->getIndex() + 1 : 1;
+			snprintf(displayStr, 3, "%2u", (unsigned) indexNum);
+			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+		}
+	};
+
 	
 	struct PanelThemeItem : MenuItem {
 		ChordKey *module;
@@ -325,13 +379,13 @@ struct ChordKeyWidget : ModuleWidget {
 		// ****** Bottom portion ******
 
 		// Column rulers (horizontal positions)
-		static const int col0 = 20;
-		static const int col1 = 20;
-		static const int col2 = 115;
-		static const int col3 = 158;
-		static const int col4 = 200;
-		static const int col5 = 245;
-		static const int col6 = 282;
+		static const int col0 = 30;
+		static const int col1 = 72;
+		static const int col2 = 115;// oct -
+		static const int col3 = 158;// oct +
+		static const int col4 = 200;// oct disp
+		static const int col5 = 245;// cv
+		static const int col6 = 282;// gate
 		
 		// Row rulers (vertical positions)
 		static const int rowY = 229;
@@ -339,8 +393,20 @@ struct ChordKeyWidget : ModuleWidget {
 		
 		// Other constants
 		static const int displayHeights = 24; // 22 for 14pt, 24 for 15pt
-
+			
+		// Index display
+		addChild(new IndexDisplayWidget(Vec((col0 + col1) / 2, rowY), Vec(36, displayHeights), module));// 2 characters
 		
+		// Index input
+		addInput(createDynamicPortCentered<IMPort>(Vec(col0, rowY + rowYd * 1), true, module, ChordKey::INDEX_INPUT, module ? &module->panelTheme : NULL));
+		// Index knob
+		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(Vec(col1, rowY + rowYd * 1), module, ChordKey::INDEX_PARAM, module ? &module->panelTheme : NULL));	
+	
+		// Gate input
+		addInput(createDynamicPortCentered<IMPort>(Vec(col0, rowY + rowYd * 3), true, module, ChordKey::GATE_INPUT, module ? &module->panelTheme : NULL));
+		// Gate force switch
+		addParam(createParamCentered<CKSS>(Vec(col1, rowY + rowYd * 3), module, ChordKey::FORCE_PARAM));
+	
 		// oct buttons, oct displays, gate and cv outputs
 		for (int cni = 0; cni < 4; cni++) {
 			// Octave buttons
@@ -348,7 +414,7 @@ struct ChordKeyWidget : ModuleWidget {
 			addParam(createDynamicParamCentered<IMBigPushButton>(Vec(col3, rowY + rowYd * cni), module, ChordKey::OCTINC_PARAMS + cni, module ? &module->panelTheme : NULL));
 
 			// oct displays
-			addChild(new OctDisplayWidget(Vec(col4, rowY + rowYd * cni), Vec(22, displayHeights), module, cni));// 1 character
+			addChild(new OctDisplayWidget(Vec(col4, rowY + rowYd * cni), Vec(23, displayHeights), module, cni));// 1 character
 
 			// cv outputs
 			addOutput(createDynamicPortCentered<IMPort>(Vec(col5, rowY + rowYd * cni), false, module, ChordKey::CV_OUTPUTS + cni, module ? &module->panelTheme : NULL));
