@@ -21,6 +21,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelTact1);
 	p->addModel(modelCvPad);
 	p->addModel(modelTwelveKey);
+	p->addModel(modelChordKey);
 	p->addModel(modelClocked);
 	p->addModel(modelClockedExpander);
 	p->addModel(modelClkd);

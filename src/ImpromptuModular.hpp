@@ -26,6 +26,7 @@ extern Model *modelTact;
 extern Model *modelTact1;
 extern Model *modelCvPad;
 extern Model *modelTwelveKey;
+extern Model *modelChordKey;
 extern Model *modelClocked;
 extern Model *modelClockedExpander;
 extern Model *modelClkd;

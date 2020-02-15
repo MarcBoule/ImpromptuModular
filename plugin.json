@@ -42,6 +42,13 @@
 			"tags": ["Controller"]
 		},
 		{
+			"slug": "Chord-Key",
+			"name": "ChordKey",
+			"description": "Chord-based keyboard controller",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#twelve-key",
+			"tags": ["Controller"]
+		},
+		{
 			"slug": "Clocked",
 			"name": "Clocked",
 			"description": "Chainable clock generator",
