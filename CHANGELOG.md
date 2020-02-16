@@ -1,5 +1,6 @@
 ### 1.1.4 (in development)
 
+- Add new module called Chord-Key: a keyboard controller to visually set up chords and recall/play them by CV 
 - Allow single shot to work in SEQ mode also in Foundry, PhraseSeq16/32, GateSeq64 and SemiModularSynth
 - Implement Portable sequence copy/paste in Foundry, PhraseSeq16/32 and SemiModularSynth
 - Add new module called Clkd: a half-sized version of Clocked without PW, Swing and Delay
