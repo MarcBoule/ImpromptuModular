@@ -230,7 +230,7 @@ struct TwelveKey : Module {
 				else maxVel = 10.0f;
 			}
 			
-			pkInfo.showVelRange = outputs[VEL_OUTPUT].isConnected();
+			pkInfo.showMarks = outputs[VEL_OUTPUT].isConnected() ? 2 : 0;
 		}// userInputs refresh
 
 		// Keyboard buttons and gate input (don't put in refresh scope or else trigger will go out to next module before cv and cv)

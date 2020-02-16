@@ -18,7 +18,7 @@ struct PianoKeyInfo {
 	bool isRightClick = false;
 	int key = 0;// key number that was pressed, typically 0 to 11 is stored here
 	float vel = 0.0f;// normalized velocity from 0.0f to 1.0f (max value at lowest screen position on key)
-	bool showVelRange = false;
+	int showMarks = 0;// 0 is no, integer means separate in how many sections
 };
 
 

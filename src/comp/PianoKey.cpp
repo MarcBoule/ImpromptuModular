@@ -38,13 +38,16 @@ void PianoKey::onDragEnd(const event::DragEnd &e) {// required since if mouse bu
 
 void PianoKeyWithVel::draw(const DrawArgs &args) {
 	static const float xSize = 10.0f;
-	if (pkInfo && pkInfo->showVelRange) {
+	if (pkInfo && pkInfo->showMarks != 0) {
 		const float xPos = (box.size.x - xSize) / 2.0f;
 		float col = isBlackKey ? 0.4f : 0.5f;
 		NVGcolor borderColor = nvgRGBf(col, col, col);
 		nvgBeginPath(args.vg);
 		nvgMoveTo(args.vg, xPos, 0.5f); nvgLineTo(args.vg, xPos + xSize, 0.5f);// top
-		nvgMoveTo(args.vg, xPos, box.size.y / 2.0f); nvgLineTo(args.vg, xPos + xSize, box.size.y / 2.0f);// mid
+		for (int y = 1; y < pkInfo->showMarks; y++) {
+			float yPos = (box.size.y * (float)y) / (float)pkInfo->showMarks;
+			nvgMoveTo(args.vg, xPos, yPos); nvgLineTo(args.vg, xPos + xSize, yPos);// mids
+		}
 		if (isBlackKey) {
 			nvgMoveTo(args.vg, xPos, box.size.y - 0.5f); nvgLineTo(args.vg, xPos + xSize, box.size.y - 0.5f);// bot
 		}

@@ -84,6 +84,8 @@ struct ChordKey : Module {
 		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		configParam(FORCE_PARAM, 0.0f, 1.0f, 0.0f, "Force gate on");
 		
+		pkInfo.showMarks = 4;
+		
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -455,42 +457,42 @@ struct ChordKeyWidget : ModuleWidget {
 		// Black keys
 		addChild(createPianoKey<PianoKeyBig>(Vec(37.5f, posBlackY), 1, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++) 
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(37.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 1 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(37.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 1 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(78.5f, posBlackY), 3, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++) 
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(78.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 3 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(78.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 3 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(161.5f, posBlackY), 6, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++) 
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(161.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 6 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(161.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 6 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(202.5f, posBlackY), 8, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++) 
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(202.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 8 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(202.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 8 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(243.5f, posBlackY), 10, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++) 
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(243.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 10 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(243.5f+olx, posBlackY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 10 * 4 + y));
 
 		// White keys
 		addChild(createPianoKey<PianoKeyBig>(Vec(17.5, posWhiteY), 0, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++)
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(17.5+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 0 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(17.5+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 0 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(58.5f, posWhiteY), 2, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++)
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(58.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 2 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(58.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 2 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(99.5f, posWhiteY), 4, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++)
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(99.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 4 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(99.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 4 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(140.5f, posWhiteY), 5, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++)
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(140.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 5 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(140.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 5 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(181.5f, posWhiteY), 7, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++)
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(181.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 7 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(181.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 7 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(222.5f, posWhiteY), 9, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++)
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(222.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 9 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(222.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 9 * 4 + y));
 		addChild(createPianoKey<PianoKeyBig>(Vec(263.5f, posWhiteY), 11, module ? &module->pkInfo : NULL));
 		for (int y = 0; y < 4; y++)
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(263.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 11 * 4 + y));
+			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(263.5f+olx, posWhiteY+dlyd2+dly*y), module, ChordKey::KEY_LIGHTS + 11 * 4 + y));
 		
 		
 		// ****** Bottom portion ******
