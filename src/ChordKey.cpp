@@ -41,6 +41,7 @@ struct ChordKey : Module {
 		
 	// Constants
 	static const int NUM_CHORDS = 25;// C4 to C6 incl
+	static constexpr float warningTime = 0.7f;// seconds
 	
 	// Need to save, no reset
 	int panelTheme;
@@ -54,7 +55,9 @@ struct ChordKey : Module {
 	
 	// No need to save, with reset
 	unsigned long noteLightCounter;// 0 when no key to light, downward step counter timer when key lit
-
+	int octsCP[4];// copy paste
+	int keysCP[4];// copy paste
+	long offWarning;// 0 when no warning, positive downward step counter timer when warning
 
 	// No need to save, no reset
 	RefreshCounter refresh;
@@ -108,6 +111,16 @@ struct ChordKey : Module {
 	}
 	void resetNonJson() {
 		noteLightCounter = 0ul;
+		// C-major triad with base note on C4
+		keysCP[0] = 0;
+		keysCP[1] = 4;
+		keysCP[2] = 7;
+		keysCP[3] = 0;
+		octsCP[0] = 4;
+		octsCP[1] = 4;
+		octsCP[2] = 4;
+		octsCP[3] = -1;// turned off
+		offWarning = 0ul;
 	}
 
 	void onRandomize() override {
@@ -207,7 +220,12 @@ struct ChordKey : Module {
 			// piano keys
 			if (keyTrigger.process(pkInfo.gate)) {
 				int cni = clamp((int)(pkInfo.vel * 4.0f), 0, 3);
-				keys[index][cni] = pkInfo.key;
+				if (octs[index][cni] >= 0) {
+					keys[index][cni] = pkInfo.key;
+				}
+				else {
+					offWarning = (long) (warningTime * args.sampleRate / RefreshCounter::displayRefreshStepSkips);
+				}
 			}			
 		}// userInputs refresh
 
@@ -282,6 +300,9 @@ struct ChordKey : Module {
 					lights[KEY_LIGHTS + ki * 4 + cni].setBrightness((ki == keys[index][cni] && octs[index][cni] >= 0) ? 1.0f : 0.0f);
 				}
 			}
+			
+			if (offWarning > 0l)
+				offWarning--;
 		}// processLights()
 	}
 };
@@ -321,6 +342,11 @@ struct ChordKeyWidget : ModuleWidget {
 			}
 			else {
 				displayStr[0] = '-';
+				if (module->offWarning > 0l) {
+					bool warningFlashState = calcWarningFlash(module->offWarning, (long) (module->warningTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips));
+					if (!warningFlashState) 
+						displayStr[0] = 'X';
+				}
 			}
 			displayStr[1] = 0;
 			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
@@ -360,6 +386,26 @@ struct ChordKeyWidget : ModuleWidget {
 		ChordKey *module;
 		void onAction(const event::Action &e) override {
 			module->panelTheme ^= 0x1;
+		}
+	};
+	struct CopyChordItem : MenuItem {
+		ChordKey *module;
+		void onAction(const event::Action &e) override {
+			int index = module->getIndex();
+			for (int cni = 0; cni < 4; cni++) {
+				module->octsCP[cni] = module->octs[index][cni];
+				module->keysCP[cni] = module->keys[index][cni];
+			}
+		}
+	};
+	struct PasteChordItem : MenuItem {
+		ChordKey *module;
+		void onAction(const event::Action &e) override {
+			int index = module->getIndex();
+			for (int cni = 0; cni < 4; cni++) {
+				module->octs[index][cni] = module->octsCP[cni];
+				module->keys[index][cni] = module->keysCP[cni];
+			}
 		}
 	};
 	struct MergeOutputsItem : MenuItem {
@@ -412,6 +458,20 @@ struct ChordKeyWidget : ModuleWidget {
 		menu->addChild(darkItem);
 		
 		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		
+		menu->addChild(new MenuLabel());// empty line
+		
+		MenuLabel *actionsLabel = new MenuLabel();
+		actionsLabel->text = "Actions";
+		menu->addChild(actionsLabel);
+
+		CopyChordItem *cvCopyItem = createMenuItem<CopyChordItem>("Copy chord");
+		cvCopyItem->module = module;
+		menu->addChild(cvCopyItem);
+		
+		PasteChordItem *cvPasteItem = createMenuItem<PasteChordItem>("Paste chord");
+		cvPasteItem->module = module;
+		menu->addChild(cvPasteItem);	
 		
 		menu->addChild(new MenuLabel());// empty line
 		
