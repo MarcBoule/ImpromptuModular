@@ -408,6 +408,61 @@ struct ChordKeyWidget : ModuleWidget {
 			}
 		}
 	};
+	
+	struct TransposeQuantity : Quantity {
+		ChordKey* module;
+		float valueLocal;// must be reset to 0 when enter menu (i.e. constructor)
+		float valueLocalLast;// must be reset to 0 when enter menu (i.e. constructor)
+		int valueIntLocal;
+		int valueIntLocalLast;
+		float increment;
+		  
+		TransposeQuantity() {
+			valueLocal = 0.0f;
+			valueIntLocal = 0;
+			valueIntLocalLast = 0;
+		}
+		float quantize(float cv) {
+			return std::round(cv * 12.0f) / 12.0f;
+		}
+		void setValue(float value) override {
+			valueLocal = math::clamp(value, getMinValue(), getMaxValue());; 
+			valueIntLocal = (int)(std::round(valueLocal));
+			int delta = valueIntLocal - valueIntLocalLast;// delta is number of semitones
+			if (delta != 0) {
+				int index = module->getIndex();
+				for (int cni = 0; cni < 4; cni++) {
+					module->keys[index][cni] = ((module->keys[index][cni] + delta) % 12);
+				}
+				valueIntLocalLast = valueIntLocal;
+			}
+		}
+		float getValue() override {
+			return valueLocal;
+		}
+		float getMinValue() override {return -100.0f;}
+		float getMaxValue() override {return 100.0f;}
+		float getDefaultValue() override {return 0.0f;}
+		float getDisplayValue() override {return getValue();}
+		std::string getDisplayValueString() override {
+			return string::f("%i", (int)std::round(getDisplayValue()));
+		}
+		void setDisplayValue(float displayValue) override {setValue(displayValue);}
+		std::string getLabel() override {return "Transpose";}
+		std::string getUnit() override {return " semitone(s)";}
+	};
+
+	
+	struct TransposeSlider : ui::Slider {
+		TransposeSlider(ChordKey* _module) {
+			quantity = new TransposeQuantity();
+			((TransposeQuantity*)quantity)->module = _module;
+		}
+		~TransposeSlider() {
+			delete quantity;
+		}
+	};	
+
 	struct MergeOutputsItem : MenuItem {
 		struct MergeOutputsSubItem : MenuItem {
 			ChordKey *module;
@@ -473,6 +528,11 @@ struct ChordKeyWidget : ModuleWidget {
 		cvPasteItem->module = module;
 		menu->addChild(cvPasteItem);	
 		
+		// transpose
+		TransposeSlider *transposeSlider = new TransposeSlider(module);
+		transposeSlider->box.size.x = 200.0f;
+		menu->addChild(transposeSlider);
+
 		menu->addChild(new MenuLabel());// empty line
 		
 		MenuLabel *settingsLabel = new MenuLabel();

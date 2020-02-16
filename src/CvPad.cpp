@@ -829,23 +829,34 @@ struct CvPadWidget : ModuleWidget {
 
 		menu->addChild(new MenuLabel());// empty line
 		
-		HighSensitivityCvKnobItem *hscItem = createMenuItem<HighSensitivityCvKnobItem>("High sensitivity CV knob", CHECKMARK(module->highSensitivityCvKnob));
-		hscItem->module = module;
-		menu->addChild(hscItem);
-		
-		CopyPadItem *cvCopyItem = createMenuItem<CopyPadItem>("CV of selected pad - copy");
+		MenuLabel *actionsLabel = new MenuLabel();
+		actionsLabel->text = "Actions";
+		menu->addChild(actionsLabel);
+
+		CopyPadItem *cvCopyItem = createMenuItem<CopyPadItem>("Copy selected pad");
 		cvCopyItem->module = module;
 		menu->addChild(cvCopyItem);
 		
-		PastePadItem *cvPasteItem = createMenuItem<PastePadItem>("CV of selected pad - paste");
+		PastePadItem *cvPasteItem = createMenuItem<PastePadItem>("Paste selected pad");
 		cvPasteItem->module = module;
 		menu->addChild(cvPasteItem);	
 		
-		OperationsItem *opItem = createMenuItem<OperationsItem>("CVs of selected bank", RIGHT_ARROW);
+		OperationsItem *opItem = createMenuItem<OperationsItem>("Current bank", RIGHT_ARROW);
 		opItem->cvSrc = &(module->cvs);
 		opItem->bankSrc = &(module->bank);
 		opItem->cvsCpBufSrc = module->cvsCpBuf;
 		menu->addChild(opItem);
+		
+		menu->addChild(new MenuLabel());// empty line
+
+		MenuLabel *settingsLabel = new MenuLabel();
+		settingsLabel->text = "Settings";
+		menu->addChild(settingsLabel);
+		
+		HighSensitivityCvKnobItem *hscItem = createMenuItem<HighSensitivityCvKnobItem>("High sensitivity CV knob", CHECKMARK(module->highSensitivityCvKnob));
+		hscItem->module = module;
+		menu->addChild(hscItem);
+		
 	}
 	
 	CvPadWidget(CvPad *module) {
