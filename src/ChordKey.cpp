@@ -41,7 +41,7 @@ struct ChordKey : Module {
 		
 	// Constants
 	static const int NUM_CHORDS = 25;// C4 to C6 incl
-	static constexpr float warningTime = 0.7f;// seconds
+	const float warningTime = 0.7f;// seconds
 	
 	// Need to save, no reset
 	int panelTheme;
