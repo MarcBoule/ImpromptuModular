@@ -30,34 +30,6 @@
   <defs
      id="defs94">
     <linearGradient
-       xlink:href="#c"
-       id="j"
-       x1="90.010002"
-       y1="192.064"
-       x2="90.010002"
-       y2="200.961"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.89454081,0,0,0.80484,-61.855495,-97.460562)" />
-    <linearGradient
-       id="c">
-      <stop
-         offset="0"
-         id="stop15" />
-      <stop
-         offset="1"
-         stop-color="#fff"
-         id="stop17" />
-    </linearGradient>
-    <linearGradient
-       xlink:href="#c"
-       id="j-2"
-       x1="90.010002"
-       y1="192.064"
-       x2="90.010002"
-       y2="200.961"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.61156464,0,0,0.80484,1.4032057,-97.598983)" />
-    <linearGradient
        xlink:href="#b"
        id="e"
        x1="26.759001"
@@ -189,9 +161,9 @@
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:zoom="2.2368644"
-     inkscape:cx="111.63951"
-     inkscape:cy="192.62458"
+     inkscape:zoom="1.581702"
+     inkscape:cx="-7.3485559"
+     inkscape:cy="156.86248"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"

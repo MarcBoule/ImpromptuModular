@@ -881,7 +881,7 @@ struct CvPadWidget : ModuleWidget {
 		// ----------------------------
 		
 		static const int padX = 64 + 20;
-		static const int padXd = 63;
+		static const int padXd = 58;
 		static const int padY = 112 + 20;
 		static const int padYd = 64;
 		static const int ledOffsetY = 30;
@@ -918,7 +918,7 @@ struct CvPadWidget : ModuleWidget {
 		// right side column
 		// ----------------------------
 		
-		static const int rightX = 352;
+		static const int rightX = 337;
 		static const int rightO = 21;
 		
 		// bank display

@@ -44,9 +44,9 @@
 		{
 			"slug": "Chord-Key",
 			"name": "ChordKey",
-			"description": "Chord-based keyboard controller",
+			"description": "Keyboard-based chord generator",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#twelve-key",
-			"tags": ["Controller"]
+			"tags": ["Controller", "Sequencer", "Polyphonic"]
 		},
 		{
 			"slug": "Clocked",

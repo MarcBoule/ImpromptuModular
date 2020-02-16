@@ -1,5 +1,5 @@
 //***********************************************************************************************
-//Chord-based keyboard module for VCV Rack by Marc Boulé
+//Keyboard-based chord generator module for VCV Rack by Marc Boulé
 //
 //Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics  
 //  from the Component Library by Wes Milholen. 
@@ -428,12 +428,10 @@ struct ChordKeyWidget : ModuleWidget {
 				int index = module->getIndex();
 				for (int cni = 0; cni < 4; cni++) {
 					if (module->octs[index][cni] >= 0) {
-						// INFO("*** Before: o = %i, k = %i, d = %i", module->octs[index][cni], module->keys[index][cni], delta);
 						int newKey = (module->keys[index][cni] + 120 + delta);// +120 is to force positive for cals, will be undone
 						module->keys[index][cni] = newKey % 12;
 						int newOct = module->octs[index][cni] + (newKey / 12) - (120 / 12);
 						module->octs[index][cni] = clamp(newOct, 0, 9);
-						// INFO("    After : o = %i, k = %i", module->octs[index][cni], module->keys[index][cni]);
 					}
 				}
 				valueIntLocalLast = valueIntLocal;
