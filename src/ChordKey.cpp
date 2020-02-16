@@ -18,6 +18,8 @@ struct ChordKey : Module {
 		ENUMS(OCTDEC_PARAMS, 4),
 		INDEX_PARAM,
 		FORCE_PARAM,
+		TRANSPOSEUP_PARAM,
+		TRANSPOSEDOWN_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -64,6 +66,8 @@ struct ChordKey : Module {
 	Trigger octIncTriggers[4];
 	Trigger octDecTriggers[4];
 	Trigger maxVelTrigger;
+	Trigger transposeUpTrigger;
+	Trigger transposeDownTrigger;
 	dsp::BooleanTrigger keyTrigger;
 	PianoKeyInfo pkInfo;
 	
@@ -86,6 +90,9 @@ struct ChordKey : Module {
 		}
 		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		configParam(FORCE_PARAM, 0.0f, 1.0f, 0.0f, "Force gate on");
+		configParam(TRANSPOSEUP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up");
+		configParam(TRANSPOSEDOWN_PARAM, 0.0f, 1.0f, 0.0f, "Transpose down");
+		
 		
 		pkInfo.showMarks = 4;
 		
@@ -215,6 +222,25 @@ struct ChordKey : Module {
 				if (octDecTriggers[cni].process(params[OCTDEC_PARAMS + cni].getValue())) {
 					octs[index][cni] = clamp(octs[index][cni] - 1, -1, 9);
 				}
+			}
+			
+			// Transpose buttons
+			int delta = 0;
+			if (transposeUpTrigger.process(params[TRANSPOSEUP_PARAM].getValue())) {
+				delta = 1;
+			}
+			if (transposeDownTrigger.process(params[TRANSPOSEDOWN_PARAM].getValue())) {
+				delta = -1;
+			}
+			if (delta != 0) {
+				for (int cni = 0; cni < 4; cni++) {
+					if (octs[index][cni] >= 0) {
+						int newKey = (keys[index][cni] + 120 + delta);// +120 is to force positive for cals, will be undone
+						keys[index][cni] = newKey % 12;
+						int newOct = octs[index][cni] + (newKey / 12) - (120 / 12);
+						octs[index][cni] = clamp(newOct, 0, 9);
+					}
+				}				
 			}
 			
 			// piano keys
@@ -440,8 +466,8 @@ struct ChordKeyWidget : ModuleWidget {
 		float getValue() override {
 			return valueLocal;
 		}
-		float getMinValue() override {return -100.0f;}
-		float getMaxValue() override {return 100.0f;}
+		float getMinValue() override {return -60.0f;}
+		float getMaxValue() override {return 60.0f;}
 		float getDefaultValue() override {return 0.0f;}
 		float getDisplayValue() override {return getValue();}
 		std::string getDisplayValueString() override {
@@ -620,7 +646,7 @@ struct ChordKeyWidget : ModuleWidget {
 		// Column rulers (horizontal positions)
 		static const int col0 = 30;
 		static const int col1 = 72;
-		static const int col2 = 115;// oct -
+		static const int col2 = 117;// oct -
 		static const int col3 = 158;// oct +
 		static const int col4 = 200;// oct disp
 		static const int col5 = 245;// cv
@@ -633,18 +659,22 @@ struct ChordKeyWidget : ModuleWidget {
 		// Other constants
 		static const int displayHeights = 24; // 22 for 14pt, 24 for 15pt
 			
+		// Transpose buttons
+		addParam(createDynamicParamCentered<IMPushButton>(Vec(col0, rowY - 16), module, ChordKey::TRANSPOSEDOWN_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMPushButton>(Vec(col1, rowY - 16), module, ChordKey::TRANSPOSEUP_PARAM, module ? &module->panelTheme : NULL));		
+			
 		// Index display
-		addChild(new IndexDisplayWidget(Vec((col0 + col1) / 2, rowY), Vec(36, displayHeights), module));// 2 characters
+		addChild(new IndexDisplayWidget(Vec((col0 + col1) / 2, rowY + rowYd / 2 - 4), Vec(36, displayHeights), module));// 2 characters
 		
 		// Index input
-		addInput(createDynamicPortCentered<IMPort>(Vec(col0, rowY + rowYd * 1), true, module, ChordKey::INDEX_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(Vec(col0, rowY + rowYd * 2 - 8), true, module, ChordKey::INDEX_INPUT, module ? &module->panelTheme : NULL));
 		// Index knob
-		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(Vec(col1, rowY + rowYd * 1), module, ChordKey::INDEX_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(Vec(col1, rowY + rowYd * 2 - 8), module, ChordKey::INDEX_PARAM, module ? &module->panelTheme : NULL));	
 	
 		// Gate input
-		addInput(createDynamicPortCentered<IMPort>(Vec(col0, rowY + rowYd * 3), true, module, ChordKey::GATE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(Vec(col0, rowY + rowYd * 3 + 8), true, module, ChordKey::GATE_INPUT, module ? &module->panelTheme : NULL));
 		// Gate force switch
-		addParam(createParamCentered<CKSS>(Vec(col1, rowY + rowYd * 3), module, ChordKey::FORCE_PARAM));
+		addParam(createParamCentered<CKSS>(Vec(col1, rowY + rowYd * 3 + 8), module, ChordKey::FORCE_PARAM));
 	
 		// oct buttons, oct displays, gate and cv outputs
 		for (int cni = 0; cni < 4; cni++) {
