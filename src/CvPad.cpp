@@ -573,7 +573,6 @@ struct CvPadWidget : ModuleWidget {
 		CvPad::cvsArray* cvSrc;
 		int* bankSrc;
 		float valueLocal;// must be reset to 0 when enter menu (i.e. constructor)
-		float valueLocalLast;// must be reset to 0 when enter menu (i.e. constructor)
 		int valueIntLocal;
 		int valueIntLocalLast;
 		float increment;

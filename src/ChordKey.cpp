@@ -41,7 +41,7 @@ struct ChordKey : Module {
 		
 	// Constants
 	static const int NUM_CHORDS = 25;// C4 to C6 incl
-	const float warningTime = 0.7f;// seconds
+	const float warningTime = 0.7f;// seconds (no static since referenced from ChordKeyWidget)
 	
 	// Need to save, no reset
 	int panelTheme;
@@ -412,18 +412,13 @@ struct ChordKeyWidget : ModuleWidget {
 	struct TransposeQuantity : Quantity {
 		ChordKey* module;
 		float valueLocal;// must be reset to 0 when enter menu (i.e. constructor)
-		float valueLocalLast;// must be reset to 0 when enter menu (i.e. constructor)
 		int valueIntLocal;
 		int valueIntLocalLast;
-		float increment;
 		  
 		TransposeQuantity() {
 			valueLocal = 0.0f;
 			valueIntLocal = 0;
 			valueIntLocalLast = 0;
-		}
-		float quantize(float cv) {
-			return std::round(cv * 12.0f) / 12.0f;
 		}
 		void setValue(float value) override {
 			valueLocal = math::clamp(value, getMinValue(), getMaxValue());; 
@@ -432,7 +427,14 @@ struct ChordKeyWidget : ModuleWidget {
 			if (delta != 0) {
 				int index = module->getIndex();
 				for (int cni = 0; cni < 4; cni++) {
-					module->keys[index][cni] = ((module->keys[index][cni] + delta) % 12);
+					if (module->octs[index][cni] >= 0) {
+						// INFO("*** Before: o = %i, k = %i, d = %i", module->octs[index][cni], module->keys[index][cni], delta);
+						int newKey = (module->keys[index][cni] + 120 + delta);// +120 is to force positive for cals, will be undone
+						module->keys[index][cni] = newKey % 12;
+						int newOct = module->octs[index][cni] + (newKey / 12) - (120 / 12);
+						module->octs[index][cni] = clamp(newOct, 0, 9);
+						// INFO("    After : o = %i, k = %i", module->octs[index][cni], module->keys[index][cni]);
+					}
 				}
 				valueIntLocalLast = valueIntLocal;
 			}
