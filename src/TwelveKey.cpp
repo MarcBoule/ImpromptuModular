@@ -5,12 +5,6 @@
 //  from the Component Library by Wes Milholen. 
 //See ./LICENSE.md for all licenses
 //See ./res/fonts/ for font licenses
-//
-//Module inspired by:
-//  * the Autodafe keyboard by Antonio Grazioli 
-//  * the cf mixer by Clément Foulc
-//  * Twisted Electrons' KeyChain 
-//
 //***********************************************************************************************
 
 

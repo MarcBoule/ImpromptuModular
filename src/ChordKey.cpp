@@ -265,7 +265,16 @@ struct ChordKey : Module {
 		float gateOuts[4];
 		float cvOuts[4];
 		for (int cni = 0; cni < 4; cni++) {
-			gateOuts[cni] = ((octs[index][cni] >= 0) && ((inputs[GATE_INPUT].getVoltage() >= 1.0f) || forcedGate))  ? 10.0f : 0.0f;
+			bool extGateWithForce = (inputs[GATE_INPUT].getVoltage() >= 1.0f) || forcedGate;
+			bool keypressGate = false;
+			if (pkInfo.gate) {
+				int keyPressed = clamp((int)(pkInfo.vel * 4.0f), 0, 3);
+				if (pkInfo.isRightClick) // mouse play one
+					keypressGate = (octs[index][keyPressed] >= 0) && keyPressed == cni;
+				else// leftclick: mouse play all
+					keypressGate = (octs[index][keyPressed] >= 0);
+			}
+			gateOuts[cni] = ((octs[index][cni] >= 0) && (extGateWithForce || keypressGate))  ? 10.0f : 0.0f;
 			cvOuts[cni] = (octs[index][cni] >= 0) ? (((float)(octs[index][cni] - 4)) + ((float)keys[index][cni]) / 12.0f) : 0.0f;
 		}
 		if (mergeOutputs == 0) {

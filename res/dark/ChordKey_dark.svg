@@ -14,7 +14,7 @@
    version="1.1"
    id="svg90"
    sodipodi:docname="ChordKey_dark.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
   <metadata
      id="metadata96">
     <rdf:RDF>
@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -155,17 +155,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
      id="namedview92"
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:zoom="3.163404"
-     inkscape:cx="-20.406989"
-     inkscape:cy="61.391195"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:cx="174.79413"
+     inkscape:cy="187.83726"
+     inkscape:window-x="1912"
+     inkscape:window-y="300"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg90">
     <sodipodi:guide
@@ -300,7 +300,7 @@
   <g
      style="line-height:1.25;fill:#c8c8c8;fill-opacity:1"
      id="g22"
-     transform="translate(-13.932692,-1.1673535)">
+     transform="translate(-30.455151,-1.1673535)">
     <path
        word-spacing="0"
        letter-spacing="0"

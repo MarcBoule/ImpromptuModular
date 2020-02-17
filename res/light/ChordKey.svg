@@ -13,7 +13,7 @@
    version="1.1"
    id="svg90"
    sodipodi:docname="ChordKey.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
   <metadata
      id="metadata96">
     <rdf:RDF>
@@ -22,7 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -44,8 +44,8 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:zoom="4.4737287"
-     inkscape:cx="96.918426"
-     inkscape:cy="100.75909"
+     inkscape:cx="56.124714"
+     inkscape:cy="172.28779"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -118,6 +118,13 @@
        inkscape:locked="false"
        inkscape:label=""
        inkscape:color="rgb(0,0,255)" />
+    <sodipodi:guide
+       position="36.380208,52.695312"
+       orientation="1,0"
+       id="guide886"
+       inkscape:locked="false"
+       inkscape:label=""
+       inkscape:color="rgb(0,0,255)" />
   </sodipodi:namedview>
   <path
      d="M 0,0 H 83.344028 V 100.541 H 0 Z m 0,0"
@@ -184,7 +191,7 @@
   <g
      style="line-height:1.25"
      id="g22"
-     transform="translate(-13.932692,-1.1673535)">
+     transform="translate(-30.455184,-1.1673535)">
     <path
        word-spacing="0"
        letter-spacing="0"
@@ -443,7 +450,7 @@
      aria-label="TR"
      style="font-style:normal;font-weight:normal;font-size:10.5833683px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458421"
      id="text972"
-     transform="translate(0,0.99919504)">
+     transform="translate(0,0.99335998)">
     <path
        d="m 13.154539,54.640521 q -0.07902,0.0056 -0.169334,0.0085 -0.08749,0.0028 -0.194734,0.0056 0.0028,0.0762 0.0056,0.143934 0.0028,0.06491 0.0056,0.132645 0.0028,0.06773 0.0028,0.141111 0.0028,0.07338 0.0028,0.16369 0,0.127 0,0.245534 0,0.115711 -0.0028,0.234245 -0.0028,0.115712 -0.0056,0.234245 -0.0028,0.118534 -0.0085,0.245534 -0.0028,0.06773 -0.01411,0.104423 -0.0085,0.03669 -0.0254,0.05644 -0.01693,0.01976 -0.03951,0.02258 -0.02258,0.0056 -0.0508,0.0056 -0.0508,0 -0.08749,-0.03387 -0.03387,-0.03669 -0.03951,-0.1524 -0.0056,-0.101601 -0.0085,-0.21449 0,-0.112889 -0.0028,-0.242712 -0.0028,-0.129822 -0.0028,-0.279401 0,-0.1524 0,-0.335845 0,-0.155223 0,-0.270934 0.0028,-0.115712 0.0085,-0.200379 H 12.41224 q -0.118534,0 -0.203201,-0.0028 -0.08185,-0.0028 -0.135467,-0.01411 -0.05362,-0.01411 -0.07902,-0.04233 -0.02258,-0.02822 -0.02258,-0.07902 0,-0.0254 0.0056,-0.04516 0.0056,-0.02258 0.0254,-0.03951 0.01976,-0.01976 0.05362,-0.03105 0.03669,-0.01129 0.09313,-0.01693 0.05362,-0.0028 0.09596,-0.0056 0.04233,-0.0028 0.08467,-0.0056 0.04233,-0.0028 0.08749,-0.0028 0.04516,0 0.104423,0 0.166512,0 0.313268,0.0028 0.149578,0.0028 0.316089,0.01129 0.06773,0.0056 0.104423,0.01693 0.03669,0.0085 0.05645,0.0254 0.01975,0.01693 0.02258,0.03951 0.0056,0.02258 0.0056,0.0508 0,0.0508 -0.03669,0.08467 -0.03387,0.03387 -0.149578,0.03951 z"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223153px;font-family:Sniglet;-inkscape-font-specification:'Sniglet, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458421"
