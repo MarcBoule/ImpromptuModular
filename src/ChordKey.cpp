@@ -53,6 +53,7 @@ struct ChordKey : Module {
 	int octs[NUM_CHORDS][4];// -1 to 9 (-1 means not used, i.e. no gate can be emitted)
 	int keys[NUM_CHORDS][4];// 0 to 11 for the 12 keys
 	int mergeOutputs;// 0 = none, 1 = merge A with B, 2 = merge A with B and C, 3 = merge A with All
+	int keypressEmitGate;// 1 = yes (default), 0 = no
 
 	
 	// No need to save, with reset
@@ -114,6 +115,7 @@ struct ChordKey : Module {
 			octs[ci][3] = -1;// turned off
 		}
 		mergeOutputs = 0;// no merging
+		keypressEmitGate = 1;// yes
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -166,6 +168,9 @@ struct ChordKey : Module {
 		// mergeOutputs
 		json_object_set_new(rootJ, "mergeOutputs", json_integer(mergeOutputs));
 
+		// keypressEmitGate
+		json_object_set_new(rootJ, "keypressEmitGate", json_integer(keypressEmitGate));
+
 		return rootJ;
 	}
 
@@ -203,6 +208,11 @@ struct ChordKey : Module {
 		json_t *mergeOutputsJ = json_object_get(rootJ, "mergeOutputs");
 		if (mergeOutputsJ)
 			mergeOutputs = json_integer_value(mergeOutputsJ);
+
+		// keypressEmitGate
+		json_t *keypressEmitGateJ = json_object_get(rootJ, "keypressEmitGate");
+		if (keypressEmitGateJ)
+			keypressEmitGate = json_integer_value(keypressEmitGateJ);
 
 		resetNonJson();
 	}
@@ -287,7 +297,7 @@ struct ChordKey : Module {
 		for (int cni = 0; cni < 4; cni++) {
 			bool extGateWithForce = (inputs[GATE_INPUT].getVoltage() >= 1.0f) || forcedGate;
 			bool keypressGate = false;
-			if (pkInfo.gate) {
+			if (pkInfo.gate && keypressEmitGate != 0) {
 				int keyPressed = clamp((int)(pkInfo.vel * 4.0f), 0, 3);
 				if (pkInfo.isRightClick) // mouse play one
 					keypressGate = (octs[index][keyPressed] >= 0) && keyPressed == cni;
@@ -543,6 +553,12 @@ struct ChordKeyWidget : ModuleWidget {
 			return menu;
 		}
 	};
+	struct KeypressEmitGateItem : MenuItem {
+		ChordKey *module;
+		void onAction(const event::Action &e) override {
+			module->keypressEmitGate ^= 0x1;
+		}
+	};
 	void appendContextMenu(Menu *menu) override {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
@@ -585,6 +601,10 @@ struct ChordKeyWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 
+		KeypressEmitGateItem *keypressMonItem = createMenuItem<KeypressEmitGateItem>("Keypress monitoring", CHECKMARK(module->keypressEmitGate));
+		keypressMonItem->module = module;
+		menu->addChild(keypressMonItem);
+		
 		MergeOutputsItem *mergeItem = createMenuItem<MergeOutputsItem>("Poly merge outputs into top note", RIGHT_ARROW);
 		mergeItem->module = module;
 		menu->addChild(mergeItem);
