@@ -252,7 +252,27 @@ struct ChordKey : Module {
 				else {
 					offWarning = (long) (warningTime * args.sampleRate / RefreshCounter::displayRefreshStepSkips);
 				}
-			}			
+			}	
+
+			// Top output channels
+			if (mergeOutputs == 0) {
+				outputs[GATE_OUTPUTS + 0].setChannels(1);
+				outputs[CV_OUTPUTS + 0].setChannels(1);
+			}
+			else if (mergeOutputs == 1) {
+				outputs[GATE_OUTPUTS + 0].setChannels(2);
+				outputs[CV_OUTPUTS + 0].setChannels(2);
+			}
+			else if (mergeOutputs == 2) {
+				outputs[GATE_OUTPUTS + 0].setChannels(3);
+				outputs[CV_OUTPUTS + 0].setChannels(3);
+			}
+			else {
+				outputs[GATE_OUTPUTS + 0].setChannels(4);
+				outputs[CV_OUTPUTS + 0].setChannels(4);
+			}
+		
+			
 		}// userInputs refresh
 
 
@@ -278,16 +298,12 @@ struct ChordKey : Module {
 			cvOuts[cni] = (octs[index][cni] >= 0) ? (((float)(octs[index][cni] - 4)) + ((float)keys[index][cni]) / 12.0f) : 0.0f;
 		}
 		if (mergeOutputs == 0) {
-			outputs[GATE_OUTPUTS + 0].setChannels(1);
-			outputs[CV_OUTPUTS + 0].setChannels(1);
 			for (int cni = 0; cni < 4; cni++) {			
 				outputs[GATE_OUTPUTS + cni].setVoltage(gateOuts[cni]);
 				outputs[CV_OUTPUTS + cni].setVoltage(cvOuts[cni]);
 			}
 		}
 		else if (mergeOutputs == 1) {
-			outputs[GATE_OUTPUTS + 0].setChannels(2);
-			outputs[CV_OUTPUTS + 0].setChannels(2);
 			outputs[GATE_OUTPUTS + 1].setVoltage(0.0f);
 			outputs[CV_OUTPUTS + 1].setVoltage(0.0f);
 			for (int cni = 0; cni < 2; cni++) {			
@@ -300,8 +316,6 @@ struct ChordKey : Module {
 			}			
 		}
 		else if (mergeOutputs == 2) {
-			outputs[GATE_OUTPUTS + 0].setChannels(3);
-			outputs[CV_OUTPUTS + 0].setChannels(3);
 			for (int cni = 1; cni < 3; cni++) {
 				outputs[GATE_OUTPUTS + cni].setVoltage(0.0f);
 				outputs[CV_OUTPUTS + cni].setVoltage(0.0f);
@@ -314,8 +328,6 @@ struct ChordKey : Module {
 			outputs[CV_OUTPUTS + 3].setVoltage(cvOuts[3]);
 		}
 		else {
-			outputs[GATE_OUTPUTS + 0].setChannels(4);
-			outputs[CV_OUTPUTS + 0].setChannels(4);
 			for (int cni = 1; cni < 4; cni++) {
 				outputs[GATE_OUTPUTS + cni].setVoltage(0.0f);
 				outputs[CV_OUTPUTS + cni].setVoltage(0.0f);
@@ -327,7 +339,6 @@ struct ChordKey : Module {
 		}
 		
 		
-
 		// lights
 		if (refresh.processLights()) {
 			for (int ki = 0; ki < 12; ki++) {
