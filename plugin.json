@@ -29,7 +29,7 @@
 		},
 		{
 			"slug": "Cv-Pad",
-			"name": "Cv-Pad",
+			"name": "CV-Pad",
 			"description": "16-pad CV controller",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#cv-pad",
 			"tags": ["Controller"]
