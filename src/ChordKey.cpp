@@ -94,7 +94,6 @@ struct ChordKey : Module {
 		configParam(TRANSPOSEUP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up");
 		configParam(TRANSPOSEDOWN_PARAM, 0.0f, 1.0f, 0.0f, "Transpose down");
 		
-		
 		pkInfo.showMarks = 4;
 		
 		onReset();
@@ -295,7 +294,13 @@ struct ChordKey : Module {
 		float gateOuts[4];
 		float cvOuts[4];
 		for (int cni = 0; cni < 4; cni++) {
-			bool extGateWithForce = (inputs[GATE_INPUT].getVoltage() >= 1.0f) || forcedGate;
+			// external (poly)gate with force 
+			bool extGateWithForce = forcedGate;
+			if (!forcedGate && inputs[GATE_INPUT].isConnected()) {
+				int numGateChan = inputs[GATE_INPUT].getChannels();// when connected, we are assured that num channels > 0
+				extGateWithForce |= (inputs[GATE_INPUT].getVoltage(std::min(numGateChan - 1, cni)) >= 1.0f);
+			}
+			// keypress (with mouse gate)
 			bool keypressGate = false;
 			if (pkInfo.gate && keypressEmitGate != 0) {
 				int keyPressed = clamp((int)(pkInfo.vel * 4.0f), 0, 3);
