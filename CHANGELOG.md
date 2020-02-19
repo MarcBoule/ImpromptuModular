@@ -1,7 +1,7 @@
 ### 1.1.4 (in development)
 
 - Add new module called Chord-Key: a keyboard-based chord generator 
-- Allow single shot to work in SEQ mode also in Foundry, PhraseSeq16/32, GateSeq64 and SemiModularSynth
+- Allow single shot to work in SEQ mode also, in Foundry, PhraseSeq16/32, GateSeq64 and SemiModularSynth
 - Implement Portable sequence copy/paste in Foundry, PhraseSeq16/32 and SemiModularSynth
 - Add new module called Clkd: a half-sized version of Clocked without PW, Swing nor Delay
 - Reduced width of Cv-Pad by 2 HP
@@ -30,7 +30,7 @@
 - Fixed WriteSeq32/64 gate outputs when not running (they are now off but will give a pulse on every write or movement of the active step)
 - Disallow random sequence length of 1 in all Phrase/Gate sequencers, and Foundry
 - Added option for chaining velocity settings in TwelveKey via right-click menu
-- Redo and improve layout of Four-View
+- Redo and improve layout of 4-View
 
 
 ### 1.1.0 (2019-07-04)

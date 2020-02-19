@@ -45,8 +45,8 @@
 			"slug": "Chord-Key",
 			"name": "ChordKey",
 			"description": "Keyboard-based chord generator",
-			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#twelve-key",
-			"tags": ["Controller", "Sequencer", "Polyphonic"]
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#chord-key",
+			"tags": ["Sequencer", "Polyphonic"]
 		},
 		{
 			"slug": "Clocked",
@@ -154,7 +154,7 @@
 		},
 		{
 			"slug": "Semi-ModularSynth",
-			"name": "SemiModular Synth",
+			"name": "SMS16",
 			"description": "Semi-modular monophonic synthesizer, with 16-step sequencer",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#sms-16",
 			"tags": ["Synth voice"]

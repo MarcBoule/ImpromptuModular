@@ -15,9 +15,11 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [TwelveKey](#twelve-key): Chainable one-octave keyboard controller.
 
+* [ChordKey](#chord-key): Keyboard-based chord generator (**>= v1.1.4**).
+
 * [CvPad](#cv-pad): CV controller with 16 programmable pads (can be configured as 1x16, 2x8 or 4x4).
 
-* [Clocked/Clkd](#clocked): Chainable clock generator modules with external synchronization.
+* [Clocked/Clkd](#clocked): Chainable clock generator modules with external synchronization (Clkd **>= v1.1.4**).
 
 * [Foundry](#foundry): 4-track phrase sequencer with 32 steps per sequence, 64 sequences per track, 99 phrases per song/track.
 
@@ -31,11 +33,11 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [BigButtonSeq2](#big-button-seq2): 6-channel 128-step gate and CV sequencer based on BigButtonSeq.
 
-* [Semi-Modular Synth 16](#sms-16): Internally pre-patched all in one synthesizer for quickly getting sounds and learning the basics of modular synthesis.
+* [SMS16](#sms-16): Internally pre-patched all-in-one semi-modular synthesizer for quickly getting sounds and learning the basics of modular synthesis.
 
 * [WriteSeq32/64](#write-seq): Multi-channel 32/64-step sequencers with CV inputs for easy sequence programming.
 
-* [Four-View and Hotkey](#utilities): Small chord viewer module that shows the note names of up to 4 CVs; Utility module that sends a trigger when a given key is pressed (mouse must be over module).
+* [4View and Hotkey](#utilities): Small chord viewer module that shows the note names of up to 4 CVs, and a utility module that sends a trigger when a given key is pressed (mouse must be over module). (Hotkey**>= v1.1.4**)
 
 Details about each module are given in the links above, and a feature comparison table is given below for the sequencers. Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -51,7 +53,7 @@ Details about each module are given in the links above, and a feature comparison
 | Probability				| No 				| Global		| Global		| Per step			| Per step		| No			|
 | Slide						| No 				| Global		| Global		| -					| Per step		| - / No		|
 | Edit while runnning		| Gates only 		| Yes 			| Yes			| Yes				| Yes			| Yes			|
-| Portable sequence 		| - 				| Yes 			| Yes			| -					| Yes			| -				|
+| [Portable sequence](#portable_seq) 	| - 	| Yes 			| Yes			| -					| Yes			| -				|
 
 \* Configuration is noted as follows: Channels/Tracks x Sequence-Length. The distinction between channels and tracks relates to clock inputs: when channels are separately clockable they are referred to as tracks.
 
@@ -65,14 +67,7 @@ Based on code from the Fundamental and Audible Instruments plugins by Andrew Bel
 
 
 ## Acknowledgements
-Impromptu Modular is not a single-person endeavor:
-
-* Thanks to **Nigel Sixsmith** for the many fruitful discussions and numerous design improvements that were suggested for the modules, for the concept proposal and development of GateSeq64, for detailed testing/bug-reports, and also for the in-depth presentation of PhraseSeq16 and TwelveKey in Talking Rackheads [epsiode 8](https://www.youtube.com/watch?v=KOpo2oUPTjg), as well as PhraseSeq32 and GateSeq64 in [episode 10](https://www.youtube.com/watch?v=bjqWwTKqERQ) and Clocked in [episode 12](https://www.youtube.com/watch?v=ymfOh1yCzU4). 
-* Thanks to **Xavier Belmont** for suggesting improvements to the modules, for testing/bug-reports, for the concept design of the SMS16 module, and for graciously providing the dark panels of all modules. 
-* Thanks to **Steve Baker** for many fruitful discussions regarding the BPM Detection method in Clocked, testing and improvements that were suggested for that module. 
-* Thanks to **Omri Cohen** for testing and suggesting improvements to the modules, and for the [PhraseSeq16/32 tutorial](https://www.youtube.com/watch?v=N8_rMNzsS7w), the [advanced gate mode tutorial](https://www.youtube.com/watch?v=B2w0_h5oN6M) and the [Foundry tutorial](https://www.youtube.com/watch?v=56w_mlNlKE4).
-* Thanks to **Latif Karoumi** for [testing](https://www.youtube.com/watch?v=5PZCXvWlFZM) and suggesting improvement to the modules, particularly the advanced gate modes in the GateSeq64 and PhraseSeq sequencers.
-* Thanks also to **Pyer (Pierre Collard)**, **Nay Seven**, **Alberto Zamora**, **Jean-Sébastien Monzani**, **Clément Foulc**, **Espen Storø**, **Wouter Spekkink**, **Dominique Camus**, **Jakub Mudrák**, **Georg Carlson**, **Alfredo Santamaria**, **John Melcher**, **Paul Piko**, **Joop van der Linden** for suggesting improvements to the modules, bug reports and testing.
+Impromptu Modular is not a single-person endeavor. Many people have taken the time to suggest improvements and to collaborate on module concepts, graphics, testing, etc. This list of acknowledgements is too large to maintain properly, and so in place of a detailed list of names and participations, I would simply like to extend a gracious thank you to all that have helped and contributed to the project.
 
 
 ## General Concepts <a id="general-concepts"></a>
@@ -97,11 +92,11 @@ In all sequencers, clicking **Randomize** in the right-click menu of the module 
 
 Many sequencers feature **SEQ# CV inputs**, which can be used to select the active sequence for editing or to externally control the playing order of the sequences. Three different modes are available for these inputs in the right click menu of the modules, under **Seq CV in**. 
 * 0-10V: a 0 to 10V input is proportionally mapped to the 1 to N sequence numbers; for example:
-    * In PhraseSeq16 and SemiModularSynth16, the mapping is `SEQ# 1-16 <-> 0-10 V`
+    * In PhraseSeq16 and SMS16, the mapping is `SEQ# 1-16 <-> 0-10 V`
     * In PhraseSeq32 and GateSeq64, the mapping is `SEQ# 1-32 <-> 0-10 V`
     * In Foundry, the mapping is `SEQ# 1-64 <-> 0-10 V`
 * C4-D5# (or other note intervals): CV levels corresponding to the standard note voltages are mapped to the 1 to N sequence numbers, for example:
-    * In PhraseSeq16 and SemiModularSynth16, the mapping is `SEQ# 1-16 <-> C4-D5#`
+    * In PhraseSeq16 and SMS16, the mapping is `SEQ# 1-16 <-> C4-D5#`
     * In PhraseSeq32 and GateSeq64, the mapping is `SEQ# 1-32 <-> C4-G6`
     * In Foundry, the mapping is `SEQ# 1-64 <-> C2-D7#`
 * Trig-Incr: the input is trigger sensitive and moves to the next sequence number every time a trigger is received. A reset can be used to move back to the first sequence.
@@ -158,7 +153,7 @@ Further information for developpers is available in a short summary of the [code
 
 ### Portable sequence <a id="portable_seq"></a>
 
-**New feature in the upcoming version v1.1.4**: The _Portable sequence_ standard is supported in the following Impromptu sequencers: PhraseSeq16/32, SemiModularSynth16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence".
+**New feature in the upcoming version v1.1.4**: The _Portable sequence_ standard is supported in the following Impromptu sequencers: PhraseSeq16/32, SMS16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence".
 
 ![IM](res/img/PortableSequence.jpg)
 
@@ -212,7 +207,7 @@ A chainable keyboard controller for your virtual Rack. When multiple TwelveKey m
 
 * **VEL**: The velocity output from the keyboard or its velocity input, depending on which key was last pressed, i.e. an up-chain key (from a module to the left) or a key of the given keyboard module. The velocity is a voltage corresponding to the vertical position of the mouse click on the key. The voltage range is determined by the BIPOL and MAX VEL settings.
 
-* **MAX VEL**: Maximum voltage of the velocity output. "ST" is shorthand for semi-tone. 
+* **MAX VEL**: Maximum voltage of the velocity output. "ST" is shorthand for semitone. 
 
 * **BIPOL**: allows the selection of unipolar velocity (bottom position), or bipolar velocity (top position). For example, with a maximum velocity voltage of 10V, the velocity range of a key is 0 to 10V in unipolar mode, or -10V to 10V in bipolar mode.
 
@@ -224,6 +219,35 @@ Two options are also available in the right-click menu:
 
 ([Back to module list](#modules))
 
+
+
+## ChordKey <a id="chord-key"></a>
+
+![IM](res/img/ChordKey.jpg)
+
+**To be released in version v1.1.4** A keyboard-based chord generator with room to store 25 chords, that can be recalled using a 0 to 2V control voltage. Up to four notes can be set for each chord using the keyboard and the octave buttons. 
+
+* **INDEX**: This knob is used to select the given chord from the set of 25 possible chords that can be stored in the module. 
+
+* **0 - 2V**: The CV input labeled "0-2V" is a CV value that is added to the value of the Index knob, and can be used to control the selected chord. When using the 0-2V input, the knob should ideally be in its left-most position. Each chord can then be recalled using the V/Oct voltages corresponding to the interval of notes from C4 (= 0V = 1st chord) to C6 (= 2V = 25th chord). With this range, chords can be recalled using a single note output from another sequencer in order to play chord progressions. Another interesting use case is to set up the [CV-Pad](#cv-pad) module to play the chords using single buttons (see its menu option called *Fill with notes C4-D5#* for automatically setting up these voltages in the CV-Pad).
+
+* **CV and GATE**: These outputs at the right side of the module are the different notes comprising the chord. Each row of outputs corresponds to the given note in the keyboard, from top to bottom respectively. An option is available in the module's right click menu to merge lower rows into the top row's outputs. When this is the case, the top row's CV and gate outputs become polyphonic.
+
+* **OCT -/+**: Buttons to set the octaves of each of the notes in the chord. When a note is not used, setting its octave to "-" will remove it from the chord. For example, a C-major triad does not use the fourth note so it's octave is set to "-", thereby deactivating it. The range of possible values is "-" and 0 to 9.
+
+* **GATE**: This input is routed to the gate outputs of all active notes when a monophonic gate signal is given. When a polyphonic gate signal is given, the gate of the Nth channel is routed to the gate output of the Nth note of the chord. In other words, when using a mono gate signal, all gates will be triggered simultaneously. When using a polyphonic gate with 4 channels, each channel will trigger the different notes separately. This can be used to arpeggiate the chord with a proper polyphonic gate signal. If the gate signal has only two channels, for example, the top gate output will fire according to channel 1's input gate, but all other outputs will use the input gate on channel 2.
+
+* **FORCE**: When setting up the chords it can be useful to have all of the gate outputs permanently on in order to hear the chord. This switch will override the Gate input and set all gate outputs to 10V.
+
+* **TR up and down**: These buttons transpose the chord up or down by one semitone. The octave values are automatically adjusted accordingly. Transpositions can also be performed using the slider in the module's right-click menu.
+
+Other options are also available in the right-click menu:
+
+* **Copy/Paste chord**: Use to copy a chord from one index position and paste it into another index position.
+
+* **Keypress monitoring**: When this option is checked, left clicking the keys will play all the notes of the chord, i.e. the gates of the active notes will be held as long as the left mouse button is pressed. Pressing the right button of the mouse only activates the gate of the note being pressed, such that it can be heard (monitored) individually without the other notes of the chord.
+
+([Back to module list](#modules))
 
 
 ## CvPad <a id="cv-pad"></a>
@@ -276,7 +300,7 @@ For a tutorial on Clocked regarding chaining, clock multiplications and division
 
 In place of a detailed explanation of these three main controls (Swing, PW and Delay), it is recommended to connect the outputs to a scope or a logic analyzer, such as the VCV Scope (pictured above) or the SubmarineFree LA-108, to observe the effects of the different controls. 
 
-PW and Swing CV inputs are aso avaialable in the Clocked [expander module](#expanders) (available for Clocked only). These inputs have a range of -5V to 5V when the corresponding knobs are be in their default position. With the corresponding knobs turned full left, the usable range on the inputs becomes 0V to 10V, with no-swing and normal-pulse-width correspond to 5V on the CV inputs.
+PW and Swing CV inputs are aso available in the Clocked [expander module](#expanders) (available for Clocked only). These inputs have a range of -5V to 5V when the corresponding knobs are be in their default position. With the corresponding knobs turned full left, the usable range on the inputs becomes 0V to 10V, with no-swing and normal-pulse-width correspond to 5V on the CV inputs.
 
 Many options are available in the modules' **right-click menu**, and can be used to setup Clocked/Clkd for your particular needs. In particular, the RUN CV input is trigger sensitive by default, but can be made level sensitive (gate mode) by turning on the "_Run CV input is level sensitive_" option; when chaining multiple Clocked/Clkd modules, only the first module in the chain should have this option turned on.
 
@@ -606,11 +630,11 @@ A 6-channel 128-step gate and CV sequencer based on [BigButtonSeq](#big-button-s
 
 
 
-## Semi-Modular Synth 16<a id="sms-16"></a>
+## SMS16<a id="sms-16"></a>
 
 ![IM](res/img/SemiModularSynth.jpg)
 
-An all-in-one pre-patched semi-modular synthesizer. Based on the [VCV Fundamental](https://vcvrack.com/Fundamental.html) modules by VCV and the [PhraseSeq16](#phrase-seq-16) sequencer (above). Please see those links for the respective manuals, while keeping in mind that not all features of the Fundamental modules were implemented in Semi-Modular Synth 16 (SMS16). A typical signal flow is internally patched by default, as shown by the interconnecting lines on the faceplate of the module. The majority of the internal connections can be overridden by any cables patched into those related jacks. 
+An all-in-one pre-patched semi-modular synthesizer. Based on the [VCV Fundamental](https://vcvrack.com/Fundamental.html) modules by VCV and the [PhraseSeq16](#phrase-seq-16) sequencer (above). Please see those links for the respective manuals, while keeping in mind that not all features of the Fundamental modules were implemented in SMS16 (Semi-Modular Synth 16). A typical signal flow is internally patched by default, as shown by the interconnecting lines on the faceplate of the module. The majority of the internal connections can be overridden by any cables patched into those related jacks. 
 
 This module can be used for quickly exploring ideas for sequences, and is also useful for those new to modular synthesis before learning how to fill the screen with cables! Also note that the final output is the low-pass output of the VCF module (Voltage Controlled Filter). The VCF is purposely placed after the VCA (Voltage Controlled Amplifier) in the signal flow, such that the VCF can be lightly saturated, producing a thicker sound, especially when the Drive knob is turned up.
 
@@ -630,7 +654,7 @@ WriteSeq32 is a three-channel 32-step writable sequencer module. Although the di
 
 * **WINDOW**: LED buttons to display/select the active 8-step window within the 32 step sequence (hence four windows). No effect on channels 1 to 3 when the sequencer is running.
 
-* **QUANTIZE**: Quantizes the CV IN input to a regular 12 semi-tone equal temperament scale. Since this quantizes the CV IN, some channels can have quantized CVs while others do not. 
+* **QUANTIZE**: Quantizes the CV IN input to a regular 12 semitone equal temperament scale. Since this quantizes the CV IN, some channels can have quantized CVs while others do not. 
 
 * **Main display**: Shows the note names for the 8 steps corresponding to the active window. When a stored pitch CV has not been quantized, the display shows the closest such note name. For example, 0.03 Volts is shown as C4, whereas 0.05 Volts is shown as C4 sharp or D4 flat. Octaves above 9 or below 0 are shown with a top bar and an underscore respectively.
 
@@ -662,17 +686,17 @@ WriteSeq64 has dual clock inputs, where each controls a pair of channels. When n
 
 
 
-## Four-View and Hotkey <a id="utilities"></a>
+## 4View and Hotkey <a id="utilities"></a>
 
 ![IM](res/img/Utilities.jpg)
 
-### Four-View
+### 4View
 A chord viewer module that shows the note names of up to 4 CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs.
 
 ### Hotkey
 **To be released in version v1.1.4**: Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize audio recording using VCV Recorder with video recording (using OBS Studio for example). Set a hotkey in OBS to automatically have it start/stop recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same key in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press. Send the trig output of Hotkey into the trig input of VCV Recorder.
 
-* **SET**: The hotkey can be programmed using the SET button. When armed, any key press will be captured and used as the hotkey. For key combinations, like ALT+K for example, all modifyers (ALT, CTRL/CMD, SHIFT) must be pressed before arming the SET button. Once armed the next key is automatically taken, along with any modifyers that are pressed. This allows the CTRL key itself to be used as a hotkey (when pressed after arming).
+* **SET**: The hotkey can be programmed using the SET button. When armed, any key press will be captured and used as the hotkey. For key combinations, like ALT+K for example, all modifiers (ALT, CTRL/CMD, SHIFT) must be pressed before arming the SET button. Once armed the next key is automatically taken, along with any modifyers that are pressed. This allows the CTRL key itself to be used as a hotkey (when pressed after arming).
 
 * **DELAY**: Delay the trigger output by an amount of time between 0 and 1 second. To enter an amout of time more precisely, use Rack's parameter right-click to enter a value directly. 
 
@@ -688,7 +712,7 @@ Here are a few videos featuring Impromptu Modular, which I find particularly ver
 
 * **Nigel Sixsmith**, [Talking Rackheads episode 8, PS16 MegaPatch Play Out](https://www.youtube.com/watch?v=KOpo2oUPTjg&t=5504s)
 
-* **Omri Cohen**, [Arvo Pärt - Spiegel im Spiegel VCV Rack Cover](https://www.youtube.com/watch?v=6bm4LjRYDmI)
+* **Omri Cohen**, [Arvo Part - Spiegel im Spiegel VCV Rack Cover](https://www.youtube.com/watch?v=6bm4LjRYDmI)
 
 * **Omri Cohen**, [Neutron & VCV Rack - Clapping Music](https://www.youtube.com/watch?v=VMbZfQDpgcA)
 
