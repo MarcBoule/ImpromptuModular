@@ -27,12 +27,24 @@ struct FourView : Module {
 		NUM_LIGHTS
 	};
 
-	// Need to save
-	int panelTheme;
-	bool showSharp = true;
+	// Constants
+	const float unusedValue = -100.0f;
 
-	// No need to save
-	// none
+	// Expander
+	float leftMessages[2][5] = {};// messages from mother (CvPad or ChordKey): 4 CV values, panelTheme
+
+	// Need to save, no reset
+	int panelTheme;
+	
+	// Need to save, with reset
+	bool showSharp;
+
+	// No need to save, with reset
+	float displayValues[4];
+
+	// No need to save, no reset
+	RefreshCounter refresh;
+
 
 	
 	inline float quantize(float cv, bool enable) {
@@ -44,13 +56,22 @@ struct FourView : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		onReset();
 		
+		leftExpander.producerMessage = leftMessages[0];
+		leftExpander.consumerMessage = leftMessages[1];
+		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
 	
 
 	void onReset() override {
+		showSharp = true;
+		resetNonJson();
 	}
-
+	void resetNonJson() {
+		for (int i = 0; i < 4; i++) {
+			displayValues[i] = unusedValue;
+		}
+	}
 	
 	void onRandomize() override {
 	}
@@ -78,12 +99,40 @@ struct FourView : Module {
 		json_t *showSharpJ = json_object_get(rootJ, "showSharp");
 		if (showSharpJ)
 			showSharp = json_is_true(showSharpJ);
+		
+		resetNonJson();
 	}
 
 	
 	void process(const ProcessArgs &args) override {
+		
+		if (refresh.processInputs()) {
+			bool motherPresent = (leftExpander.module && (leftExpander.module->model == modelCvPad ||
+														  leftExpander.module->model == modelChordKey));
+			if (motherPresent) {
+				// From Mother
+				float *messagesFromMother = (float*)leftExpander.consumerMessage;
+				for (int i = 0; i < 4; i++) {
+					displayValues[i] = inputs[CV_INPUTS + i].isConnected() ? inputs[CV_INPUTS + i].getVoltage() : messagesFromMother[i];// input cable has higher priority than mother
+				}
+				panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 1);
+			}	
+			else {
+				for (int i = 0; i < 4; i++) {
+					displayValues[i] = inputs[CV_INPUTS + i].isConnected() ? inputs[CV_INPUTS + i].getVoltage() : unusedValue;
+				}
+			}
+		}// userInputs refresh
+		
+		
+		// outputs
 		for (int i = 0; i < 4; i++)
 			outputs[CV_OUTPUTS + i].setVoltage(inputs[CV_INPUTS + i].getVoltage());
+		
+		
+		if (refresh.processLights()) {
+		}// lightRefreshCounter
+		
 	}
 };
 
@@ -106,8 +155,8 @@ struct FourViewWidget : ModuleWidget {
 		}
 		
 		void cvToStr() {
-			if (module != NULL && module->inputs[FourView::CV_INPUTS + baseIndex].isConnected()) {
-				float cvVal = module->inputs[FourView::CV_INPUTS + baseIndex].getVoltage();
+			if (module != NULL && module->displayValues[baseIndex] != module->unusedValue) {
+				float cvVal = module->displayValues[baseIndex];
 				printNote(cvVal, text, module->showSharp);
 			}
 			else

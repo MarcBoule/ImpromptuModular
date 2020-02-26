@@ -17,7 +17,7 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [ChordKey](#chord-key): Keyboard-based chord generator (**>= v1.1.4**).
 
-* [CvPad](#cv-pad): CV controller with 16 programmable pads (can be configured as 1x16, 2x8 or 4x4).
+* [CVPad](#cv-pad): CV controller with 16 programmable pads (can be configured as 1x16, 2x8 or 4x4).
 
 * [Clocked/Clkd](#clocked): Chainable clock generator modules with external synchronization (Clkd **>= v1.1.4**).
 
@@ -105,11 +105,13 @@ This feature can be used to play difference sequences consecutively under extern
 
 ### Expanders <a id="expanders"></a>
 
-A few of the modules feature **Expander modules** to provide additional CV inputs. An expander modules must be added to the _right_ side of the mother module with no space between the two modules. Expanders automatically match their mother module's panel theme, thus they do not have a panel theme option in their right-click menu. Only compatible expanders will work with a given module. For example, the PS-X expander will only work with the PhraseSeq16 and PhraseSeq32 modules, while the GS-X expander will only work with the GateSeq64 module.
+A few of the modules feature **Expander modules** to provide additional functionality via CV inputs or other controls. An expander modules must be added to the _right_ side of the mother module with no space between the two modules. Expanders automatically match their mother module's panel theme, thus they do not have a panel theme option in their right-click menu. Only compatible expanders will work with a given module. For example, the PS-X expander will only work with the PhraseSeq16 and PhraseSeq32 modules, while the GS-X expander will only work with the GateSeq64 module.
 
 ![IM](res/img/Expanders.jpg)
 
-Pictured above are the expanders for the following modules, from left to right: Clocked, PhraseSeq16/32, GateSeq64, Foundry.
+Pictured above are the expanders for the following modules, from left to right: Clocked, PhraseSeq16/32, GateSeq64, Foundry. 
+
+The [4View](#4view) module, which is normally used independently, can also be used as an expander for the [ChordKey](#chord-key) and [CVPad](#cv-pad) modules.
 
 
 ### On resets, clocks and run states... <a id="clk_rst_run"></a>
@@ -225,7 +227,8 @@ Two options are also available in the right-click menu:
 
 ![IM](res/img/ChordKey.jpg)
 
-**To be released in version v1.1.4** A keyboard-based chord generator with room to store 25 chords, that can be recalled using a 0 to 2V control voltage. Up to four notes can be set for each chord using the keyboard and the octave buttons. 
+**To be released in version v1.1.4** A keyboard-based chord generator with room to store 25 chords, that can be recalled using a 0 to 2V control voltage. Up to four notes can be set for each chord using the keyboard and the octave buttons. The [4View](#4view) module can also be used as an expander for the ChordKey to view the note names of the notes comprising the chord; in this case no cables need to be connected to 4View it is immediately to the right of ChordKey.
+
 
 * **INDEX**: This knob is used to select the given chord from the set of 25 possible chords that can be stored in the module. 
 
@@ -250,11 +253,14 @@ Other options are also available in the right-click menu:
 ([Back to module list](#modules))
 
 
-## CvPad <a id="cv-pad"></a>
+## CVPad <a id="cv-pad"></a>
 
 ![IM](res/img/CvPad.jpg)
 
-A programmable CV controller with 16 pads, that can be configured into 1x16, 2x8 or 4x4 group(s). Many use cases are possible, one of which can be to manually select sequences to play in Foundry and many of the Phrase Sequencers, and more generally to control parameters for a live performance by providing quick access to different CV values.
+A programmable CV controller with 16 pads, that can be configured into 1x16, 2x8 or 4x4 group(s). Many use cases are possible, one of which can be to manually select sequences to play in Foundry and many of the Phrase Sequencers, and more generally to control parameters for a live performance by providing quick access to different CV values. 
+
+**New feature in version v1.1.4** 
+The [4View](#4view) module can also be used as an expander for the CVPad to view the note names of the selected pads; in this case no cables need to be connected to 4View it is immediately to the right of CVPad.
 
 * **CV**: The main CV display and its knob can be used to set the CV for the currently selected pad, as indicated by the yellow/red light above a pad when attached/detached respectively. By default this knob is set to high sensitivity such that the range from -10V to 10V can be easier to scan; however, an option is available in the module's right-click menu to lower the sensitivity. Values can also be entered directly for the selected pad by **right-clicking the display** and typing in a specific voltage. 
 
@@ -264,7 +270,7 @@ A programmable CV controller with 16 pads, that can be configured into 1x16, 2x8
 
 * **AUTOSTEP**: When activated, a write operation will automatically move to the next pad after writing the CV, such that the entire array can be filled with CVs from an external source ([TwelveKey](#twelve-key) for example).
 
-* **WRITE**: Writes the CV present on the CV IN jack into the currently selected pad. The unlabeled jack below this button can be used to send a trigger to automate the writing. By connecting the CV output of TwelveKey to the CV IN input of CvPad, the GATE output of TwelveKey into the WRITE input in CvPad, and with AUTOSTEP on, a series of notes can be entered directly into each of the 16 pads.
+* **WRITE**: Writes the CV present on the CV IN jack into the currently selected pad. The unlabeled jack below this button can be used to send a trigger to automate the writing. By connecting the CV output of TwelveKey to the CV IN input of CVPad, the GATE output of TwelveKey into the WRITE input in CVPad, and with AUTOSTEP on, a series of notes can be entered directly into each of the 16 pads.
 
 * **V, sharp, flat**: This three-position switch is used to select the display mode of the main CV display.
 
@@ -690,10 +696,10 @@ WriteSeq64 has dual clock inputs, where each controls a pair of channels. When n
 
 ![IM](res/img/Utilities.jpg)
 
-### 4View
-A chord viewer module that shows the note names of up to 4 CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs.
+### 4View <a id="4view"></a>
+A chord viewer module that shows the note names of up to 4 CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs. **New feature in version v1.1.4**: 4View can also function as an expander for ChordKey or CVPad by placing it to the right of either of those two modules; in this case no cables need to be connected in order to view the note names of the chord notes or pad voltages.
 
-### Hotkey
+### Hotkey <a id="hotkey"></a>
 **To be released in version v1.1.4**: Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize audio recording using VCV Recorder with video recording (using OBS Studio for example). Set a hotkey in OBS to automatically have it start/stop recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same key in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press. Send the trig output of Hotkey into the trig input of VCV Recorder.
 
 * **SET**: The hotkey can be programmed using the SET button. When armed, any key press will be captured and used as the hotkey. For key combinations, like ALT+K for example, all modifiers (ALT, CTRL/CMD, SHIFT) must be pressed before arming the SET button. Once armed the next key is automatically taken, along with any modifyers that are pressed. This allows the CTRL key itself to be used as a hotkey (when pressed after arming).

@@ -272,7 +272,7 @@ struct CvPad : Module {
 		
 		
 		
-		// gate output
+		// gate and cv outputs
 		if (config == 4) {// 1x16
 			outputs[GATE_OUTPUTS + 0].setVoltage(padTriggers[readHeads[read1_16]].isHigh() && isAttached() ? 10.0f : 0.0f);
 			outputs[CV_OUTPUTS + 0].setVoltage(quantize(cvs[bank][readHeads[read1_16]]));
@@ -332,7 +332,31 @@ struct CvPad : Module {
 					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read4_4 + 3] == l ? 1.0f : 0.0f);
 				}
 			}
-		}
+			
+			// To Expander
+			if (rightExpander.module && rightExpander.module->model == modelFourView) {
+				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
+				if (config == 4) {// 1x16
+					messageToExpander[0] = outputs[CV_OUTPUTS + 0].getVoltage();
+					for (int i = 1; i < 4; i++) {
+						messageToExpander[i] = -100.0f;// unused code
+					}
+				}
+				else if (config == 2) {// 2x8
+					messageToExpander[0] = outputs[CV_OUTPUTS + 0].getVoltage();
+					messageToExpander[1] = -100.0f;// unused code
+					messageToExpander[2] = outputs[CV_OUTPUTS + 2].getVoltage();
+					messageToExpander[3] = -100.0f;// unused code
+				}
+				else {// config == 1 : 4x4
+					for (int i = 0; i < 4; i++) {
+						messageToExpander[i] = outputs[CV_OUTPUTS + i].getVoltage();
+					}
+				}
+				messageToExpander[4] = (float)panelTheme;
+				rightExpander.module->leftExpander.messageFlipRequested = true;
+			}
+		}// processLights()
 	}
 	
 	void setReadHeadToWrite(int config) {

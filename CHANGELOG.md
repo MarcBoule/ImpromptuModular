@@ -1,9 +1,10 @@
 ### 1.1.4 (in development)
 
-- Add new module called Chord-Key: a keyboard-based chord generator 
+- Allow 4View to function as an expander for ChordKey and CVPad
+- Add new module called ChordKey: a keyboard-based chord generator 
 - Implement Portable sequence copy/paste in Foundry, PhraseSeq16/32 and SemiModularSynth
 - Add new module called Clkd: a half-sized version of Clocked without PW, Swing nor Delay
-- Reduced width of Cv-Pad by 2 HP
+- Reduced width of CVPad by 2 HP
 - Fix bug in Foundry when using expander to sync select sequences with different run modes
 - Fix bug in divided clocks in Clocked when launching Rack
 
