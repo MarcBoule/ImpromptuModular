@@ -1,7 +1,6 @@
 ### 1.1.4 (in development)
 
 - Add new module called Chord-Key: a keyboard-based chord generator 
-- Allow single shot to work in SEQ mode also, in Foundry, PhraseSeq16/32, GateSeq64 and SemiModularSynth
 - Implement Portable sequence copy/paste in Foundry, PhraseSeq16/32 and SemiModularSynth
 - Add new module called Clkd: a half-sized version of Clocked without PW, Swing nor Delay
 - Reduced width of Cv-Pad by 2 HP

@@ -1322,11 +1322,12 @@ struct SemiModularSynth : Module {
 					int oldStepIndexRun = stepIndexRun;
 					if (editingSequence) {
 						slideFromCV = cv[seqIndexEdit][stepIndexRun];
-						bool seqLoopOver = moveIndexRunMode(&stepIndexRun, sequences[seqIndexEdit].getLength(), sequences[seqIndexEdit].getRunMode(), &stepIndexRunHistory);
-						if (seqLoopOver && stopAtEndOfSong) {
-							running = false;
-							stepIndexRun = oldStepIndexRun;
-						}
+						//bool seqLoopOver = 
+						moveIndexRunMode(&stepIndexRun, sequences[seqIndexEdit].getLength(), sequences[seqIndexEdit].getRunMode(), &stepIndexRunHistory);
+						// if (seqLoopOver && stopAtEndOfSong) {
+							// running = false;
+							// stepIndexRun = oldStepIndexRun;
+						// }
 					}
 					else {
 						slideFromCV = cv[phrase[phraseIndexRun]][stepIndexRun];
@@ -2129,7 +2130,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		holdItem->module = module;
 		menu->addChild(holdItem);
 
-		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot", CHECKMARK(module->stopAtEndOfSong));
+		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot song", CHECKMARK(module->stopAtEndOfSong));
 		loopItem->module = module;
 		menu->addChild(loopItem);
 

@@ -1986,7 +1986,7 @@ struct FoundryWidget : ModuleWidget {
 		holdItem->module = module;
 		menu->addChild(holdItem);
 
-		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Sigle shot", RIGHT_ARROW);
+		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot song", RIGHT_ARROW);
 		loopItem->module = module;
 		menu->addChild(loopItem);
 

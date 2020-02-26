@@ -937,12 +937,13 @@ struct GateSeq64 : Module {
 				if (ppqnCount == 0) {
 					int oldStepIndexRun[4] = {stepIndexRun[0], stepIndexRun[1], stepIndexRun[2], stepIndexRun[3]};
 					if (editingSequence) {
-						bool seqLoopOver = moveIndexRunMode(&stepIndexRun[0], sequences[sequence].getLength(), sequences[sequence].getRunMode(), &stepIndexRunHistory);
-						if (seqLoopOver && stopAtEndOfSong) {						
-							running = false;
-							for (int i = 0; i < 4; i++) 
-								stepIndexRun[i] = oldStepIndexRun[i];
-						}
+						//bool seqLoopOver = 
+						moveIndexRunMode(&stepIndexRun[0], sequences[sequence].getLength(), sequences[sequence].getRunMode(), &stepIndexRunHistory);
+						// if (seqLoopOver && stopAtEndOfSong) {						
+							// running = false;
+							// for (int i = 0; i < 4; i++) 
+								// stepIndexRun[i] = oldStepIndexRun[i];
+						// }
 					}
 					else {
 						if (moveIndexRunMode(&stepIndexRun[0], sequences[phrase[phraseIndexRun]].getLength(), sequences[phrase[phraseIndexRun]].getRunMode(), &stepIndexRunHistory)) {
@@ -1420,7 +1421,7 @@ struct GateSeq64Widget : ModuleWidget {
 		rorItem->module = module;
 		menu->addChild(rorItem);
 
-		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot", CHECKMARK(module->stopAtEndOfSong));
+		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot song", CHECKMARK(module->stopAtEndOfSong));
 		loopItem->module = module;
 		menu->addChild(loopItem);
 

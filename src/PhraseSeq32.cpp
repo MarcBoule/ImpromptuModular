@@ -1276,12 +1276,13 @@ struct PhraseSeq32 : Module {
 					if (editingSequence) {
 						for (int i = 0; i < 2; i += stepConfig)
 							slideFromCV[i] = cv[seqIndexEdit][(i * 16) + stepIndexRun[i]];
-						bool seqLoopOver = moveIndexRunMode(&stepIndexRun[0], sequences[seqIndexEdit].getLength(), sequences[seqIndexEdit].getRunMode(), &stepIndexRunHistory);
-						if (seqLoopOver && stopAtEndOfSong) {
-							running = false;
-							stepIndexRun[0] = oldStepIndexRun0;
-							stepIndexRun[1] = oldStepIndexRun1;
-						}
+						//bool seqLoopOver = 
+						moveIndexRunMode(&stepIndexRun[0], sequences[seqIndexEdit].getLength(), sequences[seqIndexEdit].getRunMode(), &stepIndexRunHistory);
+						// if (seqLoopOver && stopAtEndOfSong) {
+							// running = false;
+							// stepIndexRun[0] = oldStepIndexRun0;
+							// stepIndexRun[1] = oldStepIndexRun1;
+						// }
 					}
 					else {
 						for (int i = 0; i < 2; i += stepConfig)
@@ -2028,7 +2029,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		holdItem->module = module;
 		menu->addChild(holdItem);
 
-		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot", CHECKMARK(module->stopAtEndOfSong));
+		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot song", CHECKMARK(module->stopAtEndOfSong));
 		loopItem->module = module;
 		menu->addChild(loopItem);
 

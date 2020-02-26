@@ -378,10 +378,10 @@ int SequencerKernel::clockStep(bool editingSequence, int delayedSeqNumberRequest
 						moveStepIndexRun(true, editingSequence);// true means init; must always refresh after seqIndexEdit has changed (when editingSequence)
 					}
 					// check for end of seq if needed
-					if (id == *stopAtEndOfSongPtr) {
-						phraseChangeOrStop = 2;
-						stepIndexRun = oldStepIndexRun;
-					}
+					// if (id == *stopAtEndOfSongPtr) {
+						// phraseChangeOrStop = 2;
+						// stepIndexRun = oldStepIndexRun;
+					// }
 				}
 				else {
 					int oldPhraseIndexRun = phraseIndexRun;
