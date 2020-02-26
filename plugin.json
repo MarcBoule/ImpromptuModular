@@ -1,7 +1,7 @@
 {
 	"slug": "ImpromptuModular",
 	"name": "Impromptu Modular",
-	"version": "1.1.3",
+	"version": "1.1.4",
 	"license": "GPL-3.0-only",
 	"author": "Marc Boul\u00e9",
 	"brand": "Impromptu Modular",
@@ -150,6 +150,7 @@
 			"slug": "Four-View",
 			"name": "4View",
 			"description": "Quad note number viewer with passthrough",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#4view",
 			"tags": ["Visual"]
 		},
 		{

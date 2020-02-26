@@ -1,13 +1,10 @@
-Modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://vcvrack.com/plugins.html).
-
-![IM](res/img/Blank.jpg)
-
-Version 1.1.3
+Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://vcvrack.com/plugins.html).
+Version 1.1.4.
 
 [//]: # (!!!!!UPDATE VERSION NUMBER IN PLUGIN.JSON ALSO!!!!!   120% Zoom for jpgs)
 
 
-# Modules <a id="modules"></a>
+## Modules <a id="modules"></a>
 
 Each module is available in light (Classic) or dark (Dark-Valor) panels, selectable by right-clicking the module in Rack.
 
@@ -15,11 +12,11 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [TwelveKey](#twelve-key): Chainable one-octave keyboard controller.
 
-* [ChordKey](#chord-key): Keyboard-based chord generator (**>= v1.1.4**).
+* [ChordKey](#chord-key): Keyboard-based chord generator.
 
 * [CVPad](#cv-pad): CV controller with 16 programmable pads (can be configured as 1x16, 2x8 or 4x4).
 
-* [Clocked/Clkd](#clocked): Chainable clock generator modules with external synchronization (Clkd **>= v1.1.4**).
+* [Clocked/Clkd](#clocked): Chainable clock generator modules with external synchronization.
 
 * [Foundry](#foundry): 4-track phrase sequencer with 32 steps per sequence, 64 sequences per track, 99 phrases per song/track.
 
@@ -37,7 +34,7 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [WriteSeq32/64](#write-seq): Multi-channel 32/64-step sequencers with CV inputs for easy sequence programming.
 
-* [4View and Hotkey](#utilities): Small chord viewer module that shows the note names of up to 4 CVs, and a utility module that sends a trigger when a given key is pressed (mouse must be over module). (Hotkey**>= v1.1.4**)
+* [4View and Hotkey](#utilities): Small chord viewer module that shows the note names of up to 4 CVs, and a utility module that sends a trigger when a given key is pressed (mouse must be over module).
 
 Details about each module are given in the links above, and a feature comparison table is given below for the sequencers. Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -58,7 +55,7 @@ Details about each module are given in the links above, and a feature comparison
 \* Configuration is noted as follows: Channels/Tracks x Sequence-Length. The distinction between channels and tracks relates to clock inputs: when channels are separately clockable they are referred to as tracks.
 
 ## Known issues <a id="known-issues"></a>
-For sequencers and clock modules, it is advisable to have a core audio module added to your patch and assigned to a sound device in order for the timing and response delays in the user interface to be of the proper duration. This is a [known artifact](https://github.com/VCVRack/Rack/issues/919) in VCV Rack.
+For sequencers and clock modules, it is advisable to have a Audio module added to your patch and assigned to a sound device in order for the timing and response delays in the user interface to be of the proper duration. This is a [known artifact](https://github.com/VCVRack/Rack/issues/919) in VCV Rack.
 
 
 ## License
@@ -67,16 +64,16 @@ Based on code from the Fundamental and Audible Instruments plugins by Andrew Bel
 
 
 ## Acknowledgements
-Impromptu Modular is not a single-person endeavor. Many people have taken the time to suggest improvements and to collaborate on module concepts, graphics, testing, etc. This list of acknowledgements is too large to maintain properly, and so in place of a detailed list of names and participations, I would simply like to extend a gracious thank you to all that have helped and contributed to the project.
+Impromptu Modular is not a single-person endeavor. Many people have taken the time to suggest improvements and to collaborate on module concepts, graphics, testing, etc. This list of acknowledgements is too large to maintain properly, and so in place of a detailed list of names and participations, I would simply like to extend a big thank you to all that have helped and contributed to the project. The Dark-valor graphic theme was graciously provided by Xavier Belmont.
 
 
 ## General Concepts <a id="general-concepts"></a>
 
 Many Impromptu Modular sequencers feature a CV input for entering notes into the sequencers in a quick and natural manner when using, for example:
 
-* a physical midi keyboard connected via the Core MIDI-1 module in VCV Rack;
-* a software midi keyboard (such as [VMPK](http://vmpk.sourceforge.net/)) via the Core MIDI-1 module (a software midi loopback app may be required); 
-* a keyboard within VCV Rack such as the Autodafe keyboard or [TwelveKey](#twelve-key). 
+* a physical midi keyboard connected via the MIDI-CV module in VCV Rack;
+* a software midi keyboard (such as [VMPK](http://vmpk.sourceforge.net/)) via the MIDI-CV module (a software midi loopback app may be required); 
+* a keyboard within VCV Rack such as [TwelveKey](#twelve-key). 
 
 Such sequencers have two main inputs that allow the capturing of (pitch) CVs, as follows: The edge sensitive **WRITE** control voltage is used to trigger the writing of the voltage on the **CV IN** jack into the CV of the current step. Any voltage between -10V and 10V is supported, and when a sequencer displays notes via a built-in keyboard or a display showing note letters, non-quantized CVs are mapped to the closest note but are correctly stored in the sequencer.
 
@@ -155,7 +152,7 @@ Further information for developpers is available in a short summary of the [code
 
 ### Portable sequence <a id="portable_seq"></a>
 
-**New feature in the upcoming version v1.1.4**: The _Portable sequence_ standard is supported in the following Impromptu sequencers: PhraseSeq16/32, SMS16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence".
+The _Portable sequence_ standard is supported in the following Impromptu sequencers: PhraseSeq16/32, SMS16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence".
 
 ![IM](res/img/PortableSequence.jpg)
 
@@ -227,7 +224,7 @@ Two options are also available in the right-click menu:
 
 ![IM](res/img/ChordKey.jpg)
 
-**To be released in version v1.1.4** A keyboard-based chord generator with room to store 25 chords, that can be recalled using a 0 to 2V control voltage. Up to four notes can be set for each chord using the keyboard and the octave buttons. The [4View](#4view) module can also be used as an expander for the ChordKey to view the note names of the notes comprising the chord; in this case no cables need to be connected to 4View it is immediately to the right of ChordKey.
+A keyboard-based chord generator with room to store 25 chords, that can be recalled using a 0 to 2V control voltage. Up to four notes can be set for each chord using the keyboard and the octave buttons. The [4View](#4view) module can also be used as an expander for the ChordKey to view the note names of the notes comprising the chord; in this case no cables need to be connected to 4View it is immediately to the right of ChordKey.
 
 
 * **INDEX**: This knob is used to select the given chord from the set of 25 possible chords that can be stored in the module. 
@@ -242,7 +239,7 @@ Two options are also available in the right-click menu:
 
 * **FORCE**: When setting up the chords it can be useful to have all of the gate outputs permanently on in order to hear the chord. This switch will override the Gate input and set all gate outputs to 10V.
 
-* **TR up and down**: These buttons transpose the chord up or down by one semitone. The octave values are automatically adjusted accordingly. Transpositions can also be performed using the slider in the module's right-click menu.
+* **TR**: These buttons transpose the chord up or down by one semitone. The octave values are automatically adjusted accordingly. Transpositions can also be performed using the slider in the module's right-click menu.
 
 Other options are also available in the right-click menu:
 
@@ -259,7 +256,6 @@ Other options are also available in the right-click menu:
 
 A programmable CV controller with 16 pads, that can be configured into 1x16, 2x8 or 4x4 group(s). Many use cases are possible, one of which can be to manually select sequences to play in Foundry and many of the Phrase Sequencers, and more generally to control parameters for a live performance by providing quick access to different CV values. 
 
-**New feature in version v1.1.4** 
 The [4View](#4view) module can also be used as an expander for the CVPad to view the note names of the selected pads; in this case no cables need to be connected to 4View it is immediately to the right of CVPad.
 
 * **CV**: The main CV display and its knob can be used to set the CV for the currently selected pad, as indicated by the yellow/red light above a pad when attached/detached respectively. By default this knob is set to high sensitivity such that the range from -10V to 10V can be easier to scan; however, an option is available in the module's right-click menu to lower the sensitivity. Values can also be entered directly for the selected pad by **right-clicking the display** and typing in a specific voltage. 
@@ -290,7 +286,7 @@ The module also features sliders and menu items to copy and paste the CVs, and a
 
 Clocked: A chainable master clock module with swing, clock delay and pulse width controls, with master BPM from 30 to 300 and all mult/div ratios up to 16, including 1.5 and 2.5, and with additional ratios spanning prime numbers and powers of two up to 64. The clock can produce waveforms with adjustable pulse widths for use with envelope generators or sequencers that use the clock pulse to produce their gate signals. The clock can also be synchronized to an external clock source.
 
-Clkd: A smaller version of Clocked but without swing, clock delay and pulse width. **To be released in version v1.1.4**
+Clkd: A smaller version of Clocked but without swing, clock delay and pulse width.
 
 For a tutorial on Clocked regarding chaining, clock multiplications and divisions, swing and clock delay features, please see Nigel Sixsmith's [Talking Rackheads episode 12](https://www.youtube.com/watch?v=ymfOh1yCzU4). It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here. 
 
@@ -697,10 +693,10 @@ WriteSeq64 has dual clock inputs, where each controls a pair of channels. When n
 ![IM](res/img/Utilities.jpg)
 
 ### 4View <a id="4view"></a>
-A chord viewer module that shows the note names of up to 4 CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs. **New feature in version v1.1.4**: 4View can also function as an expander for ChordKey or CVPad by placing it to the right of either of those two modules; in this case no cables need to be connected in order to view the note names of the chord notes or pad voltages.
+A chord viewer module that shows the note names of up to 4 CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs. 4View can also function as an expander for ChordKey or CVPad by placing it to the right of either of those two modules; in this case: a) no cables need to be connected in order to view the note names of the chord notes or pad voltages and b) the through outputs are not used. 
 
 ### Hotkey <a id="hotkey"></a>
-**To be released in version v1.1.4**: Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize audio recording using VCV Recorder with video recording (using OBS Studio for example). Set a hotkey in OBS to automatically have it start/stop recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same key in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press. Send the trig output of Hotkey into the trig input of VCV Recorder.
+Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize audio recording using VCV Recorder with video recording (using OBS Studio for example). Set a hotkey in OBS to automatically have it start/stop recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same key in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press. Send the trig output of Hotkey into the trig input of VCV Recorder.
 
 * **SET**: The hotkey can be programmed using the SET button. When armed, any key press will be captured and used as the hotkey. For key combinations, like ALT+K for example, all modifiers (ALT, CTRL/CMD, SHIFT) must be pressed before arming the SET button. Once armed the next key is automatically taken, along with any modifyers that are pressed. This allows the CTRL key itself to be used as a hotkey (when pressed after arming).
 
@@ -727,3 +723,5 @@ Here are a few videos featuring Impromptu Modular, which I find particularly ver
 * **John Melcher**, [Steppes](https://www.youtube.com/watch?v=ruo4s_Hyhrw)
 
 * **Lars Bjerregaard**, [Intertwined](https://www.youtube.com/watch?v=Xt9zOsVQUHc)
+
+![IM](res/img/Blank.jpg)
