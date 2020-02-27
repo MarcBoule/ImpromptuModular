@@ -38,7 +38,7 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 Details about each module are given in the links above, and a feature comparison table is given below for the sequencers. Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
-| \-		      			| WriteSeq32/64 	| PhraseSeq16	| PhraseSeq32	| GateSeq64			| Foundry		| BigButton1/2 	|
+| 		      			| WriteSeq32/64 	| PhraseSeq16	| PhraseSeq32	| GateSeq64			| Foundry		| BigButton1/2 	|
 | ----------- 				| ----------- 		| ----------- 	| ----------- 	| ----------- 		| -----------	| -----------  	|
 | Configuration\*			| 3x32 / 4x64		| 1x16 			| 1x32, 2x16 	| 4x16, 2x32, 1x64  | 4x32 			| 6x64 / 6x128	|
 | Clock inputs				| 1 / 2				| 1				| 1				| 1					| 4				| 1				|
@@ -106,9 +106,7 @@ A few of the modules feature **Expander modules** to provide additional function
 
 ![IM](res/img/Expanders.jpg)
 
-Pictured above are the expanders for the following modules, from left to right: Clocked, PhraseSeq16/32, GateSeq64, Foundry. 
-
-The [4View](#4view) module, which is normally used independently, can also be used as an expander for the [ChordKey](#chord-key) and [CVPad](#cv-pad) modules.
+Pictured above are the expanders for the following modules, from left to right: Clocked, PhraseSeq16/32, GateSeq64, Foundry. The [4View](#4view) module, which is normally used independently, can also be used as an expander for the [ChordKey](#chord-key) and [CVPad](#cv-pad) modules.
 
 
 ### On resets, clocks and run states... <a id="clk_rst_run"></a>
