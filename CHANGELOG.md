@@ -1,4 +1,9 @@
-### 1.1.4 (in development)
+### 1.1.5 (in development)
+
+- Reduce width of 4View by 1 HP
+
+
+### 1.1.4 (2019-02-28)
 
 - Allow 4View to function as an expander for ChordKey and CVPad
 - Add new module called ChordKey: a keyboard-based chord generator 

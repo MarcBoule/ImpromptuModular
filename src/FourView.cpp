@@ -237,16 +237,16 @@ struct FourViewWidget : ModuleWidget {
 		addChild(createDynamicWidget<IMScrew>(Vec(15, 365), module ? &module->panelTheme : NULL));
 		addChild(createDynamicWidget<IMScrew>(Vec(box.size.x-30, 365), module ? &module->panelTheme : NULL));
 
-		const int centerX = box.size.x / 2;
+		const float centerX = box.size.x / 2;
 		static const int rowRulerTop = 60;
 		static const int spacingY = 48;
-		static const int offsetXL = 32;
-		static const int offsetXR = 24;
+		static const float offsetXL = 30;
+		static const float offsetXR = 18;
 		
 		// Notes displays and inputs
 		NotesDisplayWidget* displayNotes[4];
 		for (int i = 0; i < 4; i++) {
-			displayNotes[i] = new NotesDisplayWidget(Vec(centerX + offsetXR - 4, rowRulerTop + i * spacingY), Vec(52, 29), module, i);
+			displayNotes[i] = new NotesDisplayWidget(Vec(centerX + offsetXR, rowRulerTop + i * spacingY), Vec(52, 29), module, i);
 			addChild(displayNotes[i]);
 
 			addInput(createDynamicPortCentered<IMPort>(Vec(centerX - offsetXL, rowRulerTop + i * spacingY), true, module, FourView::CV_INPUTS + i, module ? &module->panelTheme : NULL));	
@@ -254,7 +254,7 @@ struct FourViewWidget : ModuleWidget {
 
 
 		static const int spacingY2 = 46;
-		static const int offsetX = 28;
+		static const float offsetX = 20;
 		static const int posY2 = 280;
 
 		// Thru outputs
