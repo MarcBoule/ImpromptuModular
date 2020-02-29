@@ -158,7 +158,7 @@
 			"name": "SMS16",
 			"description": "Semi-modular monophonic synthesizer, with 16-step sequencer",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#sms-16",
-			"tags": ["Synth voice"]
+			"tags": ["Synth voice", "Sequencer"]
 		},
 		{
 			"slug": "Hotkey",
