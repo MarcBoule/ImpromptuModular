@@ -1,6 +1,7 @@
 ### 1.1.5 (in development)
 
 - Reduce width of 4View by 1 HP
+- Change display when clicking knob in CLKD even if knob doesn't turn
 
 
 ### 1.1.4 (2019-02-28)
