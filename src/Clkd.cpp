@@ -807,6 +807,27 @@ struct ClkdWidget : ModuleWidget {
 		menu->addChild(runInItem);
 	}	
 	
+	struct BpmKnob : IMMediumKnob<true, true> {
+		int *displayIndexPtr = NULL;
+		void onButton(const event::Button& e) override {
+			if (paramQuantity && displayIndexPtr) {
+				*displayIndexPtr = 0;
+			}
+			IMMediumKnob::onButton(e);
+		}
+	};
+	struct RatioKnob : IMSmallKnob<true, true> {
+		int *displayIndexPtr = NULL;
+		void onButton(const event::Button& e) override {
+			if (paramQuantity && displayIndexPtr) {
+				int ratioNum = paramQuantity->paramId - Clkd::RATIO_PARAMS;
+				if (ratioNum >= 0 && ratioNum < 3) {
+					*displayIndexPtr = 1 + ratioNum;
+				}
+			}
+			IMSmallKnob::onButton(e);
+		}
+	};
 
 	ClkdWidget(Clkd *module) {
 		setModule(module);
@@ -857,8 +878,9 @@ struct ClkdWidget : ModuleWidget {
 		addParam(createParamCentered<LEDBezel>(Vec(colC, row1), module, Clkd::RUN_PARAM));
 		addChild(createLightCentered<MuteLight<GreenLight>>(Vec(colC, row1), module, Clkd::RUN_LIGHT));
 		// Master BPM knob
-		addParam(createDynamicParamCentered<IMMediumKnob<true, true>>(Vec(colR, row1), module, Clkd::BPM_PARAM, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
-		
+		BpmKnob *bpmKnob;
+		addParam(bpmKnob = createDynamicParamCentered<BpmKnob>(Vec(colR, row1), module, Clkd::BPM_PARAM, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		// bpmKnob->displayIndexPtr = (done below with ratio knobs)
 
 		// Row 2
 		// BPM display
@@ -891,9 +913,16 @@ struct ClkdWidget : ModuleWidget {
 		
 		// Row 4 		
 		// Ratio knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(colL, row4), module, Clkd::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));		
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(colC, row4), module, Clkd::RATIO_PARAMS + 1, module ? &module->panelTheme : NULL));		
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(colR, row4), module, Clkd::RATIO_PARAMS + 2, module ? &module->panelTheme : NULL));		
+		RatioKnob *ratioKnobs[3];
+		addParam(ratioKnobs[0] = createDynamicParamCentered<RatioKnob>(Vec(colL, row4), module, Clkd::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));	
+		addParam(ratioKnobs[1] = createDynamicParamCentered<RatioKnob>(Vec(colC, row4), module, Clkd::RATIO_PARAMS + 1, module ? &module->panelTheme : NULL));		
+		addParam(ratioKnobs[2] = createDynamicParamCentered<RatioKnob>(Vec(colR, row4), module, Clkd::RATIO_PARAMS + 2, module ? &module->panelTheme : NULL));	
+		if (module) {
+			for (int i = 0; i < 3; i++) {
+				ratioKnobs[i]->displayIndexPtr = &(module->displayIndex);
+			}
+			bpmKnob->displayIndexPtr = &(module->displayIndex);
+		}
 
 
 		// Row 5
