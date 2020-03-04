@@ -2,7 +2,7 @@
 
 - Reduced width of 4View by 1 HP
 - Modified CLKD knobs to change display when clicking even if knob doesn't turn
-- Implemented Portable Sequence copy/paste in BigButton2
+- Implemented Portable Sequence copy/paste in BigButtonSeq2
 
 
 ### 1.1.4 (2019-02-28)
