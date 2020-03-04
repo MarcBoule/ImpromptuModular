@@ -93,6 +93,8 @@ class Clock {
 
 //*****************************************************************************
 
+static const float ratioValues[34] = {1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 23, 24, 29, 31, 32, 37, 41, 43, 47, 48, 53, 59, 61, 64};
+
 
 struct Clkd : Module {
 	enum ParamIds {
@@ -129,7 +131,6 @@ struct Clkd : Module {
 	
 	
 	// Constants
-	const float ratioValues[34] = {1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 23, 24, 29, 31, 32, 37, 41, 43, 47, 48, 53, 59, 61, 64};
 	static const int bpmMax = 300;
 	static const int bpmMin = 30;
 	static constexpr float masterLengthMax = 60.0f / bpmMin;// a length is a period
@@ -199,6 +200,22 @@ struct Clkd : Module {
 		return ret;
 	}
 	
+	struct RatioParam : ParamQuantity {
+		float getDisplayValue() override {
+			int knobVal = (int) std::round(getValue());
+			knobVal = clamp(knobVal, (34 - 1) * -1, 34 - 1);
+			if (knobVal < 0) {
+				knobVal *= -1;
+			}
+			return ratioValues[knobVal];
+		}
+		void setDisplayValue(float displayValue) override {}	
+		std::string getUnit() override {
+			if (getValue() >= 0.0f) return std::string("x");
+			return std::string("÷");
+		}
+	};
+	
 	
 	Clkd() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -212,8 +229,8 @@ struct Clkd : Module {
 		char strBuf[32];
 		for (int i = 0; i < 3; i++) {// Row 2-4 (sub clocks)
 			// Ratio1 knob
-			snprintf(strBuf, 32, "Ratio clk %i", i + 1);
-			configParam(RATIO_PARAMS + i, (34.0f - 1.0f)*-1.0f, 34.0f - 1.0f, 0.0f, strBuf);		
+			snprintf(strBuf, 32, "Clk %i ratio", i + 1);
+			configParam<RatioParam>(RATIO_PARAMS + i, (34.0f - 1.0f)*-1.0f, 34.0f - 1.0f, 0.0f, strBuf);		
 		}
 		configParam(BPM_PARAM, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		

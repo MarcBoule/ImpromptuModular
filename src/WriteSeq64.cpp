@@ -108,7 +108,7 @@ struct WriteSeq64 : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
 		configParam(SHARP_PARAM, 0.0f, 2.0f, 1.0f, "Sharp notation");
-		configParam(CHANNEL_PARAM, 0.0f, 4.0f, 0.0f, "Channel");
+		configParam(CHANNEL_PARAM, 0.0f, 4.0f, 0.0f, "Channel", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		configParam(STEP_PARAM, -INFINITY, INFINITY, 0.0f, "Step");		
 		configParam(GATE_PARAM, 0.0f, 1.0f, 0.0f, "Gate");
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");
