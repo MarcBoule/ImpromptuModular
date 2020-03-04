@@ -416,7 +416,9 @@ struct BigButtonSeq2 : Module {
 				if (nextStepHits) {
 					int nextStep = (indexStep + 1) % length;
 					setGate(channel, nextStep);// bank is global
-					writeCV(channel, nextStep, inputs[CV_INPUT].getVoltage());
+					if (inputs[CV_INPUT].isConnected()) {
+						writeCV(channel, nextStep, inputs[CV_INPUT].getVoltage());
+					}
 				}
 				else if (quantizeBig && (clockTime > (lastPeriod / 2.0)) && (clockTime <= (lastPeriod * 1.01))) {// allow for 1% clock jitter
 					pendingOp = 1;
@@ -427,7 +429,9 @@ struct BigButtonSeq2 : Module {
 						setGate(channel, indexStep);// bank is global
 						bigPulse.trigger(0.001f);
 					}
-					writeCV(channel, indexStep, inputs[CV_INPUT].getVoltage());
+					if (inputs[CV_INPUT].isConnected()) {
+						writeCV(channel, indexStep, inputs[CV_INPUT].getVoltage());
+					}
 					bigLightPulse.trigger(lightTime);
 				}
 			}
@@ -489,7 +493,9 @@ struct BigButtonSeq2 : Module {
 				fillPressed = (params[FILL_PARAM].getValue() + inputs[FILL_INPUT].getVoltage()) > 0.5f;// used in clock block and others
 				if (fillPressed && writeFillsToMemory) {
 					setGate(channel, indexStep);// bank is global
-					writeCV(channel, indexStep, inputs[CV_INPUT].getVoltage());//sampleHoldBuf[channel]);
+					if (inputs[CV_INPUT].isConnected()) {
+						writeCV(channel, indexStep, inputs[CV_INPUT].getVoltage());//sampleHoldBuf[channel]);
+					}
 				}
 				
 				//outPulse.trigger(0.001f);
@@ -593,7 +599,9 @@ struct BigButtonSeq2 : Module {
 				setGate(chan, indexStep);// bank is global
 				bigPulse.trigger(0.001f);
 			}
-			writeCV(chan, indexStep, pendingCV);
+			if (inputs[CV_INPUT].isConnected()) {
+				writeCV(chan, indexStep, pendingCV);
+			}
 			bigLightPulse.trigger(lightTime);
 		}
 		else {

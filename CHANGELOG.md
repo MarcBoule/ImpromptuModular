@@ -3,6 +3,7 @@
 - Reduced width of 4View by 1 HP
 - Modified CLKD knobs to change display when clicking even if knob doesn't turn
 - Implemented Portable Sequence copy/paste in BigButtonSeq2
+- Make BigButtonSeq2 not overwrite CVs when CV input is unconnected during big button hits and fills to memory
 
 
 ### 1.1.4 (2019-02-28)

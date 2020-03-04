@@ -50,7 +50,7 @@ Details about each module are given in the links above, and a feature comparison
 | Probability				| No 				| Global		| Global		| Per step			| Per step		| No			|
 | Slide						| No 				| Global		| Global		| -					| Per step		| - / No		|
 | Edit while runnning		| Gates only 		| Yes 			| Yes			| Yes				| Yes			| Yes			|
-| [Portable sequence](#portable_seq) 	| - 	| Yes 			| Yes			| -					| Yes			| -				|
+| [Portable sequence](#portable_seq) 	| - 	| Yes 			| Yes			| -					| Yes			| -	/ Yes			|
 
 \* Configuration is noted as follows: Channels/Tracks x Sequence-Length. The distinction between channels and tracks relates to clock inputs: when channels are separately clockable they are referred to as tracks.
 
@@ -625,6 +625,8 @@ A 6-channel 128-step gate and CV sequencer based on [BigButtonSeq](#big-button-s
 * **CLEAR**: trigger-type button that turns of all gates and reinitialized all CVs to C4 for the current channel, contrary to BigButtonSeq where CLEAR is a state-type button.
 
 * **S&H**: sample and hold the CV outputs using the gate outputs as the triggers for the sampling.
+
+This sequencer has no concept of tied notes; when pasting sequences using the [Portable sequence](#portable_seq) format, notes that are longer than one step will have successive gate pulses on each step comprising the note.
 
 ([Back to module list](#modules))
 
