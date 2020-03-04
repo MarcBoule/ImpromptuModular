@@ -15,6 +15,8 @@
 
 
 #include "ImpromptuModular.hpp"
+#include "Interop.hpp"
+
 
 
 struct BigButtonSeq2 : Module {
@@ -128,8 +130,8 @@ struct BigButtonSeq2 : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);		
 		
 		configParam(RND_PARAM, 0.0f, 100.0f, 0.0f, "Random");
-		configParam(CHAN_PARAM, 0.0f, 6.0f - 1.0f, 0.0f, "Channel");	
-		configParam(LEN_PARAM, 0.0f, 128.0f - 1.0f, 32.0f - 1.0f, "Length");
+		configParam(CHAN_PARAM, 0.0f, 6.0f - 1.0f, 0.0f, "Channel", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset	
+		configParam(LEN_PARAM, 0.0f, 128.0f - 1.0f, 32.0f - 1.0f, "Length", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		configParam(DISPMODE_PARAM, 0.0f, 1.0f, 0.0f, "Display mode");		
 		configParam(WRITEFILL_PARAM, 0.0f, 1.0f, 0.0f, "Write fill");
 		configParam(BANK_PARAM, 0.0f, 1.0f, 0.0f, "Bank");	
@@ -354,6 +356,47 @@ struct BigButtonSeq2 : Module {
 		resetNonJson();
 	}
 
+	
+	IoStep* fillIoSteps(int *seqLenPtr) {// caller must delete return array
+		int seqLen = length;
+		IoStep* ioSteps = new IoStep[seqLen];
+		
+		// populate ioSteps array
+		for (int i = 0; i < seqLen; i++) {
+			ioSteps[i].pitch = cv[channel][bank[channel]][i];
+			ioSteps[i].gate = getGate(channel, i);
+			ioSteps[i].tied = false;
+			ioSteps[i].vel = -1.0f;// no concept of velocity in BigButton2
+			ioSteps[i].prob = -1.0f;// no concept of probability in BigButton2
+		}
+		
+		// return values 
+		*seqLenPtr = seqLen;
+		return ioSteps;
+	}
+	
+	
+	void emptyIoSteps(IoStep* ioSteps, int seqLen) {
+		// params[LEN_PARAM].setValue(seqLen); length not modified since only one length knob for all 6 channels and don't want to change that
+		// so instead we will pad empty gates up to length if pasted seq is shorter than length
+		
+		// populate steps in the sequencer
+		int i = 0;
+		for (; i < seqLen; i++) {
+			cv[channel][bank[channel]][i] = ioSteps[i].pitch;
+			if (ioSteps[i].gate) {
+				setGate(channel, i);
+			}
+			else {
+				clearGate(channel, i);
+			}
+		}
+		// pad the rest
+		for (; i < length; i++) {
+			cv[channel][bank[channel]][i] = 0.0f;
+			clearGate(channel, i);
+		}		
+	}	
 	
 	void process(const ProcessArgs &args) override {
 		double sampleTime = 1.0 / args.sampleRate;
@@ -665,12 +708,57 @@ struct BigButtonSeq2Widget : ModuleWidget {
 			return menu;
 		}
 	};
-	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
+	
+	struct InteropSeqItem : MenuItem {
+		struct InteropCopySeqItem : MenuItem {
+			BigButtonSeq2 *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				IoStep* ioSteps = module->fillIoSteps(&seqLen);
+				interopCopySequence(seqLen, ioSteps);
+				delete[] ioSteps;
+			}
+		};
+		struct InteropPasteSeqItem : MenuItem {
+			BigButtonSeq2 *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				IoStep* ioSteps = interopPasteSequence(128, &seqLen);
+				if (ioSteps != nullptr) {
+					module->emptyIoSteps(ioSteps, seqLen);
+					delete[] ioSteps;
+				}
+			}
+		};
+		BigButtonSeq2 *module;
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
 
+			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>(portableSequenceCopyID, "");
+			interopCopySeqItem->module = module;
+			interopCopySeqItem->disabled = disabled;
+			menu->addChild(interopCopySeqItem);		
+			
+			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>(portableSequencePasteID, "");
+			interopPasteSeqItem->module = module;
+			interopPasteSeqItem->disabled = disabled;
+			menu->addChild(interopPasteSeqItem);		
+
+			return menu;
+		}
+	};	
+	
+	void appendContextMenu(Menu *menu) override {
 		BigButtonSeq2 *module = dynamic_cast<BigButtonSeq2*>(this->module);
 		assert(module);
+
+		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
+		interopSeqItem->module = module;
+		//interopSeqItem->disabled = !module->isEditingSequence();
+		menu->addChild(interopSeqItem);		
+
+		MenuLabel *spacerLabel = new MenuLabel();
+		menu->addChild(spacerLabel);
 
 		MenuLabel *themeLabel = new MenuLabel();
 		themeLabel->text = "Panel Theme";

@@ -1,18 +1,19 @@
 ### 1.1.5 (in development)
 
-- Reduce width of 4View by 1 HP
-- Change display when clicking knob in CLKD even if knob doesn't turn
+- Reduced width of 4View by 1 HP
+- Modified CLKD knobs to change display when clicking even if knob doesn't turn
+- Implemented Portable Sequence copy/paste in BigButton2
 
 
 ### 1.1.4 (2019-02-28)
 
-- Allow 4View to function as an expander for ChordKey and CVPad
-- Add new module called ChordKey: a keyboard-based chord generator 
-- Implement Portable sequence copy/paste in Foundry, PhraseSeq16/32 and SemiModularSynth
-- Add new module called Clkd: a half-sized version of Clocked without PW, Swing nor Delay
+- Allowed 4View to function as an expander for ChordKey and CVPad
+- Added new module called ChordKey: a keyboard-based chord generator 
+- Implemented Portable sequence copy/paste in Foundry, PhraseSeq16/32 and SemiModularSynth
+- Added new module called Clkd: a half-sized version of Clocked without PW, Swing nor Delay
 - Reduced width of CVPad by 2 HP
-- Fix bug in Foundry when using expander to sync select sequences with different run modes
-- Fix bug in divided clocks in Clocked when launching Rack
+- Fixed bug in Foundry when using expander to sync select sequences with different run modes
+- Fixed bug in divided clocks in Clocked when launching Rack
 
 
 ### 1.1.3 (2019-11-27)

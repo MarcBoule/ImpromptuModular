@@ -108,8 +108,8 @@ struct BigButtonSeq : Module {
 	BigButtonSeq() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);		
 		
-		configParam(CHAN_PARAM, 0.0f, 6.0f - 1.0f, 0.0f, "Channel");		
-		configParam(LEN_PARAM, 0.0f, 64.0f - 1.0f, 32.0f - 1.0f, "Length");		
+		configParam(CHAN_PARAM, 0.0f, 6.0f - 1.0f, 0.0f, "Channel", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset		
+		configParam(LEN_PARAM, 0.0f, 64.0f - 1.0f, 32.0f - 1.0f, "Length", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		configParam(RND_PARAM, 0.0f, 100.0f, 0.0f, "Random");		
 		configParam(BANK_PARAM, 0.0f, 1.0f, 0.0f, "Bank");	
 		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "Clear");	
