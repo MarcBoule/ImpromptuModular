@@ -150,7 +150,7 @@ Further information for developpers is available in a short summary of the [code
 
 ### Portable sequence <a id="portable_seq"></a>
 
-The _Portable sequence_ standard is supported in the following Impromptu sequencers: PhraseSeq16/32, SMS16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence".
+The [Portable sequence standard](https://github.com/squinkylabs/SquinkyVCV/blob/master/docs/clipboard-format.md) is supported in the following Impromptu sequencers: PhraseSeq16/32, SMS16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence".
 
 ![IM](res/img/PortableSequence.jpg)
 
