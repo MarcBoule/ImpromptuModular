@@ -399,7 +399,7 @@ struct HotkeyWidget : ModuleWidget {
 		static const float centerX = 22.5f;
 		
 		// Record-key LED bezel and light
-		static const int buttonY = 80;
+		static const int buttonY = 84;
 		SvgSwitch *ledBez;
 		addParam(ledBez = createParamCentered<LEDBezel>(Vec(centerX, buttonY), module, Hotkey::RECORD_KEY_PARAM));
 		ledBez->momentary = false;
