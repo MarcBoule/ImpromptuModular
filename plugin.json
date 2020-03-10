@@ -49,6 +49,13 @@
 			"tags": ["Sequencer", "Polyphonic"]
 		},
 		{
+			"slug": "Chord-Key-Expander",
+			"name": "ChordKey expander",
+			"description": "Expander for ChordKey",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#expanders",
+			"tags": ["Sequencer", "Expander"]
+		},
+		{
 			"slug": "Clocked",
 			"name": "Clocked",
 			"description": "Chainable master clock with swing, clock delay and pulse width",

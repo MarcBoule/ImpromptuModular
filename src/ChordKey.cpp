@@ -366,7 +366,7 @@ struct ChordKey : Module {
 				offWarning--;
 			
 			// To Expander
-			if (rightExpander.module && rightExpander.module->model == modelFourView) {
+			if (rightExpander.module && (rightExpander.module->model == modelFourView || rightExpander.module->model == modelChordKeyExpander)) {
 				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
 				for (int cni = 0; cni < 4; cni++) {
 					messageToExpander[cni] = octs[index][cni] >= 0 ? cvOuts[cni] : -100.0f;
