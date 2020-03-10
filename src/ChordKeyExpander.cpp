@@ -48,6 +48,31 @@ struct ChordKeyExpander : Module {
 	RefreshCounter refresh;
 
 
+	float quantize(float in) {// uses chordValues[]
+		// float inScaled = (clamp(in, -10.0f, 10.0f) + 10.0f) * 12.0f;
+		// int intIn = ((int)std::round(inScaled));
+		// int baseIn = intIn % 12;// 0 to 11
+		// int octIn = intIn / 12;
+		
+		// float noteScaled = (clamp(note, -10.0f, 10.0f) + 10.0f) * 12.0f;
+		// int intNote = ((int)std::round(noteScaled));
+		// int baseNote = intNote % 12;// 0 to 11
+		
+		// int delOct = 0;
+		// if (baseIn - baseNote > 6) {
+			// delOct = 1;
+		// }
+		// else if (baseIn - baseNote < -6) {
+			// delOct = -1;
+		// }
+		
+		// int out = (octIn + delOct) * 12 + baseNote;
+		// float outDescaled = ((float)out) / 12.0f - 10.0f;
+		// INFO("got quant, in = %g, note = %g, out = %g", in, note, outDescaled);
+		// return outDescaled;
+		return in;
+	}
+
 	
 	ChordKeyExpander() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -99,25 +124,48 @@ struct ChordKeyExpander : Module {
 				// From Mother
 				float *messagesFromMother = (float*)leftExpander.consumerMessage;
 				for (int i = 0; i < 4; i++) {
-					chordValues[i] = inputs[CV_INPUTS + i].isConnected() ? inputs[CV_INPUTS + i].getVoltage() : messagesFromMother[i];// input cable has higher priority than mother
+					chordValues[i] = messagesFromMother[i];
 				}
 				panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 1);
 			}	
 			else {
 				for (int i = 0; i < 4; i++) {
-					chordValues[i] = inputs[CV_INPUTS + i].isConnected() ? inputs[CV_INPUTS + i].getVoltage() : unusedValue;
+					chordValues[i] = unusedValue;
 				}
 			}
 		}// userInputs refresh
 		
 		
 		// outputs
-		for (int i = 0; i < 4; i++)
-			outputs[CV_OUTPUTS + i].setVoltage(chordValues[i] != -100.0f ? chordValues[i] : 0.0f);
+		for (int i = 0; i < 4; i++) {
+			float in = params[OCT_PARAMS + i].getValue();
+			if (inputs[CV_INPUTS + i].isConnected()) {
+				in += inputs[CV_INPUTS + i].getVoltage();
+			}
+			
+			float out;
+			if (chordValues[i] == -100.0f) {
+				out = in;
+			}
+			else {
+				out = quantize(in);
+			}
+			
+			outputs[CV_OUTPUTS + i].setVoltage(out);
+		}
 		
 		
 		
 		if (refresh.processLights()) {
+			// To Expander
+			if (rightExpander.module && (rightExpander.module->model == modelFourView || rightExpander.module->model == modelChordKeyExpander)) {
+				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
+				for (int i = 0; i < 4; i++) {
+					messageToExpander[i] = chordValues[i];
+				}
+				messageToExpander[4] = (float)panelTheme;
+				rightExpander.module->leftExpander.messageFlipRequested = true;
+			}
 		}// lightRefreshCounter
 		
 	}
@@ -169,15 +217,33 @@ struct ChordKeyExpanderWidget : ModuleWidget {
 		static const int col0 = 25;
 		static const int col1 = 65;
 		
-		static const int row0 = 70;// 
-		static const int row1 = 110;// 
-				
+		static const int rowD = 52;
 
-		// Quantizer inputs
-		addInput(createDynamicPortCentered<IMPort>(Vec(col0, row0), true, module, ChordKeyExpander::CV_INPUTS + 0, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(Vec(col1, row0), true, module, ChordKeyExpander::CV_INPUTS + 1, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(Vec(col0, row1), true, module, ChordKeyExpander::CV_INPUTS + 2, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(Vec(col1, row1), true, module, ChordKeyExpander::CV_INPUTS + 3, module ? &module->panelTheme : NULL));
+		static const int row0 = 70;
+		static const int row1 = row0 + rowD - 4;
+		static const int row2 = row1 + rowD + 4;
+		
+		static const int row3 = 229;
+		static const int row4 = row3 + rowD - 4;
+		static const int row5 = row4 + rowD + 4;
+		
+		// Quantizer 1 (top left)
+		addInput(createDynamicPortCentered<IMPort>(Vec(col0, row0), true, module, ChordKeyExpander::CV_INPUTS + 0, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col0, row1), module, ChordKeyExpander::OCT_PARAMS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(Vec(col0, row2), false, module, ChordKeyExpander::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		// Quantizer 2 (bot left)
+		addInput(createDynamicPortCentered<IMPort>(Vec(col0, row3), true, module, ChordKeyExpander::CV_INPUTS + 1, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col0, row4), module, ChordKeyExpander::OCT_PARAMS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(Vec(col0, row5), false, module, ChordKeyExpander::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+
+		// Quantizer 3 (top right)
+		addInput(createDynamicPortCentered<IMPort>(Vec(col1, row0), true, module, ChordKeyExpander::CV_INPUTS + 2, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col1, row1), module, ChordKeyExpander::OCT_PARAMS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(Vec(col1, row2), false, module, ChordKeyExpander::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		// Quantizer 4 (bot right)
+		addInput(createDynamicPortCentered<IMPort>(Vec(col1, row3), true, module, ChordKeyExpander::CV_INPUTS + 3, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col1, row4), module, ChordKeyExpander::OCT_PARAMS + 3, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(Vec(col1, row5), false, module, ChordKeyExpander::CV_OUTPUTS + 3, module ? &module->panelTheme : NULL));
 
 	}
 	

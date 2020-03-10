@@ -108,7 +108,8 @@ struct FourView : Module {
 		
 		if (refresh.processInputs()) {
 			bool motherPresent = (leftExpander.module && (leftExpander.module->model == modelCvPad ||
-														  leftExpander.module->model == modelChordKey));
+														  leftExpander.module->model == modelChordKey ||
+														  leftExpander.module->model == modelChordKeyExpander));
 			if (motherPresent) {
 				// From Mother
 				float *messagesFromMother = (float*)leftExpander.consumerMessage;
@@ -238,7 +239,7 @@ struct FourViewWidget : ModuleWidget {
 		addChild(createDynamicWidget<IMScrew>(Vec(box.size.x-30, 365), module ? &module->panelTheme : NULL));
 
 		const float centerX = box.size.x / 2;
-		static const int rowRulerTop = 60;
+		static const int rowRulerTop = 66;
 		static const int spacingY = 48;
 		static const float offsetXL = 30;
 		static const float offsetXR = 18;
@@ -255,7 +256,7 @@ struct FourViewWidget : ModuleWidget {
 
 		static const int spacingY2 = 46;
 		static const float offsetX = 20;
-		static const int posY2 = 280;
+		static const int posY2 = 285;
 
 		// Thru outputs
 		addOutput(createDynamicPortCentered<IMPort>(Vec(centerX - offsetX, posY2), false, module, FourView::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
