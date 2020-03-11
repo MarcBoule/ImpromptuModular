@@ -39,16 +39,18 @@ struct ChordKeyExpander : Module {
 	
 	// Need to save, with reset
 	// none
-
+	
 	// No need to save, with reset
 	float chordValues[4];
+	bool enabledNotes[12];
+	int ranges[24];
 
 	// No need to save, no reset
 	int panelTheme;
 	RefreshCounter refresh;
 
 
-	float quantize(float in) {// uses chordValues[]
+	float quantize(float in) {
 		// float inScaled = (clamp(in, -10.0f, 10.0f) + 10.0f) * 12.0f;
 		// int intIn = ((int)std::round(inScaled));
 		// int baseIn = intIn % 12;// 0 to 11
@@ -98,6 +100,8 @@ struct ChordKeyExpander : Module {
 		for (int i = 0; i < 4; i++) {
 			chordValues[i] = unusedValue;
 		}
+		fillEnabledNotes();// uses chordValues[]
+		updateRanges();// uses enabledNotes[]
 	}
 	
 	void onRandomize() override {
@@ -111,7 +115,6 @@ struct ChordKeyExpander : Module {
 	}
 
 	void dataFromJson(json_t *rootJ) override {
-
 		resetNonJson();
 	}
 
@@ -133,29 +136,30 @@ struct ChordKeyExpander : Module {
 					chordValues[i] = unusedValue;
 				}
 			}
+			
 		}// userInputs refresh
 		
 		
 		// outputs
 		for (int i = 0; i < 4; i++) {
-			float in = params[OCT_PARAMS + i].getValue();
-			if (inputs[CV_INPUTS + i].isConnected()) {
-				in += inputs[CV_INPUTS + i].getVoltage();
+			if (outputs[CV_OUTPUTS + i].isConnected()) {
+				for (int c = 0; c < std::max(outputs[CV_OUTPUTS + i].getChannels(), 1); c++) {
+					float pitch = params[OCT_PARAMS + i].getValue();
+					if (inputs[CV_INPUTS + i].isConnected()) {
+						pitch += inputs[CV_INPUTS + i].getVoltage(c);
+					}
+					// the next five lines are by Andrew Belt and are from the Fundamental Quantizer
+					int range = std::floor(pitch * 24);
+					int octave = eucDiv(range, 24);
+					range -= octave * 24;
+					int note = ranges[range] + octave * 12;
+					pitch = float(note) / 12;
+					outputs[CV_OUTPUTS + i].setVoltage(pitch, c);
+				}
 			}
-			
-			float out;
-			if (chordValues[i] == -100.0f) {
-				out = in;
-			}
-			else {
-				out = quantize(in);
-			}
-			
-			outputs[CV_OUTPUTS + i].setVoltage(out);
 		}
 		
-		
-		
+		// lights
 		if (refresh.processLights()) {
 			// To Expander
 			if (rightExpander.module && (rightExpander.module->model == modelFourView || rightExpander.module->model == modelChordKeyExpander)) {
@@ -166,9 +170,65 @@ struct ChordKeyExpander : Module {
 				messageToExpander[4] = (float)panelTheme;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
 			}
+			
+			fillEnabledNotes();// uses chordValues[]
+			updateRanges();// uses enabledNotes[]
+			
+			for (int i = 0; i < 4; i++) {
+				outputs[CV_OUTPUTS + i].setChannels(std::max(inputs[CV_INPUTS + i].getChannels(), 1));
+			}
+
 		}// lightRefreshCounter
-		
+	}// process()
+	
+	
+	void fillEnabledNotes() {// uses chordValues[]
+		for (int i = 0; i < 12; i++) {
+			enabledNotes[i] = false;
+		}
+		for (int i = 0; i < 4; i++) {
+			if (chordValues[i] != unusedValue) {
+				float noteScaled = (clamp(chordValues[i], -10.0f, 10.0f) + 10.0f) * 12.0f;
+				int intNote = ((int)std::round(noteScaled));
+				int baseNote = intNote % 12;// 0 to 11
+				enabledNotes[baseNote] = true;
+			}
+		}
 	}
+	
+	
+	// This method is by Andrew Belt and is from the Fundamental Quantizer
+	void updateRanges() {
+		// Check if no notes are enabled
+		bool anyEnabled = false;
+		for (int note = 0; note < 12; note++) {
+			if (enabledNotes[note]) {
+				anyEnabled = true;
+				break;
+			}
+		}
+		// Find closest notes for each range
+		for (int i = 0; i < 24; i++) {
+			int closestNote = 0;
+			int closestDist = INT_MAX;
+			for (int note = -12; note <= 24; note++) {
+				int dist = std::abs((i + 1) / 2 - note);
+				// Ignore enabled state if no notes are enabled
+				if (anyEnabled && !enabledNotes[eucMod(note, 12)]) {
+					continue;
+				}
+				if (dist < closestDist) {
+					closestNote = note;
+					closestDist = dist;
+				}
+				else {
+					// If dist increases, we won't find a better one.
+					break;
+				}
+			}
+			ranges[i] = closestNote;
+		}
+	}	
 };
 
 
@@ -219,7 +279,7 @@ struct ChordKeyExpanderWidget : ModuleWidget {
 		
 		static const int rowD = 52;
 
-		static const int row0 = 70;
+		static const int row0 = 68;
 		static const int row1 = row0 + rowD - 4;
 		static const int row2 = row1 + rowD + 4;
 		
@@ -231,15 +291,15 @@ struct ChordKeyExpanderWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(Vec(col0, row0), true, module, ChordKeyExpander::CV_INPUTS + 0, module ? &module->panelTheme : NULL));	
 		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col0, row1), module, ChordKeyExpander::OCT_PARAMS + 0, module ? &module->panelTheme : NULL));
 		addOutput(createDynamicPortCentered<IMPort>(Vec(col0, row2), false, module, ChordKeyExpander::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		// Quantizer 2 (bot left)
-		addInput(createDynamicPortCentered<IMPort>(Vec(col0, row3), true, module, ChordKeyExpander::CV_INPUTS + 1, module ? &module->panelTheme : NULL));	
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col0, row4), module, ChordKeyExpander::OCT_PARAMS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(col0, row5), false, module, ChordKeyExpander::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-
-		// Quantizer 3 (top right)
-		addInput(createDynamicPortCentered<IMPort>(Vec(col1, row0), true, module, ChordKeyExpander::CV_INPUTS + 2, module ? &module->panelTheme : NULL));	
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col1, row1), module, ChordKeyExpander::OCT_PARAMS + 2, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(col1, row2), false, module, ChordKeyExpander::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		// Quantizer 2 (top right)
+		addInput(createDynamicPortCentered<IMPort>(Vec(col1, row0), true, module, ChordKeyExpander::CV_INPUTS + 1, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col1, row1), module, ChordKeyExpander::OCT_PARAMS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(Vec(col1, row2), false, module, ChordKeyExpander::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+		
+		// Quantizer 3 (bot left)
+		addInput(createDynamicPortCentered<IMPort>(Vec(col0, row3), true, module, ChordKeyExpander::CV_INPUTS + 2, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col0, row4), module, ChordKeyExpander::OCT_PARAMS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(Vec(col0, row5), false, module, ChordKeyExpander::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
 		// Quantizer 4 (bot right)
 		addInput(createDynamicPortCentered<IMPort>(Vec(col1, row3), true, module, ChordKeyExpander::CV_INPUTS + 3, module ? &module->panelTheme : NULL));	
 		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col1, row4), module, ChordKeyExpander::OCT_PARAMS + 3, module ? &module->panelTheme : NULL));

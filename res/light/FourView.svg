@@ -13,7 +13,7 @@
    version="1.1"
    id="svg50"
    sodipodi:docname="FourView.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
      id="metadata56">
     <rdf:RDF>
@@ -22,6 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,13 +41,36 @@
      inkscape:window-height="1017"
      id="namedview52"
      showgrid="false"
-     inkscape:zoom="2.1237053"
-     inkscape:cx="52.5"
-     inkscape:cy="190.00189"
+     inkscape:zoom="6.0067457"
+     inkscape:cx="62.722214"
+     inkscape:cy="80.881253"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg50" />
+     inkscape:current-layer="svg50"
+     showguides="true"
+     inkscape:guide-bbox="true">
+    <sodipodi:guide
+       position="12.993955,30.393014"
+       orientation="0,1"
+       id="guide835"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="14.029066,18.125689"
+       orientation="0,1"
+       id="guide837"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="8.6112479,30.393014"
+       orientation="1,0"
+       id="guide839"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="19.226648,32.485287"
+       orientation="1,0"
+       id="guide841"
+       inkscape:locked="false" />
+  </sodipodi:namedview>
   <path
      d="M0 0h27.781v100.541H0zm0 0"
      fill="#dcdcdc"
@@ -183,7 +207,7 @@
   <g
      style="line-height:1.25"
      id="g40"
-     transform="translate(0,1.3230474)">
+     transform="translate(10.63469,-10.944277)">
     <path
        d="m 8.57,80.376 q -0.1,0 -0.17,0.022 -0.068,0.02 -0.113,0.054 -0.045,0.034 -0.073,0.07 l -0.05,0.071 Q 8.141,80.627 8.112,80.65 8.087,80.67 8.047,80.67 7.98,80.67 7.951,80.636 7.926,80.599 7.926,80.54 q 0,-0.125 0.093,-0.232 0.028,-0.034 0.076,-0.07 0.051,-0.04 0.12,-0.07 0.07,-0.032 0.16,-0.05 0.093,-0.024 0.21,-0.024 0.306,0 0.476,0.15 0.17,0.15 0.17,0.42 0,0.053 -0.012,0.118 -0.009,0.065 -0.037,0.136 -0.025,0.07 -0.073,0.146 -0.048,0.077 -0.127,0.156 -0.07,0.07 -0.15,0.13 -0.08,0.06 -0.164,0.118 L 8.49,81.595 q -0.09,0.065 -0.183,0.15 0.09,0.048 0.195,0.062 0.104,0.014 0.234,0.014 0.121,0 0.195,-0.006 0.073,-0.005 0.118,-0.014 l 0.07,-0.014 q 0.026,-0.006 0.054,-0.006 0.105,0 0.105,0.096 0,0.085 -0.07,0.13 -0.07,0.045 -0.17,0.068 -0.099,0.02 -0.203,0.023 -0.105,0.005 -0.172,0.005 -0.037,0 -0.105,-0.005 Q 8.493,82.095 8.418,82.083 8.341,82.073 8.262,82.053 8.186,82.03 8.122,81.996 8.059,81.959 8.019,81.908 7.979,81.855 7.979,81.781 7.979,81.683 8.05,81.595 8.124,81.505 8.23,81.42 8.338,81.333 8.462,81.248 8.586,81.161 8.694,81.07 8.801,80.977 8.871,80.878 8.945,80.78 8.945,80.664 8.945,80.52 8.846,80.449 8.75,80.376 8.569,80.376 Z"
        style="font-weight:400;font-size:2.82200003px;font-family:Sniglet;-inkscape-font-specification:'Sniglet, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0;word-spacing:0"
@@ -198,7 +222,7 @@
   <g
      style="line-height:1.25"
      id="g44"
-     transform="translate(0,1.3230474)">
+     transform="translate(-10.616865,13.568287)">
     <path
        d="m 18.772,68.14 q -0.09,0 -0.132,-0.045 -0.043,-0.048 -0.043,-0.096 0,-0.05 0.048,-0.082 0.048,-0.034 0.127,-0.05 0.08,-0.02 0.18,-0.026 0.103,-0.01 0.207,-0.01 0.087,0 0.195,0.01 0.107,0.006 0.2,0.034 0.093,0.025 0.155,0.079 0.062,0.05 0.062,0.14 0,0.07 -0.053,0.148 -0.054,0.076 -0.124,0.144 -0.071,0.067 -0.142,0.12 l -0.098,0.074 q 0.299,0 0.434,0.15 0.136,0.15 0.136,0.429 0,0.175 -0.065,0.305 -0.062,0.13 -0.17,0.217 -0.104,0.085 -0.242,0.127 -0.136,0.042 -0.28,0.042 -0.118,0 -0.234,-0.02 -0.113,-0.02 -0.203,-0.067 -0.09,-0.05 -0.147,-0.133 -0.053,-0.084 -0.053,-0.21 0,-0.13 0.14,-0.13 0.043,0 0.066,0.024 0.025,0.02 0.042,0.05 0.02,0.029 0.04,0.066 0.02,0.037 0.056,0.068 0.04,0.028 0.102,0.05 0.064,0.02 0.169,0.02 0.082,0 0.16,-0.017 0.08,-0.02 0.142,-0.062 0.062,-0.042 0.099,-0.113 0.04,-0.073 0.04,-0.18 0,-0.21 -0.088,-0.297 -0.085,-0.087 -0.24,-0.087 -0.04,0 -0.074,0.014 -0.034,0.01 -0.067,0.028 l -0.07,0.028 q -0.038,0.012 -0.083,0.012 -0.045,0 -0.079,-0.04 -0.034,-0.042 -0.034,-0.107 0,-0.045 0.043,-0.105 0.045,-0.06 0.121,-0.135 0.079,-0.076 0.19,-0.166 0.11,-0.094 0.245,-0.2 h -0.068 l -0.076,0.002 H 18.959 Q 18.857,68.14 18.772,68.14 Z"
        style="font-weight:400;font-size:2.82200003px;font-family:Sniglet;-inkscape-font-specification:'Sniglet, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0;word-spacing:0"

@@ -53,7 +53,7 @@
 			"name": "ChordKey expander",
 			"description": "Expander for ChordKey",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#expanders",
-			"tags": ["Sequencer", "Expander"]
+			"tags": ["Sequencer", "Polyphonic", "Quantizer", "Expander"]
 		},
 		{
 			"slug": "Clocked",
