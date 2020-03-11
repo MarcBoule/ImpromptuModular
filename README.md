@@ -36,6 +36,8 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [4View and Hotkey](#utilities): Small chord viewer module that shows the note names of up to 4 CVs, and a utility module that sends a trigger when a given key is pressed (mouse must be over module).
 
+* [Expanders](#expanders): Various expander modules that can be paired with some of the above modules.
+
 Details about each module are given in the links above, and a feature comparison table is given below for the sequencers. Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
 | 		      			| WriteSeq32/64 	| PhraseSeq16	| PhraseSeq32	| GateSeq64			| Foundry		| BigButton1/2 	|
@@ -106,7 +108,9 @@ A few of the modules feature **Expander modules** to provide additional function
 
 ![IM](res/img/Expanders.jpg)
 
-Pictured above are the expanders for the following modules, from left to right: Clocked, PhraseSeq16/32, GateSeq64, Foundry. The [4View](#4view) module, which is normally used independently, can also be used as an expander for the [ChordKey](#chord-key) and [CVPad](#cv-pad) modules.
+Pictured above are the expanders for the following modules, from left to right: Clocked, ChordKey, PhraseSeq16/32, GateSeq64, Foundry. 
+
+The [4View](#4view) module, which is normally used independently, can also be used as an expander for the [ChordKey](#chord-key) and [CVPad](#cv-pad) modules. When both the ChordKey expander and 4View are to be used with ChordKey, the 4View module must be placed to the right of the ChordKey expander.
 
 
 ### On resets, clocks and run states... <a id="clk_rst_run"></a>
@@ -224,6 +228,7 @@ Two options are also available in the right-click menu:
 
 A keyboard-based chord generator with room to store 25 chords, that can be recalled using a 0 to 2V control voltage. Up to four notes can be set for each chord using the keyboard and the octave buttons. The [4View](#4view) module can also be used as an expander for the ChordKey to view the note names of the notes comprising the chord; in this case no cables need to be connected to 4View it is immediately to the right of ChordKey.
 
+**To be released in v1.1.5:** An [expander](#expanders) is also available (titled CHD-X), which offers four polyphonic quantizers that can be used to quantize any pitch CVs to the notes of the active chord selected in ChordKey. When the ChordKey expander is used independently, it will quantize pitch CVs according to all twelve notes.
 
 * **INDEX**: This knob is used to select the given chord from the set of 25 possible chords that can be stored in the module. 
 

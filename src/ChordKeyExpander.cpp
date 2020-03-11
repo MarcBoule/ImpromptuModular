@@ -241,20 +241,6 @@ struct ChordKeyExpanderWidget : ModuleWidget {
 			module->panelTheme ^= 0x1;
 		}
 	};
-	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
-		ChordKeyExpander *module = dynamic_cast<ChordKeyExpander*>(this->module);
-		assert(module);
-
-		menu->addChild(new MenuLabel());// empty line
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
-}	
-	
 	
 	ChordKeyExpanderWidget(ChordKeyExpander *module) {
 		setModule(module);

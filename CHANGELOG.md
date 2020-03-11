@@ -1,9 +1,10 @@
 ### 1.1.5 (in development)
 
+- Added expander for ChordKey which offers 4 poly quantizers that quantize to the chord's notes
 - Reduced width of 4View by 1 HP
-- Modified CLKD knobs to change display when clicking even if knob doesn't turn
-- Implemented Portable Sequence copy/paste in BigButtonSeq2
-- Make BigButtonSeq2 not overwrite CVs when CV input is unconnected during big button hits and fills to memory
+- Modified CLKD knobs to change display when clicking the knob if it doesn't turn (and fixed the tooltips)
+- Implemented the Portable Sequence copy/paste in BigButtonSeq2
+- Made BigButtonSeq2 not overwrite CVs when CV input is unconnected during big button hits and fills to memory
 
 
 ### 1.1.4 (2019-02-28)
