@@ -1166,8 +1166,6 @@ struct Foundry : Module {
 					else if (stepn == seqEnd)
 						green =  1.0f;
 				}				
-
-
 				else {// normal led display (i.e. not length)
 					int stepIndexRun = seq.getStepIndexRun(seq.getTrackIndexEdit());
 					int stepIndexEdit = seq.getStepIndexEdit();
@@ -1179,7 +1177,7 @@ struct Foundry : Module {
 					// Run cursor (green)
 					if (running) {
 						for (int trkn = 0; trkn < Sequencer::NUM_TRACKS; trkn++) {
-							bool trknIsUsed = outputs[CV_OUTPUTS + trkn].isConnected() || outputs[GATE_OUTPUTS + trkn].isConnected() || outputs[VEL_OUTPUTS + trkn].isConnected();
+							bool trknIsUsed = outputs[CV_OUTPUTS + trkn].isConnected() || outputs[GATE_OUTPUTS + trkn].isConnected() || outputs[VEL_OUTPUTS + trkn].isConnected() || (mergeTracks > 0 && trkn <= mergeTracks);
 							if (stepn == seq.getStepIndexRun(trkn) && trknIsUsed) 
 								green = 0.32f;	
 						}
