@@ -66,30 +66,41 @@ NVGcolor prepareDisplay(NVGcontext *vg, Rect *box, int fontSize) {
 	return textColor;
 }
 
-void printNote(float cvVal, char* text, bool sharp) {// text must be at least 4 chars long (three displayed chars plus end of string)
+void printNote(float cvVal, char* text, bool sharp) {
+	printNote(cvVal, text, sharp, true);
+}
+
+void printNote(float cvVal, char* text, bool sharp, bool printOct) {
+	// text must be at least 4 chars long (three displayed chars plus end of string)
 	static const char noteLettersSharp[12] = {'C', 'C', 'D', 'D', 'E', 'F', 'F', 'G', 'G', 'A', 'A', 'B'};
 	static const char noteLettersFlat [12] = {'C', 'D', 'D', 'E', 'E', 'F', 'G', 'G', 'A', 'A', 'B', 'B'};
 	static const char isBlackKey      [12] = { 0,   1,   0,   1,   0,   0,   1,   0,   1,   0,   1,   0 };
 
 	float cvValOffset = cvVal + 10.0f;// to properly handle negative note voltages
 	int indexNote =  clamp( (int)((cvValOffset - std::floor(cvValOffset)) * 12.0f + 0.5f),  0,  11);
+	int cursor = 0;
 	
 	// note letter
-	text[0] = sharp ? noteLettersSharp[indexNote] : noteLettersFlat[indexNote];
+	text[cursor] = sharp ? noteLettersSharp[indexNote] : noteLettersFlat[indexNote];
+	cursor++;
 	
 	// octave number
-	int octave = (int) std::round(std::floor(cvVal)+4.0f);
-	if (octave < 0 || octave > 9)
-		text[1] = (octave > 9) ? ':' : '_';
-	else
-		text[1] = (char) ( 0x30 + octave);
+	if (printOct) {
+		int octave = (int) std::round(std::floor(cvVal)+4.0f);
+		if (octave < 0 || octave > 9)
+			text[cursor] = (octave > 9) ? ':' : '_';
+		else
+			text[cursor] = (char) ( 0x30 + octave);
+		cursor++;
+	}
 	
 	// sharp/flat
-	text[2] = ' ';
+	text[cursor] = ' ';
 	if (isBlackKey[indexNote] == 1)
-		text[2] = (sharp ? '\"' : 'b' );
+		text[cursor] = (sharp ? '\"' : 'b' );
+	cursor++;
 	
-	text[3] = 0;
+	text[cursor] = 0;
 }
 
 int moveIndex(int index, int indexNext, int numSteps) {

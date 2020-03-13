@@ -13,6 +13,7 @@
 
 struct FourView : Module {
 	enum ParamIds {
+		MODE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -41,6 +42,7 @@ struct FourView : Module {
 
 	// No need to save, with reset
 	float displayValues[4];
+	char displayChord[16];// 4 displays of 3-char strings each having a fourth null termination char
 
 	// No need to save, no reset
 	RefreshCounter refresh;
@@ -59,6 +61,8 @@ struct FourView : Module {
 		leftExpander.producerMessage = leftMessages[0];
 		leftExpander.consumerMessage = leftMessages[1];
 		
+		configParam(MODE_PARAM, 0.0, 1.0, 0.0, "Display mode");// 0.0 is left, notes by default left, chord right
+		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
 	
@@ -71,6 +75,7 @@ struct FourView : Module {
 		for (int i = 0; i < 4; i++) {
 			displayValues[i] = unusedValue;
 		}
+		memset(displayChord, 0, 16);
 	}
 	
 	void onRandomize() override {
@@ -132,10 +137,83 @@ struct FourView : Module {
 		
 		
 		if (refresh.processLights()) {
+			if (params[MODE_PARAM].getValue() >= 0.5f) {
+				calcDisplayChord();
+			}
 		}// lightRefreshCounter
 		
 	}
-};
+	
+	void calcDisplayChord() {
+		// count notes and prepare sorted (will be sorted just in time later)
+		int numNotes = 0;
+		float packedNotes[4];
+		for (int i = 0; i < 4; i++) {
+			if (displayValues[i] != unusedValue) {
+				packedNotes[numNotes] = displayValues[i];
+				numNotes ++;
+			}
+		}		
+		
+		if (numNotes == 0) {
+			printDashes();
+		}
+		else { 
+			if (numNotes == 1) {
+				printNote(packedNotes[0], &displayChord[0], showSharp, false);
+				snprintf(&displayChord[4 ], 4, "   ");
+				snprintf(&displayChord[8 ], 4, "   ");
+				snprintf(&displayChord[12], 4, "   ");				
+			}
+			else if (numNotes == 2) {
+				int interval = (int)std::round(std::abs(packedNotes[0] - packedNotes[1]) * 12.0f);
+				if (interval > 12) {
+					printDashes();
+				}
+				else {
+					printNote(std::min(packedNotes[0], packedNotes[1]), &displayChord[0], showSharp, false);
+					printInterval(interval);
+					snprintf(&displayChord[12], 4, "   ");		
+				}					
+			}
+			else if (numNotes == 3) {
+				// https://en.wikipedia.org/wiki/Interval_(music)#Intervals_in_chords
+				// float sortedNotes[3];
+				snprintf(&displayChord[0 ], 4, "C  ");
+				snprintf(&displayChord[4 ], 4, "MAJ");
+				snprintf(&displayChord[8 ], 4, "7  ");
+				snprintf(&displayChord[12], 4, "/E ");				
+			}
+			else {
+				// float sortedNotes[4];
+				snprintf(&displayChord[0 ], 4, "C  ");
+				snprintf(&displayChord[4 ], 4, "MAJ");
+				snprintf(&displayChord[8 ], 4, "7  ");
+				snprintf(&displayChord[12], 4, "/E ");				
+			}
+		}
+	}
+	
+	
+	void printDashes() {
+		snprintf(&displayChord[0 ], 4, " - ");
+		snprintf(&displayChord[4 ], 4, " - ");
+		snprintf(&displayChord[8 ], 4, " - ");
+		snprintf(&displayChord[12], 4, " - ");				
+	}
+	
+	
+	// https://en.wikipedia.org/wiki/Interval_(music)#Main_intervals
+	void printInterval(int interval) {// prints to &displayChord[4] and &displayChord[8] by default 
+		// if (interval == 0 || interval == 5 || interval == 7 || interval == 12) {
+			// snprintf(&displayChord[4 ], 4, "PER");
+		// }
+		snprintf(&displayChord[4 ], 4, "PER");
+		snprintf(&displayChord[8 ], 4, "5");
+		
+		
+	}
+};// module
 
 
 struct FourViewWidget : ModuleWidget {
@@ -156,12 +234,21 @@ struct FourViewWidget : ModuleWidget {
 		}
 		
 		void cvToStr() {
-			if (module != NULL && module->displayValues[baseIndex] != module->unusedValue) {
-				float cvVal = module->displayValues[baseIndex];
-				printNote(cvVal, text, module->showSharp);
+			if (module == NULL) {
+				snprintf(text, 4, " - ");
+			}	
+			else if (module->params[FourView::MODE_PARAM].getValue() >= 0.5f) {// chord mode
+				snprintf(text, 4, &module->displayChord[baseIndex<<2]);
 			}
-			else
-				snprintf(text, 4," - ");
+			else {// note mode
+				if (module->displayValues[baseIndex] != module->unusedValue) {
+					float cvVal = module->displayValues[baseIndex];
+					printNote(cvVal, text, module->showSharp);
+				}
+				else {
+					snprintf(text, 4, " - ");
+				}
+			}
 		}
 
 		void draw(const DrawArgs &args) override {
@@ -252,6 +339,10 @@ struct FourViewWidget : ModuleWidget {
 
 			addInput(createDynamicPortCentered<IMPort>(Vec(centerX - offsetXL, rowRulerTop + i * spacingY), true, module, FourView::CV_INPUTS + i, module ? &module->panelTheme : NULL));	
 		}
+
+
+		// Display mode switch
+		addParam(createParamCentered<CKSSH>(Vec(centerX, 240), module, FourView::MODE_PARAM));		
 
 
 		static const int spacingY2 = 46;
