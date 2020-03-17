@@ -10,6 +10,22 @@
 
 #include "ImpromptuModular.hpp"
 
+// Intervals (two notes)
+// // https://en.wikipedia.org/wiki/Interval_(music)#Main_intervals
+static const std::string intervalNames[13] = {"PER","MIN","MAJ","MIN","MAJ","PER","DIM","PER","MIN","MAJ","MIN","MAJ","PER"};
+static const int       intervalNumbers[13] = {  1,    2,    2,    3,    3,    4,   	5, 	  5,	6,	  6,	7,	  7,	8};
+// short										P1	  m2	M2	  m3	M3	  P4	d5	  P5	m6	  M6	m7	  M7	P8
+// semitone distance							0	  1		2	  3		4	  5		6	  7		8	  9		10	  11	12
+
+// Triads (three notes)
+// https://en.wikipedia.org/wiki/Chord_(music)#Examples
+// https://en.wikipedia.org/wiki/Interval_(music)#Intervals_in_chords
+static const int NUM_TRIADS = 6;
+static const int triadIntervals[NUM_TRIADS][2] =  {{4, 7}, {4, 8}, {3, 7}, {3, 6}, {2, 7}, {5, 7}};
+static const std::string triadNames[NUM_TRIADS] = {"MAJ",  "AUG",  "MIN",  "DIM",  "SUS",  "SUS"};
+static const int       triadNumbers[NUM_TRIADS] = { -1,     -1,     -1,     -1,     2,      4};
+
+
 
 struct FourView : Module {
 	enum ParamIds {
@@ -159,12 +175,14 @@ struct FourView : Module {
 			printDashes();
 		}
 		else { 
+			// Single note
 			if (numNotes == 1) {
 				printNote(packedNotes[0], &displayChord[0], showSharp, false);
-				snprintf(&displayChord[4 ], 4, "   ");
-				snprintf(&displayChord[8 ], 4, "   ");
-				snprintf(&displayChord[12], 4, "   ");				
+				displayChord[4] = 0;
+				displayChord[8] = 0;
+				displayChord[12] = 0;				
 			}
+			// Interval
 			else if (numNotes == 2) {
 				int interval = (int)std::round(std::abs(packedNotes[0] - packedNotes[1]) * 12.0f);
 				if (interval > 12) {
@@ -172,18 +190,19 @@ struct FourView : Module {
 				}
 				else {
 					printNote(std::min(packedNotes[0], packedNotes[1]), &displayChord[0], showSharp, false);
-					printInterval(interval);
-					snprintf(&displayChord[12], 4, "   ");		
+					printInterval(interval); // prints to displayChord[4..7] and displayChord[8..11] 
+					displayChord[12] = 0;		
 				}					
 			}
+			// Triad
 			else if (numNotes == 3) {
-				// https://en.wikipedia.org/wiki/Interval_(music)#Intervals_in_chords
-				// float sortedNotes[3];
-				snprintf(&displayChord[0 ], 4, "C  ");
-				snprintf(&displayChord[4 ], 4, "MAJ");
-				snprintf(&displayChord[8 ], 4, "7  ");
-				snprintf(&displayChord[12], 4, "/E ");				
+				int interval1 = (int)std::round((packedNotes[1] - packedNotes[0]) * 12.0f);			
+				int interval2 = (int)std::round((packedNotes[2] - packedNotes[0]) * 12.0f);
+				if (!printTriad(packedNotes, interval1, interval2)) {
+					printDashes();
+				}
 			}
+			// 4-note chord
 			else {
 				// float sortedNotes[4];
 				snprintf(&displayChord[0 ], 4, "C  ");
@@ -203,15 +222,70 @@ struct FourView : Module {
 	}
 	
 	
-	// https://en.wikipedia.org/wiki/Interval_(music)#Main_intervals
 	void printInterval(int interval) {// prints to &displayChord[4] and &displayChord[8] by default 
-		// if (interval == 0 || interval == 5 || interval == 7 || interval == 12) {
-			// snprintf(&displayChord[4 ], 4, "PER");
-		// }
-		snprintf(&displayChord[4 ], 4, "PER");
-		snprintf(&displayChord[8 ], 4, "5");
+		assert(interval >= 0 && interval <=12);
+		snprintf(&displayChord[4], 4, "%s", intervalNames[interval].c_str());
+		snprintf(&displayChord[8], 4, "%i", intervalNumbers[interval]);
+	}
+	
+	
+	bool printTriad(float *packedNotes, int interval1, int interval2) {// prints to all of displayChord if match found 
+		// No inversion
+		for (int t = 0; t < 6; t++) {
+			if (triadIntervals[t][0] == interval1 && triadIntervals[t][1] == interval2) {
+				printNote(packedNotes[0], &displayChord[0], showSharp, false);
+				snprintf(&displayChord[4], 4, "%s", triadNames[t].c_str());
+				if (triadNumbers[t] != -1) {
+					snprintf(&displayChord[8], 4, "%i", triadNumbers[t]);
+				}
+				else {
+					displayChord[8] = 0;
+				}
+				displayChord[12] = 0;
+				return true;
+			}
+		}
 		
+		// First inversion
+		for (int t = 0; t < 6; t++) {
+			int firstBase = -1 * (triadIntervals[t][1] - 12);
+			if (firstBase == interval1 && (triadIntervals[t][0] + firstBase) == interval2) {
+				printNote(packedNotes[1], &displayChord[0], showSharp, false);
+				snprintf(&displayChord[4], 4, "%s", triadNames[t].c_str());
+				int inversionCursor = 8;
+				if (triadNumbers[t] != -1) {
+					inversionCursor += 4;
+					snprintf(&displayChord[8], 4, "%i", triadNumbers[t]);
+				}
+				else {
+					displayChord[12] = 0;
+				}
+				printNote(packedNotes[0], &displayChord[inversionCursor + 1], showSharp, false);
+				displayChord[inversionCursor] = '/';
+				return true;
+			}
+		}
 		
+		// Second inversion
+		for (int t = 0; t < 6; t++) {
+			if ((triadIntervals[t][1] - triadIntervals[t][0]) == interval1 && (12 - triadIntervals[t][0]) == interval2) {
+				printNote(packedNotes[2], &displayChord[0], showSharp, false);
+				snprintf(&displayChord[4], 4, "%s", triadNames[t].c_str());
+				int inversionCursor = 8;
+				if (triadNumbers[t] != -1) {
+					inversionCursor += 4;
+					snprintf(&displayChord[8], 4, "%i", triadNumbers[t]);
+				}
+				else {
+					displayChord[12] = 0;
+				}
+				printNote(packedNotes[0], &displayChord[inversionCursor + 1], showSharp, false);
+				displayChord[inversionCursor] = '/';
+				return true;
+			}
+		}
+		
+		return false;
 	}
 };// module
 
@@ -238,7 +312,7 @@ struct FourViewWidget : ModuleWidget {
 				snprintf(text, 4, " - ");
 			}	
 			else if (module->params[FourView::MODE_PARAM].getValue() >= 0.5f) {// chord mode
-				snprintf(text, 4, &module->displayChord[baseIndex<<2]);
+				snprintf(text, 4, "%s", &module->displayChord[baseIndex<<2]);
 			}
 			else {// note mode
 				if (module->displayValues[baseIndex] != module->unusedValue) {
