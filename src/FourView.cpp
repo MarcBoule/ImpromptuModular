@@ -19,11 +19,18 @@ static const int       intervalNumbers[13] = {  1,    2,    2,    3,    3,    4,
 
 // Triads (three notes)
 // https://en.wikipedia.org/wiki/Chord_(music)#Examples
-// https://en.wikipedia.org/wiki/Interval_(music)#Intervals_in_chords
+// https://en.wikipedia.org/wiki/Chord_(music)#Suspended_chords
 static const int NUM_TRIADS = 6;
-static const int triadIntervals[NUM_TRIADS][2] =  {{4, 7}, {4, 8}, {3, 7}, {3, 6}, {2, 7}, {5, 7}};
-static const std::string triadNames[NUM_TRIADS] = {"MAJ",  "AUG",  "MIN",  "DIM",  "SUS",  "SUS"};
-static const int       triadNumbers[NUM_TRIADS] = { -1,     -1,     -1,     -1,     2,      4};
+static const int triadIntervals[NUM_TRIADS][2] =  {{4,7}, {4,8}, {3,7}, {3,6}, {2,7}, {5,7}};
+static const std::string triadNames[NUM_TRIADS] = {"MAJ", "AUG", "MIN", "DIM", "SUS", "SUS"};
+static const int       triadNumbers[NUM_TRIADS] = { -1,    -1,    -1,    -1,    2,     4};
+
+// 4-note chords
+// https://en.wikipedia.org/wiki/Chord_(music)#Examples
+static const int NUM_CHORDS = 9;
+static const int chordIntervals[NUM_CHORDS][3]    {{4,7,9},{4,7,10},{4,7,11},{4,8,10},{3,7,9},{3,7,10},{3,7,11},{3,6,9},{3,6,10}};
+static const std::string chordNames[NUM_CHORDS] = {"MAJ",  "DOM",   "MAJ",   "AUG",   "MIN",  "MIN",   "M_M",   "DIM",  "0"};
+static const int       chordNumbers[NUM_CHORDS] = { 6,      7,       7,       7,       6,      7,       7,       7,      7};
 
 
 
@@ -166,8 +173,15 @@ struct FourView : Module {
 		float packedNotes[4];
 		for (int i = 0; i < 4; i++) {
 			if (displayValues[i] != unusedValue) {
-				packedNotes[numNotes] = displayValues[i];
-				numNotes ++;
+				int j = 0;
+				for (; j < numNotes; j++) {
+					if (packedNotes[j] == displayValues[i]) 
+						break;// don't count duplicates
+				}
+				if (j == numNotes) {
+					packedNotes[numNotes] = displayValues[i];
+					numNotes ++;
+				}
 			}
 		}		
 		
@@ -184,31 +198,24 @@ struct FourView : Module {
 			}
 			// Interval
 			else if (numNotes == 2) {
-				int interval = (int)std::round(std::abs(packedNotes[0] - packedNotes[1]) * 12.0f);
-				if (interval > 12) {
+				sortFloat<2>(packedNotes);	
+				if (!printInterval(packedNotes)) {
 					printDashes();
-				}
-				else {
-					printNote(std::min(packedNotes[0], packedNotes[1]), &displayChord[0], showSharp, false);
-					printInterval(interval); // prints to displayChord[4..7] and displayChord[8..11] 
-					displayChord[12] = 0;		
 				}					
 			}
 			// Triad
 			else if (numNotes == 3) {
-				int interval1 = (int)std::round((packedNotes[1] - packedNotes[0]) * 12.0f);			
-				int interval2 = (int)std::round((packedNotes[2] - packedNotes[0]) * 12.0f);
-				if (!printTriad(packedNotes, interval1, interval2)) {
+				sortFloat<3>(packedNotes);	
+				if (!printTriad(packedNotes)) {
 					printDashes();
 				}
 			}
 			// 4-note chord
 			else {
-				// float sortedNotes[4];
-				snprintf(&displayChord[0 ], 4, "C  ");
-				snprintf(&displayChord[4 ], 4, "MAJ");
-				snprintf(&displayChord[8 ], 4, "7  ");
-				snprintf(&displayChord[12], 4, "/E ");				
+				sortFloat<4>(packedNotes);
+				if (!print4Chord(packedNotes)) {
+					printDashes();
+				}
 			}
 		}
 	}
@@ -221,17 +228,41 @@ struct FourView : Module {
 		snprintf(&displayChord[12], 4, " - ");				
 	}
 	
-	
-	void printInterval(int interval) {// prints to &displayChord[4] and &displayChord[8] by default 
-		assert(interval >= 0 && interval <=12);
-		snprintf(&displayChord[4], 4, "%s", intervalNames[interval].c_str());
-		snprintf(&displayChord[8], 4, "%i", intervalNumbers[interval]);
+	template<int N>
+	void sortFloat(float *a) {
+		float temp;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N - i - 1; j++) {
+				if (a[j] > a[j + 1]) {
+					temp = a[j + 1];
+					a[j + 1] = a[j];
+					a[j] = temp;
+				}
+			}
+		}	
 	}
 	
 	
-	bool printTriad(float *packedNotes, int interval1, int interval2) {// prints to all of displayChord if match found 
+	bool printInterval(float *packedNotes) {// prints to all of displayChord if match found 
+		int interval = (int)std::round((packedNotes[1] - packedNotes[0]) * 12.0f);
+		
+		if (interval >= 0 && interval <= 12) {
+			printNote(packedNotes[0], &displayChord[0], showSharp, false);
+			snprintf(&displayChord[4], 4, "%s", intervalNames[interval].c_str());
+			snprintf(&displayChord[8], 4, "%i", intervalNumbers[interval]);
+			displayChord[12] = 0;		
+			return true;
+		}
+		return false;
+	}
+	
+	
+	bool printTriad(float *packedNotes) {// prints to all of displayChord if match found 
+		int interval1 = (int)std::round((packedNotes[1] - packedNotes[0]) * 12.0f);			
+		int interval2 = (int)std::round((packedNotes[2] - packedNotes[0]) * 12.0f);
+
 		// No inversion
-		for (int t = 0; t < 6; t++) {
+		for (int t = 0; t < NUM_TRIADS; t++) {
 			if (triadIntervals[t][0] == interval1 && triadIntervals[t][1] == interval2) {
 				printNote(packedNotes[0], &displayChord[0], showSharp, false);
 				snprintf(&displayChord[4], 4, "%s", triadNames[t].c_str());
@@ -246,8 +277,8 @@ struct FourView : Module {
 			}
 		}
 		
-		// First inversion
-		for (int t = 0; t < 6; t++) {
+		// First inversion down (= second inversion up)
+		for (int t = 0; t < NUM_TRIADS; t++) {
 			int firstBase = -1 * (triadIntervals[t][1] - 12);
 			if (firstBase == interval1 && (triadIntervals[t][0] + firstBase) == interval2) {
 				printNote(packedNotes[1], &displayChord[0], showSharp, false);
@@ -266,8 +297,8 @@ struct FourView : Module {
 			}
 		}
 		
-		// Second inversion
-		for (int t = 0; t < 6; t++) {
+		// Second inversion down (= first inversion up)
+		for (int t = 0; t < NUM_TRIADS; t++) {
 			if ((triadIntervals[t][1] - triadIntervals[t][0]) == interval1 && (12 - triadIntervals[t][0]) == interval2) {
 				printNote(packedNotes[2], &displayChord[0], showSharp, false);
 				snprintf(&displayChord[4], 4, "%s", triadNames[t].c_str());
@@ -284,7 +315,86 @@ struct FourView : Module {
 				return true;
 			}
 		}
+
+		// At this point no triads were detected, so check for intervals
+		if ( (((interval2 % 12) == 0) || (((interval2 - interval1) % 12) == 0)) && printInterval(packedNotes)) {
+			return true;
+		}
 		
+		return false;
+	}
+	
+	
+	bool print4Chord(float *packedNotes) {// prints to all of displayChord if match found 
+		int interval1 = (int)std::round((packedNotes[1] - packedNotes[0]) * 12.0f);			
+		int interval2 = (int)std::round((packedNotes[2] - packedNotes[0]) * 12.0f);
+		int interval3 = (int)std::round((packedNotes[3] - packedNotes[0]) * 12.0f);
+
+		// No inversion
+		for (int c = 0; c < NUM_CHORDS; c++) {
+			if (chordIntervals[c][0] == interval1 && chordIntervals[c][1] == interval2 && chordIntervals[c][2] == interval3) {
+				printNote(packedNotes[0], &displayChord[0], showSharp, false);// root note
+				snprintf(&displayChord[4], 4, "%s", chordNames[c].c_str());
+				snprintf(&displayChord[8], 4, "%i", chordNumbers[c]);
+				displayChord[12] = 0;// no inversion
+				return true;
+			}
+		}
+		// First inversion down (= third inversion up)
+		for (int c = 0; c < NUM_CHORDS; c++) {
+			int firstBase = -1 * (chordIntervals[c][2] - 12);
+			if (firstBase == interval1 && (chordIntervals[c][0] + firstBase) == interval2 && (chordIntervals[c][1] + firstBase) == interval3) {
+				printNote(packedNotes[1], &displayChord[0], showSharp, false);// root note
+				snprintf(&displayChord[4], 4, "%s", chordNames[c].c_str());
+				snprintf(&displayChord[8], 4, "%i", chordNumbers[c]);
+				printNote(packedNotes[0], &displayChord[12 + 1], showSharp, false);// base note of inversion
+				displayChord[12] = '/';
+				return true;
+			}
+		}
+		// Second inversion
+		for (int c = 0; c < NUM_CHORDS; c++) {
+			int firstBase = -1 * (chordIntervals[c][1] - 12);
+			if ((chordIntervals[c][2] - 12 + firstBase) == interval1 && firstBase == interval2 && (chordIntervals[c][0] + firstBase) == interval3) {
+				printNote(packedNotes[2], &displayChord[0], showSharp, false);// root note
+				snprintf(&displayChord[4], 4, "%s", chordNames[c].c_str());
+				snprintf(&displayChord[8], 4, "%i", chordNumbers[c]);
+				printNote(packedNotes[0], &displayChord[12 + 1], showSharp, false);// base note of inversion
+				displayChord[12] = '/';
+				return true;
+			}
+		}
+		// Third inversion down (= first inversion up)
+		for (int c = 0; c < NUM_CHORDS; c++) {
+			if ((chordIntervals[c][1] - chordIntervals[c][0]) == interval1 && (chordIntervals[c][2] - chordIntervals[c][0]) == interval2 && (12 - chordIntervals[c][0]) == interval3) {
+				printNote(packedNotes[3], &displayChord[0], showSharp, false);// root note
+				snprintf(&displayChord[4], 4, "%s", chordNames[c].c_str());
+				snprintf(&displayChord[8], 4, "%i", chordNumbers[c]);
+				printNote(packedNotes[0], &displayChord[12 + 1], showSharp, false);// base note of inversion
+				displayChord[12] = '/';
+				return true;
+			}
+		}
+		
+		// At this point no 4-note chords were detected, so check for triads with and extra octave-related root note
+		// Since the triad's biggest interval is < 12, the octave-related note is either the first note or the 
+		//   fourth note since packedNotes are sorted
+		
+		// check if second note is octave-related to first note; if so, check for triad in last three notes
+		if (((interval1 % 12) == 0) && printTriad(&packedNotes[1])) {
+			return true;
+		}
+		
+		// check if last note is octave-related to first note; if so, check for triad in first three notes
+		if (((interval3 % 12) == 0) && printTriad(packedNotes)) {
+			return true;
+		}
+		
+		// At this point no triads were detected, so check for intervals
+		if (((interval2 % 12) == 0) && (((interval3 - interval1) % 12) == 0) && printInterval(packedNotes)) {
+			return true;
+		}
+				
 		return false;
 	}
 };// module
