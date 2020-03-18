@@ -61,6 +61,7 @@ struct FourView : Module {
 	int panelTheme;
 	
 	// Need to save, with reset
+	int allowPolyOverride;
 	bool showSharp;
 
 	// No need to save, with reset
@@ -91,6 +92,7 @@ struct FourView : Module {
 	
 
 	void onReset() override {
+		allowPolyOverride = 0;
 		showSharp = true;
 		resetNonJson();
 	}
@@ -111,6 +113,9 @@ struct FourView : Module {
 		// panelTheme
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
 
+		// allowPolyOverride
+		json_object_set_new(rootJ, "allowPolyOverride", json_integer(allowPolyOverride));
+
 		// showSharp
 		json_object_set_new(rootJ, "showSharp", json_boolean(showSharp));
 		
@@ -122,6 +127,11 @@ struct FourView : Module {
 		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
 		if (panelThemeJ)
 			panelTheme = json_integer_value(panelThemeJ);
+
+		// allowPolyOverride
+		json_t *allowPolyOverrideJ = json_object_get(rootJ, "allowPolyOverride");
+		if (allowPolyOverrideJ)
+			allowPolyOverride = json_integer_value(allowPolyOverrideJ);
 
 		// showSharp
 		json_t *showSharpJ = json_object_get(rootJ, "showSharp");
@@ -147,8 +157,21 @@ struct FourView : Module {
 				panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 1);
 			}	
 			else {
-				for (int i = 0; i < 4; i++) {
-					displayValues[i] = inputs[CV_INPUTS + i].isConnected() ? inputs[CV_INPUTS + i].getVoltage() : unusedValue;
+				if (allowPolyOverride == 1) {
+					int numChanIn0 = inputs[CV_INPUTS + 0].isConnected() ? inputs[CV_INPUTS + 0].getChannels() : 0;
+					for (int i = 0; i < 4; i++) {
+						if (i < numChanIn0) {
+							displayValues[i] = inputs[CV_INPUTS].getVoltage(i);
+						}
+						else {
+							displayValues[i] = inputs[CV_INPUTS + i].isConnected() ? inputs[CV_INPUTS + i].getVoltage() : unusedValue;
+						}
+					}
+				}					
+				else {
+					for (int i = 0; i < 4; i++) {
+						displayValues[i] = inputs[CV_INPUTS + i].isConnected() ? inputs[CV_INPUTS + i].getVoltage() : unusedValue;
+					}
 				}
 			}
 		}// userInputs refresh
@@ -170,16 +193,17 @@ struct FourView : Module {
 	void calcDisplayChord() {
 		// count notes and prepare sorted (will be sorted just in time later)
 		int numNotes = 0;
-		float packedNotes[4];
+		int packedNotes[4];// contains pitch CVs multiplied by 12 and rounded to integers
 		for (int i = 0; i < 4; i++) {
 			if (displayValues[i] != unusedValue) {
+				int displayNote = (int)std::round(displayValues[i] * 12.0f);
 				int j = 0;
 				for (; j < numNotes; j++) {
-					if (packedNotes[j] == displayValues[i]) 
+					if (packedNotes[j] == displayNote) 
 						break;// don't count duplicates
 				}
 				if (j == numNotes) {
-					packedNotes[numNotes] = displayValues[i];
+					packedNotes[numNotes] = displayNote;
 					numNotes ++;
 				}
 			}
@@ -191,28 +215,28 @@ struct FourView : Module {
 		else { 
 			// Single note
 			if (numNotes == 1) {
-				printNote(packedNotes[0], &displayChord[0], showSharp, false);
+				printNoteNoOct(packedNotes[0], &displayChord[0], showSharp);
 				displayChord[4] = 0;
 				displayChord[8] = 0;
 				displayChord[12] = 0;				
 			}
 			// Interval
 			else if (numNotes == 2) {
-				sortFloat<2>(packedNotes);	
+				sortInt<2>(packedNotes);	
 				if (!printInterval(packedNotes)) {
 					printDashes();
 				}					
 			}
 			// Triad
 			else if (numNotes == 3) {
-				sortFloat<3>(packedNotes);	
+				sortInt<3>(packedNotes);	
 				if (!printTriad(packedNotes)) {
 					printDashes();
 				}
 			}
 			// 4-note chord
 			else {
-				sortFloat<4>(packedNotes);
+				sortInt<4>(packedNotes);
 				if (!print4Chord(packedNotes)) {
 					printDashes();
 				}
@@ -229,8 +253,8 @@ struct FourView : Module {
 	}
 	
 	template<int N>
-	void sortFloat(float *a) {
-		float temp;
+	void sortInt(int *a) {
+		int temp;
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N - i - 1; j++) {
 				if (a[j] > a[j + 1]) {
@@ -243,11 +267,11 @@ struct FourView : Module {
 	}
 	
 	
-	bool printInterval(float *packedNotes) {// prints to all of displayChord if match found 
-		int interval = (int)std::round((packedNotes[1] - packedNotes[0]) * 12.0f);
+	bool printInterval(int *packedNotes) {// prints to all of displayChord if match found 
+		int interval = packedNotes[1] - packedNotes[0];
 		
 		if (interval >= 0 && interval <= 12) {
-			printNote(packedNotes[0], &displayChord[0], showSharp, false);
+			printNoteNoOct(packedNotes[0], &displayChord[0], showSharp);
 			snprintf(&displayChord[4], 4, "%s", intervalNames[interval].c_str());
 			snprintf(&displayChord[8], 4, "%i", intervalNumbers[interval]);
 			displayChord[12] = 0;		
@@ -257,14 +281,14 @@ struct FourView : Module {
 	}
 	
 	
-	bool printTriad(float *packedNotes) {// prints to all of displayChord if match found 
-		int interval1 = (int)std::round((packedNotes[1] - packedNotes[0]) * 12.0f);			
-		int interval2 = (int)std::round((packedNotes[2] - packedNotes[0]) * 12.0f);
+	bool printTriad(int *packedNotes) {// prints to all of displayChord if match found 
+		int interval1 = packedNotes[1] - packedNotes[0];			
+		int interval2 = packedNotes[2] - packedNotes[0];
 
 		// No inversion
 		for (int t = 0; t < NUM_TRIADS; t++) {
 			if (triadIntervals[t][0] == interval1 && triadIntervals[t][1] == interval2) {
-				printNote(packedNotes[0], &displayChord[0], showSharp, false);
+				printNoteNoOct(packedNotes[0], &displayChord[0], showSharp);
 				snprintf(&displayChord[4], 4, "%s", triadNames[t].c_str());
 				if (triadNumbers[t] != -1) {
 					snprintf(&displayChord[8], 4, "%i", triadNumbers[t]);
@@ -281,7 +305,7 @@ struct FourView : Module {
 		for (int t = 0; t < NUM_TRIADS; t++) {
 			int firstBase = -1 * (triadIntervals[t][1] - 12);
 			if (firstBase == interval1 && (triadIntervals[t][0] + firstBase) == interval2) {
-				printNote(packedNotes[1], &displayChord[0], showSharp, false);
+				printNoteNoOct(packedNotes[1], &displayChord[0], showSharp);
 				snprintf(&displayChord[4], 4, "%s", triadNames[t].c_str());
 				int inversionCursor = 8;
 				if (triadNumbers[t] != -1) {
@@ -291,7 +315,7 @@ struct FourView : Module {
 				else {
 					displayChord[12] = 0;
 				}
-				printNote(packedNotes[0], &displayChord[inversionCursor + 1], showSharp, false);
+				printNoteNoOct(packedNotes[0], &displayChord[inversionCursor + 1], showSharp);
 				displayChord[inversionCursor] = '/';
 				return true;
 			}
@@ -300,7 +324,7 @@ struct FourView : Module {
 		// Second inversion down (= first inversion up)
 		for (int t = 0; t < NUM_TRIADS; t++) {
 			if ((triadIntervals[t][1] - triadIntervals[t][0]) == interval1 && (12 - triadIntervals[t][0]) == interval2) {
-				printNote(packedNotes[2], &displayChord[0], showSharp, false);
+				printNoteNoOct(packedNotes[2], &displayChord[0], showSharp);
 				snprintf(&displayChord[4], 4, "%s", triadNames[t].c_str());
 				int inversionCursor = 8;
 				if (triadNumbers[t] != -1) {
@@ -310,7 +334,7 @@ struct FourView : Module {
 				else {
 					displayChord[12] = 0;
 				}
-				printNote(packedNotes[0], &displayChord[inversionCursor + 1], showSharp, false);
+				printNoteNoOct(packedNotes[0], &displayChord[inversionCursor + 1], showSharp);
 				displayChord[inversionCursor] = '/';
 				return true;
 			}
@@ -325,15 +349,15 @@ struct FourView : Module {
 	}
 	
 	
-	bool print4Chord(float *packedNotes) {// prints to all of displayChord if match found 
-		int interval1 = (int)std::round((packedNotes[1] - packedNotes[0]) * 12.0f);			
-		int interval2 = (int)std::round((packedNotes[2] - packedNotes[0]) * 12.0f);
-		int interval3 = (int)std::round((packedNotes[3] - packedNotes[0]) * 12.0f);
+	bool print4Chord(int *packedNotes) {// prints to all of displayChord if match found 
+		int interval1 = packedNotes[1] - packedNotes[0];			
+		int interval2 = packedNotes[2] - packedNotes[0];
+		int interval3 = packedNotes[3] - packedNotes[0];
 
 		// No inversion
 		for (int c = 0; c < NUM_CHORDS; c++) {
 			if (chordIntervals[c][0] == interval1 && chordIntervals[c][1] == interval2 && chordIntervals[c][2] == interval3) {
-				printNote(packedNotes[0], &displayChord[0], showSharp, false);// root note
+				printNoteNoOct(packedNotes[0], &displayChord[0], showSharp);// root note
 				snprintf(&displayChord[4], 4, "%s", chordNames[c].c_str());
 				snprintf(&displayChord[8], 4, "%i", chordNumbers[c]);
 				displayChord[12] = 0;// no inversion
@@ -344,10 +368,10 @@ struct FourView : Module {
 		for (int c = 0; c < NUM_CHORDS; c++) {
 			int firstBase = -1 * (chordIntervals[c][2] - 12);
 			if (firstBase == interval1 && (chordIntervals[c][0] + firstBase) == interval2 && (chordIntervals[c][1] + firstBase) == interval3) {
-				printNote(packedNotes[1], &displayChord[0], showSharp, false);// root note
+				printNoteNoOct(packedNotes[1], &displayChord[0], showSharp);// root note
 				snprintf(&displayChord[4], 4, "%s", chordNames[c].c_str());
 				snprintf(&displayChord[8], 4, "%i", chordNumbers[c]);
-				printNote(packedNotes[0], &displayChord[12 + 1], showSharp, false);// base note of inversion
+				printNoteNoOct(packedNotes[0], &displayChord[12 + 1], showSharp);// base note of inversion
 				displayChord[12] = '/';
 				return true;
 			}
@@ -356,10 +380,10 @@ struct FourView : Module {
 		for (int c = 0; c < NUM_CHORDS; c++) {
 			int firstBase = -1 * (chordIntervals[c][1] - 12);
 			if ((chordIntervals[c][2] - 12 + firstBase) == interval1 && firstBase == interval2 && (chordIntervals[c][0] + firstBase) == interval3) {
-				printNote(packedNotes[2], &displayChord[0], showSharp, false);// root note
+				printNoteNoOct(packedNotes[2], &displayChord[0], showSharp);// root note
 				snprintf(&displayChord[4], 4, "%s", chordNames[c].c_str());
 				snprintf(&displayChord[8], 4, "%i", chordNumbers[c]);
-				printNote(packedNotes[0], &displayChord[12 + 1], showSharp, false);// base note of inversion
+				printNoteNoOct(packedNotes[0], &displayChord[12 + 1], showSharp);// base note of inversion
 				displayChord[12] = '/';
 				return true;
 			}
@@ -367,10 +391,10 @@ struct FourView : Module {
 		// Third inversion down (= first inversion up)
 		for (int c = 0; c < NUM_CHORDS; c++) {
 			if ((chordIntervals[c][1] - chordIntervals[c][0]) == interval1 && (chordIntervals[c][2] - chordIntervals[c][0]) == interval2 && (12 - chordIntervals[c][0]) == interval3) {
-				printNote(packedNotes[3], &displayChord[0], showSharp, false);// root note
+				printNoteNoOct(packedNotes[3], &displayChord[0], showSharp);// root note
 				snprintf(&displayChord[4], 4, "%s", chordNames[c].c_str());
 				snprintf(&displayChord[8], 4, "%i", chordNumbers[c]);
-				printNote(packedNotes[0], &displayChord[12 + 1], showSharp, false);// base note of inversion
+				printNoteNoOct(packedNotes[0], &displayChord[12 + 1], showSharp);// base note of inversion
 				displayChord[12] = '/';
 				return true;
 			}
@@ -456,6 +480,12 @@ struct FourViewWidget : ModuleWidget {
 			module->panelTheme ^= 0x1;
 		}
 	};
+	struct PolyIn1Item : MenuItem {
+		FourView *module;
+		void onAction(const event::Action &e) override {
+			module->allowPolyOverride ^= 0x1;
+		}
+	};
 	struct SharpItem : MenuItem {
 		FourView *module;
 		void onAction(const event::Action &e) override {
@@ -484,6 +514,10 @@ struct FourViewWidget : ModuleWidget {
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
+		
+		PolyIn1Item *poly1Item = createMenuItem<PolyIn1Item>("Allow poly in 1 to override", CHECKMARK(module->allowPolyOverride == 1));
+		poly1Item->module = module;
+		menu->addChild(poly1Item);
 		
 		SharpItem *shrpItem = createMenuItem<SharpItem>("Sharp (unchecked is flat)", CHECKMARK(module->showSharp));
 		shrpItem->module = module;

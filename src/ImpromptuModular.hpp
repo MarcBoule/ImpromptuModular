@@ -171,8 +171,8 @@ inline bool calcWarningFlash(long count, long countInit) {
 
 NVGcolor prepareDisplay(NVGcontext *vg, Rect *box, int fontSize);
 
+void printNoteNoOct(int note, char* text, bool sharp);
 void printNote(float cvVal, char* text, bool sharp);
-void printNote(float cvVal, char* text, bool sharp, bool printOct);
 
 int moveIndex(int index, int indexNext, int numSteps);
 
