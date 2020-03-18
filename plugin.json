@@ -155,9 +155,9 @@
 		},
 		{
 			"slug": "Four-View",
-			"name": "4View",
-			"description": "Quad note number viewer with passthrough",
-			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#4view",
+			"name": "FourView",
+			"description": "Quad note or chord viewer with passthrough",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#four-view",
 			"tags": ["Visual"]
 		},
 		{

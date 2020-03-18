@@ -511,9 +511,9 @@ struct FourViewWidget : ModuleWidget {
 
 		const float centerX = box.size.x / 2;
 		static const int rowRulerTop = 66;
-		static const int spacingY = 48;
+		static const int spacingY = 44;
 		static const float offsetXL = 30;
-		static const float offsetXR = 18;
+		static const float offsetXR = 20;
 		
 		// Notes displays and inputs
 		NotesDisplayWidget* displayNotes[4];
@@ -526,11 +526,11 @@ struct FourViewWidget : ModuleWidget {
 
 
 		// Display mode switch
-		addParam(createParamCentered<CKSSH>(Vec(centerX, 240), module, FourView::MODE_PARAM));		
+		addParam(createParamCentered<CKSSH>(Vec(centerX, 234), module, FourView::MODE_PARAM));		
 
 
 		static const int spacingY2 = 46;
-		static const float offsetX = 20;
+		static const float offsetX = 26;
 		static const int posY2 = 285;
 
 		// Thru outputs

@@ -1,7 +1,7 @@
 ### 1.1.5 (in development)
 
 - Added expander for ChordKey which offers 4 poly quantizers that quantize to the chord's notes
-- Reduced width of 4View by 1 HP
+- Added chord mode to FourView to show chord names
 - Modified CLKD knobs to change display when clicking the knob if it doesn't turn (and fixed the tooltips)
 - Implemented the Portable Sequence copy/paste in BigButtonSeq2
 - Made BigButtonSeq2 not overwrite CVs when CV input is unconnected during big button hits and fills to memory
@@ -9,7 +9,7 @@
 
 ### 1.1.4 (2019-02-28)
 
-- Allowed 4View to function as an expander for ChordKey and CVPad
+- Allowed FourView to function as an expander for ChordKey and CVPad
 - Added new module called ChordKey: a keyboard-based chord generator 
 - Implemented Portable sequence copy/paste in Foundry, PhraseSeq16/32 and SemiModularSynth
 - Added new module called Clkd: a half-sized version of Clocked without PW, Swing nor Delay

@@ -34,7 +34,7 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [WriteSeq32/64](#write-seq): Multi-channel 32/64-step sequencers with CV inputs for easy sequence programming.
 
-* [4View and Hotkey](#utilities): Small chord viewer module that shows the note names of up to 4 CVs, and a utility module that sends a trigger when a given key is pressed (mouse must be over module).
+* [FourView and Hotkey](#utilities): Small chord viewer module that shows note or chord names, and a utility module that sends a trigger when a given key is pressed (mouse must be over module).
 
 * [Expanders](#expanders): Various expander modules that can be paired with some of the above modules.
 
@@ -110,7 +110,7 @@ A few of the modules feature **Expander modules** to provide additional function
 
 Pictured above are the expanders for the following modules, from left to right: Clocked, ChordKey, PhraseSeq16/32, GateSeq64, Foundry. 
 
-The [4View](#4view) module, which is normally used independently, can also be used as an expander for the [ChordKey](#chord-key) and [CVPad](#cv-pad) modules. When both the ChordKey expander and 4View are to be used with ChordKey, the 4View module must be placed to the right of the ChordKey expander.
+The [FourView](#four-view) module, which is normally used independently, can also be used as an expander for the [ChordKey](#chord-key) and [CVPad](#cv-pad) modules. When both the ChordKey expander and FourView are to be used with ChordKey, the FourView module must be placed to the right of the ChordKey expander.
 
 
 ### On resets, clocks and run states... <a id="clk_rst_run"></a>
@@ -226,7 +226,7 @@ Two options are also available in the right-click menu:
 
 ![IM](res/img/ChordKey.jpg)
 
-A keyboard-based chord generator with room to store 25 chords, that can be recalled using a 0 to 2V control voltage. Up to four notes can be set for each chord using the keyboard and the octave buttons. The [4View](#4view) module can also be used as an expander for the ChordKey to view the note names of the notes comprising the chord; in this case no cables need to be connected to 4View it is immediately to the right of ChordKey.
+A keyboard-based chord generator with room to store 25 chords, that can be recalled using a 0 to 2V control voltage. Up to four notes can be set for each chord using the keyboard and the octave buttons. The [FourView](#four-view) module can also be used as an expander for the ChordKey to view the note names of the notes comprising the chord or the name of the chord itself; in this case no cables need to be connected to FourView it is immediately to the right of ChordKey.
 
 **To be released in v1.1.5:** An [expander](#expanders) is also available (titled CHD-X), which offers four polyphonic quantizers that can be used to quantize any pitch CVs to the notes of the active chord selected in ChordKey. When the ChordKey expander is used independently, it will quantize pitch CVs according to all twelve notes.
 
@@ -259,7 +259,7 @@ Other options are also available in the right-click menu:
 
 A programmable CV controller with 16 pads, that can be configured into 1x16, 2x8 or 4x4 group(s). Many use cases are possible, one of which can be to manually select sequences to play in Foundry and many of the Phrase Sequencers, and more generally to control parameters for a live performance by providing quick access to different CV values. 
 
-The [4View](#4view) module can also be used as an expander for the CVPad to view the note names of the selected pads; in this case no cables need to be connected to 4View it is immediately to the right of CVPad.
+The [FourView](#four-view) module can also be used as an expander for the CVPad to view the note names of the selected pads; in this case no cables need to be connected to FourView provided it is placed immediately to the right of CVPad.
 
 * **CV**: The main CV display and its knob can be used to set the CV for the currently selected pad, as indicated by the yellow/red light above a pad when attached/detached respectively. By default this knob is set to high sensitivity such that the range from -10V to 10V can be easier to scan; however, an option is available in the module's right-click menu to lower the sensitivity. Values can also be entered directly for the selected pad by **right-clicking the display** and typing in a specific voltage. 
 
@@ -693,12 +693,12 @@ WriteSeq64 has dual clock inputs, where each controls a pair of channels. When n
 
 
 
-## 4View and Hotkey <a id="utilities"></a>
+## FourView and Hotkey <a id="utilities"></a>
 
 ![IM](res/img/Utilities.jpg)
 
-### 4View <a id="4view"></a>
-A chord viewer module that shows the note names of up to 4 CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs. 4View can also function as an expander for ChordKey or CVPad by placing it to the right of either of those two modules; in this case: a) no cables need to be connected in order to view the note names of the chord notes or pad voltages and b) the through outputs are not used. 
+### FourView <a id="four-view"></a>
+A chord viewer module that shows the note names of up to 4 CVs, or the name of the chord represented by these CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs. FourView can also function as an expander for ChordKey or CVPad by placing it to the right of either of those two modules; in this case: a) no cables need to be connected in order to view the note names of the chord notes or pad voltages and b) the through outputs are not used. 
 
 ### Hotkey <a id="hotkey"></a>
 Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize audio recording using VCV Recorder with video recording (using OBS Studio for example). Set a hotkey in OBS to automatically have it start/stop recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same key in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press. Send the trig output of Hotkey into the trig input of VCV Recorder.
