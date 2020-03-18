@@ -193,7 +193,7 @@ struct Hotkey : Module {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		RECORD_KEY_LIGHT,
+		ENUMS(RECORD_KEY_LIGHT, 2),
 		NUM_LIGHTS
 	};
 	
@@ -214,6 +214,7 @@ struct Hotkey : Module {
 	
 	// No need to save, no reset
 	dsp::PulseGenerator trigOutPulse;
+	dsp::PulseGenerator trigLightPulse;
 	RefreshCounter refresh;
 
 	
@@ -315,15 +316,18 @@ struct Hotkey : Module {
 
 		if (requestTrig && (delayCnt == 0)) {
 			trigOutPulse.trigger(0.002f);
+			trigLightPulse.trigger(0.1f);
 			requestTrig = false;
 		}
 		
-
-		outputs[TRIG_OUTPUT].setVoltage((trigOutPulse.process(args.sampleTime) ? 10.0f : 0.0f));
+		bool trigOutState = trigOutPulse.process(args.sampleTime);
+		outputs[TRIG_OUTPUT].setVoltage((trigOutState ? 10.0f : 0.0f));
 		
 		// lights
 		if (refresh.processLights()) {
-			lights[RECORD_KEY_LIGHT].setBrightness(params[RECORD_KEY_PARAM].getValue());
+			float deltaTime = (float)args.sampleTime * (RefreshCounter::displayRefreshStepSkips);
+			lights[RECORD_KEY_LIGHT + 0].setSmoothBrightness(trigLightPulse.process(deltaTime) > 0.0f ? 1.0f : 0.0f, deltaTime);// green
+			lights[RECORD_KEY_LIGHT + 1].setBrightness(params[RECORD_KEY_PARAM].getValue());// red
 		}// lightRefreshCounter
 		
 		if (delayCnt > 0) {
@@ -403,7 +407,7 @@ struct HotkeyWidget : ModuleWidget {
 		SvgSwitch *ledBez;
 		addParam(ledBez = createParamCentered<LEDBezel>(Vec(centerX, buttonY), module, Hotkey::RECORD_KEY_PARAM));
 		ledBez->momentary = false;
-		addChild(createLightCentered<MuteLight<RedLight>>(Vec(centerX, buttonY), module, Hotkey::RECORD_KEY_LIGHT));
+		addChild(createLightCentered<MuteLight<GreenRedLight>>(Vec(centerX, buttonY), module, Hotkey::RECORD_KEY_LIGHT));
 		
 		// Delay knob
 		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(Vec(centerX, 220.0f), module, Hotkey::DELAY_PARAM, module ? &module->panelTheme : NULL));
