@@ -71,6 +71,7 @@ struct ChordKey : Module {
 	Trigger transposeDownTrigger;
 	dsp::BooleanTrigger keyTrigger;
 	PianoKeyInfo pkInfo;
+	int offWarningChan; // valid only when offWarning is non-zero
 	
 	
 	int getIndex() {
@@ -260,6 +261,7 @@ struct ChordKey : Module {
 				}
 				else {
 					offWarning = (long) (warningTime * args.sampleRate / RefreshCounter::displayRefreshStepSkips);
+					offWarningChan = cni;
 				}
 			}	
 
@@ -413,7 +415,7 @@ struct ChordKeyWidget : ModuleWidget {
 			}
 			else {
 				displayStr[0] = '-';
-				if (module->offWarning > 0l) {
+				if (module->offWarning > 0l && index == module->offWarningChan) {
 					bool warningFlashState = calcWarningFlash(module->offWarning, (long) (module->warningTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips));
 					if (!warningFlashState) 
 						displayStr[0] = 'X';
