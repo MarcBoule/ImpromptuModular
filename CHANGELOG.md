@@ -1,4 +1,4 @@
-### 1.1.5 (in development)
+### 1.1.5 (2019-03-19)
 
 - Added new module called Part, which splits a gate signal into two cables according to a split point and a CV input
 - Added expander for ChordKey which offers 4 poly quantizers that quantize to the chord's notes

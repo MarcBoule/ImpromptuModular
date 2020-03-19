@@ -263,7 +263,7 @@ struct PartWidget : ModuleWidget {
 		static const int colR = 65;
 		
 		static const int row0 = 60;// mode switch
-		static const int row1 = 111;// display
+		static const int row1 = 115;// display
 		static const int row2 = row1 + 45;// split knob
 		static const int row3 = row2 + 45;// split knob CV
 		static const int row4 = 260;// CV + Gate inputs
