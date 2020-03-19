@@ -228,7 +228,7 @@ Two options are also available in the right-click menu:
 
 A keyboard-based chord generator with room to store 25 chords, that can be recalled using a 0 to 2V control voltage. Up to four notes can be set for each chord using the keyboard and the octave buttons. The [FourView](#four-view) module can also be used as an expander for the ChordKey to view the note names of the notes comprising the chord or the name of the chord itself; in this case no cables need to be connected to FourView it is immediately to the right of ChordKey.
 
-**To be released in v1.1.5:** An [expander](#expanders) is also available (titled CHD-X), which offers four polyphonic quantizers that can be used to quantize any pitch CVs to the notes of the active chord selected in ChordKey. When the ChordKey expander is used independently, it will quantize pitch CVs according to all twelve notes.
+An [expander](#expanders) is also available (titled CHD-X), which offers four polyphonic quantizers that can be used to quantize any pitch CVs to the notes of the active chord selected in ChordKey. When the ChordKey expander is used independently, it will quantize pitch CVs according to all twelve notes.
 
 * **INDEX**: This knob is used to select the given chord from the set of 25 possible chords that can be stored in the module. 
 
