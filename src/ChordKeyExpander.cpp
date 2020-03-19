@@ -49,32 +49,6 @@ struct ChordKeyExpander : Module {
 	int panelTheme;
 	RefreshCounter refresh;
 
-
-	float quantize(float in) {
-		// float inScaled = (clamp(in, -10.0f, 10.0f) + 10.0f) * 12.0f;
-		// int intIn = ((int)std::round(inScaled));
-		// int baseIn = intIn % 12;// 0 to 11
-		// int octIn = intIn / 12;
-		
-		// float noteScaled = (clamp(note, -10.0f, 10.0f) + 10.0f) * 12.0f;
-		// int intNote = ((int)std::round(noteScaled));
-		// int baseNote = intNote % 12;// 0 to 11
-		
-		// int delOct = 0;
-		// if (baseIn - baseNote > 6) {
-			// delOct = 1;
-		// }
-		// else if (baseIn - baseNote < -6) {
-			// delOct = -1;
-		// }
-		
-		// int out = (octIn + delOct) * 12 + baseNote;
-		// float outDescaled = ((float)out) / 12.0f - 10.0f;
-		// INFO("got quant, in = %g, note = %g, out = %g", in, note, outDescaled);
-		// return outDescaled;
-		return in;
-	}
-
 	
 	ChordKeyExpander() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);

@@ -54,7 +54,7 @@ static const bool retrigGatesOnReset = true;
 static constexpr float clockIgnoreOnResetDuration = 0.001f;// disable clock on powerup and reset for 1 ms (so that the first step plays)
 static const int displayAlpha = 23;
 static const std::string darkPanelID = "Dark-valor";
-static const unsigned int expanderRefreshStepSkips = 64;
+static const unsigned int expanderRefreshStepSkips = 4;
 
 
 
