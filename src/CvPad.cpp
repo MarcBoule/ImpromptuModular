@@ -332,7 +332,9 @@ struct CvPad : Module {
 					lights[PAD_LIGHTS + l * 2 + 0].setBrightness(readHeads[read4_4 + 3] == l ? 1.0f : 0.0f);
 				}
 			}
-			
+		}// processLights()
+		
+		if (refresh.processInputs()) {
 			// To Expander
 			if (rightExpander.module && rightExpander.module->model == modelFourView) {
 				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
@@ -355,8 +357,8 @@ struct CvPad : Module {
 				}
 				messageToExpander[4] = (float)panelTheme;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
-			}
-		}// processLights()
+			}			
+		}
 	}
 	
 	void setReadHeadToWrite(int config) {

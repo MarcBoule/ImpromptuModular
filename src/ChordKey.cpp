@@ -366,7 +366,10 @@ struct ChordKey : Module {
 			
 			if (offWarning > 0l)
 				offWarning--;
-			
+		}// processLights()
+		
+
+		if (refresh.processInputs()) {
 			// To Expander
 			if (rightExpander.module && (rightExpander.module->model == modelFourView || rightExpander.module->model == modelChordKeyExpander)) {
 				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
@@ -376,7 +379,7 @@ struct ChordKey : Module {
 				messageToExpander[4] = (float)panelTheme;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
 			}
-		}// processLights()
+		}
 	}
 };
 

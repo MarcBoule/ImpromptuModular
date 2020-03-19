@@ -135,6 +135,15 @@ struct ChordKeyExpander : Module {
 		
 		// lights
 		if (refresh.processLights()) {
+			fillEnabledNotes();// uses chordValues[]
+			updateRanges();// uses enabledNotes[]
+			
+			for (int i = 0; i < 4; i++) {
+				outputs[CV_OUTPUTS + i].setChannels(std::max(inputs[CV_INPUTS + i].getChannels(), 1));
+			}
+		}// lightRefreshCounter
+		
+		if (refresh.processInputs()) {
 			// To Expander
 			if (rightExpander.module && (rightExpander.module->model == modelFourView || rightExpander.module->model == modelChordKeyExpander)) {
 				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
@@ -144,15 +153,7 @@ struct ChordKeyExpander : Module {
 				messageToExpander[4] = (float)panelTheme;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
 			}
-			
-			fillEnabledNotes();// uses chordValues[]
-			updateRanges();// uses enabledNotes[]
-			
-			for (int i = 0; i < 4; i++) {
-				outputs[CV_OUTPUTS + i].setChannels(std::max(inputs[CV_INPUTS + i].getChannels(), 1));
-			}
-
-		}// lightRefreshCounter
+		}		
 	}// process()
 	
 	
