@@ -40,6 +40,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelFourView);
 	p->addModel(modelSemiModularSynth);
 	p->addModel(modelHotkey);
+	p->addModel(modelPart);
 	p->addModel(modelBlankPanel);
 }
 

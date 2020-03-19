@@ -1,5 +1,6 @@
 ### 1.1.5 (in development)
 
+- Added new module called Part, which splits a gate signal into two cables according to a split point and a CV input
 - Added expander for ChordKey which offers 4 poly quantizers that quantize to the chord's notes
 - Added chord mode to FourView to show chord names
 - Modified CLKD knobs to change display when clicking the knob if it doesn't turn (and fixed the tooltips)

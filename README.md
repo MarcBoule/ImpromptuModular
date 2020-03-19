@@ -34,7 +34,7 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [WriteSeq32/64](#write-seq): Multi-channel 32/64-step sequencers with CV inputs for easy sequence programming.
 
-* [FourView and Hotkey](#utilities): Small chord viewer module that shows note or chord names, and a utility module that sends a trigger when a given key is pressed (mouse must be over module).
+* [Utilities](#utilities): Part - a gate splitter module based on an input CV and split point; FourView - a small chord viewer module that shows note or chord names; HotKey - a utility module that sends a trigger when a given key is pressed (mouse must be over module).
 
 * [Expanders](#expanders): Various expander modules that can be paired with some of the above modules.
 
@@ -693,9 +693,13 @@ WriteSeq64 has dual clock inputs, where each controls a pair of channels. When n
 
 
 
-## FourView and Hotkey <a id="utilities"></a>
+## Utilities <a id="utilities"></a>
 
 ![IM](res/img/Utilities.jpg)
+
+### Part <a id="part"></a>
+
+A gate splitter module based on a input CV and a split point. One use for this module is to split a polyphonic gate signal from a keyboard into two different polyphonic gate signals, such that the left and right hand parts can be sent to different voices (in such a case, the polyphonic CV is also directly sent to each voice, and only the gates below/above the split point will produce sound in their respective voices). The module can also be used with monophonic signals.
 
 ### FourView <a id="four-view"></a>
 A chord viewer module that shows the note names of up to 4 CVs, or the name of the chord represented by these CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs. FourView can also function as an expander for ChordKey or CVPad by placing it to the right of either of those two modules; in this case: a) no cables need to be connected in order to view the note names of the chord notes or pad voltages and b) the through outputs are not used. 

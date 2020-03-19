@@ -45,6 +45,7 @@ extern Model *modelBigButtonSeq2;
 extern Model *modelFourView;
 extern Model *modelSemiModularSynth;
 extern Model *modelHotkey;
+extern Model *modelPart;
 extern Model *modelBlankPanel;
 
 

@@ -175,6 +175,13 @@
 			"tags": ["Utility"]
 		},
 		{
+			"slug": "Part-Gate-Split",
+			"name": "Part",
+			"description": "Polyphonic gate splitter",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#part",
+			"tags": ["Utility", "Polyphonic"]
+		},
+		{
 			"slug": "Blank-Panel",
 			"name": "BlankPanel",
 			"description": "Impromptu Modular blank panel",
