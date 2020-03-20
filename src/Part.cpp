@@ -54,7 +54,7 @@ struct Part : Module {
 	Part() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
-		configParam(SPLIT_PARAM, -10.0f, 10.0f, 0.0f, "Split point");
+		configParam(SPLIT_PARAM, -10.0f, 10.0f, 0.0f, "Split point", " V");
 		configParam(MODE_PARAM, 0.0f, 1.0f, 0.0f, "Display mode");// default is 0.0f meaning left position (= V)
 		
 		onReset();

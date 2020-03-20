@@ -1,10 +1,10 @@
 {
 	"slug": "ImpromptuModular",
-	"name": "Impromptu Modular",
+	"name": "Impromptu",
 	"version": "1.1.5",
 	"license": "GPL-3.0-only",
 	"author": "Marc Boul\u00e9",
-	"brand": "Impromptu Modular",
+	"brand": "Impromptu",
 	"authorEmail": "marc.boule@etsmtl.ca",
 	"authorUrl": "",
 	"pluginUrl": "",

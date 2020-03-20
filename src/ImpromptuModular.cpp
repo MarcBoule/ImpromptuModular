@@ -90,18 +90,20 @@ void printNote(float cvVal, char* text, bool sharp) {// text must be at least 4 
 	text[0] = sharp ? noteLettersSharp[indexNote] : noteLettersFlat[indexNote];
 	
 	// octave number
+	int cursor = 1;
 	int octave = (int) std::round(std::floor(cvVal)+4.0f);
-	if (octave < 0 || octave > 9)
-		text[1] = (octave > 9) ? ':' : '_';
-	else
+	if (octave >= 0 && octave <= 9) {
 		text[1] = (char) ( 0x30 + octave);
+		cursor++;
+	}
 	
 	// sharp/flat
-	text[2] = ' ';
+	text[cursor] = ' ';
 	if (isBlackKey[indexNote] == 1)
-		text[2] = (sharp ? '\"' : 'b' );
+		text[cursor] = (sharp ? '\"' : 'b' );
+	cursor++;
 	
-	text[3] = 0;
+	text[cursor] = 0;
 }
 
 int moveIndex(int index, int indexNext, int numSteps) {
