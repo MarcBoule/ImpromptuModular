@@ -242,8 +242,6 @@ struct Clocked : Module {
 	bool running;
 	bool displayDelayNoteMode;
 	bool bpmDetectionMode;
-	// int restartOnStopStartRun;// 0 = nothing, 1 = restart on stop run, 2 = restart on start run (DEPRECATED)
-	// bool sendResetOnRestart; (DEPRECATED)
 	unsigned int resetOnStartStop;// see bit masks ON_STOP_INT_RST_MSK, ON_START_EXT_RST_MSK, etc
 	int ppqn;
 	bool resetClockOutputsHigh;
@@ -380,8 +378,6 @@ struct Clocked : Module {
 		running = true;
 		displayDelayNoteMode = true;
 		bpmDetectionMode = false;
-		// restartOnStopStartRun = 0;
-		// sendResetOnRestart = false;
 		resetOnStartStop = 0;
 		ppqn = 4;
 		resetClockOutputsHigh = true;
@@ -449,12 +445,6 @@ struct Clocked : Module {
 		
 		// bpmDetectionMode
 		json_object_set_new(rootJ, "bpmDetectionMode", json_boolean(bpmDetectionMode));
-		
-		// restartOnStopStartRun
-		// json_object_set_new(rootJ, "restartOnStopStartRun", json_integer(restartOnStopStartRun));
-		
-		// sendResetOnRestart
-		// json_object_set_new(rootJ, "sendResetOnRestart", json_boolean(sendResetOnRestart));
 		
 		// resetOnStartStop
 		json_object_set_new(rootJ, "resetOnStartStop", json_integer(resetOnStartStop));
@@ -554,19 +544,19 @@ struct Clocked : Module {
 			running = !running;
 			runPulse.trigger(0.001f);
 			if (running) {
-				if (resetOnStartStop & ON_START_INT_RST_MSK) {//restartOnStopStartRun == 2) {
+				if (resetOnStartStop & ON_START_INT_RST_MSK) {
 					resetClocked(false);
 				}
-				if (resetOnStartStop & ON_START_EXT_RST_MSK) {//sendResetOnRestart) {
+				if (resetOnStartStop & ON_START_EXT_RST_MSK) {
 					resetPulse.trigger(0.001f);
 					resetLight = 1.0f;
 				}
 			}
 			else {
-				if (resetOnStartStop & ON_STOP_INT_RST_MSK) {//restartOnStopStartRun == 1) {
+				if (resetOnStartStop & ON_STOP_INT_RST_MSK) {
 					resetClocked(false);
 				}
-				if (resetOnStartStop & ON_STOP_EXT_RST_MSK) {// resetOnStartStop & ON_STOP_EXT_RST_MSK) {
+				if (resetOnStartStop & ON_STOP_EXT_RST_MSK) {
 					resetPulse.trigger(0.001f);
 					resetLight = 1.0f;
 				}
@@ -680,10 +670,10 @@ struct Clocked : Module {
 						running = true;
 						runPulse.trigger(0.001f);
 						resetClocked(false);
-						if (resetOnStartStop & ON_START_INT_RST_MSK) {//restartOnStopStartRun == 2) {
+						if (resetOnStartStop & ON_START_INT_RST_MSK) {
 							// resetClocked(false); implicit above
 						}
-						if (resetOnStartStop & ON_START_EXT_RST_MSK) {//sendResetOnRestart) {
+						if (resetOnStartStop & ON_START_EXT_RST_MSK) {
 							resetPulse.trigger(0.001f);
 							resetLight = 1.0f;
 						}
@@ -708,10 +698,10 @@ struct Clocked : Module {
 					if (extIntervalTime > timeoutTime) {
 						running = false;
 						runPulse.trigger(0.001f);
-						if (resetOnStartStop & ON_STOP_INT_RST_MSK) {//restartOnStopStartRun == 1) {
+						if (resetOnStartStop & ON_STOP_INT_RST_MSK) {
 							resetClocked(false);
 						}
-						if (resetOnStartStop & ON_STOP_EXT_RST_MSK) {//sendResetOnRestart) {
+						if (resetOnStartStop & ON_STOP_EXT_RST_MSK) {
 							resetPulse.trigger(0.001f);
 							resetLight = 1.0f;
 						}
@@ -941,92 +931,6 @@ struct ClockedWidget : ModuleWidget {
 			module->momentaryRunInput = !module->momentaryRunInput;
 		}
 	};
-/*	struct RestartOnStopStartItem : MenuItem {
-		Clocked *module;
-		
-		struct RestartOnStopStartSubItem : MenuItem {
-			Clocked *module;
-			int setVal = 0;
-			void onAction(const event::Action &e) override {
-				module->restartOnStopStartRun = setVal;
-			}
-		};
-	
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			RestartOnStopStartSubItem *re0Item = createMenuItem<RestartOnStopStartSubItem>("turned off", CHECKMARK(module->restartOnStopStartRun == 1));
-			re0Item->module = module;
-			re0Item->setVal = 1;
-			menu->addChild(re0Item);
-
-			RestartOnStopStartSubItem *re1Item = createMenuItem<RestartOnStopStartSubItem>("turned on", CHECKMARK(module->restartOnStopStartRun == 2));
-			re1Item->module = module;
-			re1Item->setVal = 2;
-			menu->addChild(re1Item);
-
-			RestartOnStopStartSubItem *re2Item = createMenuItem<RestartOnStopStartSubItem>("neither", CHECKMARK(module->restartOnStopStartRun == 0));
-			re2Item->module = module;
-			menu->addChild(re2Item);
-
-			return menu;
-		}
-	};	
-	struct SendResetOnRestartItem : MenuItem {
-		Clocked *module;
-		void onAction(const event::Action &e) override {
-			module->sendResetOnRestart = !module->sendResetOnRestart;
-		}
-	};	*/
-	
-	struct ResetModeBitToggleItem : MenuItem {
-		Clocked *module;
-		unsigned int mask;
-		void onAction(const event::Action &e) override {
-			module->resetOnStartStop ^= mask;
-		}
-	};
-
-	struct OnStartItem : MenuItem {
-		Clocked *module;
-	
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			ResetModeBitToggleItem *startIntItem = createMenuItem<ResetModeBitToggleItem>("Do internal reset", CHECKMARK(module->resetOnStartStop & ON_START_INT_RST_MSK));
-			startIntItem->module = module;
-			startIntItem->mask = ON_START_INT_RST_MSK;
-			menu->addChild(startIntItem);
-
-			ResetModeBitToggleItem *startExtItem = createMenuItem<ResetModeBitToggleItem>("Send reset pulse", CHECKMARK(module->resetOnStartStop & ON_START_EXT_RST_MSK));
-			startExtItem->module = module;
-			startExtItem->mask = ON_START_EXT_RST_MSK;
-			menu->addChild(startExtItem);
-
-			return menu;
-		}
-	};	
-	
-	struct OnStopItem : MenuItem {
-		Clocked *module;
-	
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			ResetModeBitToggleItem *stopIntItem = createMenuItem<ResetModeBitToggleItem>("Do internal reset", CHECKMARK(module->resetOnStartStop & ON_STOP_INT_RST_MSK));
-			stopIntItem->module = module;
-			stopIntItem->mask = ON_STOP_INT_RST_MSK;
-			menu->addChild(stopIntItem);
-
-			ResetModeBitToggleItem *stopExtItem = createMenuItem<ResetModeBitToggleItem>("Send reset pulse", CHECKMARK(module->resetOnStartStop & ON_STOP_EXT_RST_MSK));
-			stopExtItem->module = module;
-			stopExtItem->mask = ON_STOP_EXT_RST_MSK;
-			menu->addChild(stopExtItem);
-
-			return menu;
-		}
-	};	
-	
 	struct ResetHighItem : MenuItem {
 		Clocked *module;
 		void onAction(const event::Action &e) override {
@@ -1057,22 +961,13 @@ struct ClockedWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		// RestartOnStopStartItem *erItem = createMenuItem<RestartOnStopStartItem>("Restart when run is:", RIGHT_ARROW);
-		// erItem->module = module;
-		// menu->addChild(erItem);
-
 		OnStartItem *onStartItem = createMenuItem<OnStartItem>("On Start", RIGHT_ARROW);
-		onStartItem->module = module;
+		onStartItem->resetOnStartStopPtr = &module->resetOnStartStop;
 		menu->addChild(onStartItem);
 		
 		OnStopItem *onStopItem = createMenuItem<OnStopItem>("On Stop", RIGHT_ARROW);
-		onStopItem->module = module;
+		onStopItem->resetOnStartStopPtr = &module->resetOnStartStop;
 		menu->addChild(onStopItem);
-
-		// SendResetOnRestartItem *sendItem = createMenuItem<SendResetOnRestartItem>("Send reset pulse when restart", module->restartOnStopStartRun != 0 ? CHECKMARK(module->sendResetOnRestart) : "");
-		// sendItem->module = module;
-		// sendItem->disabled = module->restartOnStopStartRun == 0;
-		// menu->addChild(sendItem);
 
 		ResetHighItem *rhItem = createMenuItem<ResetHighItem>("Outputs reset high when not running", CHECKMARK(module->resetClockOutputsHigh));
 		rhItem->module = module;

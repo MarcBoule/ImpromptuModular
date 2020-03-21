@@ -139,8 +139,7 @@ struct Clkd : Module {
 	// Need to save, with reset
 	bool running;
 	bool bpmDetectionMode;
-	int restartOnStopStartRun;// 0 = nothing, 1 = restart on stop run, 2 = restart on start run
-	bool sendResetOnRestart;
+	unsigned int resetOnStartStop;// see bit masks ON_STOP_INT_RST_MSK, ON_START_EXT_RST_MSK, etc
 	int ppqn;
 	bool resetClockOutputsHigh;
 	bool momentaryRunInput;// true = trigger (original rising edge only version), false = level sensitive (emulated with rising and falling detection)
@@ -226,8 +225,7 @@ struct Clkd : Module {
 	void onReset() override {
 		running = true;
 		bpmDetectionMode = false;
-		restartOnStopStartRun = 0;
-		sendResetOnRestart = false;
+		resetOnStartStop = 0;
 		ppqn = 4;
 		resetClockOutputsHigh = true;
 		momentaryRunInput = true;
@@ -292,11 +290,8 @@ struct Clkd : Module {
 		// bpmDetectionMode
 		json_object_set_new(rootJ, "bpmDetectionMode", json_boolean(bpmDetectionMode));
 		
-		// restartOnStopStartRun
-		json_object_set_new(rootJ, "restartOnStopStartRun", json_integer(restartOnStopStartRun));
-		
-		// sendResetOnRestart
-		json_object_set_new(rootJ, "sendResetOnRestart", json_boolean(sendResetOnRestart));
+		// resetOnStartStop
+		json_object_set_new(rootJ, "resetOnStartStop", json_integer(resetOnStartStop));
 		
 		// ppqn
 		json_object_set_new(rootJ, "ppqn", json_integer(ppqn));
@@ -330,15 +325,33 @@ struct Clkd : Module {
 		if (bpmDetectionModeJ)
 			bpmDetectionMode = json_is_true(bpmDetectionModeJ);
 
-		// restartOnStopStartRun
-		json_t *restartOnStopStartRunJ = json_object_get(rootJ, "restartOnStopStartRun");
-		if (restartOnStopStartRunJ) 
-			restartOnStopStartRun = json_integer_value(restartOnStopStartRunJ);
+		// resetOnStartStop
+		json_t *resetOnStartStopJ = json_object_get(rootJ, "resetOnStartStop");
+		if (resetOnStartStopJ) {
+			resetOnStartStop = json_integer_value(resetOnStartStopJ);
+		}
+		else {// legacy
+			int restartOnStopStartRun = 0;// 0 = nothing, 1 = restart on stop run, 2 = restart on start run
+			bool sendResetOnRestart = false;
+			
+			// restartOnStopStartRun
+			json_t *restartOnStopStartRunJ = json_object_get(rootJ, "restartOnStopStartRun");
+			if (restartOnStopStartRunJ) 
+				restartOnStopStartRun = json_integer_value(restartOnStopStartRunJ);
 
-		// sendResetOnRestart
-		json_t *sendResetOnRestartJ = json_object_get(rootJ, "sendResetOnRestart");
-		if (sendResetOnRestartJ)
-			sendResetOnRestart = json_is_true(sendResetOnRestartJ);
+			// sendResetOnRestart
+			json_t *sendResetOnRestartJ = json_object_get(rootJ, "sendResetOnRestart");
+			if (sendResetOnRestartJ)
+				sendResetOnRestart = json_is_true(sendResetOnRestartJ);
+				
+			resetOnStartStop = 0;
+			if (restartOnStopStartRun == 1) 
+				resetOnStartStop |= ON_STOP_INT_RST_MSK;
+			else if (restartOnStopStartRun == 2) 
+				resetOnStartStop |= ON_START_INT_RST_MSK;
+			if (sendResetOnRestart)
+				resetOnStartStop |= (ON_START_EXT_RST_MSK | ON_STOP_EXT_RST_MSK);
+		}
 
 		// ppqn
 		json_t *ppqnJ = json_object_get(rootJ, "ppqn");
@@ -367,16 +380,20 @@ struct Clkd : Module {
 		if (!(bpmDetectionMode && inputs[BPM_INPUT].isConnected()) || running) {// toggle when not BPM detect, turn off only when BPM detect (allows turn off faster than timeout if don't want any trailing beats after stoppage). If allow manually start in bpmDetectionMode   the clock will not know which pulse is the 1st of a ppqn set, so only allow stop
 			running = !running;
 			runPulse.trigger(0.001f);
-			if (!running && restartOnStopStartRun == 1) {
-				resetClkd(false);
-				if (sendResetOnRestart) {
+			if (running) {
+				if (resetOnStartStop & ON_START_INT_RST_MSK) {
+					resetClkd(false);
+				}
+				if (resetOnStartStop & ON_START_EXT_RST_MSK) {
 					resetPulse.trigger(0.001f);
 					resetLight = 1.0f;
 				}
 			}
-			if (running && restartOnStopStartRun == 2) {
-				resetClkd(false);
-				if (sendResetOnRestart) {
+			else {
+				if (resetOnStartStop & ON_STOP_INT_RST_MSK) {
+					resetClkd(false);
+				}
+				if (resetOnStartStop & ON_STOP_EXT_RST_MSK) {
 					resetPulse.trigger(0.001f);
 					resetLight = 1.0f;
 				}
@@ -498,12 +515,12 @@ struct Clkd : Module {
 						running = true;
 						runPulse.trigger(0.001f);
 						resetClkd(false);
-						if (restartOnStopStartRun == 2) {
+						if (resetOnStartStop & ON_START_INT_RST_MSK) {
 							// resetClkd(false); implicit above
-							if (sendResetOnRestart) {
-								resetPulse.trigger(0.001f);
-								resetLight = 1.0f;
-							}
+						}
+						if (resetOnStartStop & ON_START_EXT_RST_MSK) {
+							resetPulse.trigger(0.001f);
+							resetLight = 1.0f;
 						}
 					}
 					if (running) {
@@ -526,12 +543,12 @@ struct Clkd : Module {
 					if (extIntervalTime > timeoutTime) {
 						running = false;
 						runPulse.trigger(0.001f);
-						if (restartOnStopStartRun == 1) {
+						if (resetOnStartStop & ON_STOP_INT_RST_MSK) {
 							resetClkd(false);
-							if (sendResetOnRestart) {
-								resetPulse.trigger(0.001f);
-								resetLight = 1.0f;
-							}
+						}
+						if (resetOnStartStop & ON_STOP_EXT_RST_MSK) {
+							resetPulse.trigger(0.001f);
+							resetLight = 1.0f;
 						}
 					}
 				}
@@ -719,43 +736,6 @@ struct ClkdWidget : ModuleWidget {
 			module->momentaryRunInput = !module->momentaryRunInput;
 		}
 	};
-	struct RestartOnStopStartItem : MenuItem {
-		Clkd *module;
-		
-		struct RestartOnStopStartSubItem : MenuItem {
-			Clkd *module;
-			int setVal = 0;
-			void onAction(const event::Action &e) override {
-				module->restartOnStopStartRun = setVal;
-			}
-		};
-	
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			RestartOnStopStartSubItem *re0Item = createMenuItem<RestartOnStopStartSubItem>("turned off", CHECKMARK(module->restartOnStopStartRun == 1));
-			re0Item->module = module;
-			re0Item->setVal = 1;
-			menu->addChild(re0Item);
-
-			RestartOnStopStartSubItem *re1Item = createMenuItem<RestartOnStopStartSubItem>("turned on", CHECKMARK(module->restartOnStopStartRun == 2));
-			re1Item->module = module;
-			re1Item->setVal = 2;
-			menu->addChild(re1Item);
-
-			RestartOnStopStartSubItem *re2Item = createMenuItem<RestartOnStopStartSubItem>("neither", CHECKMARK(module->restartOnStopStartRun == 0));
-			re2Item->module = module;
-			menu->addChild(re2Item);
-
-			return menu;
-		}
-	};	
-	struct SendResetOnRestartItem : MenuItem {
-		Clkd *module;
-		void onAction(const event::Action &e) override {
-			module->sendResetOnRestart = !module->sendResetOnRestart;
-		}
-	};	
 	struct ResetHighItem : MenuItem {
 		Clkd *module;
 		void onAction(const event::Action &e) override {
@@ -786,14 +766,13 @@ struct ClkdWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		RestartOnStopStartItem *erItem = createMenuItem<RestartOnStopStartItem>("Restart when run is:", RIGHT_ARROW);
-		erItem->module = module;
-		menu->addChild(erItem);
-
-		SendResetOnRestartItem *sendItem = createMenuItem<SendResetOnRestartItem>("Send reset pulse when restart", module->restartOnStopStartRun != 0 ? CHECKMARK(module->sendResetOnRestart) : "");
-		sendItem->module = module;
-		sendItem->disabled = module->restartOnStopStartRun == 0;
-		menu->addChild(sendItem);
+		OnStartItem *onStartItem = createMenuItem<OnStartItem>("On Start", RIGHT_ARROW);
+		onStartItem->resetOnStartStopPtr = &module->resetOnStartStop;
+		menu->addChild(onStartItem);
+		
+		OnStopItem *onStopItem = createMenuItem<OnStopItem>("On Stop", RIGHT_ARROW);
+		onStopItem->resetOnStartStopPtr = &module->resetOnStartStop;
+		menu->addChild(onStopItem);
 
 		ResetHighItem *rhItem = createMenuItem<ResetHighItem>("Outputs reset high when not running", CHECKMARK(module->resetClockOutputsHigh));
 		rhItem->module = module;
