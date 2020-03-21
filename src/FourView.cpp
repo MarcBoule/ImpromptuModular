@@ -92,7 +92,7 @@ struct FourView : Module {
 	
 
 	void onReset() override {
-		allowPolyOverride = 0;
+		allowPolyOverride = 1;
 		showSharp = true;
 		resetNonJson();
 	}
@@ -143,43 +143,43 @@ struct FourView : Module {
 
 	
 	void process(const ProcessArgs &args) override {
-		
-		if (refresh.processInputs()) {
-			bool motherPresent = (leftExpander.module && (leftExpander.module->model == modelCvPad ||
-														  leftExpander.module->model == modelChordKey ||
-														  leftExpander.module->model == modelChordKeyExpander));
-			if (motherPresent) {
-				// From Mother
-				float *messagesFromMother = (float*)leftExpander.consumerMessage;
-				for (int i = 0; i < 4; i++) {
-					displayValues[i] = inputs[CV_INPUTS + i].isConnected() ? inputs[CV_INPUTS + i].getVoltage() : messagesFromMother[i];// input cable has higher priority than mother
-				}
-				panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 1);
-			}	
-			else {
-				if (allowPolyOverride == 1) {
-					int numChanIn0 = inputs[CV_INPUTS + 0].isConnected() ? inputs[CV_INPUTS + 0].getChannels() : 0;
-					for (int i = 0; i < 4; i++) {
-						if (i < numChanIn0) {
-							displayValues[i] = inputs[CV_INPUTS].getVoltage(i);
-						}
-						else {
-							displayValues[i] = inputs[CV_INPUTS + i].isConnected() ? inputs[CV_INPUTS + i].getVoltage() : unusedValue;
-						}
-					}
-				}					
-				else {
-					for (int i = 0; i < 4; i++) {
-						displayValues[i] = inputs[CV_INPUTS + i].isConnected() ? inputs[CV_INPUTS + i].getVoltage() : unusedValue;
-					}
-				}
+		bool motherPresent = (leftExpander.module && (leftExpander.module->model == modelCvPad ||
+													  leftExpander.module->model == modelChordKey ||
+													  leftExpander.module->model == modelChordKeyExpander));
+
+		if (motherPresent) {
+			// From Mother
+			float *messagesFromMother = (float*)leftExpander.consumerMessage;
+			memcpy(displayValues, messagesFromMother, 4 * 4);
+			panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 1);
+		}	
+		else {
+			for (int i = 0; i < 4; i++) {
+				displayValues[i] = unusedValue;
 			}
+		}
+		
+		int numChanIn0 = inputs[CV_INPUTS + 0].isConnected() ? inputs[CV_INPUTS + 0].getChannels() : 0;
+		int i = 0;// write head
+		if (allowPolyOverride == 1) {
+			for (; i < numChanIn0; i++) {
+				displayValues[i] = inputs[CV_INPUTS].getVoltage(i);
+			}
+		}
+		for (; i < 4; i++) {
+			if (inputs[CV_INPUTS + i].isConnected()) {
+				displayValues[i] = inputs[CV_INPUTS + i].getVoltage();
+			}
+		}
+
+
+		if (refresh.processInputs()) {
 		}// userInputs refresh
 		
 		
-		// outputs
-		for (int i = 0; i < 4; i++)
-			outputs[CV_OUTPUTS + i].setVoltage(inputs[CV_INPUTS + i].getVoltage());
+		for (int i = 0; i < 4; i++) {
+			outputs[CV_OUTPUTS + i].setVoltage(displayValues[i] == unusedValue ? 0.0f : displayValues[i]);
+		}
 		
 		
 		if (refresh.processLights()) {
