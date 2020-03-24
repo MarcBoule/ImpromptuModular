@@ -13,6 +13,10 @@
 #include "ImpromptuModular.hpp"
 
 
+// Note: to manuall poll key states (not used in this module though): 
+// glfwGetKey(APP->window->win, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ? 10.0f : 0.0f
+
+
 // the next two functions are copied from Rack/dep/glfw/tests/events.c
 static const char* get_key_name(int key)
 {

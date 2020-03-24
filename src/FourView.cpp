@@ -9,6 +9,8 @@
 
 
 #include "ImpromptuModular.hpp"
+#include "Interop.hpp"
+
 
 // Intervals (two notes)
 // // https://en.wikipedia.org/wiki/Interval_(music)#Main_intervals
@@ -142,6 +144,28 @@ struct FourView : Module {
 	}
 
 	
+	IoStep* fillIoSteps(int *seqLenPtr) {// caller must delete return array
+		IoStep* ioSteps = new IoStep[4];
+		
+		// populate ioSteps array
+		int j = 0;// write head also
+		for (int i = 0; i < 4; i++) {
+			if (displayValues[i] != unusedValue) {
+				ioSteps[j].pitch = displayValues[i];
+				ioSteps[j].gate = true;
+				ioSteps[j].tied = false;
+				ioSteps[j].vel = -1.0f;// no concept of velocity in BigButton2
+				ioSteps[j].prob = -1.0f;// no concept of probability in BigButton2
+				j++;
+			}
+		}
+		
+		// return values 
+		*seqLenPtr = j;
+		return ioSteps;
+	}
+
+
 	void process(const ProcessArgs &args) override {
 		bool motherPresent = (leftExpander.module && (leftExpander.module->model == modelCvPad ||
 													  leftExpander.module->model == modelChordKey ||
@@ -492,12 +516,38 @@ struct FourViewWidget : ModuleWidget {
 			module->showSharp = !module->showSharp;
 		}
 	};
-	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
+	struct InteropSeqItem : MenuItem {
+		struct InteropCopySeqItem : MenuItem {
+			FourView *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				IoStep* ioSteps = module->fillIoSteps(&seqLen);
+				interopCopySequence(seqLen, ioSteps);
+				delete[] ioSteps;
+			}
+		};
 
+		FourView *module;
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
+
+			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy notes to sequence", "");
+			interopCopySeqItem->module = module;
+			menu->addChild(interopCopySeqItem);		
+
+			return menu;
+		}
+	};	
+	void appendContextMenu(Menu *menu) override {
 		FourView *module = dynamic_cast<FourView*>(this->module);
 		assert(module);
+
+		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
+		interopSeqItem->module = module;
+		menu->addChild(interopSeqItem);		
+				
+		MenuLabel *spacerLabel = new MenuLabel();
+		menu->addChild(spacerLabel);
 
 		MenuLabel *themeLabel = new MenuLabel();
 		themeLabel->text = "Panel Theme";

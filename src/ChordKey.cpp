@@ -10,6 +10,7 @@
 
 #include "ImpromptuModular.hpp"
 #include "comp/PianoKey.hpp"
+#include "Interop.hpp"
 
 
 struct ChordKey : Module {
@@ -77,6 +78,20 @@ struct ChordKey : Module {
 	int getIndex() {
 		int index = (int)std::round(params[INDEX_PARAM].getValue() + inputs[INDEX_INPUT].getVoltage() * 12.0f);
 		return clamp(index, 0, NUM_CHORDS - 1 );
+	}
+	float calcCV(int index, int cni) {
+		return (octs[index][cni] >= 0) ? (((float)(octs[index][cni] - 4)) + ((float)keys[index][cni]) / 12.0f) : 0.0f;
+	}
+	void setCV(int index, int cni, float cv) {
+		int note = (int)std::round(cv * 12.0f);
+		octs[index][cni] = clamp(eucDiv(note, 12) + 4, 0, 9);
+		keys[index][cni] = eucMod(note, 12);
+	}
+	void applyDelta(int index, int cni, int delta) {
+		int newKey = (keys[index][cni] + delta);
+		keys[index][cni] = eucMod(newKey, 12);
+		int newOct = octs[index][cni] + eucDiv(newKey, 12);
+		octs[index][cni] = clamp(newOct, 0, 9);
 	}
 
 
@@ -218,6 +233,44 @@ struct ChordKey : Module {
 	}
 
 	
+	IoStep* fillIoSteps(int *seqLenPtr) {// caller must delete return array
+		int index = getIndex();
+		IoStep* ioSteps = new IoStep[4];
+		
+		// populate ioSteps array
+		int j = 0;// write head also
+		for (int i = 0; i < 4; i++) {
+			if (octs[index][i] >= 0) {
+				ioSteps[j].pitch = calcCV(index, i);
+				ioSteps[j].gate = true;
+				ioSteps[j].tied = false;
+				ioSteps[j].vel = -1.0f;// no concept of velocity in BigButton2
+				ioSteps[j].prob = -1.0f;// no concept of probability in BigButton2
+				j++;
+			}
+		}
+		
+		// return values 
+		*seqLenPtr = j;
+		return ioSteps;
+	}
+	
+	
+	void emptyIoNotes(std::vector<IoNote> *ioNotes) {
+		int index = getIndex();
+		
+		// populate steps in the sequencer
+		int i = 0;
+		for (; i < std::min(4, (int)(ioNotes->size())); i++) {
+			setCV(index, i, (*ioNotes)[i].pitch);
+		}
+		for (; i < 4; i++) {
+			octs[index][i] = -1;
+			keys[index][i] = 0;
+		}
+	}	
+
+
 	void process(const ProcessArgs &args) override {		
 		int index = getIndex();
 		
@@ -245,10 +298,7 @@ struct ChordKey : Module {
 			if (delta != 0) {
 				for (int cni = 0; cni < 4; cni++) {
 					if (octs[index][cni] >= 0) {
-						int newKey = (keys[index][cni] + 120 + delta);// +120 is to force positive for cals, will be undone
-						keys[index][cni] = newKey % 12;
-						int newOct = octs[index][cni] + (newKey / 12) - (120 / 12);
-						octs[index][cni] = clamp(newOct, 0, 9);
+						applyDelta(index, cni, delta);
 					}
 				}				
 			}
@@ -312,7 +362,7 @@ struct ChordKey : Module {
 					keypressGate = (octs[index][keyPressed] >= 0);
 			}
 			gateOuts[cni] = ((octs[index][cni] >= 0) && (extGateWithForce || keypressGate))  ? 10.0f : 0.0f;
-			cvOuts[cni] = (octs[index][cni] >= 0) ? (((float)(octs[index][cni] - 4)) + ((float)keys[index][cni]) / 12.0f) : 0.0f;
+			cvOuts[cni] = calcCV(index, cni);
 		}
 		if (mergeOutputs == 0) {
 			for (int cni = 0; cni < 4; cni++) {			
@@ -504,10 +554,7 @@ struct ChordKeyWidget : ModuleWidget {
 				int index = module->getIndex();
 				for (int cni = 0; cni < 4; cni++) {
 					if (module->octs[index][cni] >= 0) {
-						int newKey = (module->keys[index][cni] + 120 + delta);// +120 is to force positive for cals, will be undone
-						module->keys[index][cni] = newKey % 12;
-						int newOct = module->octs[index][cni] + (newKey / 12) - (120 / 12);
-						module->octs[index][cni] = clamp(newOct, 0, 9);
+						module->applyDelta(index, cni, delta);
 					}
 				}
 				valueIntLocalLast = valueIntLocal;
@@ -579,12 +626,52 @@ struct ChordKeyWidget : ModuleWidget {
 			module->keypressEmitGate ^= 0x1;
 		}
 	};
-	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
+	struct InteropSeqItem : MenuItem {
+		struct InteropCopySeqItem : MenuItem {
+			ChordKey *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				IoStep* ioSteps = module->fillIoSteps(&seqLen);
+				interopCopySequence(seqLen, ioSteps);
+				delete[] ioSteps;
+			}
+		};
+		struct InteropPasteSeqItem : MenuItem {
+			ChordKey *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				std::vector<IoNote> *ioNotes = interopPasteSequenceNotes(1024, &seqLen);// 1024 not used to alloc anything
+				if (ioNotes) {
+					module->emptyIoNotes(ioNotes);
+					delete ioNotes;
+				}
+			}
+		};
+		ChordKey *module;
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
 
+			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy chord to sequence", "");
+			interopCopySeqItem->module = module;
+			menu->addChild(interopCopySeqItem);		
+			
+			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>("Paste sequence as chord", "");
+			interopPasteSeqItem->module = module;
+			menu->addChild(interopPasteSeqItem);		
+
+			return menu;
+		}
+	};	
+	void appendContextMenu(Menu *menu) override {
 		ChordKey *module = dynamic_cast<ChordKey*>(this->module);
 		assert(module);
+
+		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
+		interopSeqItem->module = module;
+		menu->addChild(interopSeqItem);		
+				
+		MenuLabel *spacerLabel = new MenuLabel();
+		menu->addChild(spacerLabel);
 
 		MenuLabel *themeLabel = new MenuLabel();
 		themeLabel->text = "Panel Theme";
@@ -602,11 +689,11 @@ struct ChordKeyWidget : ModuleWidget {
 		actionsLabel->text = "Actions";
 		menu->addChild(actionsLabel);
 
-		CopyChordItem *cvCopyItem = createMenuItem<CopyChordItem>("Copy chord");
+		CopyChordItem *cvCopyItem = createMenuItem<CopyChordItem>("Copy chord (internal)");
 		cvCopyItem->module = module;
 		menu->addChild(cvCopyItem);
 		
-		PasteChordItem *cvPasteItem = createMenuItem<PasteChordItem>("Paste chord");
+		PasteChordItem *cvPasteItem = createMenuItem<PasteChordItem>("Paste chord (internal)");
 		cvPasteItem->module = module;
 		menu->addChild(cvPasteItem);	
 		

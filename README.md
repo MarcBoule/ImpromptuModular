@@ -152,7 +152,9 @@ Further information for developpers is available in a short summary of the [code
 
 ### Portable sequence <a id="portable_seq"></a>
 
-The [Portable sequence standard](https://github.com/squinkylabs/SquinkyVCV/blob/master/docs/clipboard-format.md) is supported in the following Impromptu sequencers: PhraseSeq16/32, SMS16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence".
+The [Portable sequence standard](https://github.com/squinkylabs/SquinkyVCV/blob/master/docs/clipboard-format.md) is supported in the following Impromptu sequencers: PhraseSeq16/32, SMS16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence". 
+
+The Portable sequence standard can also be used to copy small sequences of up to four notes into/from ChordKey, in order to make a chord out of a sequence of notes, or vice versa. The FourView module also allows the copying of the displayed notes for then pasting as a small sequence in a sequencer, or as a chord in ChordKey.
 
 ![IM](res/img/PortableSequence.jpg)
 
@@ -244,7 +246,7 @@ An [expander](#expanders) is also available (titled CHD-X), which offers four po
 
 Other options are also available in the right-click menu:
 
-* **Copy/Paste chord**: Use to copy a chord from one index position and paste it into another index position.
+* **Copy/Paste chord (internal)**: Use to copy a chord from one index position and paste it into another index position. This uses an internal memory and will copy/paste a chord exactly as it appears (with any unused notes in the same position). The Portable sequence standard can also be used to copy chords as sequences of up to four notes into/from ChordKey, in order to make a chord out of a sequence of notes, or vice versa. For this, use the menu entry labeled "_Portable sequence_" instead.
 
 * **Keypress monitoring**: When this option is checked, left clicking the keys will play all the notes of the chord, i.e. the gates of the active notes will be held as long as the left mouse button is pressed. Pressing the right button of the mouse only activates the gate of the note being pressed, such that it can be heard (monitored) individually without the other notes of the chord.
 
@@ -700,7 +702,7 @@ WriteSeq64 has dual clock inputs, where each controls a pair of channels. When n
 A gate splitter module based on a input CV and a split point. One use for this module is to split a polyphonic gate signal from a keyboard into two different polyphonic gate signals, such that the left and right hand parts can be sent to different voices (in such a case, the polyphonic CV is also directly sent to each voice, and only the gates below/above the split point will produce sound in their respective voices). The module can also be used with monophonic signals.
 
 ### FourView <a id="four-view"></a>
-A chord viewer module that shows the note names of up to 4 CVs, or the name of the chord represented by these CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs. FourView can also function as an expander for ChordKey or CVPad by placing it to the right of either of those two modules; in this case: a) no cables need to be connected in order to view the note names of the chord notes or pad voltages and b) the through outputs are not used. 
+A chord viewer module that shows the note names of up to 4 CVs, or the name of the chord represented by these CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs. FourView can also function as an expander for ChordKey or CVPad by placing it to the right of either of those two modules; in this case: a) no cables need to be connected in order to view the note names of the chord notes or pad voltages and b) the through outputs are not used. The FourView module also allows the copying of the displayed notes via the Portable sequence format for then pasting as a small sequence in a sequencer, or as a chord in ChordKey.
 
 ### Hotkey <a id="hotkey"></a>
 Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize audio recording using VCV Recorder with video recording (using OBS Studio for example). Set a hotkey in OBS to automatically have it start/stop recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same key in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press. Send the trig output of Hotkey into the trig input of VCV Recorder.

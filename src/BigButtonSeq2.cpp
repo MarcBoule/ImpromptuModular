@@ -18,7 +18,6 @@
 #include "Interop.hpp"
 
 
-
 struct BigButtonSeq2 : Module {
 	enum ParamIds {
 		CHAN_PARAM,
@@ -398,6 +397,7 @@ struct BigButtonSeq2 : Module {
 		}		
 	}	
 	
+	
 	void process(const ProcessArgs &args) override {
 		double sampleTime = 1.0 / args.sampleRate;
 		static const float lightTime = 0.1f;
@@ -744,12 +744,10 @@ struct BigButtonSeq2Widget : ModuleWidget {
 
 			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>(portableSequenceCopyID, "");
 			interopCopySeqItem->module = module;
-			interopCopySeqItem->disabled = disabled;
 			menu->addChild(interopCopySeqItem);		
 			
 			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>(portableSequencePasteID, "");
 			interopPasteSeqItem->module = module;
-			interopPasteSeqItem->disabled = disabled;
 			menu->addChild(interopPasteSeqItem);		
 
 			return menu;
@@ -762,7 +760,6 @@ struct BigButtonSeq2Widget : ModuleWidget {
 
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
-		//interopSeqItem->disabled = !module->isEditingSequence();
 		menu->addChild(interopSeqItem);		
 
 		MenuLabel *spacerLabel = new MenuLabel();

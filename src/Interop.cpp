@@ -113,7 +113,7 @@ IoStep* ioConvertToSteps(const std::vector<IoNote> &ioNotes, int maxSeqLen) {
 }
 
 
-IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr) {// will return an array of size *seqLenPtr, which called must delete[]
+std::vector<IoNote>* interopPasteSequenceNotes(int maxSeqLen, int *seqLenPtr) {
 	const char* interopClip = glfwGetClipboardString(APP->window->win);
 
     if (!interopClip) {
@@ -158,7 +158,7 @@ IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr) {// will return an a
         WARN("IOP error vcvrack-sequence notes array malformed or missing");
 		return nullptr;
 	}
-	std::vector<IoNote> ioNotes;
+	std::vector<IoNote> *ioNotes = new std::vector<IoNote>;
 	for (size_t i = 0; i < json_array_size(notesJ); i++) {
 		// note
 		json_t* noteJ = json_array_get(notesJ, i);
@@ -207,12 +207,22 @@ IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr) {// will return an a
 		json_t* probJ = json_object_get(noteJ, "playProbability");
 		newNote.prob = probJ ? json_number_value(probJ) : -1.0f;
 
-		ioNotes.push_back(newNote);
+		ioNotes->push_back(newNote);
 	}
-	if (ioNotes.size() < 1) {
+	if (ioNotes->size() < 1) {
 		WARN("IOP error in vcvrack-sequence, no notes in notes array ");
+		delete ioNotes;
 		return nullptr;		
 	}
+	return ioNotes;
+}
 	
-	return ioConvertToSteps(ioNotes, maxSeqLen);
+IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr) {// will return an array of size *seqLenPtr, which caller must delete[]
+	std::vector<IoNote> *ioNotes = interopPasteSequenceNotes(maxSeqLen, seqLenPtr);
+	if (ioNotes) {
+		IoStep* ioSteps = ioConvertToSteps(*ioNotes, maxSeqLen);
+		delete ioNotes;
+		return ioSteps;
+	}
+	return nullptr;
 }
