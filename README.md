@@ -246,7 +246,7 @@ An [expander](#expanders) is also available (titled CHD-X), which offers four po
 
 Other options are also available in the right-click menu:
 
-* **Copy/Paste chord (internal)**: Use to copy a chord from one index position and paste it into another index position. This uses an internal memory and will copy/paste a chord exactly as it appears (with any unused notes in the same position). The Portable sequence standard can also be used to copy chords as sequences of up to four notes into/from ChordKey, in order to make a chord out of a sequence of notes, or vice versa. For this, use the menu entry labeled "_Portable sequence_" instead.
+* **Copy/Paste chord (internal)**: Use to copy a chord from one index position and paste it into another index position. This uses an internal memory and will copy/paste a chord exactly as it appears (with any unused notes in the same position). The Portable sequence standard can also be used to copy chords internally or externally as sequences of up to four notes, in order to make a chord out of a sequence of notes, or vice versa, for use in sequencers or other modules. For this, use the menu entry labeled "_Portable sequence_" instead of the internal copy/paste actions.
 
 * **Keypress monitoring**: When this option is checked, left clicking the keys will play all the notes of the chord, i.e. the gates of the active notes will be held as long as the left mouse button is pressed. Pressing the right button of the mouse only activates the gate of the note being pressed, such that it can be heard (monitored) individually without the other notes of the chord.
 
