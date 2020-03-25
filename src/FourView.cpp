@@ -188,7 +188,21 @@ struct FourView : Module {
 		*seqLenPtr = j;
 		return ioNotes;
 	}
-	
+
+
+	void interopCopySeq() {
+		int seqLen;
+		IoStep* ioSteps = fillIoSteps(&seqLen);
+		interopCopySequence(seqLen, ioSteps);
+		delete[] ioSteps;
+	};
+	void interopCopyChord() {
+		int seqLen;
+		std::vector<IoNote>* ioNotes = fillIoNotes(&seqLen);
+		interopCopySequenceNotes(seqLen, ioNotes);
+		delete ioNotes;
+	};
+		
 	
 	void process(const ProcessArgs &args) override {
 		bool motherPresent = (leftExpander.module && (leftExpander.module->model == modelCvPad ||
@@ -544,19 +558,13 @@ struct FourViewWidget : ModuleWidget {
 		struct InteropCopySeqItem : MenuItem {
 			FourView *module;
 			void onAction(const event::Action &e) override {
-				int seqLen;
-				IoStep* ioSteps = module->fillIoSteps(&seqLen);
-				interopCopySequence(seqLen, ioSteps);
-				delete[] ioSteps;
+				module->interopCopySeq();
 			}
 		};
 		struct InteropCopyChordItem : MenuItem {
 			FourView *module;
 			void onAction(const event::Action &e) override {
-				int seqLen;
-				std::vector<IoNote>* ioNotes = module->fillIoNotes(&seqLen);
-				interopCopySequenceNotes(seqLen, ioNotes);
-				delete ioNotes;
+				module->interopCopyChord();
 			}
 		};
 
@@ -667,6 +675,24 @@ struct FourViewWidget : ModuleWidget {
 			darkPanel->visible  = ((((FourView*)module)->panelTheme) == 1);
 		}
 		Widget::step();
+	}
+	
+	void onHoverKey(const event::HoverKey& e) override {
+		if (e.action == GLFW_PRESS) {
+			if (e.key == GLFW_KEY_C) {
+				if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
+					((FourView*)module)->interopCopyChord();
+					e.consume(this);
+					return;
+				}
+				else if ((e.mods & RACK_MOD_MASK) == (GLFW_MOD_SHIFT | GLFW_MOD_ALT)) {
+					((FourView*)module)->interopCopySeq();
+					e.consume(this);
+					return;
+				}						
+			}
+		}
+		ModuleWidget::onHoverKey(e);
 	}
 };
 

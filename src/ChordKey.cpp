@@ -327,6 +327,44 @@ struct ChordKey : Module {
 	}	
 
 
+	void interopCopySeq() {
+		int seqLen;
+		IoStep* ioSteps = fillIoSteps(&seqLen);
+		interopCopySequence(seqLen, ioSteps);
+		delete[] ioSteps;
+	};
+	void interopCopyChord() {
+		int seqLen;
+		std::vector<IoNote>* ioNotes = fillIoNotes(&seqLen);
+		interopCopySequenceNotes(seqLen, ioNotes);
+		delete ioNotes;
+	};
+	void interopPasteSeq() {
+		int seqLen;
+		std::vector<IoNote> *ioNotes = interopPasteSequenceNotes(1024, &seqLen);// 1024 not used to alloc anything
+		if (ioNotes) {
+			emptyIoNotesSeq(ioNotes);
+			delete ioNotes;
+			if (autostepPaste) {
+				params[ChordKey::INDEX_PARAM].setValue(
+					clamp(params[ChordKey::INDEX_PARAM].getValue() + 1.0f, 0.0f, 24.0f));
+			}
+		}
+	};
+	void interopPasteChord() {
+		int seqLen;
+		std::vector<IoNote> *ioNotes = interopPasteSequenceNotes(1024, &seqLen);// 1024 not used to alloc anything
+		if (ioNotes) {
+			emptyIoNotesChord(ioNotes);
+			delete ioNotes;
+			if (autostepPaste) {
+				params[ChordKey::INDEX_PARAM].setValue(
+					clamp(params[ChordKey::INDEX_PARAM].getValue() + 1.0f, 0.0f, 24.0f));
+			}
+		}
+	};
+		
+		
 	void process(const ProcessArgs &args) override {		
 		int index = getIndex();
 		
@@ -562,7 +600,6 @@ struct ChordKeyWidget : ModuleWidget {
 			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};
-
 	
 	struct PanelThemeItem : MenuItem {
 		ChordKey *module;
@@ -686,49 +723,25 @@ struct ChordKeyWidget : ModuleWidget {
 		struct InteropCopySeqItem : MenuItem {
 			ChordKey *module;
 			void onAction(const event::Action &e) override {
-				int seqLen;
-				IoStep* ioSteps = module->fillIoSteps(&seqLen);
-				interopCopySequence(seqLen, ioSteps);
-				delete[] ioSteps;
+				module->interopCopySeq();
 			}
 		};
 		struct InteropCopyChordItem : MenuItem {
 			ChordKey *module;
 			void onAction(const event::Action &e) override {
-				int seqLen;
-				std::vector<IoNote>* ioNotes = module->fillIoNotes(&seqLen);
-				interopCopySequenceNotes(seqLen, ioNotes);
-				delete ioNotes;
+				module->interopCopyChord();
 			}
 		};
 		struct InteropPasteSeqItem : MenuItem {
 			ChordKey *module;
 			void onAction(const event::Action &e) override {
-				int seqLen;
-				std::vector<IoNote> *ioNotes = interopPasteSequenceNotes(1024, &seqLen);// 1024 not used to alloc anything
-				if (ioNotes) {
-					module->emptyIoNotesSeq(ioNotes);
-					delete ioNotes;
-					if (module->autostepPaste) {
-						module->params[ChordKey::INDEX_PARAM].setValue(
-							clamp(module->params[ChordKey::INDEX_PARAM].getValue() + 1.0f, 0.0f, 24.0f));
-					}
-				}
+				module->interopPasteSeq();
 			}
 		};
 		struct InteropPasteChordItem : MenuItem {
 			ChordKey *module;
 			void onAction(const event::Action &e) override {
-				int seqLen;
-				std::vector<IoNote> *ioNotes = interopPasteSequenceNotes(1024, &seqLen);// 1024 not used to alloc anything
-				if (ioNotes) {
-					module->emptyIoNotesChord(ioNotes);
-					delete ioNotes;
-					if (module->autostepPaste) {
-						module->params[ChordKey::INDEX_PARAM].setValue(
-							clamp(module->params[ChordKey::INDEX_PARAM].getValue() + 1.0f, 0.0f, 24.0f));
-					}
-				}
+				module->interopPasteChord();
 			}
 		};
 		struct AutostepPasteItem : MenuItem {
@@ -945,6 +958,36 @@ struct ChordKeyWidget : ModuleWidget {
 			darkPanel->visible  = ((((ChordKey*)module)->panelTheme) == 1);
 		}
 		Widget::step();
+	}
+	
+	void onHoverKey(const event::HoverKey& e) override {
+		if (e.action == GLFW_PRESS) {
+			if (e.key == GLFW_KEY_C) {
+				if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
+					((ChordKey*)module)->interopCopyChord();
+					e.consume(this);
+					return;
+				}
+				else if ((e.mods & RACK_MOD_MASK) == (GLFW_MOD_SHIFT | GLFW_MOD_ALT)) {
+					((ChordKey*)module)->interopCopySeq();
+					e.consume(this);
+					return;
+				}						
+			}
+			else if (e.key == GLFW_KEY_V) {
+				if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
+					((ChordKey*)module)->interopPasteChord();
+					e.consume(this);
+					return;
+				}
+				else if ((e.mods & RACK_MOD_MASK) == (GLFW_MOD_SHIFT | GLFW_MOD_ALT)) {
+					((ChordKey*)module)->interopPasteSeq();
+					e.consume(this);
+					return;
+				}						
+			}
+		}
+		ModuleWidget::onHoverKey(e);
 	}
 };
 

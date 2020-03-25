@@ -250,9 +250,15 @@ Other options are also available in the right-click menu:
 
 * **Keypress monitoring**: When this option is checked, left clicking the keys will play all the notes of the chord, i.e. the gates of the active notes will be held as long as the left mouse button is pressed. Pressing the right button of the mouse only activates the gate of the note being pressed, such that it can be heard (monitored) individually without the other notes of the chord.
 
-The **Portable sequence** standard can also be used to copy/paste chords externally, for use in sequencers or other modules (and also within ChordKey itself). For this, use the menu item labeled "_Portable sequence_" instead of the internal copy/paste actions. The "_Copy chord_" item will copy all notes to a sequence of one step thus preserving the chord, whereas "_Copy chord as sequence_" will arpeggiate the chord into a sequence of (up to) four steps, which can be useful for copying the notes into monophonic sequencers. The "_Paste chord_" item takes only the notes that share the same time step as that of the first note given (thus a true chord), whereas the "_Paste sequence as chord_" item makes a chord out of the first four notes given, irrespective of when they occur in the sequence, which can be useful for making a chord from the notes in a series of steps in a monophonic sequence.
+The **Portable sequence** standard can also be used to copy/paste chords externally, for use in sequencers or other modules (and also within ChordKey itself). For this, use the menu item labeled "_Portable sequence_" instead of the internal copy/paste actions. The "_Copy chord_" item will copy all notes to a sequence of one step thus preserving the chord, whereas "_Copy chord as sequence_" will arpeggiate the chord into a sequence of (up to) four steps, which can be useful for copying the notes into monophonic sequencers. The "_Paste chord_" item takes only the notes that share the same time step as that of the first note given (thus a true chord), whereas the "_Paste sequence as chord_" item makes a chord out of the first four notes given, irrespective of when they occur in the sequence, which can be useful for making a chord from the notes in a series of steps in a monophonic sequencer. Here are the keyboard shortcuts for these commands:
+
+* _Copy chord_: SHIFT + C
+* _Paste chord_: SHIFT + V
+* _Copy chord as sequence_: SHIFT + ALT + C
+* _Paste sequence as chord_: SHIFT + ALT + V
 
 ([Back to module list](#modules))
+
 
 
 ## CVPad <a id="cv-pad"></a>
