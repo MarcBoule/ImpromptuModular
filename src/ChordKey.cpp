@@ -55,6 +55,7 @@ struct ChordKey : Module {
 	int keys[NUM_CHORDS][4];// 0 to 11 for the 12 keys
 	int mergeOutputs;// 0 = none, 1 = merge A with B, 2 = merge A with B and C, 3 = merge A with All
 	int keypressEmitGate;// 1 = yes (default), 0 = no
+	int autostepPaste;
 
 	
 	// No need to save, with reset
@@ -131,6 +132,7 @@ struct ChordKey : Module {
 		}
 		mergeOutputs = 0;// no merging
 		keypressEmitGate = 1;// yes
+		autostepPaste = 0;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -186,6 +188,9 @@ struct ChordKey : Module {
 		// keypressEmitGate
 		json_object_set_new(rootJ, "keypressEmitGate", json_integer(keypressEmitGate));
 
+		// autostepPaste
+		json_object_set_new(rootJ, "autostepPaste", json_integer(autostepPaste));
+
 		return rootJ;
 	}
 
@@ -228,6 +233,11 @@ struct ChordKey : Module {
 		json_t *keypressEmitGateJ = json_object_get(rootJ, "keypressEmitGate");
 		if (keypressEmitGateJ)
 			keypressEmitGate = json_integer_value(keypressEmitGateJ);
+
+		// autostepPaste
+		json_t *autostepPasteJ = json_object_get(rootJ, "autostepPaste");
+		if (autostepPasteJ)
+			autostepPaste = json_integer_value(autostepPasteJ);
 
 		resetNonJson();
 	}
@@ -677,7 +687,17 @@ struct ChordKeyWidget : ModuleWidget {
 				if (ioNotes) {
 					module->emptyIoNotes(ioNotes);
 					delete ioNotes;
+					if (module->autostepPaste) {
+						module->params[ChordKey::INDEX_PARAM].setValue(
+							clamp(module->params[ChordKey::INDEX_PARAM].getValue() + 1.0f, 0.0f, 24.0f));
+					}
 				}
+			}
+		};
+		struct AutostepPasteItem : MenuItem {
+			ChordKey *module;
+			void onAction(const event::Action &e) override {
+				module->autostepPaste ^= 0x1;
 			}
 		};
 		ChordKey *module;
@@ -696,6 +716,10 @@ struct ChordKeyWidget : ModuleWidget {
 			interopPasteSeqItem->module = module;
 			menu->addChild(interopPasteSeqItem);		
 
+			AutostepPasteItem *autostepItem = createMenuItem<AutostepPasteItem>("Autostep after paste", CHECKMARK(module->autostepPaste));
+			autostepItem->module = module;
+			menu->addChild(autostepItem);
+		
 			return menu;
 		}
 	};	
