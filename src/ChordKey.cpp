@@ -290,10 +290,10 @@ struct ChordKey : Module {
 	}
 	
 	
-	void emptyIoNotes(std::vector<IoNote> *ioNotes) {
+	void emptyIoNotesSeq(std::vector<IoNote> *ioNotes) {// grabs first four notes it sees, regardless of start time
 		int index = getIndex();
 		
-		// populate steps in the sequencer
+		// populate notes of the chord
 		int i = 0;
 		for (; i < std::min(4, (int)(ioNotes->size())); i++) {
 			setCV(index, i, (*ioNotes)[i].pitch);
@@ -301,6 +301,28 @@ struct ChordKey : Module {
 		for (; i < 4; i++) {
 			octs[index][i] = -1;
 			keys[index][i] = 0;
+		}
+	}	
+
+
+	void emptyIoNotesChord(std::vector<IoNote> *ioNotes) {// grabs only the notes with the same start time as the first note seen
+		int index = getIndex();
+		
+		// populate notes of the chord
+		int j = 0;// write head
+		if (ioNotes->size() > 0) {
+			float firstTime = (*ioNotes)[0].start;
+			for (int i = 0; i < std::min(4, (int)(ioNotes->size())); i++) {
+				if ((*ioNotes)[i].start == firstTime) {
+					setCV(index, j, (*ioNotes)[i].pitch);
+					j++;
+				}
+			}
+		}
+		
+		for (; j < 4; j++) {// set rest of chord notes as unused
+			octs[index][j] = -1;
+			keys[index][j] = 0;
 		}
 	}	
 
@@ -685,7 +707,22 @@ struct ChordKeyWidget : ModuleWidget {
 				int seqLen;
 				std::vector<IoNote> *ioNotes = interopPasteSequenceNotes(1024, &seqLen);// 1024 not used to alloc anything
 				if (ioNotes) {
-					module->emptyIoNotes(ioNotes);
+					module->emptyIoNotesSeq(ioNotes);
+					delete ioNotes;
+					if (module->autostepPaste) {
+						module->params[ChordKey::INDEX_PARAM].setValue(
+							clamp(module->params[ChordKey::INDEX_PARAM].getValue() + 1.0f, 0.0f, 24.0f));
+					}
+				}
+			}
+		};
+		struct InteropPasteChordItem : MenuItem {
+			ChordKey *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				std::vector<IoNote> *ioNotes = interopPasteSequenceNotes(1024, &seqLen);// 1024 not used to alloc anything
+				if (ioNotes) {
+					module->emptyIoNotesChord(ioNotes);
 					delete ioNotes;
 					if (module->autostepPaste) {
 						module->params[ChordKey::INDEX_PARAM].setValue(
@@ -708,11 +745,15 @@ struct ChordKeyWidget : ModuleWidget {
 			interopCopyChordItem->module = module;
 			menu->addChild(interopCopyChordItem);		
 			
+			InteropPasteChordItem *interopPasteChordItem = createMenuItem<InteropPasteChordItem>("Paste chord", "");
+			interopPasteChordItem->module = module;
+			menu->addChild(interopPasteChordItem);		
+
 			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy chord as sequence", "");
 			interopCopySeqItem->module = module;
 			menu->addChild(interopCopySeqItem);		
 
-			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>("Paste (sequence as) chord", "");
+			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>("Paste sequence as chord", "");
 			interopPasteSeqItem->module = module;
 			menu->addChild(interopPasteSeqItem);		
 
