@@ -166,6 +166,30 @@ struct FourView : Module {
 	}
 
 
+	std::vector<IoNote>* fillIoNotes(int *seqLenPtr) {// caller must delete return vector
+		std::vector<IoNote> *ioNotes = new std::vector<IoNote>;
+		
+		// populate ioNotes array
+		int j = 0;// write head also
+		for (int i = 0; i < 4; i++) {
+			if (displayValues[i] != unusedValue) {
+				IoNote newNote;
+				newNote.start = 0.0f;
+				newNote.length = 0.5f;
+				newNote.pitch = displayValues[i];
+				newNote.vel = -1.0f;// no concept of velocity in BigButton2
+				newNote.prob = -1.0f;// no concept of probability in BigButton2
+				ioNotes->push_back(newNote);
+				j++;
+			}
+		}
+		
+		// return values 
+		*seqLenPtr = j;
+		return ioNotes;
+	}
+	
+	
 	void process(const ProcessArgs &args) override {
 		bool motherPresent = (leftExpander.module && (leftExpander.module->model == modelCvPad ||
 													  leftExpander.module->model == modelChordKey ||
@@ -526,12 +550,25 @@ struct FourViewWidget : ModuleWidget {
 				delete[] ioSteps;
 			}
 		};
+		struct InteropCopyChordItem : MenuItem {
+			FourView *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				std::vector<IoNote>* ioNotes = module->fillIoNotes(&seqLen);
+				interopCopySequenceNotes(seqLen, ioNotes);
+				delete ioNotes;
+			}
+		};
 
 		FourView *module;
 		Menu *createChildMenu() override {
 			Menu *menu = new Menu;
 
-			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy notes to sequence", "");
+			InteropCopyChordItem *interopCopyChordItem = createMenuItem<InteropCopyChordItem>("Copy chord", "");
+			interopCopyChordItem->module = module;
+			menu->addChild(interopCopyChordItem);		
+			
+			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy chord as sequence", "");
 			interopCopySeqItem->module = module;
 			menu->addChild(interopCopySeqItem);		
 

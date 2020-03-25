@@ -41,8 +41,8 @@ struct IoNote {
 // Copy to clipboard
 // *****************
 
-
-void interopCopySequence(int seqLen, IoStep* ioSteps);
+void interopCopySequenceNotes(int seqLen, std::vector<IoNote> *ioNotes);// function does not delete vector when finished
+void interopCopySequence(int seqLen, IoStep* ioSteps);// function does not delete array when finished
 
 
 // Paste from clipboard
@@ -50,7 +50,7 @@ void interopCopySequence(int seqLen, IoStep* ioSteps);
 
 
 std::vector<IoNote>* interopPasteSequenceNotes(int maxSeqLen, int *seqLenPtr);// caller must delete return vector when non null
-IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr);// will return an array of size *seqLenPtr, which caller must delete[]
+IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr);// will return an array of size *seqLenPtr (when non null), which caller must delete[]
 
 
 #endif

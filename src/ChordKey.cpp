@@ -255,6 +255,30 @@ struct ChordKey : Module {
 		return ioSteps;
 	}
 	
+	std::vector<IoNote>* fillIoNotes(int *seqLenPtr) {// caller must delete return vector
+		int index = getIndex();
+		std::vector<IoNote> *ioNotes = new std::vector<IoNote>;
+		
+		// populate ioNotes array
+		int j = 0;// write head also
+		for (int i = 0; i < 4; i++) {
+			if (octs[index][i] >= 0) {
+				IoNote newNote;
+				newNote.start = 0.0f;
+				newNote.length = 0.5f;
+				newNote.pitch = calcCV(index, i);
+				newNote.vel = -1.0f;// no concept of velocity in BigButton2
+				newNote.prob = -1.0f;// no concept of probability in BigButton2
+				ioNotes->push_back(newNote);
+				j++;
+			}
+		}
+		
+		// return values 
+		*seqLenPtr = j;
+		return ioNotes;
+	}
+	
 	
 	void emptyIoNotes(std::vector<IoNote> *ioNotes) {
 		int index = getIndex();
@@ -636,6 +660,15 @@ struct ChordKeyWidget : ModuleWidget {
 				delete[] ioSteps;
 			}
 		};
+		struct InteropCopyChordItem : MenuItem {
+			ChordKey *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				std::vector<IoNote>* ioNotes = module->fillIoNotes(&seqLen);
+				interopCopySequenceNotes(seqLen, ioNotes);
+				delete ioNotes;
+			}
+		};
 		struct InteropPasteSeqItem : MenuItem {
 			ChordKey *module;
 			void onAction(const event::Action &e) override {
@@ -651,11 +684,15 @@ struct ChordKeyWidget : ModuleWidget {
 		Menu *createChildMenu() override {
 			Menu *menu = new Menu;
 
-			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy chord to sequence", "");
+			InteropCopyChordItem *interopCopyChordItem = createMenuItem<InteropCopyChordItem>("Copy chord", "");
+			interopCopyChordItem->module = module;
+			menu->addChild(interopCopyChordItem);		
+			
+			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>("Copy chord as sequence", "");
 			interopCopySeqItem->module = module;
 			menu->addChild(interopCopySeqItem);		
-			
-			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>("Paste sequence as chord", "");
+
+			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>("Paste (sequence as) chord", "");
 			interopPasteSeqItem->module = module;
 			menu->addChild(interopPasteSeqItem);		
 

@@ -31,10 +31,7 @@ void ioConvertToNotes(int seqLen, IoStep* ioSteps, std::vector<IoNote> &ioNotes)
 }
 
 
-void interopCopySequence(int seqLen, IoStep* ioSteps) {
-	std::vector<IoNote> ioNotes;
-	ioConvertToNotes(seqLen, ioSteps, ioNotes);	
-
+void interopCopySequenceNotes(int seqLen, std::vector<IoNote> *ioNotes) {// function does not delete vector when finished
 	// vcvrack-sequence
 	json_t* vcvrackSequenceJ = json_object();
 	
@@ -43,17 +40,17 @@ void interopCopySequence(int seqLen, IoStep* ioSteps) {
 	
 	// notes
 	json_t* notesJ = json_array();
-	for (unsigned int i = 0; i < ioNotes.size(); i++) {
+	for (unsigned int i = 0; i < ioNotes->size(); i++) {
 		json_t* noteJ = json_object();
 		json_object_set_new(noteJ, "type", json_string("note"));
-		json_object_set_new(noteJ, "start", json_real(ioNotes[i].start));
-		json_object_set_new(noteJ, "length", json_real(ioNotes[i].length));
-		json_object_set_new(noteJ, "pitch", json_real(ioNotes[i].pitch));		
-		if (ioNotes[i].vel >= 0.0f) {
-			json_object_set_new(noteJ, "velocity", json_real(ioNotes[i].vel));
+		json_object_set_new(noteJ, "start", json_real((*ioNotes)[i].start));
+		json_object_set_new(noteJ, "length", json_real((*ioNotes)[i].length));
+		json_object_set_new(noteJ, "pitch", json_real((*ioNotes)[i].pitch));		
+		if ((*ioNotes)[i].vel >= 0.0f) {
+			json_object_set_new(noteJ, "velocity", json_real((*ioNotes)[i].vel));
 		}
-		if (ioNotes[i].prob >= 0.0f) {
-			json_object_set_new(noteJ, "playProbability", json_real(ioNotes[i].prob));
+		if ((*ioNotes)[i].prob >= 0.0f) {
+			json_object_set_new(noteJ, "playProbability", json_real((*ioNotes)[i].prob));
 		}
 		json_array_append_new(notesJ, noteJ);
 	}
@@ -68,6 +65,13 @@ void interopCopySequence(int seqLen, IoStep* ioSteps) {
 	json_decref(clipboardJ);
 	glfwSetClipboardString(APP->window->win, interopClip);
 	free(interopClip);
+}
+
+
+void interopCopySequence(int seqLen, IoStep* ioSteps) {// function does not delete array when finished
+	std::vector<IoNote> ioNotes;
+	ioConvertToNotes(seqLen, ioSteps, ioNotes);	
+	interopCopySequenceNotes(seqLen, &ioNotes);
 }
 
 
@@ -113,7 +117,7 @@ IoStep* ioConvertToSteps(const std::vector<IoNote> &ioNotes, int maxSeqLen) {
 }
 
 
-std::vector<IoNote>* interopPasteSequenceNotes(int maxSeqLen, int *seqLenPtr) {
+std::vector<IoNote>* interopPasteSequenceNotes(int maxSeqLen, int *seqLenPtr) {// caller must delete return vector when non null
 	const char* interopClip = glfwGetClipboardString(APP->window->win);
 
     if (!interopClip) {
@@ -216,8 +220,9 @@ std::vector<IoNote>* interopPasteSequenceNotes(int maxSeqLen, int *seqLenPtr) {
 	}
 	return ioNotes;
 }
+
 	
-IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr) {// will return an array of size *seqLenPtr, which caller must delete[]
+IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr) {// will return an array of size *seqLenPtr (when non null), which caller must delete[]
 	std::vector<IoNote> *ioNotes = interopPasteSequenceNotes(maxSeqLen, seqLenPtr);
 	if (ioNotes) {
 		IoStep* ioSteps = ioConvertToSteps(*ioNotes, maxSeqLen);
