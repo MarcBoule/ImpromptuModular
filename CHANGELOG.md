@@ -1,11 +1,11 @@
-### 1.1.5 (2019-03-20)
+### 1.1.5 (2019-03-25)
 
 - Changed plugin name from "Impromptu Modular" to "Impromptu" (slug unchanged to keep patch compatibility)
 - Added new module called Part, which splits a gate signal into two cables according to a split point and a CV input
 - Added expander for ChordKey which offers 4 poly quantizers that quantize to the chord's notes
 - Added chord mode to FourView to show chord names
-- Modified Clkd knobs to change display when clicking the knob if it doesn't turn (and fixed the tooltips)
-- Improved reset options in Clocked/Clkd regarding internal reset vs emitted reset pulse
+- Modified Clkd knobs to change display when clicking the knob (even if it doesn't turn), and fixed the tooltips
+- Improved reset options in Clocked/Clkd for internal reset vs emitted reset pulse
 - Implemented the Portable Sequence copy/paste in BigButtonSeq2
 - Made BigButtonSeq2 not overwrite CVs when CV input is unconnected during big button hits and fills to memory
 - Increased refresh rate of signals going through expander mechanism

@@ -81,8 +81,8 @@ struct Tact : Module {
 		configParam(STORE_PARAMS + 1, 0.0f, 1.0f, 0.0f, "Store (right)");
 		configParam(ATTV_PARAMS + 0, -1.0f, 1.0f, 1.0f, "Attenuverter (left)");
 		configParam(ATTV_PARAMS + 1, -1.0f, 1.0f, 1.0f, "Attenuverter (right)");
-		configParam(RATE_PARAMS + 0, 0.0f, 4.0f, 0.2f, "Rate (left)");
-		configParam(RATE_PARAMS + 1, 0.0f, 4.0f, 0.2f, "Rate (right)");
+		configParam(RATE_PARAMS + 0, 0.0f, 4.0f, 0.2f, "Rate (left)", " s/V");
+		configParam(RATE_PARAMS + 1, 0.0f, 4.0f, 0.2f, "Rate (right)", " s/V");
 		configParam(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential");			
 		configParam(LINK_PARAM, 0.0f, 1.0f, 0.0f, "Link");		
 		
@@ -565,7 +565,7 @@ struct Tact1 : Module {
 		
 		configParam(TACT_PARAM, 0.0f, 10.0f, 0.0f, "Tact pad");
 		configParam(ATTV_PARAM, -1.0f, 1.0f, 1.0f, "Attenuverter");
-		configParam(RATE_PARAM, 0.0f, 4.0f, 0.2f, "Rate");
+		configParam(RATE_PARAM, 0.0f, 4.0f, 0.2f, "Rate", " s/V");
 		configParam(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential");			
 		
 		onReset();

@@ -315,7 +315,7 @@ In place of a detailed explanation of these three main controls (Swing, PW and D
 
 PW and Swing CV inputs are aso available in the Clocked [expander module](#expanders) (available for Clocked only). These inputs have a range of -5V to 5V when the corresponding knobs are be in their default position. With the corresponding knobs turned full left, the usable range on the inputs becomes 0V to 10V, with no-swing and normal-pulse-width correspond to 5V on the CV inputs.
 
-Many options are available in the modules' **right-click menu**, and can be used to setup Clocked/Clkd for your particular needs. In particular, the RUN CV input is trigger sensitive by default, but can be made level sensitive (gate mode) by turning on the "_Run CV input is level sensitive_" option; when chaining multiple Clocked/Clkd modules, only the first module in the chain should have this option turned on.
+Many options are available in the modules' **right-click menu**, and can be used to setup Clocked/Clkd for your particular needs. In particular, the RUN CV input is trigger sensitive by default, but can be made level sensitive (gate mode) by turning on the "_Run CV input is level sensitive_" option; when chaining multiple Clocked/Clkd modules, only the first module in the chain should have this option turned on. 
 
 
 ### External synchronization <a id="clocked-sync"></a>
