@@ -139,7 +139,7 @@ struct ChordKeyExpander : Module {
 			updateRanges();// uses enabledNotes[]
 			
 			for (int i = 0; i < 4; i++) {
-				outputs[CV_OUTPUTS + i].setChannels(std::max(inputs[CV_INPUTS + i].getChannels(), 1));
+				outputs[CV_OUTPUTS + i].setChannels(inputs[CV_INPUTS + i].getChannels());
 			}
 		}// lightRefreshCounter
 		
