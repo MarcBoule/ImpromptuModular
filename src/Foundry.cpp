@@ -119,6 +119,7 @@ struct Foundry : Module {
 
 	// No need to save, with reset
 	bool editingSequence;
+	int cpMode;
 	int displayState;
 	long tiedWarning;// 0 when no warning, positive downward step counter timer when warning
 	long attachedWarning;// 0 when no warning, positive downward step counter timer when warning
@@ -259,6 +260,7 @@ struct Foundry : Module {
 	}
 	void resetNonJson(bool propagateInitRun) {
 		editingSequence = isEditingSequence();
+		cpMode = getCPMode();
 		displayState = DISP_NORMAL;
 		tiedWarning = 0l;
 		attachedWarning = 0l;
@@ -267,7 +269,7 @@ struct Foundry : Module {
 		for (int trkn = 0; trkn < Sequencer::NUM_TRACKS; trkn++) {
 			clkInSources[trkn] = 0;
 		}
-		cpSeqLength = getCPMode();
+		cpSeqLength = cpMode;
 		initRun(propagateInitRun);
 	}
 	void initRun(bool propagateInitRun) {
@@ -568,7 +570,8 @@ struct Foundry : Module {
 			
 			// CP mode switch
 			int newCPMode = getCPMode();
-			if (cpSeqLength != newCPMode) {
+			if (cpMode != newCPMode) {
+				cpMode = newCPMode;
 				cpSeqLength = newCPMode;
 				if (displayState == DISP_COPY_SONG_CUST)
 					displayState = DISP_NORMAL;
@@ -583,7 +586,6 @@ struct Foundry : Module {
 						displayState = DISP_COPY_SEQ;
 					}
 					else {
-						int cpMode = getCPMode();
 						if (cpMode == 2000) {
 							if (displayState != DISP_COPY_SONG_CUST) {// first click to set cpSongStart
 								cpSongStart = seq.getPhraseIndexEdit();
@@ -694,13 +696,13 @@ struct Foundry : Module {
 				else {
 					if (!running || !attached) {// not running or detached
 						if (editingSequence) {
-							if (multiSteps && (getCPMode() == 2000) && (stepPressed >= seq.getStepIndexEdit())) {
+							if (multiSteps && (cpMode == 2000) && (stepPressed >= seq.getStepIndexEdit())) {
 								cpSeqLength = stepPressed - seq.getStepIndexEdit() + 1;
 							}
 							else {
 								seq.setStepIndexEdit(stepPressed, sampleRate);
 								displayState = DISP_NORMAL; // leave this here, the if has it also, but through the revert mechanism
-								if (multiSteps && (getCPMode() == 2000)) {
+								if (multiSteps && (cpMode == 2000)) {
 									multiSteps = false;
 									cpSeqLength = 2000;
 								}
@@ -2034,7 +2036,7 @@ struct FoundryWidget : ModuleWidget {
 				// same code structure below as in velocity knob in main step()
 				if (module->editingSequence) {
 					module->displayState = Foundry::DISP_NORMAL;
-					int multiStepsCount = module->multiSteps ? module->getCPMode() : 1;
+					int multiStepsCount = module->multiSteps ? module->cpMode : 1;
 					if (module->velEditMode == 2) {
 						module->seq.initSlideVal(multiStepsCount, module->multiTracks);
 					}
