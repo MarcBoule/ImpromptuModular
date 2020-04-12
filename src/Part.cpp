@@ -40,6 +40,7 @@ struct Part : Module {
 	
 	// Need to save, with reset
 	bool showSharp;
+	bool showPlusMinus;
 
 	// No need to save, with reset
 	// none
@@ -65,6 +66,7 @@ struct Part : Module {
 	
 	void onReset() override {
 		showSharp = true;
+		showPlusMinus = true;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -84,6 +86,9 @@ struct Part : Module {
 		// showSharp
 		json_object_set_new(rootJ, "showSharp", json_boolean(showSharp));
 		
+		// showPlusMinus
+		json_object_set_new(rootJ, "showPlusMinus", json_boolean(showPlusMinus));
+		
 		return rootJ;
 	}
 
@@ -98,6 +103,11 @@ struct Part : Module {
 		json_t *showSharpJ = json_object_get(rootJ, "showSharp");
 		if (showSharpJ)
 			showSharp = json_is_true(showSharpJ);
+		
+		// showPlusMinus
+		json_t *showPlusMinusJ = json_object_get(rootJ, "showPlusMinus");
+		if (showPlusMinusJ)
+			showPlusMinus = json_is_true(showPlusMinusJ);
 		
 		resetNonJson();
 	}
@@ -188,11 +198,26 @@ struct PartWidget : ModuleWidget {
 				}
 				else {
 					// Display is semitone
-					printNote(cvValPrint, &displayStr[0], module->showSharp);// given str pointer must be 4 chars (3 display and one end of string)
-					// Move accidental over into decimal portion and remove decimal point
+					int cursor = printNote(cvValPrint, &displayStr[0], module->showSharp);// given str pointer must be 4 chars (3 display and one end of string)
+					// here cursor is <= 3
+					float cvValQuant = std::round(cvValPrint * 12.0f) / 12.0f;
+					if (module->showPlusMinus && cvValPrint != cvValQuant) {
+						if (cvValPrint > cvValQuant) {
+							displayStr[cursor] = '+';
+						}
+						else {
+							displayStr[cursor] = '-';
+						}
+						cursor++;
+						displayStr[cursor] = 0;
+					}
+					// here cursor is <= 4
+					
+					// insert space because decimal point not used
+					displayStr[5] = displayStr[4];
+					displayStr[4] = displayStr[3];
 					displayStr[3] = displayStr[2];
 					displayStr[2] = ' ';
-					displayStr[4] = 0;
 				}
 			}
 		}
@@ -208,6 +233,12 @@ struct PartWidget : ModuleWidget {
 		Part *module;
 		void onAction(const event::Action &e) override {
 			module->showSharp = !module->showSharp;
+		}
+	};
+	struct PlusMinusItem : MenuItem {
+		Part *module;
+		void onAction(const event::Action &e) override {
+			module->showPlusMinus = !module->showPlusMinus;
 		}
 	};
 	void appendContextMenu(Menu *menu) override {
@@ -236,6 +267,10 @@ struct PartWidget : ModuleWidget {
 		SharpItem *shrpItem = createMenuItem<SharpItem>("Sharp (unchecked is flat)", CHECKMARK(module->showSharp));
 		shrpItem->module = module;
 		menu->addChild(shrpItem);
+		
+		PlusMinusItem *plusMinusItem = createMenuItem<PlusMinusItem>("Show +/- for notes", CHECKMARK(module->showPlusMinus));
+		plusMinusItem->module = module;
+		menu->addChild(plusMinusItem);
 	}	
 	
 	

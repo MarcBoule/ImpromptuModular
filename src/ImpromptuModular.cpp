@@ -81,8 +81,9 @@ void printNoteNoOct(int note, char* text, bool sharp) {// text must be at least 
 }
 
 
-void printNote(float cvVal, char* text, bool sharp) {// text must be at least 4 chars long (three displayed chars plus end of string)
-
+int printNote(float cvVal, char* text, bool sharp) {// text must be at least 4 chars long (three displayed chars plus end of string)
+	// return cursor position of eos
+	
 	float cvValOffset = cvVal + 10.0f;// to properly handle negative note voltages
 	int indexNote =  clamp( (int)((cvValOffset - std::floor(cvValOffset)) * 12.0f + 0.5f),  0,  11);
 	
@@ -98,12 +99,13 @@ void printNote(float cvVal, char* text, bool sharp) {// text must be at least 4 
 	}
 	
 	// sharp/flat
-	text[cursor] = ' ';
-	if (isBlackKey[indexNote] == 1)
+	if (isBlackKey[indexNote] == 1) {
 		text[cursor] = (sharp ? '\"' : 'b' );
-	cursor++;
+		cursor++;
+	}
 	
 	text[cursor] = 0;
+	return cursor;
 }
 
 int moveIndex(int index, int indexNext, int numSteps) {
