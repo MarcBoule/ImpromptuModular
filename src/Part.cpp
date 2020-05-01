@@ -120,7 +120,7 @@ struct Part : Module {
 		if (refresh.processInputs()) {
 			outputs[LOW_OUTPUT].setChannels(numChan);
 			outputs[HIGH_OUTPUT].setChannels(numChan);
-			outputs[CVTHRU_OUTPUT].setChannels(numChan);
+			outputs[CVTHRU_OUTPUT].setChannels(inputs[CV_INPUT].getChannels());
 		}// userInputs refresh
 		
 		
@@ -129,6 +129,8 @@ struct Part : Module {
 			float inGate = inputs[GATE_INPUT].getVoltage(c);// unconnected GATE_INPUT or insufficient channels will cause 0.0f to be used
 			outputs[LOW_OUTPUT].setVoltage(isHigh ? 0.0f : inGate, c);
 			outputs[HIGH_OUTPUT].setVoltage(isHigh ? inGate : 0.0f, c);
+		}
+		for (int c = 0; c < inputs[CV_INPUT].getChannels(); c++) {
 			outputs[CVTHRU_OUTPUT].setVoltage(inputs[CV_INPUT].getVoltage(c), c);
 		}
 		

@@ -163,9 +163,7 @@ struct ChordKeyExpander : Module {
 		}
 		for (int i = 0; i < 4; i++) {
 			if (chordValues[i] != unusedValue) {
-				float noteScaled = (clamp(chordValues[i], -10.0f, 10.0f) + 10.0f) * 12.0f;
-				int intNote = ((int)std::round(noteScaled));
-				int baseNote = intNote % 12;// 0 to 11
+				int baseNote = eucMod((int)std::round(chordValues[i] * 12.0f), 12);
 				enabledNotes[baseNote] = true;
 			}
 		}
