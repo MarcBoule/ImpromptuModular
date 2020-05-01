@@ -29,6 +29,7 @@ struct Part : Module {
 	enum OutputIds {
 		LOW_OUTPUT,
 		HIGH_OUTPUT,
+		CVTHRU_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
@@ -119,6 +120,7 @@ struct Part : Module {
 		if (refresh.processInputs()) {
 			outputs[LOW_OUTPUT].setChannels(numChan);
 			outputs[HIGH_OUTPUT].setChannels(numChan);
+			outputs[CVTHRU_OUTPUT].setChannels(numChan);
 		}// userInputs refresh
 		
 		
@@ -127,6 +129,7 @@ struct Part : Module {
 			float inGate = inputs[GATE_INPUT].getVoltage(c);// unconnected GATE_INPUT or insufficient channels will cause 0.0f to be used
 			outputs[LOW_OUTPUT].setVoltage(isHigh ? 0.0f : inGate, c);
 			outputs[HIGH_OUTPUT].setVoltage(isHigh ? inGate : 0.0f, c);
+			outputs[CVTHRU_OUTPUT].setVoltage(inputs[CV_INPUT].getVoltage(c), c);
 		}
 		
 		
@@ -297,12 +300,12 @@ struct PartWidget : ModuleWidget {
 		static const int colL = 25;
 		static const int colR = 65;
 		
-		static const int row0 = 60;// mode switch
-		static const int row1 = 114;// display
-		static const int row2 = row1 + 46;// split knob
-		static const int row3 = row2 + 45;// split knob CV
-		static const int row4 = 260;// CV + Gate inputs
-		static const int row5 = 324;// Gate outputs
+		static const int row0 = 56;// mode switch
+		static const int row1 = 106;// display
+		static const int row2 = 152;// split knob
+		static const int row5 = 326;// split in, low gate out
+		static const int row4 = row5 - 54;// gate in, high gate out
+		static const int row3 = row4 - 54;// CV in and thru
 		
 
 		// Display mode switch
@@ -311,18 +314,24 @@ struct PartWidget : ModuleWidget {
 		// Display
 		addChild(new SplitDisplayWidget(Vec(colM, row1), Vec(65, 24), module));// 4 characters + decimal point
 		
-		// Split knob and its CV input
+		// Split knob 
 		addParam(createDynamicParamCentered<IMBigKnob<true, false>>(Vec(colM, row2), module, Part::SPLIT_PARAM, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(Vec(colM, row3), true, module, Part::SPLIT_INPUT, module ? &module->panelTheme : NULL));		
+
+
+		// CV input
+		addInput(createDynamicPortCentered<IMPort>(Vec(colL, row3), true, module, Part::CV_INPUT, module ? &module->panelTheme : NULL));		
+		// Thru output
+		addOutput(createDynamicPortCentered<IMPort>(Vec(colR, row3), false, module, Part::CVTHRU_OUTPUT, module ? &module->panelTheme : NULL));
 		
+		// Gate input
+		addInput(createDynamicPortCentered<IMPort>(Vec(colL, row4), true, module, Part::GATE_INPUT, module ? &module->panelTheme : NULL));		
+		// Gate high output
+		addOutput(createDynamicPortCentered<IMPort>(Vec(colR, row4), false, module, Part::HIGH_OUTPUT, module ? &module->panelTheme : NULL));
 		
-		// CV and Gate inputs
-		addInput(createDynamicPortCentered<IMPort>(Vec(colL, row4), true, module, Part::CV_INPUT, module ? &module->panelTheme : NULL));		
-		addInput(createDynamicPortCentered<IMPort>(Vec(colR, row4), true, module, Part::GATE_INPUT, module ? &module->panelTheme : NULL));		
-		
-		// Gate outputs
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colL, row5), false, module, Part::LOW_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colR, row5), false, module, Part::HIGH_OUTPUT, module ? &module->panelTheme : NULL));
+		// Split CV
+		addInput(createDynamicPortCentered<IMPort>(Vec(colL, row5), true, module, Part::SPLIT_INPUT, module ? &module->panelTheme : NULL));		
+		// Gate low output
+		addOutput(createDynamicPortCentered<IMPort>(Vec(colR, row5), false, module, Part::LOW_OUTPUT, module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {

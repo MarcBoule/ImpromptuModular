@@ -1,7 +1,8 @@
 ### 1.1.6 (in development)
 
 - Fixed bug in Foundry CUST selection (custom length selection for SEL button and copy-paste)
-- Add +/- suffix in display for split point when showing notes
+- Added +/- suffix in display for split point when showing notes
+- Added CV through in Part module for chaining (or else in some cases a 1-sample glitch can occur because of signal delays)
 
 
 ### 1.1.5 (2019-03-25)
