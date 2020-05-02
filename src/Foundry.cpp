@@ -1181,7 +1181,7 @@ struct Foundry : Module {
 						for (int trkn = 0; trkn < Sequencer::NUM_TRACKS; trkn++) {
 							bool trknIsUsed = outputs[CV_OUTPUTS + trkn].isConnected() || outputs[GATE_OUTPUTS + trkn].isConnected() || outputs[VEL_OUTPUTS + trkn].isConnected() || (mergeTracks > 0 && trkn <= mergeTracks);
 							if (stepn == seq.getStepIndexRun(trkn) && trknIsUsed) 
-								green = 0.32f;	
+								green = 0.42f;	
 						}
 						if (green > 0.45f) 
 							green = 0.45f;
@@ -1201,7 +1201,7 @@ struct Foundry : Module {
 						gate = seq.getAttribute(true, stepn).getGate();
 					else if (!editingSequence && (attached && running))
 						gate = seq.getAttribute(false, stepn).getGate();
-					white = ((green == 0.0f && red == 0.0f && gate && displayState != DISP_MODE_SEQ && displayState != DISP_PPQN && displayState != DISP_DELAY) ? 0.2f : 0.0f);
+					white = ((green == 0.0f && red == 0.0f && gate && displayState != DISP_MODE_SEQ && displayState != DISP_PPQN && displayState != DISP_DELAY) ? 0.15f : 0.0f);
 					if (editingSequence && white != 0.0f) {
 						green = 0.14f; white = 0.0f;
 					}

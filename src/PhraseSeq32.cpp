@@ -1465,7 +1465,7 @@ struct PhraseSeq32 : Module {
 						green = ((running && (col == stepIndexRun[row])) ? 1.0f : 0.0f);
 					else {
 						green = ((running && (i == phraseIndexRun)) ? 1.0f : 0.0f);
-						green += ((running && (col == stepIndexRun[row]) && i != phraseIndexEdit) ? 0.32f : 0.0f);
+						green += ((running && (col == stepIndexRun[row]) && i != phraseIndexEdit) ? 0.42f : 0.0f);
 						green = std::min(green, 1.0f);
 					}
 					// Edit cursor (red)
@@ -1478,7 +1478,7 @@ struct PhraseSeq32 : Module {
 						gate = attributes[seqIndexEdit][i].getGate1();
 					else if (!editingSequence && (attached && running))
 						gate = attributes[phrase[phraseIndexRun]][i].getGate1();
-					white = ((green == 0.0f && red == 0.0f && gate && displayState != DISP_MODE) ? 0.2f : 0.0f);
+					white = ((green == 0.0f && red == 0.0f && gate && displayState != DISP_MODE) ? 0.15f : 0.0f);
 					if (editingSequence && white != 0.0f) {
 						green = 0.14f; white = 0.0f;
 					}
