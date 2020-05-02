@@ -27,6 +27,7 @@ class Clock {
 	Clock* syncSrc = nullptr; // only subclocks will have this set to master clock
 	static constexpr double guard = 0.0005;// in seconds, region for sync to occur right before end of length of last iteration; sub clocks must be low during this period
 	bool *resetClockOutputsHigh;
+	bool *trigOut;
 	
 	public:
 	
@@ -43,9 +44,10 @@ class Clock {
 	double getStep() {
 		return step;
 	}
-	void construct(Clock* clkGiven, bool *resetClockOutputsHighPtr) {
+	void construct(Clock* clkGiven, bool *resetClockOutputsHighPtr, bool *trigOutPtr) {
 		syncSrc = clkGiven;
 		resetClockOutputsHigh = resetClockOutputsHighPtr;
+		trigOut = trigOutPtr;
 	}
 	void start() {
 		step = 0.0;
@@ -84,6 +86,8 @@ class Clock {
 	
 	int isHigh() {
 		if (step >= 0.0) {
+			// if (*trigOut)
+				// return (step < 0.001f) ? 1 : 0;
 			return (step < (length * 0.5)) ? 1 : 0;
 		}
 		return (*resetClockOutputsHigh) ? 1 : 0;
@@ -144,6 +148,7 @@ struct Clkd : Module {
 	bool resetClockOutputsHigh;
 	bool momentaryRunInput;// true = trigger (original rising edge only version), false = level sensitive (emulated with rising and falling detection)
 	int displayIndex;
+	bool trigOuts[4];// output triggers when true, one for each clock output, master is index 0. 
 
 	// No need to save, with reset
 	long editingBpmMode;// 0 when no edit bpmMode, downward step counter timer when edit, negative upward when show can't edit ("--") 
@@ -214,7 +219,7 @@ struct Clkd : Module {
 		configParam(BPM_PARAM, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		
 		for (int i = 1; i < 4; i++) {
-			clk[i].construct(&clk[0], &resetClockOutputsHigh);		
+			clk[i].construct(&clk[0], &resetClockOutputsHigh, &trigOuts[i]);		
 		}
 		onReset();
 		
@@ -230,6 +235,9 @@ struct Clkd : Module {
 		resetClockOutputsHigh = true;
 		momentaryRunInput = true;
 		displayIndex = 0;// show BPM (knob 0) by default
+		for (int i = 0; i < 4; i++) {
+			trigOuts[i] = false;
+		}
 		resetNonJson(false);
 	}
 	void resetNonJson(bool delayed) {// delay thread sensitive parts (i.e. schedule them so that process() will do them)
@@ -305,6 +313,12 @@ struct Clkd : Module {
 		// displayIndex
 		json_object_set_new(rootJ, "displayIndex", json_integer(displayIndex));
 		
+		// trigOuts
+		json_t *trigOutsJ = json_array();
+		for (int i = 0; i < 4; i++)
+			json_array_insert_new(trigOutsJ, i, json_boolean(trigOuts[i]));
+		json_object_set_new(rootJ, "trigOuts", trigOutsJ);
+		
 		return rootJ;
 	}
 
@@ -372,6 +386,16 @@ struct Clkd : Module {
 		json_t *displayIndexJ = json_object_get(rootJ, "displayIndex");
 		if (displayIndexJ)
 			displayIndex = json_integer_value(displayIndexJ);
+		
+		// trigOuts
+		json_t *trigOutsJ = json_object_get(rootJ, "trigOuts");
+		if (trigOutsJ)
+			for (int i = 0; i < 4; i++)
+			{
+				json_t *trigOutsArrayJ = json_array_get(trigOutsJ, i);
+				if (trigOutsArrayJ)
+					trigOuts[i] = json_is_true(trigOutsArrayJ);
+			}
 
 		resetNonJson(true);
 	}
