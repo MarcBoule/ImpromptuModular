@@ -349,7 +349,7 @@ class SequencerKernel {
 		setTied(stepn, newTied, count);
 		return newTied;
 	}	
-	float applyNewOctave(int stepn, int newOct, int count);
+	float applyNewOctave(int stepn, int newOct0, int count);
 	float applyNewKey(int stepn, int newKeyIndex, int count);
 	void writeCV(int stepn, float newCV, int count);
 	void writeAttribNoTies(int stepn, StepAttributes &stepAttrib) {// does not handle tied notes

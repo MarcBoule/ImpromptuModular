@@ -289,10 +289,10 @@ void SequencerKernel::setGateType(int stepn, int gateType, int count) {
 }
 
 
-float SequencerKernel::applyNewOctave(int stepn, int newOct, int count) {// does not overwrite tied steps
-	float newCV = cv[seqIndexEdit][stepn] + 10.0f;//to properly handle negative note voltages
-	newCV = newCV - std::floor(newCV) + (float) (newOct - 3);
-	
+float SequencerKernel::applyNewOctave(int stepn, int newOct0, int count) {// does not overwrite tied steps
+	// newOct0 is an octave number, 0 representing octave 4 (as in C4 for example)
+	float cvVal = cv[seqIndexEdit][stepn];
+	float newCV = cvVal - std::floor(cvVal) + (float)newOct0;
 	writeCV(stepn, newCV, count);// also sets dirty[] to 1
 	return newCV;
 }

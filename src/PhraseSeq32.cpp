@@ -773,7 +773,7 @@ struct PhraseSeq32 : Module {
 					seqIndexEdit = clamp(newSeq, 0, 32 - 1);
 				}
 				else if (seqCVmethod == 1) {// C4-G6
-					int newSeq = (int)( (inputs[SEQCV_INPUT].getVoltage()) * 12.0f + 0.5f );
+					int newSeq = (int)std::round(inputs[SEQCV_INPUT].getVoltage() * 12.0f);
 					seqIndexEdit = clamp(newSeq, 0, 32 - 1);
 				}
 				else {// TrigIncr
@@ -1144,7 +1144,7 @@ struct PhraseSeq32 : Module {
 						if (attributes[seqIndexEdit][stepIndexEdit].getTied())
 							tiedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 						else {			
-							cv[seqIndexEdit][stepIndexEdit] = applyNewOct(cv[seqIndexEdit][stepIndexEdit], 6 - i);
+							cv[seqIndexEdit][stepIndexEdit] = applyNewOct(cv[seqIndexEdit][stepIndexEdit], 3 - i);
 							propagateCVtoTied(seqIndexEdit, stepIndexEdit);
 							editingGate = (unsigned long) (gateTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 							editingGateCV = cv[seqIndexEdit][stepIndexEdit];
@@ -1488,12 +1488,11 @@ struct PhraseSeq32 : Module {
 			}
 		
 			// Octave lights
-			float octCV = 0.0f;
-			if (editingSequence)
-				octCV = cv[seqIndexEdit][stepIndexEdit];
-			else
-				octCV = cv[phrase[phraseIndexEdit]][stepIndexRun[0]];
-			int octLightIndex = (int) std::floor(octCV + 3.0f);
+			float cvVal = editingSequence ? cv[seqIndexEdit][stepIndexEdit] : cv[phrase[phraseIndexEdit]][stepIndexRun[0]];
+			int keyLightIndex;
+			int octLightIndex;
+			calcNoteAndOct(cvVal, &keyLightIndex, &octLightIndex);
+			octLightIndex += 3;
 			for (int i = 0; i < 7; i++) {
 				if (!editingSequence && (!attached || !running || (stepConfig == 1)))// no oct lights when song mode and either (detached [1] or stopped [2] or 2x16config [3])
 												// [1] makes no sense, can't mod steps and stepping though seq that may not be playing
@@ -1511,12 +1510,6 @@ struct PhraseSeq32 : Module {
 			}
 			
 			// Keyboard lights (can only show channel A when running attached in 1x16 mode, does not pose problem for all other situations)
-			float cvValOffset;
-			if (editingSequence) 
-				cvValOffset = cv[seqIndexEdit][stepIndexEdit] + 10.0f;//to properly handle negative note voltages
-			else	
-				cvValOffset = cv[phrase[phraseIndexEdit]][stepIndexRun[0]] + 10.0f;//to properly handle negative note voltages
-			int keyLightIndex = clamp( (int)((cvValOffset - std::floor(cvValOffset)) * 12.0f + 0.5f),  0,  11);
 			if (editingPpqn != 0) {
 				for (int i = 0; i < 12; i++) {
 					if (keyIndexToGateMode(i, pulsesPerStep) != -1) {

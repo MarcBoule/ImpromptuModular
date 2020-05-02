@@ -73,7 +73,7 @@ static const char noteLettersFlat [12] = {'C', 'D', 'D', 'E', 'E', 'F', 'G', 'G'
 static const char isBlackKey      [12] = { 0,   1,   0,   1,   0,   0,   1,   0,   1,   0,   1,   0 };
 
 void printNoteNoOct(int note, char* text, bool sharp) {// text must be at least 3 chars long (three displayed chars plus end of string)
-	// given note is a pitch CV multiplied by 12 and rounded to integer
+	// given note is a pitch CV multiplied by 12 and rounded to nearest integer
 	note = eucMod(note, 12);
 	text[0] = sharp ? noteLettersSharp[note] : noteLettersFlat[note];// note letter
 	text[1] = (isBlackKey[note] == 1) ? (sharp ? '\"' : 'b' ) : ' ';// sharp/flat
@@ -84,14 +84,16 @@ void printNoteNoOct(int note, char* text, bool sharp) {// text must be at least 
 int printNote(float cvVal, char* text, bool sharp) {// text must be at least 4 chars long (three displayed chars plus end of string)
 	// return cursor position of eos
 	
-	int indexNote =  eucMod((int)std::round(cvVal * 12.0f), 12);
+	int indexNote;
+	int octave;
+	calcNoteAndOct(cvVal, &indexNote, &octave);
 	
 	// note letter
 	text[0] = sharp ? noteLettersSharp[indexNote] : noteLettersFlat[indexNote];
 	
 	// octave number
 	int cursor = 1;
-	int octave = (int) std::round(std::floor(cvVal)+4.0f);
+	octave += 4;
 	if (octave >= 0 && octave <= 9) {
 		text[1] = (char) ( 0x30 + octave);
 		cursor++;

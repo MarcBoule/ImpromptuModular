@@ -172,6 +172,11 @@ inline bool calcWarningFlash(long count, long countInit) {
 
 NVGcolor prepareDisplay(NVGcontext *vg, Rect *box, int fontSize);
 
+inline void calcNoteAndOct(float cv, int* note12, int* oct0) {
+	// note12 is a note index (0 to 11) representing the C to B keys respectively
+	// oct0 is an octave number, 0 representing octave 4 (as in C4 for example)
+	eucDivMod((int)std::round(cv * 12.0f), 12, oct0, note12);
+}
 void printNoteNoOct(int note, char* text, bool sharp);
 int printNote(float cvVal, char* text, bool sharp);
 

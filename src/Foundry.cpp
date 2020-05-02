@@ -541,7 +541,7 @@ struct Foundry : Module {
 							newSeq = clamp(newSeq, 0, SequencerKernel::MAX_SEQS - 1);
 						}
 						else if (seqCVmethod == 1) {// C2-D7#
-							newSeq = (int)( (seqCVin + 2.0f) * 12.0f + 0.5f );
+							newSeq = (int)std::round((seqCVin + 2.0f) * 12.0f);
 							newSeq = clamp(newSeq, 0, SequencerKernel::MAX_SEQS - 1);
 						}
 						else if (seqCVTriggers[trkn].process(seqCVin)) {// TrigIncr
@@ -966,7 +966,7 @@ struct Foundry : Module {
 				if (octTriggers[octn].process(params[OCTAVE_PARAM + octn].getValue())) {
 					if (editingSequence) {
 						displayState = DISP_NORMAL;
-						if (seq.applyNewOctave(6 - octn, multiSteps ? cpSeqLength : 1, sampleRate, multiTracks))
+						if (seq.applyNewOctave(3 - octn, multiSteps ? cpSeqLength : 1, sampleRate, multiTracks))
 							tiedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 					}
 				}
@@ -1213,7 +1213,10 @@ struct Foundry : Module {
 			
 			
 			// Octave lights
-			int octLightIndex = (int) std::floor(cvVisual + 3.0f);
+			int keyLightIndex;
+			int octLightIndex;
+			calcNoteAndOct(cvVisual, &keyLightIndex, &octLightIndex);
+			octLightIndex += 3;
 			for (int i = 0; i < 7; i++) {
 				float red = 0.0f;
 				if (editingSequence || (attached && running)) {
@@ -1228,8 +1231,6 @@ struct Foundry : Module {
 			}
 			
 			// Keyboard lights
-			float keyCV = cvVisual + 10.0f;// to properly handle negative note voltages
-			int keyLightIndex = clamp( (int)((keyCV - std::floor(keyCV)) * 12.0f + 0.5f),  0,  11);
 			for (int i = 0; i < 12; i++) {
 				float green = 0.0f;
 				float red = 0.0f;
