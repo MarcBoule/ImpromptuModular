@@ -86,8 +86,8 @@ class Clock {
 	
 	int isHigh() {
 		if (step >= 0.0) {
-			// if (*trigOut)
-				// return (step < 0.001f) ? 1 : 0;
+			if (*trigOut)
+				return (step <= 0.001f) ? 1 : 0;
 			return (step < (length * 0.5)) ? 1 : 0;
 		}
 		return (*resetClockOutputsHigh) ? 1 : 0;
@@ -218,6 +218,7 @@ struct Clkd : Module {
 		}
 		configParam(BPM_PARAM, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		
+		clk[0].construct(nullptr, &resetClockOutputsHigh, &trigOuts[0]);
 		for (int i = 1; i < 4; i++) {
 			clk[i].construct(&clk[0], &resetClockOutputsHigh, &trigOuts[i]);		
 		}
@@ -767,6 +768,31 @@ struct ClkdWidget : ModuleWidget {
 			module->resetClkd(true);
 		}
 	};	
+	struct TrigOutsItem : MenuItem {
+		struct TrigOutsSubItem : MenuItem {
+			Clkd *module;
+			int clkIndex = 0;
+			void onAction(const event::Action &e) override {
+				module->trigOuts[clkIndex] = !module->trigOuts[clkIndex];
+			}
+		};
+		
+		Clkd *module;
+		std::string trigOutNames[4] = {"Master clk", "Clock 1", "Clock 2", "Clock 3"};
+		
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
+
+			for (int i = 0; i < 4; i++) {
+				TrigOutsSubItem *trigItem = createMenuItem<TrigOutsSubItem>(trigOutNames[i], CHECKMARK(module->trigOuts[i]));
+				trigItem->module = this->module;
+				trigItem->clkIndex = i;
+				menu->addChild(trigItem);
+			}
+
+			return menu;
+		}
+	};	
 	void appendContextMenu(Menu *menu) override {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
@@ -805,6 +831,10 @@ struct ClkdWidget : ModuleWidget {
 		MomentaryRunInputItem *runInItem = createMenuItem<MomentaryRunInputItem>("Run CV input is level sensitive", CHECKMARK(!module->momentaryRunInput));
 		runInItem->module = module;
 		menu->addChild(runInItem);
+		
+		TrigOutsItem *trigItem = createMenuItem<TrigOutsItem>("Send triggers (instead of gates)", RIGHT_ARROW);
+		trigItem->module = module;
+		menu->addChild(trigItem);
 	}	
 	
 	struct BpmKnob : IMMediumKnob<true, true> {

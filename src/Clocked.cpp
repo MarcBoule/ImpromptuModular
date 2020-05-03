@@ -104,9 +104,9 @@ class Clock {
 			double p3 = (double)(period + swing);
 			double p4 = ((double)(period + swing)) + p2;
 			
-			if (step < p2)
+			if (step <= p2)
 				high = 1;
-			else if ((step >= p3) && (step < p4))
+			else if ((step >= p3) && (step <= p4))
 				high = 2;
 		}
 		else if (*resetClockOutputsHigh)
@@ -365,6 +365,7 @@ struct Clocked : Module {
 			configParam(DELAY_PARAMS + 1 + i, 0.0f, 8.0f - 1.0f, 0.0f, strBuf);
 		}
 		
+		clk[0].construct(nullptr, &resetClockOutputsHigh);
 		for (int i = 1; i < 4; i++) {
 			clk[i].construct(&clk[0], &resetClockOutputsHigh);		
 		}

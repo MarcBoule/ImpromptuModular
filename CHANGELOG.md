@@ -3,6 +3,7 @@
 - Fixed bug in Foundry CUST selection (custom length selection for SEL button and copy-paste)
 - Added +/- suffix in display for split point when showing notes
 - Added CV through in Part module for chaining (or else in some cases a 1-sample glitch can occur because of signal delays)
+- Added option to Clkd to send triggers instead of gates (in Clocked, setting PW at minimum can be used to accomplish this)
 
 
 ### 1.1.5 (2019-03-25)
