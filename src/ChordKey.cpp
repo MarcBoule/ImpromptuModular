@@ -84,11 +84,13 @@ struct ChordKey : Module {
 		return (octs[index][cni] >= 0) ? (((float)(octs[index][cni] - 4)) + ((float)keys[index][cni]) / 12.0f) : 0.0f;
 	}
 	void setCV(int index, int cni, float cv) {
+		// optional TODO: optimize using eucDivMod()
 		int note = (int)std::round(cv * 12.0f);
 		octs[index][cni] = clamp(eucDiv(note, 12) + 4, 0, 9);
 		keys[index][cni] = eucMod(note, 12);
 	}
 	void applyDelta(int index, int cni, int delta) {
+		// optional TODO: optimize using eucDivMod()
 		int newKey = (keys[index][cni] + delta);
 		keys[index][cni] = eucMod(newKey, 12);
 		int newOct = octs[index][cni] + eucDiv(newKey, 12);

@@ -577,7 +577,7 @@ struct GateSeq64 : Module {
 					sequence = clamp(newSeq, 0, MAX_SEQS - 1);
 				}
 				else if (seqCVmethod == 1) {// C4-G6
-					int newSeq = (int)( (inputs[SEQCV_INPUT].getVoltage()) * 12.0f + 0.5f );
+					int newSeq = (int)std::round(inputs[SEQCV_INPUT].getVoltage() * 12.0f);
 					sequence = clamp(newSeq, 0, MAX_SEQS - 1);
 				}
 				else {// TrigIncr

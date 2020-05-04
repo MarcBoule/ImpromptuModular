@@ -1,12 +1,12 @@
-### 1.1.6 (in development)
+### 1.1.6 (2020-05-04)
 
 - Fixed bug in Foundry CUST selection (custom length selection for SEL button and copy-paste)
-- Added +/- suffix in display for split point when showing notes
-- Added CV through in Part module for chaining (or else in some cases a 1-sample glitch can occur because of signal delays)
+- Added +/- suffix in Part's split point display when showing notes (and fixed a note display bug)
+- Added CV through in Part for chaining (or else in some cases a 1-sample glitch can occur because of signal delays)
 - Added option to Clkd to send triggers instead of gates (in Clocked, setting PW at minimum can be used to accomplish this)
 
 
-### 1.1.5 (2019-03-25)
+### 1.1.5 (2020-03-25)
 
 - Changed plugin name from "Impromptu Modular" to "Impromptu" (slug unchanged to keep patch compatibility)
 - Added new module called Part, which splits a gate signal into two cables according to a split point and a CV input
@@ -19,7 +19,7 @@
 - Increased refresh rate of signals going through expander mechanism
 
 
-### 1.1.4 (2019-02-28)
+### 1.1.4 (2020-02-28)
 
 - Allowed FourView to function as an expander for ChordKey and CVPad
 - Added new module called ChordKey: a keyboard-based chord generator 
