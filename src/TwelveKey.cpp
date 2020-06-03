@@ -58,6 +58,7 @@ struct TwelveKey : Module {
 	bool stateInternal;// false when pass through CV and Gate, true when CV and gate from this module
 	bool invertVel;// range is inverted (min vel is end of key)
 	bool linkVelSettings;
+	int8_t tracer;
 	
 	
 	// No need to save, with reset
@@ -102,6 +103,7 @@ struct TwelveKey : Module {
 		stateInternal = inputs[GATE_INPUT].isConnected() ? false : true;
 		invertVel = false;
 		linkVelSettings = false;
+		tracer = 0;// off by default
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -143,6 +145,9 @@ struct TwelveKey : Module {
 
 		// linkVelSettings
 		json_object_set_new(rootJ, "linkVelSettings", json_boolean(linkVelSettings));
+
+		// tracer
+		json_object_set_new(rootJ, "tracer", json_integer(tracer));
 
 		return rootJ;
 	}
@@ -190,6 +195,11 @@ struct TwelveKey : Module {
 		if (linkVelSettingsJ)
 			linkVelSettings = json_is_true(linkVelSettingsJ);
 		
+		// tracer
+		json_t *tracerJ = json_object_get(rootJ, "tracer");
+		if (tracerJ)
+			tracer = json_integer_value(tracerJ);
+
 		resetNonJson();
 	}
 
@@ -287,7 +297,11 @@ struct TwelveKey : Module {
 		if (refresh.processLights()) {
 			// Key lights
 			for (int i = 0; i < 12; i++) {
-				lights[KEY_LIGHTS + i].setBrightness(( i == pkInfo.key && (noteLightCounter > 0ul || pkInfo.gate)) ? 1.0f : 0.0f);
+				float lightVoltage = 0.0f;
+				if (i == pkInfo.key) {
+					lightVoltage = (noteLightCounter > 0ul || pkInfo.gate) ? 1.0f : (tracer ? 0.15f : 0.0f);
+				}
+				lights[KEY_LIGHTS + i].setBrightness(lightVoltage);
 			}
 			
 			// Max velocity lights
@@ -365,6 +379,12 @@ struct TwelveKeyWidget : ModuleWidget {
 			module->linkVelSettings = !module->linkVelSettings;
 		}
 	};
+	struct TracerItem : MenuItem {
+		TwelveKey *module;
+		void onAction(const event::Action &e) override {
+			module->tracer ^= 0x1;
+		}
+	};
 	void appendContextMenu(Menu *menu) override {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
@@ -396,6 +416,10 @@ struct TwelveKeyWidget : ModuleWidget {
 		invertItem->module = module;
 		invertItem->disabled = (module->linkVelSettings && module->leftExpander.module && module->leftExpander.module->model == modelTwelveKey);
 		menu->addChild(invertItem);	
+
+		TracerItem *traceItem = createMenuItem<TracerItem>("Tracer", CHECKMARK(module->tracer != 0));
+		traceItem->module = module;
+		menu->addChild(traceItem);	
 	}	
 	
 	
