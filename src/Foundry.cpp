@@ -2169,27 +2169,27 @@ struct FoundryWidget : ModuleWidget {
 		const int numX = SequencerKernel::MAX_STEPS / 2;
 		for (int x = 0; x < numX; x++) {
 			// First row
-			addParam(createParamCentered<LEDButton>(Vec(posX, rowRulerT0 - stepsOffsetY), module, Foundry::STEP_PHRASE_PARAMS + x));
-			addChild(createLightCentered<MediumLight<GreenRedWhiteLight>>(Vec(posX, rowRulerT0 - stepsOffsetY), module, Foundry::STEP_PHRASE_LIGHTS + (x * 3)));
+			addParam(createParamCentered<LEDButton>(VecPx(posX, rowRulerT0 - stepsOffsetY), module, Foundry::STEP_PHRASE_PARAMS + x));
+			addChild(createLightCentered<MediumLight<GreenRedWhiteLight>>(VecPx(posX, rowRulerT0 - stepsOffsetY), module, Foundry::STEP_PHRASE_LIGHTS + (x * 3)));
 			// Second row
-			addParam(createParamCentered<LEDButton>(Vec(posX, rowRulerT0 + stepsOffsetY), module, Foundry::STEP_PHRASE_PARAMS + x + numX));
-			addChild(createLightCentered<MediumLight<GreenRedWhiteLight>>(Vec(posX, rowRulerT0 + stepsOffsetY), module, Foundry::STEP_PHRASE_LIGHTS + ((x + numX) * 3)));
+			addParam(createParamCentered<LEDButton>(VecPx(posX, rowRulerT0 + stepsOffsetY), module, Foundry::STEP_PHRASE_PARAMS + x + numX));
+			addChild(createLightCentered<MediumLight<GreenRedWhiteLight>>(VecPx(posX, rowRulerT0 + stepsOffsetY), module, Foundry::STEP_PHRASE_LIGHTS + ((x + numX) * 3)));
 			// step position to next location and handle groups of four
 			posX += spacingSteps;
 			if ((x + 1) % 4 == 0)
 				posX += spacingSteps4;
 		}
 		// Sel button
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(columnRulerT1, rowRulerT0), module, Foundry::SEL_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnRulerT1, rowRulerT0), module, Foundry::SEL_PARAM, module ? &module->panelTheme : NULL));
 		
 		// Copy-paste and select mode switch (3 position)
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(columnRulerT2, rowRulerT0), module, Foundry::CPMODE_PARAM));	// 0.0f is top position
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(columnRulerT2, rowRulerT0), module, Foundry::CPMODE_PARAM));	// 0.0f is top position
 		
 		// Copy/paste buttons
 		// see under Track display
 		
 		// Main switch
-		addParam(createParamCentered<CKSSNoRandom>(Vec(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM));// 1.0f is top position
+		addParam(createParamCentered<CKSSNoRandom>(VecPx(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM));// 1.0f is top position
 
 		
 		
@@ -2199,8 +2199,8 @@ struct FoundryWidget : ModuleWidget {
 		static const int octLightsIntY = 20;
 		static const int rowRulerOct = 111;
 		for (int i = 0; i < 7; i++) {
-			addParam(createParamCentered<LEDButton>(Vec(columnRulerT0, rowRulerOct + i * octLightsIntY), module, Foundry::OCTAVE_PARAM + i));
-			addChild(createLightCentered<MediumLight<RedLight>>(Vec(columnRulerT0, rowRulerOct + i * octLightsIntY), module, Foundry::OCTAVE_LIGHTS + i));
+			addParam(createParamCentered<LEDButton>(VecPx(columnRulerT0, rowRulerOct + i * octLightsIntY), module, Foundry::OCTAVE_PARAM + i));
+			addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnRulerT0, rowRulerOct + i * octLightsIntY), module, Foundry::OCTAVE_LIGHTS + i));
 		}
 		
 		// Keys and Key lights
@@ -2210,31 +2210,31 @@ struct FoundryWidget : ModuleWidget {
 		static const int offsetKeyLEDx = 6;
 		static const int offsetKeyLEDy = 16;
 		// Black keys and lights
-		addChild(createPianoKey<PianoKeySmall>(Vec(65+keyNudgeX, KeyBlackY), 1, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(65+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 1 * 2));
-		addChild(createPianoKey<PianoKeySmall>(Vec(93+keyNudgeX, KeyBlackY), 3, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(93+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 3 * 2));
-		addChild(createPianoKey<PianoKeySmall>(Vec(150+keyNudgeX, KeyBlackY), 6, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(150+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 6 * 2));
-		addChild(createPianoKey<PianoKeySmall>(Vec(178+keyNudgeX, KeyBlackY), 8, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(178+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 8 * 2));
-		addChild(createPianoKey<PianoKeySmall>(Vec(206+keyNudgeX, KeyBlackY), 10, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(206+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 10 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(65+keyNudgeX, KeyBlackY), 1, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(65+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 1 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(93+keyNudgeX, KeyBlackY), 3, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(93+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 3 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(150+keyNudgeX, KeyBlackY), 6, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(150+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 6 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(178+keyNudgeX, KeyBlackY), 8, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(178+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 8 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(206+keyNudgeX, KeyBlackY), 10, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(206+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 10 * 2));
 		// White keys and lights
-		addChild(createPianoKey<PianoKeySmall>(Vec(51+keyNudgeX, KeyWhiteY), 0, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(51+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 0 * 2));
-		addChild(createPianoKey<PianoKeySmall>(Vec(79+keyNudgeX, KeyWhiteY), 2, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(79+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 2 * 2));
-		addChild(createPianoKey<PianoKeySmall>(Vec(107+keyNudgeX, KeyWhiteY), 4, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(107+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 4 * 2));
-		addChild(createPianoKey<PianoKeySmall>(Vec(136+keyNudgeX, KeyWhiteY), 5, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(136+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 5 * 2));
-		addChild(createPianoKey<PianoKeySmall>(Vec(164+keyNudgeX, KeyWhiteY), 7, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(164+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 7 * 2));
-		addChild(createPianoKey<PianoKeySmall>(Vec(192+keyNudgeX, KeyWhiteY), 9, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(192+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 9 * 2));
-		addChild(createPianoKey<PianoKeySmall>(Vec(220+keyNudgeX, KeyWhiteY), 11, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(220+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 11 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(51+keyNudgeX, KeyWhiteY), 0, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(51+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 0 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(79+keyNudgeX, KeyWhiteY), 2, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(79+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 2 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(107+keyNudgeX, KeyWhiteY), 4, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(107+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 4 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(136+keyNudgeX, KeyWhiteY), 5, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(136+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 5 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(164+keyNudgeX, KeyWhiteY), 7, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(164+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 7 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(192+keyNudgeX, KeyWhiteY), 9, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(192+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 9 * 2));
+		addChild(createPianoKey<PianoKeySmall>(VecPx(220+keyNudgeX, KeyWhiteY), 11, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(220+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, Foundry::KEY_LIGHTS + 11 * 2));
 
 
 
@@ -2250,50 +2250,50 @@ struct FoundryWidget : ModuleWidget {
 		// Velocity display
 		static const int colRulerVel = 289;
 		static const int trkButtonsOffsetX = 14;
-		addChild(new VelocityDisplayWidget(Vec(colRulerVel, rowRulerDisp), Vec(displayWidths + 4, displayHeights), module));// 3 characters
+		addChild(new VelocityDisplayWidget(VecPx(colRulerVel, rowRulerDisp), VecPx(displayWidths + 4, displayHeights), module));// 3 characters
 		// Velocity knob
-		addParam(createDynamicParamCentered<VelocityKnob>(Vec(colRulerVel, rowRulerKnobs), module, Foundry::VEL_KNOB_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<VelocityKnob>(VecPx(colRulerVel, rowRulerKnobs), module, Foundry::VEL_KNOB_PARAM, module ? &module->panelTheme : NULL));	
 		// Veocity mode button and lights
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(colRulerVel - trkButtonsOffsetX - 2, rowRulerSmallButtons), module, Foundry::VEL_EDIT_PARAM, module ? &module->panelTheme : NULL));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(colRulerVel + 4, rowRulerSmallButtons), module, Foundry::VEL_PROB_LIGHT));
-		addChild(createLightCentered<MediumLight<RedLight>>(Vec(colRulerVel + 20, rowRulerSmallButtons), module, Foundry::VEL_SLIDE_LIGHT));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerVel - trkButtonsOffsetX - 2, rowRulerSmallButtons), module, Foundry::VEL_EDIT_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerVel + 4, rowRulerSmallButtons), module, Foundry::VEL_PROB_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colRulerVel + 20, rowRulerSmallButtons), module, Foundry::VEL_SLIDE_LIGHT));
 		
 
 		// Seq edit display 
 		static const int colRulerEditSeq = colRulerVel + displaySpacingX + 3;
-		addChild(new SeqEditDisplayWidget(Vec(colRulerEditSeq, rowRulerDisp), Vec(displayWidths, displayHeights), module));// 5 characters
+		addChild(new SeqEditDisplayWidget(VecPx(colRulerEditSeq, rowRulerDisp), VecPx(displayWidths, displayHeights), module));// 5 characters
 		// Sequence-edit knob
-		addParam(createDynamicParamCentered<SequenceKnob>(Vec(colRulerEditSeq, rowRulerKnobs), module, Foundry::SEQUENCE_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(colRulerEditSeq, rowRulerKnobs), module, Foundry::SEQUENCE_PARAM, module ? &module->panelTheme : NULL));		
 		// Transpose/rotate button
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(colRulerEditSeq, rowRulerSmallButtons), module, Foundry::TRAN_ROT_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerEditSeq, rowRulerSmallButtons), module, Foundry::TRAN_ROT_PARAM, module ? &module->panelTheme : NULL));
 	
 			
 		// Phrase edit display 
 		static const int colRulerEditPhr = colRulerEditSeq + displaySpacingX + 1;
-		addChild(new PhrEditDisplayWidget(Vec(colRulerEditPhr, rowRulerDisp), Vec(displayWidths, displayHeights), module));// 5 characters
+		addChild(new PhrEditDisplayWidget(VecPx(colRulerEditPhr, rowRulerDisp), VecPx(displayWidths, displayHeights), module));// 5 characters
 		// Phrase knob
-		addParam(createDynamicParamCentered<PhraseKnob>(Vec(colRulerEditPhr, rowRulerKnobs), module, Foundry::PHRASE_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<PhraseKnob>(VecPx(colRulerEditPhr, rowRulerKnobs), module, Foundry::PHRASE_PARAM, module ? &module->panelTheme : NULL));		
 		// Begin/end buttons
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(colRulerEditPhr - trkButtonsOffsetX, rowRulerSmallButtons), module, Foundry::BEGIN_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(colRulerEditPhr + trkButtonsOffsetX, rowRulerSmallButtons), module, Foundry::END_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerEditPhr - trkButtonsOffsetX, rowRulerSmallButtons), module, Foundry::BEGIN_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerEditPhr + trkButtonsOffsetX, rowRulerSmallButtons), module, Foundry::END_PARAM, module ? &module->panelTheme : NULL));
 
 				
 		// Track display
 		static const int colRulerTrk = colRulerEditPhr + displaySpacingX;
-		addChild(new TrackDisplayWidget(Vec(colRulerTrk, rowRulerDisp), Vec(displayWidths - 13, displayHeights), module));// 2 characters
+		addChild(new TrackDisplayWidget(VecPx(colRulerTrk, rowRulerDisp), VecPx(displayWidths - 13, displayHeights), module));// 2 characters
 		// Track buttons
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(colRulerTrk + trkButtonsOffsetX, rowRulerKnobs), module, Foundry::TRACKUP_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(colRulerTrk - trkButtonsOffsetX, rowRulerKnobs), module, Foundry::TRACKDOWN_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerTrk + trkButtonsOffsetX, rowRulerKnobs), module, Foundry::TRACKUP_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerTrk - trkButtonsOffsetX, rowRulerKnobs), module, Foundry::TRACKDOWN_PARAM, module ? &module->panelTheme : NULL));
 		// AllTracks button
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(colRulerTrk, rowRulerSmallButtons - 12), module, Foundry::ALLTRACKS_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerTrk, rowRulerSmallButtons - 12), module, Foundry::ALLTRACKS_PARAM, module ? &module->panelTheme : NULL));
 		// Copy/paste buttons
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(colRulerTrk - trkButtonsOffsetX, rowRulerT0), module, Foundry::COPY_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(colRulerTrk + trkButtonsOffsetX, rowRulerT0), module, Foundry::PASTE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerTrk - trkButtonsOffsetX, rowRulerT0), module, Foundry::COPY_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerTrk + trkButtonsOffsetX, rowRulerT0), module, Foundry::PASTE_PARAM, module ? &module->panelTheme : NULL));
 	
 	
 		// Attach button and light
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(columnRulerT5 - 10, rowRulerDisp + 14), module, Foundry::ATTACH_PARAM, module ? &module->panelTheme : NULL));
-		addChild(createLightCentered<MediumLight<RedLight>>(Vec(columnRulerT5 + 10, rowRulerDisp + 14), module, Foundry::ATTACH_LIGHT));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnRulerT5 - 10, rowRulerDisp + 14), module, Foundry::ATTACH_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnRulerT5 + 10, rowRulerDisp + 14), module, Foundry::ATTACH_LIGHT));
 	
 	
 		// ****** Gate and slide section ******
@@ -2305,36 +2305,36 @@ struct FoundryWidget : ModuleWidget {
 		
 		// Key mode LED buttons	
 		static const int colRulerKM = 61;
-		addParam(createParamCentered<CKSSNoRandom>(Vec(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM));
+		addParam(createParamCentered<CKSSNoRandom>(VecPx(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM));
 		
 		// Gate 1 light and button
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(columnRulerMB1 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_LIGHT));		
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(columnRulerMB1, rowRulerMB0), module, Foundry::GATE_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnRulerMB1 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_LIGHT));		
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerMB1, rowRulerMB0), module, Foundry::GATE_PARAM, module ? &module->panelTheme : NULL));
 		// Tie light and button
-		addChild(createLightCentered<MediumLight<RedLight>>(Vec(columnRulerMB2 + posLEDvsButton, rowRulerMB0), module, Foundry::TIE_LIGHT));		
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(columnRulerMB2, rowRulerMB0), module, Foundry::TIE_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnRulerMB2 + posLEDvsButton, rowRulerMB0), module, Foundry::TIE_LIGHT));		
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerMB2, rowRulerMB0), module, Foundry::TIE_PARAM, module ? &module->panelTheme : NULL));
 		// Gate 1 probability light and button
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(columnRulerMB3 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_PROB_LIGHT));		
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(columnRulerMB3, rowRulerMB0), module, Foundry::GATE_PROB_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnRulerMB3 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_PROB_LIGHT));		
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerMB3, rowRulerMB0), module, Foundry::GATE_PROB_PARAM, module ? &module->panelTheme : NULL));
 		
 		// Slide light and button
-		addChild(createLightCentered<MediumLight<RedLight>>(Vec(colRulerVel + posLEDvsButton, rowRulerMB0), module, Foundry::SLIDE_LIGHT));		
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(colRulerVel, rowRulerMB0), module, Foundry::SLIDE_BTN_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colRulerVel + posLEDvsButton, rowRulerMB0), module, Foundry::SLIDE_LIGHT));		
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerVel, rowRulerMB0), module, Foundry::SLIDE_BTN_PARAM, module ? &module->panelTheme : NULL));
 		// Mode button
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(colRulerEditPhr, rowRulerMB0), module, Foundry::MODE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerEditPhr, rowRulerMB0), module, Foundry::MODE_PARAM, module ? &module->panelTheme : NULL));
 		// Rep/Len button
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(colRulerEditSeq, rowRulerMB0), module, Foundry::REP_LEN_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerEditSeq, rowRulerMB0), module, Foundry::REP_LEN_PARAM, module ? &module->panelTheme : NULL));
 		// Clk res
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(colRulerTrk, rowRulerMB0), module, Foundry::CLKRES_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerTrk, rowRulerMB0), module, Foundry::CLKRES_PARAM, module ? &module->panelTheme : NULL));
 		
 		// Reset and run LED buttons
 		static const int colRulerResetRun = columnRulerT5;
 		// Run LED bezel and light
-		addParam(createParamCentered<LEDBezel>(Vec(colRulerResetRun, rowRulerSmallButtons - 6), module, Foundry::RUN_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(Vec(colRulerResetRun, rowRulerSmallButtons - 6), module, Foundry::RUN_LIGHT));
+		addParam(createParamCentered<LEDBezel>(VecPx(colRulerResetRun, rowRulerSmallButtons - 6), module, Foundry::RUN_PARAM));
+		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colRulerResetRun, rowRulerSmallButtons - 6), module, Foundry::RUN_LIGHT));
 		// Reset LED bezel and light
-		addParam(createParamCentered<LEDBezel>(Vec(colRulerResetRun, rowRulerMB0), module, Foundry::RESET_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(Vec(colRulerResetRun, rowRulerMB0), module, Foundry::RESET_LIGHT));
+		addParam(createParamCentered<LEDBezel>(VecPx(colRulerResetRun, rowRulerMB0), module, Foundry::RESET_PARAM));
+		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colRulerResetRun, rowRulerMB0), module, Foundry::RESET_LIGHT));
 		
 
 
@@ -2361,50 +2361,50 @@ struct FoundryWidget : ModuleWidget {
 		
 
 		// Autostep and write
-		addParam(createParamCentered<CKSSNoRandom>(Vec(columnRulerB0, rowRulerBHigh), module, Foundry::AUTOSTEP_PARAM));		
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerB0, rowRulerBLow), true, module, Foundry::WRITE_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createParamCentered<CKSSNoRandom>(VecPx(columnRulerB0, rowRulerBHigh), module, Foundry::AUTOSTEP_PARAM));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB0, rowRulerBLow), true, module, Foundry::WRITE_INPUT, module ? &module->panelTheme : NULL));
 	
 		// CV IN inputs
 		static const int writeLEDoffsetX = 16;
 		static const int writeLEDoffsetY = 18;
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerB1, rowRulerBHigh), true, module, Foundry::CV_INPUTS + 0, module ? &module->panelTheme : NULL));
-		addChild(createLightCentered<SmallLight<RedLight>>(Vec(columnRulerB1 + writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 0));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB1, rowRulerBHigh), true, module, Foundry::CV_INPUTS + 0, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(columnRulerB1 + writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 0));
 		
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerB2, rowRulerBHigh), true, module, Foundry::CV_INPUTS + 2, module ? &module->panelTheme : NULL));
-		addChild(createLightCentered<SmallLight<RedLight>>(Vec(columnRulerB2 - writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 2));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB2, rowRulerBHigh), true, module, Foundry::CV_INPUTS + 2, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(columnRulerB2 - writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 2));
 
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerB1, rowRulerBLow), true, module, Foundry::CV_INPUTS + 1, module ? &module->panelTheme : NULL));
-		addChild(createLightCentered<SmallLight<RedLight>>(Vec(columnRulerB1 + writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 1));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB1, rowRulerBLow), true, module, Foundry::CV_INPUTS + 1, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(columnRulerB1 + writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 1));
 
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerB2, rowRulerBLow), true, module, Foundry::CV_INPUTS + 3, module ? &module->panelTheme : NULL));
-		addChild(createLightCentered<SmallLight<RedLight>>(Vec(columnRulerB2 - writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 3));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB2, rowRulerBLow), true, module, Foundry::CV_INPUTS + 3, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(columnRulerB2 - writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 3));
 		
 		// Clock+CV+Gate+Vel outputs
 		// Track A
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerB3, rowRulerBHigh), true, module, Foundry::CLOCK_INPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB4, rowRulerBHigh), false, module, Foundry::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB5, rowRulerBHigh), false, module, Foundry::GATE_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB6, rowRulerBHigh), false, module, Foundry::VEL_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB3, rowRulerBHigh), true, module, Foundry::CLOCK_INPUTS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB4, rowRulerBHigh), false, module, Foundry::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB5, rowRulerBHigh), false, module, Foundry::GATE_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB6, rowRulerBHigh), false, module, Foundry::VEL_OUTPUTS + 0, module ? &module->panelTheme : NULL));
 		// Track C
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerB7, rowRulerBHigh), true, module, Foundry::CLOCK_INPUTS + 2, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB8, rowRulerBHigh), false, module, Foundry::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB9, rowRulerBHigh), false, module, Foundry::GATE_OUTPUTS + 2, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB10, rowRulerBHigh), false, module, Foundry::VEL_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB7, rowRulerBHigh), true, module, Foundry::CLOCK_INPUTS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB8, rowRulerBHigh), false, module, Foundry::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB9, rowRulerBHigh), false, module, Foundry::GATE_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB10, rowRulerBHigh), false, module, Foundry::VEL_OUTPUTS + 2, module ? &module->panelTheme : NULL));
 		//
 		// Track B
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerB3, rowRulerBLow), true, module, Foundry::CLOCK_INPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB4, rowRulerBLow), false, module, Foundry::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB5, rowRulerBLow), false, module, Foundry::GATE_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB6, rowRulerBLow), false, module, Foundry::VEL_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB3, rowRulerBLow), true, module, Foundry::CLOCK_INPUTS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB4, rowRulerBLow), false, module, Foundry::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB5, rowRulerBLow), false, module, Foundry::GATE_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB6, rowRulerBLow), false, module, Foundry::VEL_OUTPUTS + 1, module ? &module->panelTheme : NULL));
 		// Track D
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerB7, rowRulerBLow), true, module, Foundry::CLOCK_INPUTS + 3, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB8, rowRulerBLow), false, module, Foundry::CV_OUTPUTS + 3, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB9, rowRulerBLow), false, module, Foundry::GATE_OUTPUTS + 3, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerB10, rowRulerBLow), false, module, Foundry::VEL_OUTPUTS + 3, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB7, rowRulerBLow), true, module, Foundry::CLOCK_INPUTS + 3, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB8, rowRulerBLow), false, module, Foundry::CV_OUTPUTS + 3, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB9, rowRulerBLow), false, module, Foundry::GATE_OUTPUTS + 3, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB10, rowRulerBLow), false, module, Foundry::VEL_OUTPUTS + 3, module ? &module->panelTheme : NULL));
 
 		// Run and reset inputs
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerB11, rowRulerBHigh), true, module, Foundry::RUNCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerB11, rowRulerBLow), true, module, Foundry::RESET_INPUT, module ? &module->panelTheme : NULL));	
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB11, rowRulerBHigh), true, module, Foundry::RUNCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB11, rowRulerBLow), true, module, Foundry::RESET_INPUT, module ? &module->panelTheme : NULL));	
 	}
 	
 	void step() override {
