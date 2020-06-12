@@ -833,102 +833,102 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		
 		
 		// Rnd knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(colRulerT0, rowRuler0), module, BigButtonSeq2::RND_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(VecPx(colRulerT0, rowRuler0), module, BigButtonSeq2::RND_PARAM, module ? &module->panelTheme : NULL));
 		// Channel knob
-		addParam(createDynamicParamCentered<IMSixPosBigKnob>(Vec(colRulerCenter - clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::CHAN_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSixPosBigKnob>(VecPx(colRulerCenter - clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::CHAN_PARAM, module ? &module->panelTheme : NULL));	
 		// Channel display
 		ChanDisplayWidget *displayChan = new ChanDisplayWidget();
-		displayChan->box.pos = Vec(colRulerCenter - 12, rowRuler0 - 15);
-		displayChan->box.size = Vec(24, 30);// 1 character
+		displayChan->box.pos = VecPx(colRulerCenter - 12, rowRuler0 - 15);
+		displayChan->box.size = VecPx(24, 30);// 1 character
 		displayChan->module = module;
 		addChild(displayChan);	
 		// Len knob
-		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(Vec(colRulerCenter + clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::LEN_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::LEN_PARAM, module ? &module->panelTheme : NULL));
 		// Length display
 		StepsDisplayWidget *displaySteps = new StepsDisplayWidget();
-		displaySteps->box.pos = Vec(colRulerT5 - 27 + lengthDisplayOffsetX, rowRuler0 - 15);
-		displaySteps->box.size = Vec(55, 30);// 3 characters
+		displaySteps->box.pos = VecPx(colRulerT5 - 27 + lengthDisplayOffsetX, rowRuler0 - 15);
+		displaySteps->box.size = VecPx(55, 30);// 3 characters
 		displaySteps->module = module;
 		addChild(displaySteps);
 		
 		// Rnd jack
-		addInput(createDynamicPortCentered<IMPort>(Vec(colRulerT0, rowRuler1), true, module, BigButtonSeq2::RND_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerT0, rowRuler1), true, module, BigButtonSeq2::RND_INPUT, module ? &module->panelTheme : NULL));
 		// Channel jack
-		addInput(createDynamicPortCentered<IMPort>(Vec(colRulerCenter - clearAndDelButtonOffsetX, rowRuler1), true, module, BigButtonSeq2::CHAN_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerCenter - clearAndDelButtonOffsetX, rowRuler1), true, module, BigButtonSeq2::CHAN_INPUT, module ? &module->panelTheme : NULL));
 		// Length jack
-		addInput(createDynamicPortCentered<IMPort>(Vec(colRulerCenter + clearAndDelButtonOffsetX, rowRuler1), true, module, BigButtonSeq2::LEN_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler1), true, module, BigButtonSeq2::LEN_INPUT, module ? &module->panelTheme : NULL));
 		// Display switch
-		addParam(createParamCentered<CKSSHNoRandom>(Vec(colRulerT5 + lengthDisplayOffsetX, rowRuler1 - 12), module, BigButtonSeq2::DISPMODE_PARAM));		
+		addParam(createParamCentered<CKSSHNoRandom>(VecPx(colRulerT5 + lengthDisplayOffsetX, rowRuler1 - 12), module, BigButtonSeq2::DISPMODE_PARAM));		
 
 
 		// Metronome light
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(colRulerT0, rowRuler2), module, BigButtonSeq2::METRONOME_LIGHT + 0));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT0, rowRuler2), module, BigButtonSeq2::METRONOME_LIGHT + 0));
 		// Mem fill LED button
-		addParam(createParamCentered<LEDButton>(Vec(colRulerT5, rowRuler2), module, BigButtonSeq2::WRITEFILL_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(colRulerT5, rowRuler2), module, BigButtonSeq2::WRITEFILL_LIGHT));
+		addParam(createParamCentered<LEDButton>(VecPx(colRulerT5, rowRuler2), module, BigButtonSeq2::WRITEFILL_PARAM));
+		addChild(createLightCentered<MediumLight<GreenLight>>(VecPx(colRulerT5, rowRuler2), module, BigButtonSeq2::WRITEFILL_LIGHT));
 		// CV Input
-		addInput(createDynamicPortCentered<IMPort>(Vec(colRulerT6, rowRuler2), true, module, BigButtonSeq2::CV_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerT6, rowRuler2), true, module, BigButtonSeq2::CV_INPUT, module ? &module->panelTheme : NULL));		
 
 		
 		// Bank button and jack
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(colRulerCenter, rowRuler3), module, BigButtonSeq2::BANK_PARAM, module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(Vec(colRulerCenter, rowRuler3 + knobCVjackOffsetY), true, module, BigButtonSeq2::BANK_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerCenter, rowRuler3), module, BigButtonSeq2::BANK_PARAM, module ? &module->panelTheme : NULL));	
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerCenter, rowRuler3 + knobCVjackOffsetY), true, module, BigButtonSeq2::BANK_INPUT, module ? &module->panelTheme : NULL));
 		// Clock button and jack
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(colRulerCenter - clearAndDelButtonOffsetX, rowRuler4), module, BigButtonSeq2::CLOCK_PARAM, module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(Vec(colRulerCenter - clearAndDelButtonOffsetX, rowRuler4 + knobCVjackOffsetY), true, module, BigButtonSeq2::CLK_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerCenter - clearAndDelButtonOffsetX, rowRuler4), module, BigButtonSeq2::CLOCK_PARAM, module ? &module->panelTheme : NULL));	
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerCenter - clearAndDelButtonOffsetX, rowRuler4 + knobCVjackOffsetY), true, module, BigButtonSeq2::CLK_INPUT, module ? &module->panelTheme : NULL));
 		// Del button and jack
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(colRulerCenter + clearAndDelButtonOffsetX, rowRuler4), module, BigButtonSeq2::DEL_PARAM, module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(Vec(colRulerCenter + clearAndDelButtonOffsetX, rowRuler4 + knobCVjackOffsetY), true, module, BigButtonSeq2::DEL_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler4), module, BigButtonSeq2::DEL_PARAM, module ? &module->panelTheme : NULL));	
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler4 + knobCVjackOffsetY), true, module, BigButtonSeq2::DEL_INPUT, module ? &module->panelTheme : NULL));
 		// Reset button and jack
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(colRulerT0, rowRuler5), module, BigButtonSeq2::RESET_PARAM, module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(Vec(colRulerT0, rowRuler5 + knobCVjackOffsetY), true, module, BigButtonSeq2::RESET_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerT0, rowRuler5), module, BigButtonSeq2::RESET_PARAM, module ? &module->panelTheme : NULL));	
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerT0, rowRuler5 + knobCVjackOffsetY), true, module, BigButtonSeq2::RESET_INPUT, module ? &module->panelTheme : NULL));
 		// Fill button and jack
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(colRulerT5, rowRuler5), module, BigButtonSeq2::FILL_PARAM,  module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(Vec(colRulerT5, rowRuler5 + knobCVjackOffsetY), true, module, BigButtonSeq2::FILL_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerT5, rowRuler5), module, BigButtonSeq2::FILL_PARAM,  module ? &module->panelTheme : NULL));	
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerT5, rowRuler5 + knobCVjackOffsetY), true, module, BigButtonSeq2::FILL_INPUT, module ? &module->panelTheme : NULL));
 
 		// And now time for... BIG BUTTON!
-		addChild(createLightCentered<GiantLight<RedLight>>(Vec(colRulerCenter, rowRuler5 + 22), module, BigButtonSeq2::BIG_LIGHT));
-		addParam(createParamCentered<LEDBezelBig>(Vec(colRulerCenter, rowRuler5 + 22), module, BigButtonSeq2::BIG_PARAM));
-		addChild(createLightCentered<GiantLight2<RedLight>>(Vec(colRulerCenter, rowRuler5 + 22), module, BigButtonSeq2::BIGC_LIGHT));
+		addChild(createLightCentered<GiantLight<RedLight>>(VecPx(colRulerCenter, rowRuler5 + 22), module, BigButtonSeq2::BIG_LIGHT));
+		addParam(createParamCentered<LEDBezelBig>(VecPx(colRulerCenter, rowRuler5 + 22), module, BigButtonSeq2::BIG_PARAM));
+		addChild(createLightCentered<GiantLight2<RedLight>>(VecPx(colRulerCenter, rowRuler5 + 22), module, BigButtonSeq2::BIGC_LIGHT));
 		// Big CV input
-		addInput(createDynamicPortCentered<IMPort>(Vec(colRulerCenter - clearAndDelButtonOffsetX, rowRuler5 + knobCVjackOffsetY), true, module, BigButtonSeq2::BIG_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerCenter - clearAndDelButtonOffsetX, rowRuler5 + knobCVjackOffsetY), true, module, BigButtonSeq2::BIG_INPUT, module ? &module->panelTheme : NULL));
 		// Big snap
-		addParam(createParamCentered<LEDButton>(Vec(colRulerCenter + clearAndDelButtonOffsetX, rowRuler5 + knobCVjackOffsetY), module, BigButtonSeq2::QUANTIZEBIG_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(colRulerCenter + clearAndDelButtonOffsetX, rowRuler5 + knobCVjackOffsetY), module, BigButtonSeq2::QUANTIZEBIG_LIGHT));
+		addParam(createParamCentered<LEDButton>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler5 + knobCVjackOffsetY), module, BigButtonSeq2::QUANTIZEBIG_PARAM));
+		addChild(createLightCentered<MediumLight<GreenLight>>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler5 + knobCVjackOffsetY), module, BigButtonSeq2::QUANTIZEBIG_LIGHT));
 
 		// Clear button and jack
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(colRulerT6, rowRuler5), module, BigButtonSeq2::CLEAR_PARAM, module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(Vec(colRulerT6, rowRuler5 + knobCVjackOffsetY), true, module, BigButtonSeq2::CLEAR_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerT6, rowRuler5), module, BigButtonSeq2::CLEAR_PARAM, module ? &module->panelTheme : NULL));	
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerT6, rowRuler5 + knobCVjackOffsetY), true, module, BigButtonSeq2::CLEAR_INPUT, module ? &module->panelTheme : NULL));
 
 		
 		// LEDs
 		static const int rowRuler10 = 288;
 		static const int ledOffsetY = -28;
 		static const int gateOffsetY = 42;
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(colRulerT0, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 0));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(colRulerT1, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 2));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(colRulerT2, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 4));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(colRulerT3, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 6));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(colRulerT4, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 8));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(colRulerT5, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 10));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT0, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 0));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT1, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 2));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT2, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 4));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT3, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 6));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT4, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 8));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT5, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 10));
 		// CV Outputs
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT0, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT1, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT2, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT3, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 3, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT4, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 4, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT5, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 5, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT0, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT1, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT2, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT3, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 3, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT4, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 4, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT5, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 5, module ? &module->panelTheme : NULL));
 		// Gate outputs
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT0, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT1, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT2, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 2, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT3, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 3, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT4, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 4, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colRulerT5, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 5, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT0, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT1, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT2, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT3, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 3, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT4, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 4, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT5, rowRuler10 + gateOffsetY), false, module, BigButtonSeq2::CHAN_OUTPUTS + 5, module ? &module->panelTheme : NULL));
 		
 		// S&H LED button
-		addParam(createParamCentered<LEDButton>(Vec(colRulerT6 + 2, rowRuler10 + gateOffsetY / 2), module, BigButtonSeq2::SAMPLEHOLD_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(colRulerT6 + 2, rowRuler10 + gateOffsetY / 2), module, BigButtonSeq2::SAMPLEHOLD_LIGHT));
+		addParam(createParamCentered<LEDButton>(VecPx(colRulerT6 + 2, rowRuler10 + gateOffsetY / 2), module, BigButtonSeq2::SAMPLEHOLD_PARAM));
+		addChild(createLightCentered<MediumLight<GreenLight>>(VecPx(colRulerT6 + 2, rowRuler10 + gateOffsetY / 2), module, BigButtonSeq2::SAMPLEHOLD_LIGHT));
 	}
 	
 	void step() override {
