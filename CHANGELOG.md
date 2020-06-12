@@ -1,3 +1,8 @@
+### 1.1.7 (in development)
+
+- Convert all SVGs from px to mm
+
+
 ### 1.1.6 (2020-05-04)
 
 - Fixed bug in Foundry CUST selection (custom length selection for SEL button and copy-paste)

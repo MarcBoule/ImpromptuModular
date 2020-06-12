@@ -553,7 +553,7 @@ struct ChordKeyWidget : ModuleWidget {
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
 
-			Vec textPos = Vec(6.7f, textOffsetY);
+			Vec textPos = VecPx(6.7f, textOffsetY);
 			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
 			nvgFillColor(args.vg, textColor);
@@ -592,7 +592,7 @@ struct ChordKeyWidget : ModuleWidget {
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
 
-			Vec textPos = Vec(6.7f, textOffsetY);
+			Vec textPos = VecPx(6.7f, textOffsetY);
 			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
 			nvgFillColor(args.vg, textColor);
@@ -866,37 +866,37 @@ struct ChordKeyWidget : ModuleWidget {
 
 
 		#define DROP_LIGHTS(xLoc, yLoc, pNum) \
-			addChild(createLightCentered<SmallLight<RedLight>>(Vec(xLoc+olx, yLoc+dlyd2+dly*0), module, ChordKey::KEY_LIGHTS + pNum * 4 + 0)); \
-			addChild(createLightCentered<SmallLight<OrangeLight>>(Vec(xLoc+olx, yLoc+dlyd2+dly*1), module, ChordKey::KEY_LIGHTS + pNum * 4 + 1)); \
-			addChild(createLightCentered<SmallLight<YellowLight>>(Vec(xLoc+olx, yLoc+dlyd2+dly*2), module, ChordKey::KEY_LIGHTS + pNum * 4 + 2)); \
-			addChild(createLightCentered<SmallLight<GreenLight>>(Vec(xLoc+olx, yLoc+dlyd2+dly*3), module, ChordKey::KEY_LIGHTS + pNum * 4 + 3));
+			addChild(createLightCentered<SmallLight<RedLight>>(VecPx(xLoc+olx, yLoc+dlyd2+dly*0), module, ChordKey::KEY_LIGHTS + pNum * 4 + 0)); \
+			addChild(createLightCentered<SmallLight<OrangeLight>>(VecPx(xLoc+olx, yLoc+dlyd2+dly*1), module, ChordKey::KEY_LIGHTS + pNum * 4 + 1)); \
+			addChild(createLightCentered<SmallLight<YellowLight>>(VecPx(xLoc+olx, yLoc+dlyd2+dly*2), module, ChordKey::KEY_LIGHTS + pNum * 4 + 2)); \
+			addChild(createLightCentered<SmallLight<GreenLight>>(VecPx(xLoc+olx, yLoc+dlyd2+dly*3), module, ChordKey::KEY_LIGHTS + pNum * 4 + 3));
 
 		// Black keys
-		addChild(createPianoKey<PianoKeyBig>(Vec(37.5f, posBlackY), 1, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(37.5f, posBlackY), 1, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(37.5f, posBlackY, 1);
-		addChild(createPianoKey<PianoKeyBig>(Vec(78.5f, posBlackY), 3, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(78.5f, posBlackY), 3, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(78.5f, posBlackY, 3);
-		addChild(createPianoKey<PianoKeyBig>(Vec(161.5f, posBlackY), 6, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(161.5f, posBlackY), 6, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(161.5f, posBlackY, 6);
-		addChild(createPianoKey<PianoKeyBig>(Vec(202.5f, posBlackY), 8, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(202.5f, posBlackY), 8, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(202.5f, posBlackY, 8);
-		addChild(createPianoKey<PianoKeyBig>(Vec(243.5f, posBlackY), 10, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(243.5f, posBlackY), 10, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(243.5f, posBlackY, 10);
 
 		// White keys
-		addChild(createPianoKey<PianoKeyBig>(Vec(17.5f, posWhiteY), 0, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(17.5f, posWhiteY), 0, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(17.5f, posWhiteY, 0);
-		addChild(createPianoKey<PianoKeyBig>(Vec(58.5f, posWhiteY), 2, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(58.5f, posWhiteY), 2, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(58.5f, posWhiteY, 2);
-		addChild(createPianoKey<PianoKeyBig>(Vec(99.5f, posWhiteY), 4, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(99.5f, posWhiteY), 4, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(99.5f, posWhiteY, 4);
-		addChild(createPianoKey<PianoKeyBig>(Vec(140.5f, posWhiteY), 5, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(140.5f, posWhiteY), 5, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(140.5f, posWhiteY, 5);
-		addChild(createPianoKey<PianoKeyBig>(Vec(181.5f, posWhiteY), 7, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(181.5f, posWhiteY), 7, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(181.5f, posWhiteY, 7);
-		addChild(createPianoKey<PianoKeyBig>(Vec(222.5f, posWhiteY), 9, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(222.5f, posWhiteY), 9, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(222.5f, posWhiteY, 9);
-		addChild(createPianoKey<PianoKeyBig>(Vec(263.5f, posWhiteY), 11, module ? &module->pkInfo : NULL));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(263.5f, posWhiteY), 11, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(263.5f, posWhiteY, 11);
 
 
@@ -920,36 +920,36 @@ struct ChordKeyWidget : ModuleWidget {
 		static const int displayHeights = 24; // 22 for 14pt, 24 for 15pt
 			
 		// Transpose buttons
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(col0, rowY - 16), module, ChordKey::TRANSPOSEDOWN_PARAM, module ? &module->panelTheme : NULL));		
-		addParam(createDynamicParamCentered<IMPushButton>(Vec(col1, rowY - 16), module, ChordKey::TRANSPOSEUP_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0, rowY - 16), module, ChordKey::TRANSPOSEDOWN_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col1, rowY - 16), module, ChordKey::TRANSPOSEUP_PARAM, module ? &module->panelTheme : NULL));		
 			
 		// Index display
-		addChild(new IndexDisplayWidget(Vec((col0 + col1) / 2, rowY + rowYd / 2 - 4), Vec(36, displayHeights), module));// 2 characters
+		addChild(new IndexDisplayWidget(VecPx((col0 + col1) / 2, rowY + rowYd / 2 - 4), VecPx(36, displayHeights), module));// 2 characters
 		
 		// Index input
-		addInput(createDynamicPortCentered<IMPort>(Vec(col0, rowY + rowYd * 2 - 8), true, module, ChordKey::INDEX_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 2 - 8), true, module, ChordKey::INDEX_INPUT, module ? &module->panelTheme : NULL));
 		// Index knob
-		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(Vec(col1, rowY + rowYd * 2 - 8), module, ChordKey::INDEX_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(VecPx(col1, rowY + rowYd * 2 - 8), module, ChordKey::INDEX_PARAM, module ? &module->panelTheme : NULL));	
 	
 		// Gate input
-		addInput(createDynamicPortCentered<IMPort>(Vec(col0, rowY + rowYd * 3 + 8), true, module, ChordKey::GATE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 3 + 8), true, module, ChordKey::GATE_INPUT, module ? &module->panelTheme : NULL));
 		// Gate force switch
-		addParam(createParamCentered<CKSS>(Vec(col1, rowY + rowYd * 3 + 8), module, ChordKey::FORCE_PARAM));
+		addParam(createParamCentered<CKSS>(VecPx(col1, rowY + rowYd * 3 + 8), module, ChordKey::FORCE_PARAM));
 	
 		// oct buttons, oct displays, gate and cv outputs
 		for (int cni = 0; cni < 4; cni++) {
 			// Octave buttons
-			addParam(createDynamicParamCentered<IMBigPushButton>(Vec(col2, rowY + rowYd * cni), module, ChordKey::OCTDEC_PARAMS + cni, module ? &module->panelTheme : NULL));
-			addParam(createDynamicParamCentered<IMBigPushButton>(Vec(col3, rowY + rowYd * cni), module, ChordKey::OCTINC_PARAMS + cni, module ? &module->panelTheme : NULL));
+			addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, rowY + rowYd * cni), module, ChordKey::OCTDEC_PARAMS + cni, module ? &module->panelTheme : NULL));
+			addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col3, rowY + rowYd * cni), module, ChordKey::OCTINC_PARAMS + cni, module ? &module->panelTheme : NULL));
 
 			// oct displays
-			addChild(new OctDisplayWidget(Vec(col4, rowY + rowYd * cni), Vec(23, displayHeights), module, cni));// 1 character
+			addChild(new OctDisplayWidget(VecPx(col4, rowY + rowYd * cni), VecPx(23, displayHeights), module, cni));// 1 character
 
 			// cv outputs
-			addOutput(createDynamicPortCentered<IMPort>(Vec(col5, rowY + rowYd * cni), false, module, ChordKey::CV_OUTPUTS + cni, module ? &module->panelTheme : NULL));
+			addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, rowY + rowYd * cni), false, module, ChordKey::CV_OUTPUTS + cni, module ? &module->panelTheme : NULL));
 			
 			// gate outputs
-			addOutput(createDynamicPortCentered<IMPort>(Vec(col6, rowY + rowYd * cni), false, module, ChordKey::GATE_OUTPUTS + cni, module ? &module->panelTheme : NULL));
+			addOutput(createDynamicPortCentered<IMPort>(VecPx(col6, rowY + rowYd * cni), false, module, ChordKey::GATE_OUTPUTS + cni, module ? &module->panelTheme : NULL));
 		}
 
 	}

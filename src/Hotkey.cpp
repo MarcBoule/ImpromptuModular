@@ -400,8 +400,6 @@ struct HotkeyWidget : ModuleWidget {
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(Vec(15, 0), module ? &module->panelTheme : NULL));
 		addChild(createDynamicWidget<IMScrew>(Vec(15, 365), module ? &module->panelTheme : NULL));
-		// addChild(createDynamicWidget<IMScrew>(Vec(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		// addChild(createDynamicWidget<IMScrew>(Vec(box.size.x-30, 365), NULL));//module ? &module->panelTheme : NULL));
 
 
 		static const float centerX = 22.5f;

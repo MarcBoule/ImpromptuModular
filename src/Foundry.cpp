@@ -1402,7 +1402,7 @@ struct FoundryWidget : ModuleWidget {
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
 
-			Vec textPos = Vec(5.7f, textOffsetY);
+			Vec textPos = VecPx(5.7f, textOffsetY);
 			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 			std::string initString(NUMCHAR,'~');
 			nvgText(args.vg, textPos.x, textPos.y, initString.c_str(), NULL);
@@ -1428,7 +1428,7 @@ struct FoundryWidget : ModuleWidget {
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
 
-			Vec textPos = Vec(6.3f, textOffsetY);
+			Vec textPos = VecPx(6.3f, textOffsetY);
 			char useRed = printText();
 			if (useRed == 1)
 				textColor = nvgRGB(0xE0, 0xD0, 0x30);
