@@ -60,6 +60,15 @@ static const unsigned int expanderRefreshStepSkips = 4;
 
 // General objects
 
+struct VecPx : Vec {
+	// temporary method to avoid having to convert all px coordinates to mm; no use when making a new module (since mm is the standard)
+	static constexpr float scl = 5.08f / 15.0f;
+	VecPx(float _x, float _y) {
+		x = mm2px(_x * scl);
+		y = mm2px(_y * scl);
+	}
+};
+
 struct RefreshCounter {
 	// Note: because of stagger, and asyncronous dataFromJson, should not assume this processInputs() will return true on first run
 	// of module::process()

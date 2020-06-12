@@ -409,15 +409,15 @@ struct HotkeyWidget : ModuleWidget {
 		// Record-key LED bezel and light
 		static const int buttonY = 84;
 		SvgSwitch *ledBez;
-		addParam(ledBez = createParamCentered<LEDBezel>(Vec(centerX, buttonY), module, Hotkey::RECORD_KEY_PARAM));
+		addParam(ledBez = createParamCentered<LEDBezel>(VecPx(centerX, buttonY), module, Hotkey::RECORD_KEY_PARAM));
 		ledBez->momentary = false;
-		addChild(createLightCentered<MuteLight<GreenRedLight>>(Vec(centerX, buttonY), module, Hotkey::RECORD_KEY_LIGHT));
+		addChild(createLightCentered<MuteLight<GreenRedLight>>(VecPx(centerX, buttonY), module, Hotkey::RECORD_KEY_LIGHT));
 		
 		// Delay knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(Vec(centerX, 220.0f), module, Hotkey::DELAY_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(centerX, 220.0f), module, Hotkey::DELAY_PARAM, module ? &module->panelTheme : NULL));
 
 		// trig out
-		addOutput(createDynamicPortCentered<IMPort>(Vec(centerX, 380.0f - mm2px(31.25f)), false, module, Hotkey::TRIG_OUTPUT, NULL));//module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX, 288.0f), false, module, Hotkey::TRIG_OUTPUT, NULL));//module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {
