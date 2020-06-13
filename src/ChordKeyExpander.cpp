@@ -247,22 +247,22 @@ struct ChordKeyExpanderWidget : ModuleWidget {
 		static const int row5 = row4 + rowD + 4;
 		
 		// Quantizer 1 (top left)
-		addInput(createDynamicPortCentered<IMPort>(Vec(col0, row0), true, module, ChordKeyExpander::CV_INPUTS + 0, module ? &module->panelTheme : NULL));	
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col0, row1), module, ChordKeyExpander::OCT_PARAMS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(col0, row2), false, module, ChordKeyExpander::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row0), true, module, ChordKeyExpander::CV_INPUTS + 0, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(VecPx(col0, row1), module, ChordKeyExpander::OCT_PARAMS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col0, row2), false, module, ChordKeyExpander::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
 		// Quantizer 2 (top right)
-		addInput(createDynamicPortCentered<IMPort>(Vec(col1, row0), true, module, ChordKeyExpander::CV_INPUTS + 1, module ? &module->panelTheme : NULL));	
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col1, row1), module, ChordKeyExpander::OCT_PARAMS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(col1, row2), false, module, ChordKeyExpander::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row0), true, module, ChordKeyExpander::CV_INPUTS + 1, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(VecPx(col1, row1), module, ChordKeyExpander::OCT_PARAMS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col1, row2), false, module, ChordKeyExpander::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
 		
 		// Quantizer 3 (bot left)
-		addInput(createDynamicPortCentered<IMPort>(Vec(col0, row3), true, module, ChordKeyExpander::CV_INPUTS + 2, module ? &module->panelTheme : NULL));	
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col0, row4), module, ChordKeyExpander::OCT_PARAMS + 2, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(col0, row5), false, module, ChordKeyExpander::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row3), true, module, ChordKeyExpander::CV_INPUTS + 2, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(VecPx(col0, row4), module, ChordKeyExpander::OCT_PARAMS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col0, row5), false, module, ChordKeyExpander::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
 		// Quantizer 4 (bot right)
-		addInput(createDynamicPortCentered<IMPort>(Vec(col1, row3), true, module, ChordKeyExpander::CV_INPUTS + 3, module ? &module->panelTheme : NULL));	
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(Vec(col1, row4), module, ChordKeyExpander::OCT_PARAMS + 3, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(col1, row5), false, module, ChordKeyExpander::CV_OUTPUTS + 3, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row3), true, module, ChordKeyExpander::CV_INPUTS + 3, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(VecPx(col1, row4), module, ChordKeyExpander::OCT_PARAMS + 3, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col1, row5), false, module, ChordKeyExpander::CV_OUTPUTS + 3, module ? &module->panelTheme : NULL));
 
 	}
 	

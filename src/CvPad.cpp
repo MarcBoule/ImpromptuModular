@@ -428,7 +428,7 @@ struct CvPadWidget : ModuleWidget {
 	struct Pad : Switch {
 		Pad() {
 			momentary = true;
-			box.size = Vec(40.0f, 40.0f);
+			box.size = VecPx(40.0f, 40.0f);
 		}
 	};
 
@@ -458,7 +458,7 @@ struct CvPadWidget : ModuleWidget {
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);
 
-			Vec textPos = Vec(6, 24);
+			Vec textPos = VecPx(6, 24);
 			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
 			nvgFillColor(args.vg, textColor);
@@ -543,7 +543,7 @@ struct CvPadWidget : ModuleWidget {
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -1.5);
 
-			Vec textPos = Vec(6, 24);
+			Vec textPos = VecPx(6, 24);
 			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 			nvgText(args.vg, textPos.x, textPos.y, "~~~~~~", NULL);
 			nvgFillColor(args.vg, textColor);
@@ -914,9 +914,9 @@ struct CvPadWidget : ModuleWidget {
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
 				// pad
-				addParam(createParamCentered<Pad>(Vec(padX + padXd * x, padY + padYd * y), module, CvPad::PAD_PARAMS + y * 4 + x));
+				addParam(createParamCentered<Pad>(VecPx(padX + padXd * x, padY + padYd * y), module, CvPad::PAD_PARAMS + y * 4 + x));
 				// light
-				addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(padX + padXd * x, padY + padYd * y - ledOffsetY), module, CvPad::PAD_LIGHTS + (y * 4 + x) * 2 + 0));
+				addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(padX + padXd * x, padY + padYd * y - ledOffsetY), module, CvPad::PAD_LIGHTS + (y * 4 + x) * 2 + 0));
 			}
 		}
 		
@@ -928,17 +928,17 @@ struct CvPadWidget : ModuleWidget {
 		static const int topY = 60;
 		static constexpr float leftYd = 53.6f;
 		// quantize
-		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, topY), module, CvPad::QUANTIZE_PARAM));
+		addParam(createParamCentered<CKSSNoRandom>(VecPx(leftX, topY), module, CvPad::QUANTIZE_PARAM));
 		// attach
-		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, topY + leftYd), module, CvPad::ATTACH_PARAM));
+		addParam(createParamCentered<CKSSNoRandom>(VecPx(leftX, topY + leftYd), module, CvPad::ATTACH_PARAM));
 		// autostep
-		addParam(createParamCentered<CKSSNoRandom>(Vec(leftX, topY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM));
+		addParam(createParamCentered<CKSSNoRandom>(VecPx(leftX, topY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM));
 		// write button
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(leftX, topY + leftYd * 3), module, CvPad::WRITE_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(leftX, topY + leftYd * 3), module, CvPad::WRITE_PARAM, module ? &module->panelTheme : NULL));	
 		// write input
-		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, topY + leftYd * 4 - 5), true, module, CvPad::WRITE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(leftX, topY + leftYd * 4 - 5), true, module, CvPad::WRITE_INPUT, module ? &module->panelTheme : NULL));
 		// cv input
-		addInput(createDynamicPortCentered<IMPort>(Vec(leftX, topY + leftYd * 5 - 5), true, module, CvPad::CV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(leftX, topY + leftYd * 5 - 5), true, module, CvPad::CV_INPUT, module ? &module->panelTheme : NULL));
 		
 		
 		// right side column
@@ -949,24 +949,24 @@ struct CvPadWidget : ModuleWidget {
 		
 		// bank display
 		BankDisplayWidget *displayBank = new BankDisplayWidget();
-		displayBank->box.size = Vec(24, 30);// 1 character
-		displayBank->box.pos = Vec(rightX - rightO - 6, topY);
+		displayBank->box.size = VecPx(24, 30);// 1 character
+		displayBank->box.pos = VecPx(rightX - rightO - 6, topY);
 		displayBank->box.pos = displayBank->box.pos.minus(displayBank->box.size.div(2));// centering
 		displayBank->module = module;
 		addChild(displayBank);	
 		// bank input
-		addInput(createDynamicPortCentered<IMPort>(Vec(rightX + rightO, topY), true, module, CvPad::BANK_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(rightX + rightO, topY), true, module, CvPad::BANK_INPUT, module ? &module->panelTheme : NULL));
 		// Volt/sharp/flat switch
 		static const int triSwitchY = 119;
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(rightX - 32, triSwitchY - 6), module, CvPad::SHARP_PARAM));
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(rightX - 32, triSwitchY - 6), module, CvPad::SHARP_PARAM));
 		// config
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(Vec(rightX + 8, triSwitchY - 6), module, CvPad::CONFIG_PARAM));
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(rightX + 8, triSwitchY - 6), module, CvPad::CONFIG_PARAM));
 		// outputs
 		static const int outY = triSwitchY + 68 * 3;
 		static const int outYd = 45;
 		for (int y = 0; y < 4; y++) {
-			addOutput(createDynamicPortCentered<IMPort>(Vec(rightX - rightO, outY - outYd * (3 - y)), false, module, CvPad::CV_OUTPUTS + y, module ? &module->panelTheme : NULL));
-			addOutput(createDynamicPortCentered<IMPort>(Vec(rightX + rightO, outY - outYd * (3 - y)), false, module, CvPad::GATE_OUTPUTS + y, module ? &module->panelTheme : NULL));
+			addOutput(createDynamicPortCentered<IMPort>(VecPx(rightX - rightO, outY - outYd * (3 - y)), false, module, CvPad::CV_OUTPUTS + y, module ? &module->panelTheme : NULL));
+			addOutput(createDynamicPortCentered<IMPort>(VecPx(rightX + rightO, outY - outYd * (3 - y)), false, module, CvPad::GATE_OUTPUTS + y, module ? &module->panelTheme : NULL));
 		}
 		
 		
@@ -975,15 +975,15 @@ struct CvPadWidget : ModuleWidget {
 
 		// cv display
 		CvDisplayWidget *displayCv = new CvDisplayWidget();
-		displayCv->box.size = Vec(98, 30);// 6 characters (ex.: "-1,234")
-		displayCv->box.pos = Vec(padX + padXd / 2, topY);
+		displayCv->box.size = VecPx(98, 30);// 6 characters (ex.: "-1,234")
+		displayCv->box.pos = VecPx(padX + padXd / 2, topY);
 		displayCv->box.pos = displayCv->box.pos.minus(displayCv->box.size.div(2));// centering
 		displayCv->module = module;
 		addChild(displayCv);
 		// cv knob
-		addParam(createDynamicParamCentered<CvKnob>(Vec(padX + padXd * 2, topY), module, CvPad::CV_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<CvKnob>(VecPx(padX + padXd * 2, topY), module, CvPad::CV_PARAM, module ? &module->panelTheme : NULL));
 		// bank knob
-		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(Vec(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(VecPx(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, module ? &module->panelTheme : NULL));
 
 		
 	}

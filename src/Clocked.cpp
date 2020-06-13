@@ -847,7 +847,7 @@ struct ClockedWidget : ModuleWidget {
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);
 
-			Vec textPos = Vec(6, 24);
+			Vec textPos = VecPx(6, 24);
 			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 			nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
 			nvgFillColor(args.vg, textColor);
@@ -1073,73 +1073,73 @@ struct ClockedWidget : ModuleWidget {
 		
 		// Row 0
 		// Reset input
-		addInput(createDynamicPort<IMPort>(Vec(colRulerL, rowRuler0), true, module, Clocked::RESET_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerL, rowRuler0), true, module, Clocked::RESET_INPUT, module ? &module->panelTheme : NULL));
 		// Run input
-		addInput(createDynamicPort<IMPort>(Vec(colRulerT1, rowRuler0), true, module, Clocked::RUN_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerT1, rowRuler0), true, module, Clocked::RUN_INPUT, module ? &module->panelTheme : NULL));
 		// In input
-		addInput(createDynamicPort<IMPort>(Vec(colRulerT2, rowRuler0), true, module, Clocked::BPM_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerT2, rowRuler0), true, module, Clocked::BPM_INPUT, module ? &module->panelTheme : NULL));
 		// Master BPM knob
-		addParam(createDynamicParam<IMBigKnob<true, true>>(Vec(colRulerT3 + 1 + offsetIMBigKnob, rowRuler0 + offsetIMBigKnob), module, Clocked::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		addParam(createDynamicParam<IMBigKnob<true, true>>(VecPx(colRulerT3 + 1 + offsetIMBigKnob, rowRuler0 + offsetIMBigKnob), module, Clocked::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		// BPM display
 		displayRatios[0] = new RatioDisplayWidget();
-		displayRatios[0]->box.pos = Vec(colRulerT4 + 11, rowRuler0 + vOffsetDisplay);
-		displayRatios[0]->box.size = Vec(55, 30);// 3 characters
+		displayRatios[0]->box.pos = VecPx(colRulerT4 + 11, rowRuler0 + vOffsetDisplay);
+		displayRatios[0]->box.size = VecPx(55, 30);// 3 characters
 		displayRatios[0]->module = module;
 		displayRatios[0]->knobIndex = 0;
 		addChild(displayRatios[0]);
 		
 		// Row 1
 		// Reset LED bezel and light
-		addParam(createParam<LEDBezel>(Vec(colRulerL + offsetLEDbezel, rowRuler1 + offsetLEDbezel), module, Clocked::RESET_PARAM));
-		addChild(createLight<MuteLight<GreenLight>>(Vec(colRulerL + offsetLEDbezel + offsetLEDbezelLight, rowRuler1 + offsetLEDbezel + offsetLEDbezelLight), module, Clocked::RESET_LIGHT));
+		addParam(createParam<LEDBezel>(VecPx(colRulerL + offsetLEDbezel, rowRuler1 + offsetLEDbezel), module, Clocked::RESET_PARAM));
+		addChild(createLight<MuteLight<GreenLight>>(VecPx(colRulerL + offsetLEDbezel + offsetLEDbezelLight, rowRuler1 + offsetLEDbezel + offsetLEDbezelLight), module, Clocked::RESET_LIGHT));
 		// Run LED bezel and light
-		addParam(createParam<LEDBezel>(Vec(colRulerT1 + offsetLEDbezel, rowRuler1 + offsetLEDbezel), module, Clocked::RUN_PARAM));
-		addChild(createLight<MuteLight<GreenLight>>(Vec(colRulerT1 + offsetLEDbezel + offsetLEDbezelLight, rowRuler1 + offsetLEDbezel + offsetLEDbezelLight), module, Clocked::RUN_LIGHT));
+		addParam(createParam<LEDBezel>(VecPx(colRulerT1 + offsetLEDbezel, rowRuler1 + offsetLEDbezel), module, Clocked::RUN_PARAM));
+		addChild(createLight<MuteLight<GreenLight>>(VecPx(colRulerT1 + offsetLEDbezel + offsetLEDbezelLight, rowRuler1 + offsetLEDbezel + offsetLEDbezelLight), module, Clocked::RUN_LIGHT));
 		// BPM mode buttons
-		addParam(createDynamicParam<IMPushButton>(Vec(colRulerT2 + offsetTL1105 - 12, rowRuler1 + offsetTL1105), module, Clocked::BPMMODE_DOWN_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParam<IMPushButton>(Vec(colRulerT2 + offsetTL1105 + 12, rowRuler1 + offsetTL1105), module, Clocked::BPMMODE_UP_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParam<IMPushButton>(VecPx(colRulerT2 + offsetTL1105 - 12, rowRuler1 + offsetTL1105), module, Clocked::BPMMODE_DOWN_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParam<IMPushButton>(VecPx(colRulerT2 + offsetTL1105 + 12, rowRuler1 + offsetTL1105), module, Clocked::BPMMODE_UP_PARAM, module ? &module->panelTheme : NULL));
 		// BPM mode light
-		addChild(createLight<SmallLight<GreenRedLight>>(Vec(colRulerT2 + offsetMediumLight, rowRuler1 + 22), module, Clocked::BPMSYNC_LIGHT));		
+		addChild(createLight<SmallLight<GreenRedLight>>(VecPx(colRulerT2 + offsetMediumLight, rowRuler1 + 22), module, Clocked::BPMSYNC_LIGHT));		
 		// Swing master knob
-		addParam(createDynamicParam<IMSmallKnobNotify>(Vec(colRulerT3 + offsetIMSmallKnob, rowRuler1 + offsetIMSmallKnob), module, Clocked::SWING_PARAMS + 0, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParam<IMSmallKnobNotify>(VecPx(colRulerT3 + offsetIMSmallKnob, rowRuler1 + offsetIMSmallKnob), module, Clocked::SWING_PARAMS + 0, module ? &module->panelTheme : NULL));
 		// PW master knob
-		addParam(createDynamicParam<IMSmallKnobNotify>(Vec(colRulerT4 + offsetIMSmallKnob, rowRuler1 + offsetIMSmallKnob), module, Clocked::PW_PARAMS + 0, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParam<IMSmallKnobNotify>(VecPx(colRulerT4 + offsetIMSmallKnob, rowRuler1 + offsetIMSmallKnob), module, Clocked::PW_PARAMS + 0, module ? &module->panelTheme : NULL));
 		// Clock master out
-		addOutput(createDynamicPort<IMPort>(Vec(colRulerT5, rowRuler1), false, module, Clocked::CLK_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPort<IMPort>(VecPx(colRulerT5, rowRuler1), false, module, Clocked::CLK_OUTPUTS + 0, module ? &module->panelTheme : NULL));
 		
 		
 		// Row 2-4 (sub clocks)		
 		for (int i = 0; i < 3; i++) {
 			// Ratio1 knob
-			addParam(createDynamicParam<IMBigKnob<true, true>>(Vec(colRulerM0 + offsetIMBigKnob, rowRuler2 + i * rowSpacingClks + offsetIMBigKnob), module, Clocked::RATIO_PARAMS + 1 + i, module ? &module->panelTheme : NULL));		
+			addParam(createDynamicParam<IMBigKnob<true, true>>(VecPx(colRulerM0 + offsetIMBigKnob, rowRuler2 + i * rowSpacingClks + offsetIMBigKnob), module, Clocked::RATIO_PARAMS + 1 + i, module ? &module->panelTheme : NULL));		
 			// Ratio display
 			displayRatios[i + 1] = new RatioDisplayWidget();
-			displayRatios[i + 1]->box.pos = Vec(colRulerM1, rowRuler2 + i * rowSpacingClks + vOffsetDisplay);
-			displayRatios[i + 1]->box.size = Vec(55, 30);// 3 characters
+			displayRatios[i + 1]->box.pos = VecPx(colRulerM1, rowRuler2 + i * rowSpacingClks + vOffsetDisplay);
+			displayRatios[i + 1]->box.size = VecPx(55, 30);// 3 characters
 			displayRatios[i + 1]->module = module;
 			displayRatios[i + 1]->knobIndex = i + 1;
 			addChild(displayRatios[i + 1]);
 			// Sync light
-			addChild(createLight<SmallLight<RedLight>>(Vec(colRulerM1 + 62, rowRuler2 + i * rowSpacingClks + 10), module, Clocked::CLK_LIGHTS + i + 1));		
+			addChild(createLight<SmallLight<RedLight>>(VecPx(colRulerM1 + 62, rowRuler2 + i * rowSpacingClks + 10), module, Clocked::CLK_LIGHTS + i + 1));		
 			// Swing knobs
-			addParam(createDynamicParam<IMSmallKnobNotify>(Vec(colRulerM2 + offsetIMSmallKnob, rowRuler2 + i * rowSpacingClks + offsetIMSmallKnob), module, Clocked::SWING_PARAMS + 1 + i, module ? &module->panelTheme : NULL));
+			addParam(createDynamicParam<IMSmallKnobNotify>(VecPx(colRulerM2 + offsetIMSmallKnob, rowRuler2 + i * rowSpacingClks + offsetIMSmallKnob), module, Clocked::SWING_PARAMS + 1 + i, module ? &module->panelTheme : NULL));
 			// PW knobs
-			addParam(createDynamicParam<IMSmallKnobNotify>(Vec(colRulerM3 + offsetIMSmallKnob, rowRuler2 + i * rowSpacingClks + offsetIMSmallKnob), module, Clocked::PW_PARAMS + 1 + i, module ? &module->panelTheme : NULL));
+			addParam(createDynamicParam<IMSmallKnobNotify>(VecPx(colRulerM3 + offsetIMSmallKnob, rowRuler2 + i * rowSpacingClks + offsetIMSmallKnob), module, Clocked::PW_PARAMS + 1 + i, module ? &module->panelTheme : NULL));
 			// Delay knobs
-			addParam(createDynamicParam<IMSmallSnapKnobNotify>(Vec(colRulerM4 + offsetIMSmallKnob, rowRuler2 + i * rowSpacingClks + offsetIMSmallKnob), module, Clocked::DELAY_PARAMS + 1 + i, module ? &module->panelTheme : NULL));
+			addParam(createDynamicParam<IMSmallSnapKnobNotify>(VecPx(colRulerM4 + offsetIMSmallKnob, rowRuler2 + i * rowSpacingClks + offsetIMSmallKnob), module, Clocked::DELAY_PARAMS + 1 + i, module ? &module->panelTheme : NULL));
 		}
 
 		// Last row
 		// Reset out
-		addOutput(createDynamicPort<IMPort>(Vec(colRulerL, rowRuler5), false, module, Clocked::RESET_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPort<IMPort>(VecPx(colRulerL, rowRuler5), false, module, Clocked::RESET_OUTPUT, module ? &module->panelTheme : NULL));
 		// Run out
-		addOutput(createDynamicPort<IMPort>(Vec(colRulerT1, rowRuler5), false, module, Clocked::RUN_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPort<IMPort>(VecPx(colRulerT1, rowRuler5), false, module, Clocked::RUN_OUTPUT, module ? &module->panelTheme : NULL));
 		// Out out
-		addOutput(createDynamicPort<IMPort>(Vec(colRulerT2, rowRuler5), false, module, Clocked::BPM_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPort<IMPort>(VecPx(colRulerT2, rowRuler5), false, module, Clocked::BPM_OUTPUT, module ? &module->panelTheme : NULL));
 		// Sub-clock outputs
-		addOutput(createDynamicPort<IMPort>(Vec(colRulerT3, rowRuler5), false, module, Clocked::CLK_OUTPUTS + 1, module ? &module->panelTheme : NULL));	
-		addOutput(createDynamicPort<IMPort>(Vec(colRulerT4, rowRuler5), false, module, Clocked::CLK_OUTPUTS + 2, module ? &module->panelTheme : NULL));	
-		addOutput(createDynamicPort<IMPort>(Vec(colRulerT5, rowRuler5), false, module, Clocked::CLK_OUTPUTS + 3, module ? &module->panelTheme : NULL));	
+		addOutput(createDynamicPort<IMPort>(VecPx(colRulerT3, rowRuler5), false, module, Clocked::CLK_OUTPUTS + 1, module ? &module->panelTheme : NULL));	
+		addOutput(createDynamicPort<IMPort>(VecPx(colRulerT4, rowRuler5), false, module, Clocked::CLK_OUTPUTS + 2, module ? &module->panelTheme : NULL));	
+		addOutput(createDynamicPort<IMPort>(VecPx(colRulerT5, rowRuler5), false, module, Clocked::CLK_OUTPUTS + 3, module ? &module->panelTheme : NULL));	
 	}
 	
 	void step() override {

@@ -17,30 +17,30 @@ Plugin *pluginInstance;
 void init(rack::Plugin *p) {
 	pluginInstance = p;
 
-	p->addModel(modelTact);
-	p->addModel(modelTact1);
-	p->addModel(modelCvPad);
-	p->addModel(modelTwelveKey);
+	p->addModel(modelBigButtonSeq);
+	p->addModel(modelBigButtonSeq2);
 	p->addModel(modelChordKey);
 	p->addModel(modelChordKeyExpander);
 	p->addModel(modelClocked);
 	p->addModel(modelClockedExpander);
 	p->addModel(modelClkd);
+	p->addModel(modelCvPad);
 	p->addModel(modelFoundry);
 	p->addModel(modelFoundryExpander);
+	p->addModel(modelFourView);
 	p->addModel(modelGateSeq64);
 	p->addModel(modelGateSeq64Expander);
+	p->addModel(modelHotkey);
+	p->addModel(modelPart);
 	p->addModel(modelPhraseSeq16);
 	p->addModel(modelPhraseSeq32);
 	p->addModel(modelPhraseSeqExpander);
+	p->addModel(modelSemiModularSynth);
+	p->addModel(modelTact);
+	p->addModel(modelTact1);
+	p->addModel(modelTwelveKey);
 	p->addModel(modelWriteSeq32);
 	p->addModel(modelWriteSeq64);
-	p->addModel(modelBigButtonSeq);
-	p->addModel(modelBigButtonSeq2);
-	p->addModel(modelFourView);
-	p->addModel(modelSemiModularSynth);
-	p->addModel(modelHotkey);
-	p->addModel(modelPart);
 	p->addModel(modelBlankPanel);
 }
 
