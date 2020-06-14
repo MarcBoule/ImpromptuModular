@@ -8,7 +8,7 @@
 
 
 TactPad::TactPad() {
-	box.size = Vec(padWidth, padHeight);
+	box.size = VecPx(padWidth, padHeight);
 }
 
 

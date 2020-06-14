@@ -8,7 +8,7 @@
 #define IM_TACTPAD_HPP
 
 
-#include "rack.hpp"
+#include "../ImpromptuModular.hpp"
 
 using namespace rack;
 

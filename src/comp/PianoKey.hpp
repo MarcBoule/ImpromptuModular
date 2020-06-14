@@ -8,7 +8,7 @@
 #define IM_PIANOKEY_HPP
 
 
-#include "rack.hpp"
+#include "../ImpromptuModular.hpp"
 
 using namespace rack;
 
@@ -54,14 +54,14 @@ struct PianoKeyWithVel : PianoKey {
 
 struct PianoKeyBig : PianoKeyWithVel {
 	PianoKeyBig() {
-		box.size = Vec(34, 70);
+		box.size = VecPx(34, 70);
 	}
 };
 
 
 struct PianoKeySmall : PianoKey {
 	PianoKeySmall() {
-		box.size = Vec(23, 38);
+		box.size = VecPx(23, 38);
 	}
 };
 

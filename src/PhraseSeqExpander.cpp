@@ -92,11 +92,11 @@ struct PhraseSeqExpanderWidget : ModuleWidget {
 		static const int rowRulerExpTop = 65;
 		static const int rowSpacingExp = 60;
 		static const int colRulerExp = 497 - 30 - 450;// PS16 is 2HP less than PS32
-		addInput(createDynamicPort<IMPort>(Vec(colRulerExp, rowRulerExpTop + rowSpacingExp * 0), true, module, PhraseSeqExpander::GATE1CV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(Vec(colRulerExp, rowRulerExpTop + rowSpacingExp * 1), true, module, PhraseSeqExpander::GATE2CV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(Vec(colRulerExp, rowRulerExpTop + rowSpacingExp * 2), true, module, PhraseSeqExpander::TIEDCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(Vec(colRulerExp, rowRulerExpTop + rowSpacingExp * 3), true, module, PhraseSeqExpander::SLIDECV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(Vec(colRulerExp, rowRulerExpTop + rowSpacingExp * 4), true, module, PhraseSeqExpander::MODECV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 0), true, module, PhraseSeqExpander::GATE1CV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 1), true, module, PhraseSeqExpander::GATE2CV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 2), true, module, PhraseSeqExpander::TIEDCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 3), true, module, PhraseSeqExpander::SLIDECV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 4), true, module, PhraseSeqExpander::MODECV_INPUT, module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {
