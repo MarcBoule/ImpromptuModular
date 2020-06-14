@@ -8,9 +8,9 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="15"
-   height="14.999"
-   viewBox="0 0 3.969 3.968"
+   width="5.0799999mm"
+   height="5.0799999mm"
+   viewBox="0 0 5.0803199 5.0793786"
    version="1.1"
    id="svg20"
    sodipodi:docname="ScrewSilver.svg"
@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,15 +40,17 @@
      inkscape:window-height="1017"
      id="namedview22"
      showgrid="false"
-     inkscape:zoom="46.231215"
-     inkscape:cx="3.4470045"
-     inkscape:cy="6.2317966"
+     inkscape:zoom="23.115608"
+     inkscape:cx="6.7617514"
+     inkscape:cy="10.702352"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg20"
      showguides="true"
-     inkscape:guide-bbox="true" />
+     inkscape:guide-bbox="true"
+     inkscape:document-units="mm"
+     units="mm" />
   <defs
      id="defs8">
     <linearGradient
@@ -68,33 +70,31 @@
     <linearGradient
        xlink:href="#a"
        id="b"
-       x1="32.122"
+       x1="32.122002"
        y1="70.528"
-       x2="32.122"
-       y2="67.613"
-       gradientUnits="userSpaceOnUse" />
+       x2="32.122002"
+       y2="67.612999"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.2987694,0,0,1.2987694,-39.179561,-87.16956)" />
   </defs>
   <path
-     d="M32.123 70.66a1.589 1.589 0 0 1-1.588-1.587 1.59 1.59 0 0 1 1.588-1.588 1.59 1.59 0 0 1 1.587 1.588c0 .875-.712 1.587-1.587 1.587"
-     fill="url(#b)"
-     stroke="#acacac"
-     stroke-width=".265"
-     transform="translate(-30.138 -67.088)"
+     d="M 2.5408092,4.6014859 A 2.0637446,2.0637446 0 0 1 0.47836341,2.5403389 2.0650433,2.0650433 0 0 1 2.5408092,0.47789305 2.0650433,2.0650433 0 0 1 4.6019563,2.5403389 c 0,1.1364232 -0.9247239,2.061147 -2.0611471,2.061147"
      id="path10"
-     style="stroke-width:0.21168;stroke-miterlimit:4;stroke-dasharray:none" />
+     style="fill:url(#b);stroke:#acacac;stroke-width:0.21168001;stroke-miterlimit:4;stroke-dasharray:none"
+     inkscape:connector-curvature="0" />
   <path
-     d="M 2.8496523,2.5743562 2.5738662,2.8501423 1.1193473,1.3956234 1.3951334,1.1198373 Z"
+     d="M 3.6637932,3.3057767 3.3056106,3.6639592 1.416526,1.7748746 1.7747085,1.416692 Z"
      id="path12"
      inkscape:connector-curvature="0"
      style="fill:#464646;fill-opacity:1;stroke-width:1" />
   <path
-     d="M 1.1193473,2.5743562 1.3951334,2.8501423 2.8496523,1.3956234 2.5738662,1.1198373 Z"
+     d="M 1.416526,3.3057767 1.7747085,3.6639592 3.6637932,1.7748746 3.3056106,1.416692 Z"
      id="path12-3"
      inkscape:connector-curvature="0"
      style="fill:#464646;fill-opacity:1;stroke-width:1" />
   <path
      inkscape:connector-curvature="0"
      style="fill:#464646;fill-opacity:1;stroke-width:1"
-     d="m 1.988854,2.3795136 a 0.4,0.4 0 1 1 0,-0.8 0.4,0.4 0 0 1 0,0.8"
+     d="m 2.5458147,3.052721 a 0.51950776,0.51950776 0 1 1 0,-1.0390155 0.51950776,0.51950776 0 0 1 0,1.0390155"
      id="path8" />
 </svg>
