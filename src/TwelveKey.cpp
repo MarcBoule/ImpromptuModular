@@ -349,7 +349,7 @@ struct TwelveKeyWidget : ModuleWidget {
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);
 
-			Vec textPos = Vec(6, 24);
+			Vec textPos = VecPx(6, 24);
 			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
 			nvgFillColor(args.vg, textColor);
@@ -452,32 +452,32 @@ struct TwelveKeyWidget : ModuleWidget {
 		static const int posBlackY = 40;
 
 		// Black keys
-		addChild(createPianoKey<PianoKeyBig>(Vec(30, posBlackY), 1, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(30+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 1));
-		addChild(createPianoKey<PianoKeyBig>(Vec(71, posBlackY), 3, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(71+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 3));
-		addChild(createPianoKey<PianoKeyBig>(Vec(154, posBlackY), 6, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(154+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 6));
-		addChild(createPianoKey<PianoKeyBig>(Vec(195, posBlackY), 8, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(195+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 8));
-		addChild(createPianoKey<PianoKeyBig>(Vec(236, posBlackY), 10, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(236+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 10));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(30, posBlackY), 1, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(30+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 1));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(71, posBlackY), 3, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(71+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 3));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(154, posBlackY), 6, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(154+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 6));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(195, posBlackY), 8, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(195+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 8));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(236, posBlackY), 10, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(236+offsetKeyLEDx, posBlackY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 10));
 
 		// White keys
-		addChild(createPianoKey<PianoKeyBig>(Vec(10, posWhiteY), 0, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(10+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 0));
-		addChild(createPianoKey<PianoKeyBig>(Vec(51, posWhiteY), 2, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(51+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 2));
-		addChild(createPianoKey<PianoKeyBig>(Vec(92, posWhiteY), 4, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(92+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 4));
-		addChild(createPianoKey<PianoKeyBig>(Vec(133, posWhiteY), 5, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(133+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 5));
-		addChild(createPianoKey<PianoKeyBig>(Vec(174, posWhiteY), 7, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(174+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 7));
-		addChild(createPianoKey<PianoKeyBig>(Vec(215, posWhiteY), 9, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(215+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 9));
-		addChild(createPianoKey<PianoKeyBig>(Vec(256, posWhiteY), 11, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(256+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 11));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(10, posWhiteY), 0, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(10+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 0));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(51, posWhiteY), 2, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(51+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 2));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(92, posWhiteY), 4, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(92+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 4));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(133, posWhiteY), 5, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(133+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 5));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(174, posWhiteY), 7, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(174+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 7));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(215, posWhiteY), 9, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(215+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 9));
+		addChild(createPianoKey<PianoKeyBig>(VecPx(256, posWhiteY), 11, module ? &module->pkInfo : NULL));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(256+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 11));
 		
 		
 		// ****** Bottom portion ******
@@ -496,37 +496,37 @@ struct TwelveKeyWidget : ModuleWidget {
 		static const int rowRuler2 = rowRuler1 + rowRulerStep;
 		
 		// Left side inputs
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerL1, rowRuler0), true, module, TwelveKey::OCT_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerL1, rowRuler1), true, module, TwelveKey::CV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerL1, rowRuler2), true, module, TwelveKey::GATE_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(Vec(columnRulerL2, rowRuler2), true, module, TwelveKey::VEL_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL1, rowRuler0), true, module, TwelveKey::OCT_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL1, rowRuler1), true, module, TwelveKey::CV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL1, rowRuler2), true, module, TwelveKey::GATE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL2, rowRuler2), true, module, TwelveKey::VEL_INPUT, module ? &module->panelTheme : NULL));
 
 		// Octave buttons
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(columnRulerL2, rowRuler0), module, TwelveKey::OCTDEC_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(colRulerCenter, rowRuler0), module, TwelveKey::OCTINC_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerL2, rowRuler0), module, TwelveKey::OCTDEC_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerCenter, rowRuler0), module, TwelveKey::OCTINC_PARAM, module ? &module->panelTheme : NULL));
 		
 		// Octave display
 		OctaveNumDisplayWidget *octaveNumDisplay = new OctaveNumDisplayWidget();
-		octaveNumDisplay->box.size = Vec(24, 30);// 1 character
-		octaveNumDisplay->box.pos = Vec(columnRulerR2 - octaveNumDisplay->box.size.x / 2, rowRuler0 - octaveNumDisplay->box.size.y / 2);
+		octaveNumDisplay->box.size = VecPx(24, 30);// 1 character
+		octaveNumDisplay->box.pos = VecPx(columnRulerR2 - octaveNumDisplay->box.size.x / 2, rowRuler0 - octaveNumDisplay->box.size.y / 2);
 		octaveNumDisplay->octaveNum = module ? &module->octaveNum : NULL;
 		addChild(octaveNumDisplay);
 		
 		// Max velocity button and lights
-		addParam(createDynamicParamCentered<IMBigPushButton>(Vec(columnRulerL2, rowRuler1), module, TwelveKey::MAXVEL_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerL2, rowRuler1), module, TwelveKey::MAXVEL_PARAM, module ? &module->panelTheme : NULL));
 		for (int i = 0; i < 5; i++) {
-			addChild(createLightCentered<MediumLight<GreenLight>>(Vec(colRulerCenter - 15 + 19 * i, rowRuler1), module, TwelveKey::MAXVEL_LIGHTS + i));	
+			addChild(createLightCentered<MediumLight<GreenLight>>(VecPx(colRulerCenter - 15 + 19 * i, rowRuler1), module, TwelveKey::MAXVEL_LIGHTS + i));	
 		}		
 
 
 		// Velocity polarity
-		addParam(createParamCentered<CKSSNoRandom>(Vec(colRulerCenter, rowRuler2), module, TwelveKey::VELPOL_PARAM));
+		addParam(createParamCentered<CKSSNoRandom>(VecPx(colRulerCenter, rowRuler2), module, TwelveKey::VELPOL_PARAM));
 		
 		// Right side outputs
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerR1, rowRuler0), false, module, TwelveKey::OCT_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerR1, rowRuler1), false, module, TwelveKey::CV_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerR1, rowRuler2), false, module, TwelveKey::GATE_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(Vec(columnRulerR2, rowRuler2), false, module, TwelveKey::VEL_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler0), false, module, TwelveKey::OCT_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler1), false, module, TwelveKey::CV_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler2), false, module, TwelveKey::GATE_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR2, rowRuler2), false, module, TwelveKey::VEL_OUTPUT, module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {

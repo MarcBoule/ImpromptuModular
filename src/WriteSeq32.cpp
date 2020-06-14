@@ -561,7 +561,7 @@ struct WriteSeq32Widget : ModuleWidget {
 			nvgTextLetterSpacing(args.vg, -1.5);
 
 			for (int i = 0; i < 8; i++) {
-				Vec textPos = Vec(notesPosLocal[i], 24);
+				Vec textPos = VecPx(notesPosLocal[i], 24);
 				nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 				nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
 				nvgFillColor(args.vg, textColor);
@@ -585,7 +585,7 @@ struct WriteSeq32Widget : ModuleWidget {
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);
 
-			Vec textPos = Vec(6, 24);
+			Vec textPos = VecPx(6, 24);
 			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 			nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
 			nvgFillColor(args.vg, textColor);
@@ -680,18 +680,18 @@ struct WriteSeq32Widget : ModuleWidget {
 		
 		// Autostep, sharp/flat and quantize switches
 		// Autostep	
-		addParam(createParam<CKSSNoRandom>(Vec(columnRuler0+3+hOffsetCKSS, yRulerTopSwitches+vOffsetCKSS), module, WriteSeq32::AUTOSTEP_PARAM));
+		addParam(createParam<CKSSNoRandom>(VecPx(columnRuler0+3+hOffsetCKSS, yRulerTopSwitches+vOffsetCKSS), module, WriteSeq32::AUTOSTEP_PARAM));
 		// Sharp/flat
-		addParam(createParam<CKSSNoRandom>(Vec(columnRuler4+hOffsetCKSS, yRulerTopSwitches+vOffsetCKSS), module, WriteSeq32::SHARP_PARAM));
+		addParam(createParam<CKSSNoRandom>(VecPx(columnRuler4+hOffsetCKSS, yRulerTopSwitches+vOffsetCKSS), module, WriteSeq32::SHARP_PARAM));
 		// Quantize
-		addParam(createParam<CKSSNoRandom>(Vec(columnRuler5+hOffsetCKSS, yRulerTopSwitches+vOffsetCKSS), module, WriteSeq32::QUANTIZE_PARAM));
+		addParam(createParam<CKSSNoRandom>(VecPx(columnRuler5+hOffsetCKSS, yRulerTopSwitches+vOffsetCKSS), module, WriteSeq32::QUANTIZE_PARAM));
 
 		// Window LED buttons
 		static const float wLightsPosX = 140.0f;
 		static const float wLightsIntX = 35.0f;
 		for (int i = 0; i < 4; i++) {
-			addParam(createParam<LEDButton>(Vec(wLightsPosX + i * wLightsIntX, yRulerTopLEDs - 4.4f), module, WriteSeq32::WINDOW_PARAM + i));
-			addChild(createLight<MediumLight<GreenLight>>(Vec(wLightsPosX + 4.4f + i * wLightsIntX, yRulerTopLEDs), module, WriteSeq32::WINDOW_LIGHTS + i));
+			addParam(createParam<LEDButton>(VecPx(wLightsPosX + i * wLightsIntX, yRulerTopLEDs - 4.4f), module, WriteSeq32::WINDOW_PARAM + i));
+			addChild(createLight<MediumLight<GreenLight>>(VecPx(wLightsPosX + 4.4f + i * wLightsIntX, yRulerTopLEDs), module, WriteSeq32::WINDOW_LIGHTS + i));
 		}
 		
 		// Prepare 8 positions for step lights, gate lights and notes display
@@ -702,8 +702,8 @@ struct WriteSeq32Widget : ModuleWidget {
 
 		// Notes display
 		NotesDisplayWidget *displayNotes = new NotesDisplayWidget();
-		displayNotes->box.pos = Vec(12, 76);
-		displayNotes->box.size = Vec(381, 30);
+		displayNotes->box.pos = VecPx(12, 76);
+		displayNotes->box.size = VecPx(381, 30);
 		displayNotes->module = module;
 		displayNotes->notesPosLocal = notesPos;
 		addChild(displayNotes);
@@ -711,14 +711,14 @@ struct WriteSeq32Widget : ModuleWidget {
 		// Step LEDs (must be done after Notes display such that LED glow will overlay the notes display
 		static const int yRulerStepLEDs = 65;
 		for (int i = 0; i < 8; i++) {
-			addChild(createLight<SmallLight<GreenLight>>(Vec(notesPos[i]+25.0f+1.5f, yRulerStepLEDs), module, WriteSeq32::STEP_LIGHTS + i));
+			addChild(createLight<SmallLight<GreenLight>>(VecPx(notesPos[i]+25.0f+1.5f, yRulerStepLEDs), module, WriteSeq32::STEP_LIGHTS + i));
 		}
 
 		// Gates LED buttons
 		static const int yRulerT2 = 119.0f;
 		for (int i = 0; i < 8; i++) {
-			addParam(createParam<LEDButton>(Vec(notesPos[i]+25.0f-4.4f, yRulerT2-4.4f), module, WriteSeq32::GATE_PARAM + i));
-			addChild(createLight<MediumLight<GreenRedLight>>(Vec(notesPos[i]+25.0f, yRulerT2), module, WriteSeq32::GATE_LIGHTS + i * 2));
+			addParam(createParam<LEDButton>(VecPx(notesPos[i]+25.0f-4.4f, yRulerT2-4.4f), module, WriteSeq32::GATE_PARAM + i));
+			addChild(createLight<MediumLight<GreenRedLight>>(VecPx(notesPos[i]+25.0f, yRulerT2), module, WriteSeq32::GATE_LIGHTS + i * 2));
 		}
 		
 		
@@ -726,79 +726,79 @@ struct WriteSeq32Widget : ModuleWidget {
 		
 		// Column 0
 		// Channel button
-		addParam(createDynamicParam<IMBigPushButton>(Vec(columnRuler0+offsetCKD6b, rowRuler0+offsetCKD6b), module, WriteSeq32::CHANNEL_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParam<IMBigPushButton>(VecPx(columnRuler0+offsetCKD6b, rowRuler0+offsetCKD6b), module, WriteSeq32::CHANNEL_PARAM, module ? &module->panelTheme : NULL));
 		// Channel LEDS
 		static const int chanLEDoffsetX = 25;
 		static const int chanLEDoffsetY[4] = {-20, -8, 4, 16};
-		addChild(createLight<MediumLight<GreenLight>>(Vec(columnRuler0 + chanLEDoffsetX + offsetMediumLight, rowRuler0 - 4 + chanLEDoffsetY[0] + offsetMediumLight), module, WriteSeq32::CHANNEL_LIGHTS + 0));
-		addChild(createLight<MediumLight<YellowLight>>(Vec(columnRuler0 + chanLEDoffsetX + offsetMediumLight, rowRuler0 - 4 + chanLEDoffsetY[1] + offsetMediumLight), module, WriteSeq32::CHANNEL_LIGHTS + 1));
-		addChild(createLight<MediumLight<OrangeLight>>(Vec(columnRuler0 + chanLEDoffsetX + offsetMediumLight, rowRuler0 - 4 + chanLEDoffsetY[2] + offsetMediumLight), module, WriteSeq32::CHANNEL_LIGHTS + 2));
-		addChild(createLight<MediumLight<BlueLight>>(Vec(columnRuler0 + chanLEDoffsetX + offsetMediumLight, rowRuler0 - 4 + chanLEDoffsetY[3] + offsetMediumLight), module, WriteSeq32::CHANNEL_LIGHTS + 3));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(columnRuler0 + chanLEDoffsetX + offsetMediumLight, rowRuler0 - 4 + chanLEDoffsetY[0] + offsetMediumLight), module, WriteSeq32::CHANNEL_LIGHTS + 0));
+		addChild(createLight<MediumLight<YellowLight>>(VecPx(columnRuler0 + chanLEDoffsetX + offsetMediumLight, rowRuler0 - 4 + chanLEDoffsetY[1] + offsetMediumLight), module, WriteSeq32::CHANNEL_LIGHTS + 1));
+		addChild(createLight<MediumLight<OrangeLight>>(VecPx(columnRuler0 + chanLEDoffsetX + offsetMediumLight, rowRuler0 - 4 + chanLEDoffsetY[2] + offsetMediumLight), module, WriteSeq32::CHANNEL_LIGHTS + 2));
+		addChild(createLight<MediumLight<BlueLight>>(VecPx(columnRuler0 + chanLEDoffsetX + offsetMediumLight, rowRuler0 - 4 + chanLEDoffsetY[3] + offsetMediumLight), module, WriteSeq32::CHANNEL_LIGHTS + 3));
 		// Copy/paste switches
-		addParam(createDynamicParam<IMPushButton>(Vec(columnRuler0-10, rowRuler1+offsetTL1105), module, WriteSeq32::COPY_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParam<IMPushButton>(Vec(columnRuler0+20, rowRuler1+offsetTL1105), module, WriteSeq32::PASTE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParam<IMPushButton>(VecPx(columnRuler0-10, rowRuler1+offsetTL1105), module, WriteSeq32::COPY_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParam<IMPushButton>(VecPx(columnRuler0+20, rowRuler1+offsetTL1105), module, WriteSeq32::PASTE_PARAM, module ? &module->panelTheme : NULL));
 		// Paste sync (and light)
-		addParam(createParam<CKSSThreeInvNoRandom>(Vec(columnRuler0+hOffsetCKSS, rowRuler2+vOffsetCKSSThree), module, WriteSeq32::PASTESYNC_PARAM));	
-		addChild(createLight<SmallLight<RedLight>>(Vec(columnRuler0 + 41, rowRuler2 + 14), module, WriteSeq32::PENDING_LIGHT));		
+		addParam(createParam<CKSSThreeInvNoRandom>(VecPx(columnRuler0+hOffsetCKSS, rowRuler2+vOffsetCKSSThree), module, WriteSeq32::PASTESYNC_PARAM));	
+		addChild(createLight<SmallLight<RedLight>>(VecPx(columnRuler0 + 41, rowRuler2 + 14), module, WriteSeq32::PENDING_LIGHT));		
 		// Run CV input
-		addInput(createDynamicPort<IMPort>(Vec(columnRuler0, rowRuler3), true, module, WriteSeq32::RUNCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(columnRuler0, rowRuler3), true, module, WriteSeq32::RUNCV_INPUT, module ? &module->panelTheme : NULL));
 		
 		
 		// Column 1
 		// Step L button
-		addParam(createDynamicParam<IMBigPushButton>(Vec(columnRuler1+offsetCKD6b, rowRuler0+offsetCKD6b), module, WriteSeq32::STEPL_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParam<IMBigPushButton>(VecPx(columnRuler1+offsetCKD6b, rowRuler0+offsetCKD6b), module, WriteSeq32::STEPL_PARAM, module ? &module->panelTheme : NULL));
 		// Run LED bezel and light
-		addParam(createParam<LEDBezel>(Vec(columnRuler1+offsetLEDbezel, rowRuler1+offsetLEDbezel), module, WriteSeq32::RUN_PARAM));
-		addChild(createLight<MuteLight<GreenLight>>(Vec(columnRuler1+offsetLEDbezel+offsetLEDbezelLight, rowRuler1+offsetLEDbezel+offsetLEDbezelLight), module, WriteSeq32::RUN_LIGHT));
+		addParam(createParam<LEDBezel>(VecPx(columnRuler1+offsetLEDbezel, rowRuler1+offsetLEDbezel), module, WriteSeq32::RUN_PARAM));
+		addChild(createLight<MuteLight<GreenLight>>(VecPx(columnRuler1+offsetLEDbezel+offsetLEDbezelLight, rowRuler1+offsetLEDbezel+offsetLEDbezelLight), module, WriteSeq32::RUN_LIGHT));
 		// Gate input
-		addInput(createDynamicPort<IMPort>(Vec(columnRuler1, rowRuler2), true, module, WriteSeq32::GATE_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPort<IMPort>(VecPx(columnRuler1, rowRuler2), true, module, WriteSeq32::GATE_INPUT, module ? &module->panelTheme : NULL));		
 		// Step L input
-		addInput(createDynamicPort<IMPort>(Vec(columnRuler1, rowRuler3), true, module, WriteSeq32::STEPL_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(columnRuler1, rowRuler3), true, module, WriteSeq32::STEPL_INPUT, module ? &module->panelTheme : NULL));
 		
 		
 		// Column 2
 		// Step R button
-		addParam(createDynamicParam<IMBigPushButton>(Vec(columnRuler2+offsetCKD6b, rowRuler0+offsetCKD6b), module, WriteSeq32::STEPR_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParam<IMBigPushButton>(VecPx(columnRuler2+offsetCKD6b, rowRuler0+offsetCKD6b), module, WriteSeq32::STEPR_PARAM, module ? &module->panelTheme : NULL));	
 		// Write button and light
-		addParam(createDynamicParam<IMBigPushButton>(Vec(columnRuler2+offsetCKD6b, rowRuler1+offsetCKD6b), module, WriteSeq32::WRITE_PARAM, module ? &module->panelTheme : NULL));
-		addChild(createLight<SmallLight<GreenRedLight>>(Vec(columnRuler2 -12, rowRuler1 - 12), module, WriteSeq32::WRITE_LIGHT));
+		addParam(createDynamicParam<IMBigPushButton>(VecPx(columnRuler2+offsetCKD6b, rowRuler1+offsetCKD6b), module, WriteSeq32::WRITE_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLight<SmallLight<GreenRedLight>>(VecPx(columnRuler2 -12, rowRuler1 - 12), module, WriteSeq32::WRITE_LIGHT));
 		// CV input
-		addInput(createDynamicPort<IMPort>(Vec(columnRuler2, rowRuler2), true, module, WriteSeq32::CV_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPort<IMPort>(VecPx(columnRuler2, rowRuler2), true, module, WriteSeq32::CV_INPUT, module ? &module->panelTheme : NULL));		
 		// Step R input
-		addInput(createDynamicPort<IMPort>(Vec(columnRuler2, rowRuler3), true, module, WriteSeq32::STEPR_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(columnRuler2, rowRuler3), true, module, WriteSeq32::STEPR_INPUT, module ? &module->panelTheme : NULL));
 		
 		
 		// Column 3
 		// Steps display
 		StepsDisplayWidget *displaySteps = new StepsDisplayWidget();
-		displaySteps->box.pos = Vec(columnRuler3-7, rowRuler0+vOffsetDisplay);
-		displaySteps->box.size = Vec(40, 30);// 2 characters
+		displaySteps->box.pos = VecPx(columnRuler3-7, rowRuler0+vOffsetDisplay);
+		displaySteps->box.size = VecPx(40, 30);// 2 characters
 		displaySteps->module = module;
 		addChild(displaySteps);
 		// Steps knob
-		addParam(createDynamicParam<IMBigKnob<false, true>>(Vec(columnRuler3+offsetIMBigKnob, rowRuler1+offsetIMBigKnob), module, WriteSeq32::STEPS_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParam<IMBigKnob<false, true>>(VecPx(columnRuler3+offsetIMBigKnob, rowRuler1+offsetIMBigKnob), module, WriteSeq32::STEPS_PARAM, module ? &module->panelTheme : NULL));		
 		// Monitor
-		addParam(createParam<CKSSHNoRandom>(Vec(columnRuler3+hOffsetCKSSH, rowRuler2+vOffsetCKSSH), module, WriteSeq32::MONITOR_PARAM));		
+		addParam(createParam<CKSSHNoRandom>(VecPx(columnRuler3+hOffsetCKSSH, rowRuler2+vOffsetCKSSH), module, WriteSeq32::MONITOR_PARAM));		
 		// Write input
-		addInput(createDynamicPort<IMPort>(Vec(columnRuler3, rowRuler3), true, module, WriteSeq32::WRITE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(columnRuler3, rowRuler3), true, module, WriteSeq32::WRITE_INPUT, module ? &module->panelTheme : NULL));
 		
 		
 		// Column 4
 		// Outputs
-		addOutput(createDynamicPort<IMPort>(Vec(columnRuler4, rowRuler0), false, module, WriteSeq32::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPort<IMPort>(Vec(columnRuler4, rowRuler1), false, module, WriteSeq32::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPort<IMPort>(Vec(columnRuler4, rowRuler2), false, module, WriteSeq32::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPort<IMPort>(VecPx(columnRuler4, rowRuler0), false, module, WriteSeq32::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPort<IMPort>(VecPx(columnRuler4, rowRuler1), false, module, WriteSeq32::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPort<IMPort>(VecPx(columnRuler4, rowRuler2), false, module, WriteSeq32::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
 		// Reset
-		addInput(createDynamicPort<IMPort>(Vec(columnRuler4, rowRuler3), true, module, WriteSeq32::RESET_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPort<IMPort>(VecPx(columnRuler4, rowRuler3), true, module, WriteSeq32::RESET_INPUT, module ? &module->panelTheme : NULL));		
 
 		
 		// Column 5
 		// Gates
-		addOutput(createDynamicPort<IMPort>(Vec(columnRuler5, rowRuler0), false, module, WriteSeq32::GATE_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPort<IMPort>(Vec(columnRuler5, rowRuler1), false, module, WriteSeq32::GATE_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPort<IMPort>(Vec(columnRuler5, rowRuler2), false, module, WriteSeq32::GATE_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPort<IMPort>(VecPx(columnRuler5, rowRuler0), false, module, WriteSeq32::GATE_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPort<IMPort>(VecPx(columnRuler5, rowRuler1), false, module, WriteSeq32::GATE_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPort<IMPort>(VecPx(columnRuler5, rowRuler2), false, module, WriteSeq32::GATE_OUTPUTS + 2, module ? &module->panelTheme : NULL));
 		// Clock
-		addInput(createDynamicPort<IMPort>(Vec(columnRuler5, rowRuler3), true, module, WriteSeq32::CLOCK_INPUT, module ? &module->panelTheme : NULL));			
+		addInput(createDynamicPort<IMPort>(VecPx(columnRuler5, rowRuler3), true, module, WriteSeq32::CLOCK_INPUT, module ? &module->panelTheme : NULL));			
 	}
 	
 	void step() override {
