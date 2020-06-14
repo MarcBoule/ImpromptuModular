@@ -166,7 +166,7 @@ struct PartWidget : ModuleWidget {
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
 
-			Vec textPos = Vec(6.3f, textOffsetY);
+			Vec textPos = VecPx(6.3f, textOffsetY);
 			printText();
 			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 			nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
@@ -311,29 +311,29 @@ struct PartWidget : ModuleWidget {
 		
 
 		// Display mode switch
-		addParam(createParamCentered<CKSSH>(Vec(colM, row0), module, Part::MODE_PARAM));		
+		addParam(createParamCentered<CKSSH>(VecPx(colM, row0), module, Part::MODE_PARAM));		
 		
 		// Display
-		addChild(new SplitDisplayWidget(Vec(colM, row1), Vec(65, 24), module));// 4 characters + decimal point
+		addChild(new SplitDisplayWidget(VecPx(colM, row1), VecPx(65, 24), module));// 4 characters + decimal point
 		
 		// Split knob 
-		addParam(createDynamicParamCentered<IMBigKnob<true, false>>(Vec(colM, row2), module, Part::SPLIT_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigKnob<true, false>>(VecPx(colM, row2), module, Part::SPLIT_PARAM, module ? &module->panelTheme : NULL));
 
 
 		// CV input
-		addInput(createDynamicPortCentered<IMPort>(Vec(colL, row3), true, module, Part::CV_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colL, row3), true, module, Part::CV_INPUT, module ? &module->panelTheme : NULL));		
 		// Thru output
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colR, row3), false, module, Part::CVTHRU_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row3), false, module, Part::CVTHRU_OUTPUT, module ? &module->panelTheme : NULL));
 		
 		// Gate input
-		addInput(createDynamicPortCentered<IMPort>(Vec(colL, row4), true, module, Part::GATE_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colL, row4), true, module, Part::GATE_INPUT, module ? &module->panelTheme : NULL));		
 		// Gate high output
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colR, row4), false, module, Part::HIGH_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row4), false, module, Part::HIGH_OUTPUT, module ? &module->panelTheme : NULL));
 		
 		// Split CV
-		addInput(createDynamicPortCentered<IMPort>(Vec(colL, row5), true, module, Part::SPLIT_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colL, row5), true, module, Part::SPLIT_INPUT, module ? &module->panelTheme : NULL));		
 		// Gate low output
-		addOutput(createDynamicPortCentered<IMPort>(Vec(colR, row5), false, module, Part::LOW_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row5), false, module, Part::LOW_OUTPUT, module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {

@@ -91,12 +91,12 @@ struct GateSeq64ExpanderWidget : ModuleWidget {
 		static const int rowRulerExpTop = 60;
 		static const int rowSpacingExp = 50;
 		static const int colRulerExp = 497 - 30 - 90 - 360;// GS64 is (2+6)HP less than PS32
-		addInput(createDynamicPort<IMPort>(Vec(colRulerExp, rowRulerExpTop + rowSpacingExp * 0), true, module, GateSeq64Expander::WRITE_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(Vec(colRulerExp, rowRulerExpTop + rowSpacingExp * 1), true, module, GateSeq64Expander::GATE_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(Vec(colRulerExp, rowRulerExpTop + rowSpacingExp * 2), true, module, GateSeq64Expander::PROB_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(Vec(colRulerExp, rowRulerExpTop + rowSpacingExp * 3), true, module, GateSeq64Expander::WRITE0_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(Vec(colRulerExp, rowRulerExpTop + rowSpacingExp * 4), true, module, GateSeq64Expander::WRITE1_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(Vec(colRulerExp, rowRulerExpTop + rowSpacingExp * 5), true, module, GateSeq64Expander::STEPL_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 0), true, module, GateSeq64Expander::WRITE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 1), true, module, GateSeq64Expander::GATE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 2), true, module, GateSeq64Expander::PROB_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 3), true, module, GateSeq64Expander::WRITE0_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 4), true, module, GateSeq64Expander::WRITE1_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 5), true, module, GateSeq64Expander::STEPL_INPUT, module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {
