@@ -1,6 +1,8 @@
 Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://vcvrack.com/plugins.html).
 Version 1.1.6.
 
+Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
+
 [//]: # (!!!!!UPDATE VERSION NUMBER IN PLUGIN.JSON ALSO!!!!!   120% Zoom for jpgs)
 
 
@@ -8,37 +10,51 @@ Version 1.1.6.
 
 Each module is available in light (Classic) or dark (Dark-Valor) panels, selectable by right-clicking the module in Rack.
 
-* [Tact/Tact1](#tact): Touch-like controller modules with variable CV outputs and rates of change.
+* [BigButtonSeq](#big-button-seq): 6-channel 64-step trigger sequencer based on the infamous BigButton by Look Mum No Computer.
 
-* [TwelveKey](#twelve-key): Chainable one-octave keyboard controller.
+* [BigButtonSeq2](#big-button-seq2): 6-channel 128-step gate and CV sequencer based on BigButtonSeq.
 
 * [ChordKey](#chord-key): Keyboard-based chord generator.
 
-* [CVPad](#cv-pad): CV controller with 16 programmable pads (can be configured as 1x16, 2x8 or 4x4).
-
 * [Clocked/Clkd](#clocked): Chainable clock generator modules with external synchronization.
 
+* [CVPad](#cv-pad): CV controller with 16 programmable pads (can be configured as 1x16, 2x8 or 4x4).
+
 * [Foundry](#foundry): 4-track phrase sequencer with 32 steps per sequence, 64 sequences per track, 99 phrases per song/track.
+
+* [FourView](#four-view): A small chord viewer module that shows note or chord names.
+
+* [GateSeq64](#gate-seq-64): 32-phrase gate sequencer with 64 steps per sequence and per-step gate probability control, perfect for adding controlled randomness to your drum patterns (can be configured as 1x64, 2x32 or 4x16).
+
+* [Hotkey](#hotkey): A utility module that sends a trigger when a given key is pressed (mouse must be over module).
+
+* [Part](#part): A gate splitter module based on an input CV and split point.
 
 * [PhraseSeq16](#phrase-seq-16): 16-phrase sequencer with 16 steps per sequence, with onboard keyboard and CV input for easy sequence programming.
 
 * [PhraseSeq32](#phrase-seq-32): 32-phrase sequencer with 32 steps per sequence, with onboard keyboard and CV input for easy sequence programming (can be configured as 1x32 or 2x16).
 
-* [GateSeq64](#gate-seq-64): 32-phrase gate sequencer with 64 steps per sequence and per-step gate probability control, perfect for adding controlled randomness to your drum patterns (can be configured as 1x64, 2x32 or 4x16).
-
-* [BigButtonSeq](#big-button-seq): 6-channel 64-step trigger sequencer based on the infamous BigButton by Look Mum No Computer.
-
-* [BigButtonSeq2](#big-button-seq2): 6-channel 128-step gate and CV sequencer based on BigButtonSeq.
-
 * [SMS16](#sms-16): Internally pre-patched all-in-one semi-modular synthesizer for quickly getting sounds and learning the basics of modular synthesis.
+
+* [Tact/Tact1](#tact): Touch-like controller modules with variable CV outputs and rates of change.
+
+* [TwelveKey](#twelve-key): Chainable one-octave keyboard controller.
 
 * [WriteSeq32/64](#write-seq): Multi-channel 32/64-step sequencers with CV inputs for easy sequence programming.
 
-* [Utilities](#utilities): Part - a gate splitter module based on an input CV and split point; FourView - a small chord viewer module that shows note or chord names; HotKey - a utility module that sends a trigger when a given key is pressed (mouse must be over module).
+Recommended reading:
 
-* [Expanders](#expanders): Various expander modules that can be paired with some of the above modules.
+* [General Concepts](#general-concepts)
 
-Details about each module are given in the links above, and a feature comparison table is given below for the sequencers. Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
+* [Sequence selection via CV inputs](#seq-sel)
+
+* [Expanders](#expanders) for added features and CV inputs
+
+* [On resets, clocks and run states...](#clk_rst_run)
+
+* [Portable sequence](#portable_seq)
+
+The table below shows a comparison of the features available in the Impromptu sequencers. 
 
 | 		      			| WriteSeq32/64 	| PhraseSeq16	| PhraseSeq32	| GateSeq64			| Foundry		| BigButton1/2 	|
 | ----------- 				| ----------- 		| ----------- 	| ----------- 	| ----------- 		| -----------	| -----------  	|
@@ -87,7 +103,7 @@ All edge sensitive inputs have a threshold of 1V. In all sequencers, the duratio
 
 In all sequencers, clicking **Randomize** in the right-click menu of the module will only serve to randomize the content (CVs, gates, slides, etc., as applicable) of the current sequence. For sequencers with a song mode, no song content is randomized when in SONG mode.
 
-### Sequence selection via CV inputs
+### Sequence selection via CV inputs <a id="seq-sel"></a>
 
 Many sequencers feature **SEQ# CV inputs**, which can be used to select the active sequence for editing or to externally control the playing order of the sequences. Three different modes are available for these inputs in the right click menu of the modules, under **Seq CV in**. 
 * 0-10V: a 0 to 10V input is proportionally mapped to the 1 to N sequence numbers; for example:
