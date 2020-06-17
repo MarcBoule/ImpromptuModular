@@ -2,9 +2,7 @@
 //Common constants and structs for Clocked and Clkd
 //***********************************************************************************************
 
-#ifndef CLOCK_COMMON_HPP
-#define CLOCK_COMMON_HPP
-
+#pragma once
 
 #include "ImpromptuModular.hpp"
 
@@ -89,7 +87,3 @@ struct OnStopItem : MenuItem {
 		return menu;
 	}
 };	
-
-
-#endif
-	

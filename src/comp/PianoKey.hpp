@@ -4,9 +4,7 @@
 //See ./LICENSE.md for all licenses
 //***********************************************************************************************
 
-#ifndef IM_PIANOKEY_HPP
-#define IM_PIANOKEY_HPP
-
+#pragma once
 
 #include "../ImpromptuModular.hpp"
 
@@ -64,6 +62,3 @@ struct PianoKeySmall : PianoKey {
 		box.size = VecPx(23, 38);
 	}
 };
-
-
-#endif

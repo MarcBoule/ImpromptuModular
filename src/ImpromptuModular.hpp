@@ -7,9 +7,7 @@
 //See ./res/fonts/ for font licenses
 //***********************************************************************************************
 
-#ifndef IMPROMPU_MODULAR_HPP
-#define IMPROMPU_MODULAR_HPP
-
+#pragma once
 
 #include "rack.hpp"
 #include "comp/DynamicComponents.hpp"
@@ -205,6 +203,3 @@ struct InstantiateExpanderItem : MenuItem {
 	Vec posit;
 	void onAction(const event::Action &e) override;
 };
-
-
-#endif

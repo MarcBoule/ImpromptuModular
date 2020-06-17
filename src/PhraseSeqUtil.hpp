@@ -2,9 +2,7 @@
 //Impromptu Modular: Modules for VCV Rack by Marc Boulé
 //***********************************************************************************************
 
-#ifndef PHRASE_SEQ_UTIL_HPP
-#define PHRASE_SEQ_UTIL_HPP
-
+#pragma once
 
 #include "ImpromptuModular.hpp"
 #include <time.h>
@@ -164,6 +162,3 @@ int getAdvGate(int ppqnCount, int pulsesPerStep, int gateMode);
 int calcGate2Code(StepAttributes attribute, int ppqnCount, int pulsesPerStep);
 bool moveIndexRunMode(int* index, int numSteps, int runMode, unsigned long* history);
 int keyIndexToGateMode(int keyIndex, int pulsesPerStep);
-
-
-#endif

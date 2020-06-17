@@ -2,9 +2,7 @@
 //Impromptu Modular: Modules for VCV Rack by Marc Boulé
 //***********************************************************************************************
 
-#ifndef GATE_SEQ_64_UTIL_HPP
-#define GATE_SEQ_64_UTIL_HPP
-
+#pragma once
 
 #include "ImpromptuModular.hpp"
 #include "PhraseSeqUtil.hpp"
@@ -111,6 +109,3 @@ int calcGateCode(StepAttributesGS attribute, int ppqnCount, int pulsesPerStep) {
 		return 2;// clock high
 	return getAdvGateGS(ppqnCount, pulsesPerStep, attribute.getGateMode());
 }		
-
-
-#endif

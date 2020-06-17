@@ -5,8 +5,7 @@
 //
 //***********************************************************************************************
 
-#ifndef INTEROP_HPP
-#define INTEROP_HPP
+#pragma once
 
 #include "ImpromptuModular.hpp"
 
@@ -51,6 +50,3 @@ void interopCopySequence(int seqLen, IoStep* ioSteps);// function does not delet
 
 std::vector<IoNote>* interopPasteSequenceNotes(int maxSeqLen, int *seqLenPtr);// caller must delete return vector when non null
 IoStep* interopPasteSequence(int maxSeqLen, int *seqLenPtr);// will return an array of size *seqLenPtr (when non null), which caller must delete[]
-
-
-#endif

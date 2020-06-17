@@ -2,9 +2,7 @@
 //Impromptu Modular: Modules for VCV Rack by Marc Boulé
 //***********************************************************************************************
 
-#ifndef FOUNDRY_SEQUENCER_HPP
-#define FOUNDRY_SEQUENCER_HPP
-
+#pragma once
 
 #include "FoundrySequencerKernel.hpp"
 
@@ -258,6 +256,3 @@ class Sequencer {
 	}
 	
 };// class Sequencer 
-
-
-#endif

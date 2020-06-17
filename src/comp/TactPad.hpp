@@ -4,9 +4,7 @@
 //See ./LICENSE.md for all licenses
 //***********************************************************************************************
 
-#ifndef IM_TACTPAD_HPP
-#define IM_TACTPAD_HPP
-
+#pragma once
 
 #include "../ImpromptuModular.hpp"
 
@@ -28,6 +26,3 @@ struct TactPad : ParamWidget {
 	void reset() override;
 	void randomize() override;
 };
-
-
-#endif

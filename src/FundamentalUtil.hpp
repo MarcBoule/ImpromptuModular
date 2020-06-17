@@ -5,9 +5,7 @@
 //See ./LICENSE.md for all licenses
 //***********************************************************************************************
 
-#ifndef FUNDAMENTAL_UTIL_HPP
-#define FUNDAMENTAL_UTIL_HPP
-
+#pragma once
 
 #include "rack.hpp"
 #include "ImpromptuModular.hpp"
@@ -156,6 +154,3 @@ struct LowFrequencyOscillator {
 		return std::sin(2*M_PI * phase);
 	}
 };
-
-
-#endif

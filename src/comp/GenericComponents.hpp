@@ -4,9 +4,7 @@
 //See ./LICENSE.md for all licenses
 //***********************************************************************************************
 
-#ifndef IM_GENERICCOMP_HPP
-#define IM_GENERICCOMP_HPP
-
+#pragma once
 
 #include "rack.hpp"
 
@@ -124,6 +122,3 @@ struct GiantLight2 : BASE {
 		this->box.size = mm2px(Vec(12.8f, 12.8f));
 	}
 };
-
-
-#endif

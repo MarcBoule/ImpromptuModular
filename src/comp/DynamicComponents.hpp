@@ -4,9 +4,7 @@
 //See ./LICENSE.md for all licenses
 //***********************************************************************************************
 
-#ifndef IM_DYNAMICCOMP_HPP
-#define IM_DYNAMICCOMP_HPP
-
+#pragma once
 
 #include "rack.hpp"
 
@@ -249,6 +247,3 @@ struct IMSixPosBigKnob : IMBigKnob<false, true> {
 		maxAngle = 0.4*M_PI;
 	}
 };
-
-
-#endif

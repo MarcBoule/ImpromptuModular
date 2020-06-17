@@ -2,9 +2,7 @@
 //Impromptu Modular: Modules for VCV Rack by Marc Boulé
 //***********************************************************************************************
 
-#ifndef FOUNDRY_SEQUENCER_KERNEL_HPP
-#define FOUNDRY_SEQUENCER_KERNEL_HPP
-
+#pragma once
 
 #include "ImpromptuModular.hpp"
 
@@ -430,6 +428,3 @@ struct SongCPbuffer {
 	SongCPbuffer() {reset();}
 	void reset();
 };// song SeqCPbuffer
-
-
-#endif
