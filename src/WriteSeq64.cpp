@@ -58,6 +58,9 @@ struct WriteSeq64 : Module {
 		NUM_LIGHTS
 	};
 
+	// Constants
+	// none
+
 	// Need to save, no reset
 	int panelTheme;
 	
@@ -70,13 +73,14 @@ struct WriteSeq64 : Module {
 	bool resetOnRun;
 
 	// No need to save, with reset
+	long clockIgnoreOnReset;
 	float cvCPbuffer[64];// copy paste buffer for CVs
 	int gateCPbuffer[64];// copy paste buffer for gates
 	int stepsCPbuffer;
 	long infoCopyPaste;// 0 when no info, positive downward step counter timer when copy, negative upward when paste
 	int pendingPaste;// 0 = nothing to paste, 1 = paste on clk, 2 = paste on seq, destination channel in next msbits
-	long clockIgnoreOnReset;
 	unsigned long editingGate;// 0 when no edit gate, downward step counter timer when edit gate
+	int stepRotates;
 
 	// No need to save, no reset
 	RefreshCounter refresh;	
@@ -153,6 +157,7 @@ struct WriteSeq64 : Module {
 		infoCopyPaste = 0l;
 		pendingPaste = 0;
 		editingGate = 0ul;
+		stepRotates = 0;
 	}
 
 	
@@ -383,10 +388,35 @@ struct WriteSeq64 : Module {
 				delta = +1;
 			}
 			if (delta != 0 && canEdit) {		
-				indexStep[indexChannel] = moveIndex(indexStep[indexChannel], indexStep[indexChannel] + delta, indexSteps[indexChannel]); 
-				// Editing gate
-				editingGate = (unsigned long) (gateTime * args.sampleRate / RefreshCounter::displayRefreshStepSkips);
-				editingGateCV = cv[indexChannel][indexStep[indexChannel]];
+				if (stepRotates == 0) {
+					indexStep[indexChannel] = moveIndex(indexStep[indexChannel], indexStep[indexChannel] + delta, indexSteps[indexChannel]); 
+					// Editing gate
+					editingGate = (unsigned long) (gateTime * args.sampleRate / RefreshCounter::displayRefreshStepSkips);
+					editingGateCV = cv[indexChannel][indexStep[indexChannel]];
+				}
+				else {// rotate mode
+					float rotCV;
+					int rotGate;
+					int iStart = 0;
+					int iEnd = indexSteps[indexChannel] - 1;
+					int iRot = iStart;
+					int iDelta = 1;
+					if (delta == 1) {
+						iRot = iEnd;
+						iDelta = -1;
+					}
+					rotCV = cv[indexChannel][iRot];
+					rotGate = gates[indexChannel][iRot];
+					for ( ; ; iRot += iDelta) {
+						if (iDelta == 1 && iRot >= iEnd) break;
+						if (iDelta == -1 && iRot <= iStart) break;
+						cv[indexChannel][iRot] = cv[indexChannel][iRot + iDelta];
+						gates[indexChannel][iRot] = gates[indexChannel][iRot + iDelta];
+					}
+					cv[indexChannel][iRot] = rotCV;
+					gates[indexChannel][iRot] = rotGate;
+				}
+
 			}
 		}// userInputs refresh
 		
@@ -657,6 +687,32 @@ struct WriteSeq64Widget : ModuleWidget {
 			module->resetOnRun = !module->resetOnRun;
 		}
 	};
+
+	struct ArrowModeItem : MenuItem {
+		int* stepRotatesSrc;
+
+		struct ArrowModeSubItem : MenuItem {
+			int* stepRotatesSrc;
+			void onAction(const event::Action &e) override {
+				*stepRotatesSrc ^= 0x1;
+			}
+		};
+
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
+			
+			ArrowModeSubItem *step0Item = createMenuItem<ArrowModeSubItem>("Step", CHECKMARK(*stepRotatesSrc == 0));
+			step0Item->stepRotatesSrc = stepRotatesSrc;
+			menu->addChild(step0Item);
+
+			ArrowModeSubItem *step1Item = createMenuItem<ArrowModeSubItem>("Rotate", CHECKMARK(*stepRotatesSrc != 0));
+			step1Item->stepRotatesSrc = stepRotatesSrc;
+			menu->addChild(step1Item);
+
+			return menu;
+		}
+	};	
+
 	void appendContextMenu(Menu *menu) override {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
@@ -680,6 +736,10 @@ struct WriteSeq64Widget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
+		ArrowModeItem *arrowItem = createMenuItem<ArrowModeItem>("Arrow controls", RIGHT_ARROW);
+		arrowItem->stepRotatesSrc = &(module->stepRotates);
+		menu->addChild(arrowItem);
+
 		ResetOnRunItem *rorItem = createMenuItem<ResetOnRunItem>("Reset on run", CHECKMARK(module->resetOnRun));
 		rorItem->module = module;
 		menu->addChild(rorItem);

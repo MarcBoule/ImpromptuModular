@@ -1,7 +1,8 @@
 ### 1.1.7 (in development)
 
-- Convert all SVGs from px to mm
-- Alphabetize modules in module browser
+- Converted all SVGs from px to mm
+- Alphabetized modules in module browser
+- Added option in WriteSeq32/64 to make arrow controls rotate instead of step (step is default)
 
 
 ### 1.1.6 (2020-05-04)
