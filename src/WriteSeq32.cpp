@@ -8,7 +8,7 @@
 //***********************************************************************************************
 
 
-#include "ImpromptuModular.hpp"
+#include "WriteSeqUtil.hpp"
 
 
 struct WriteSeq32 : Module {
@@ -96,11 +96,6 @@ struct WriteSeq32 : Module {
 	Trigger writeTrigger;
 	Trigger gateTriggers[8];
 	Trigger windowTriggers[4];
-
-	
-	inline float quantize(float cv, bool enable) {
-		return enable ? (std::round(cv * 12.0f) / 12.0f) : cv;
-	}
 	
 	
 	WriteSeq32() {
@@ -376,36 +371,21 @@ struct WriteSeq32 : Module {
 			}
 			if (delta != 0 && canEdit) {		
 				if (stepRotates == 0) {
-					if (indexChannel == 3)
+					// step mode
+					if (indexChannel == 3) {
 						indexStepStage = moveIndex(indexStepStage, indexStepStage + delta, numSteps);
-					else 
+					}
+					else {
 						indexStep = moveIndex(indexStep, indexStep + delta, numSteps);
+					}
 					// Editing gate
 					int index = (indexChannel == 3 ? indexStepStage : indexStep);
 					editingGate = (unsigned long) (gateTime * args.sampleRate / RefreshCounter::displayRefreshStepSkips);
 					editingGateCV = cv[indexChannel][index];
 				}
-				else {// rotate mode
-					float rotCV;
-					int rotGate;
-					int iStart = 0;
-					int iEnd = numSteps - 1;
-					int iRot = iStart;
-					int iDelta = 1;
-					if (delta == 1) {
-						iRot = iEnd;
-						iDelta = -1;
-					}
-					rotCV = cv[indexChannel][iRot];
-					rotGate = gates[indexChannel][iRot];
-					for ( ; ; iRot += iDelta) {
-						if (iDelta == 1 && iRot >= iEnd) break;
-						if (iDelta == -1 && iRot <= iStart) break;
-						cv[indexChannel][iRot] = cv[indexChannel][iRot + iDelta];
-						gates[indexChannel][iRot] = gates[indexChannel][iRot + iDelta];
-					}
-					cv[indexChannel][iRot] = rotCV;
-					gates[indexChannel][iRot] = rotGate;
+				else {
+					// rotate mode
+					rotateSeq(delta, numSteps, cv[indexChannel], gates[indexChannel]);
 				}
 			}
 			
@@ -639,31 +619,6 @@ struct WriteSeq32Widget : ModuleWidget {
 		}
 	};
 	
-	struct ArrowModeItem : MenuItem {
-		int* stepRotatesSrc;
-
-		struct ArrowModeSubItem : MenuItem {
-			int* stepRotatesSrc;
-			void onAction(const event::Action &e) override {
-				*stepRotatesSrc ^= 0x1;
-			}
-		};
-
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-			
-			ArrowModeSubItem *step0Item = createMenuItem<ArrowModeSubItem>("Step", CHECKMARK(*stepRotatesSrc == 0));
-			step0Item->stepRotatesSrc = stepRotatesSrc;
-			menu->addChild(step0Item);
-
-			ArrowModeSubItem *step1Item = createMenuItem<ArrowModeSubItem>("Rotate", CHECKMARK(*stepRotatesSrc != 0));
-			step1Item->stepRotatesSrc = stepRotatesSrc;
-			menu->addChild(step1Item);
-
-			return menu;
-		}
-	};	
-
 	void appendContextMenu(Menu *menu) override {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
