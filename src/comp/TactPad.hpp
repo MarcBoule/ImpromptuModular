@@ -18,9 +18,13 @@ struct TactPad : ParamWidget {
 	float onButtonPosY;
 	static const int padWidth = 45;
 	static const int padHeight = 200;// 1/12th of vertical height is used as overflow top, same for bottom
+	int8_t *momentarySrc = NULL;// a.k.a. autoreturn
+	float momentaryStartValue;
 	
 	TactPad();
 	void onDragMove(const event::DragMove &e) override;
+	void onDragStart(const event::DragStart &e) override;
+	void onDragEnd(const event::DragEnd &e) override;
 	void onButton(const event::Button &e) override;
 	void setTactParam(float posY);
 	void reset() override;
