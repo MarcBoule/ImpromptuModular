@@ -3,6 +3,7 @@
 - Converted all SVGs from px to mm
 - Alphabetized modules in module browser
 - Added option in WriteSeq32/64 to make arrow controls rotate instead of step (step is default)
+- Added auto-return options to Tact and Tact1
 
 
 ### 1.1.6 (2020-05-04)

@@ -12,6 +12,7 @@
 #include "ImpromptuModular.hpp"
 #include "comp/TactPad.hpp"
 
+
 struct Tact : Module {
 	static const int numLights = 10;// number of lights per channel
 
@@ -50,6 +51,8 @@ struct Tact : Module {
 	float storeCV[2];
 	float rateMultiplier;
 	bool levelSensitiveTopBot;
+	int8_t autoReturnLeft; //-1 is off
+	int8_t autoReturnRight; //-1 is off
 
 	// No need to save, with reset
 	long infoStore;// 0 when no info, positive downward step counter when store left channel, negative upward for right
@@ -99,6 +102,8 @@ struct Tact : Module {
 		}
 		rateMultiplier = 1.0f;
 		levelSensitiveTopBot = false;
+		autoReturnLeft = -1;
+		autoReturnRight = -1;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -132,6 +137,12 @@ struct Tact : Module {
 		
 		// levelSensitiveTopBot
 		json_object_set_new(rootJ, "levelSensitiveTopBot", json_boolean(levelSensitiveTopBot));
+
+		// autoReturnLeft
+		json_object_set_new(rootJ, "autoReturnLeft", json_integer(autoReturnLeft));
+
+		// autoReturnRight
+		json_object_set_new(rootJ, "autoReturnRight", json_integer(autoReturnRight));
 
 		return rootJ;
 	}
@@ -169,6 +180,16 @@ struct Tact : Module {
 		if (levelSensitiveTopBotJ)
 			levelSensitiveTopBot = json_is_true(levelSensitiveTopBotJ);
 		
+		// autoReturnLeft
+		json_t *autoReturnLeftJ = json_object_get(rootJ, "autoReturnLeft");
+		if (autoReturnLeftJ)
+			autoReturnLeft = json_integer_value(autoReturnLeftJ);
+
+		// autoReturnRight
+		json_t *autoReturnRightJ = json_object_get(rootJ, "autoReturnRight");
+		if (autoReturnRightJ)
+			autoReturnRight = json_integer_value(autoReturnRightJ);
+
 		resetNonJson();
 	}
 
@@ -375,6 +396,17 @@ struct TactWidget : ModuleWidget {
 		LevelSensitiveItem *levelSensItem = createMenuItem<LevelSensitiveItem>("Level sensitive arrow CV inputs", CHECKMARK(module->levelSensitiveTopBot));
 		levelSensItem->module = module;
 		menu->addChild(levelSensItem);
+		
+		AutoReturnItem *autoRetLItem = createMenuItem<AutoReturnItem>("Auto-return (left pad)", RIGHT_ARROW);
+		autoRetLItem->autoReturnSrc = &(module->autoReturnLeft);
+		autoRetLItem->tactParamSrc = &(module->params[Tact::TACT_PARAMS + 0]);
+		menu->addChild(autoRetLItem);
+
+		AutoReturnItem *autoRetRItem = createMenuItem<AutoReturnItem>("Auto-return (right pad)", RIGHT_ARROW);
+		autoRetRItem->autoReturnSrc = &(module->autoReturnRight);
+		autoRetRItem->tactParamSrc = &(module->params[Tact::TACT_PARAMS + 1]);
+		menu->addChild(autoRetRItem);
+
 	}	
 	
 	struct TactPad2 : TactPad {
@@ -419,11 +451,16 @@ struct TactWidget : ModuleWidget {
 		static const int colRulerPadR = 136;
 		
 		// Tactile touch pads
+		TactPad2 *tpadR;
+		TactPad2 *tpadL;
 		// Right (no dynamic width, but must do first so that left will get mouse events when wider overlaps)
-		addParam(createParam<TactPad2>(VecPx(colRulerPadR, rowRuler0), module, Tact::TACT_PARAMS + 1));
+		addParam(tpadR = createParam<TactPad2>(VecPx(colRulerPadR, rowRuler0), module, Tact::TACT_PARAMS + 1));
 		// Left (with width dependant on Link value)	
-		addParam(createParam<TactPad2>(VecPx(colRulerPadL, rowRuler0), module, Tact::TACT_PARAMS + 0));
-			
+		addParam(tpadL = createParam<TactPad2>(VecPx(colRulerPadL, rowRuler0), module, Tact::TACT_PARAMS + 0));
+		if (module) {
+			tpadR->autoReturnSrc = &(module->autoReturnRight);
+			tpadL->autoReturnSrc = &(module->autoReturnLeft);
+		}
 
 			
 		static const int colRulerLedL = colRulerPadL - 20;
@@ -550,6 +587,7 @@ struct Tact1 : Module {
 	// Need to save, with reset
 	double cv;// actual Tact CV since Tactknob can be different than these when transitioning
 	float rateMultiplier;
+	int8_t autoReturn; //-1 is off
 
 	// No need to save, with reset
 	// none
@@ -577,6 +615,7 @@ struct Tact1 : Module {
 	void onReset() override {
 		cv = 0.0f;
 		rateMultiplier = 1.0f;
+		autoReturn = -1;
 		// resetNonJson();
 	}
 	// void resetNonJson() {
@@ -601,6 +640,9 @@ struct Tact1 : Module {
 		// rateMultiplier
 		json_object_set_new(rootJ, "rateMultiplier", json_real(rateMultiplier));
 		
+		// autoReturn
+		json_object_set_new(rootJ, "autoReturn", json_integer(autoReturn));
+
 		return rootJ;
 	}
 
@@ -621,6 +663,11 @@ struct Tact1 : Module {
 		if (rateMultiplierJ)
 			rateMultiplier = json_number_value(rateMultiplierJ);
 		
+		// autoReturn
+		json_t *autoReturnJ = json_object_get(rootJ, "autoReturn");
+		if (autoReturnJ)
+			autoReturn = json_integer_value(autoReturnJ);
+
 		// resetNonJson();
 	}
 
@@ -695,6 +742,7 @@ struct Tact1Widget : ModuleWidget {
 				module->rateMultiplier = 1.0f;
 		}
 	};
+	
 	void appendContextMenu(Menu *menu) override {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
@@ -721,6 +769,11 @@ struct Tact1Widget : ModuleWidget {
 		ExtendRateItem *extRateItem = createMenuItem<ExtendRateItem>("Rate knob x3 (max 12 s/V)", CHECKMARK(module->rateMultiplier > 2.0f));
 		extRateItem->module = module;
 		menu->addChild(extRateItem);
+
+		AutoReturnItem *autoRetItem = createMenuItem<AutoReturnItem>("Auto-return", RIGHT_ARROW);
+		autoRetItem->autoReturnSrc = &(module->autoReturn);
+		autoRetItem->tactParamSrc = &(module->params[Tact1::TACT_PARAM]);
+		menu->addChild(autoRetItem);
 	}	
 	
 	Tact1Widget(Tact1 *module) {
@@ -746,7 +799,11 @@ struct Tact1Widget : ModuleWidget {
 		static const int colRulerPad = 14;
 		
 		// Tactile touch pad
-		addParam(createParam<TactPad>(VecPx(colRulerPad, rowRuler0), module, Tact1::TACT_PARAM));
+		TactPad *tpad;
+		addParam(tpad = createParam<TactPad>(VecPx(colRulerPad, rowRuler0), module, Tact1::TACT_PARAM));
+		if (module) {
+			tpad->autoReturnSrc = &(module->autoReturn);
+		}
 			
 		static const int colRulerLed = colRulerPad + 56;
 		static const int lightsOffsetY = 19;

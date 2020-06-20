@@ -10,6 +10,9 @@
 
 using namespace rack;
 
+static const int NUM_AUTORETURN = 15;
+static constexpr float autoreturnVoltages[NUM_AUTORETURN] = {0.0f, 1.0f, 2.0f, 2.5f, 3.0f, 3.33333f, 4.0f, 5.0f, 6.0f, 6.66667f, 7.0f, 7.5f, 8.0f, 9.0f, 10.0f};
+
 
 struct TactPad : ParamWidget {
 	// Note: double-click initialize makes no sense in this type of controller since clicking is not an offset for a param but a direct position action
@@ -18,8 +21,7 @@ struct TactPad : ParamWidget {
 	float onButtonPosY;
 	static const int padWidth = 45;
 	static const int padHeight = 200;// 1/12th of vertical height is used as overflow top, same for bottom
-	int8_t *momentarySrc = NULL;// a.k.a. autoreturn
-	float momentaryStartValue;
+	int8_t *autoReturnSrc = NULL;
 	
 	TactPad();
 	void onDragMove(const event::DragMove &e) override;
@@ -29,4 +31,55 @@ struct TactPad : ParamWidget {
 	void setTactParam(float posY);
 	void reset() override;
 	void randomize() override;
+};
+
+
+struct AutoReturnItem : MenuItem {
+	int8_t *autoReturnSrc;
+	Param* tactParamSrc;
+	
+	struct AutoReturnSubItem : MenuItem {
+		int8_t *autoReturnSrc;
+		Param* tactParamSrc;
+		int8_t setVal;
+		void onAction(const event::Action &e) override {
+			*autoReturnSrc = setVal;
+			if (setVal >= 0) {
+				tactParamSrc->setValue(autoreturnVoltages[setVal]);
+			}
+		}
+	};
+	
+	Menu *createChildMenu() override {
+		Menu *menu = new Menu;
+
+		std::string autoReturnNames[NUM_AUTORETURN + 1] = {
+			"Off (default)", 
+			"0 %", 
+			"10 %", 
+			"20 %",
+			"25 %",
+			"30 %",
+			"33.3 %",
+			"40 %",
+			"50 %",
+			"60 %",
+			"66.7 %",
+			"70 %",
+			"75 %",
+			"80 %",
+			"90 %",
+			"100 %"
+		};
+			
+		for (int i = 0; i < (NUM_AUTORETURN + 1); i++) {
+			AutoReturnSubItem *aretItem = createMenuItem<AutoReturnSubItem>(autoReturnNames[i], CHECKMARK(*autoReturnSrc == (i - 1)));
+			aretItem->autoReturnSrc = autoReturnSrc;
+			aretItem->tactParamSrc = tactParamSrc;
+			aretItem->setVal = i - 1;
+			menu->addChild(aretItem);
+		}
+		
+		return menu;
+	}
 };

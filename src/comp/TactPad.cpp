@@ -24,18 +24,16 @@ void TactPad::onDragStart(const event::DragStart &e) {
 	ParamWidget::onDragStart(e);
 }
 void TactPad::onDragEnd(const event::DragEnd &e) {
-	// if (paramQuantity) {
-		// paramQuantity->setValue(momentaryStartValue);
-	// }
+	if (paramQuantity && autoReturnSrc != NULL) {
+		if (*autoReturnSrc >= 0) {
+			paramQuantity->setValue(autoreturnVoltages[*autoReturnSrc]);
+		}
+	}
 	ParamWidget::onDragEnd(e);
 }
 
 
 void TactPad::onButton(const event::Button &e) {
-	// put this in onButton or onDragStart (without the last two conditionals) to implement two different behaviors
-	// if (paramQuantity && e.action == GLFW_PRESS && e.button == GLFW_MOUSE_BUTTON_LEFT) {
-		// momentaryStartValue = paramQuantity->getValue();
-	// }
 	if (paramQuantity) {
 		onButtonMouseY = APP->scene->rack->mousePos.y;
 		onButtonPosY = e.pos.y;
