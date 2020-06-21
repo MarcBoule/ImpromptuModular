@@ -46,7 +46,8 @@ void init(rack::Plugin *p) {
 
 
 // General objects
-// none
+ClockMaster clockMaster;  
+
 
 
 // General functions

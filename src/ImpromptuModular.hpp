@@ -58,6 +58,31 @@ static const unsigned int expanderRefreshStepSkips = 4;
 
 // General objects
 
+struct ClockMaster {// should not need to have mutex since only menu driven
+	int id = -1;
+	bool resetClockOutputsHigh;
+	
+	void setAsMaster(int _id, bool _resetClockOutputsHigh) {
+		id = _id,
+		resetClockOutputsHigh = _resetClockOutputsHigh;
+	}
+	void setAsMasterIfNoMasterExists(int _id, bool _resetClockOutputsHigh) {
+		if (id == -1) {
+			setAsMaster(_id, _resetClockOutputsHigh);
+		}
+	}
+	void removeMaster() {
+		id = -1;
+	}
+	void removeAsMasterIfThisIsMaster(int _id) {
+		if (id == _id) {
+			removeMaster();
+		}	
+	}
+}; 
+extern ClockMaster clockMaster;
+
+
 struct VecPx : Vec {
 	// temporary method to avoid having to convert all px coordinates to mm; no use when making a new module (since mm is the standard)
 	static constexpr float scl = 5.08f / 15.0f;
@@ -66,6 +91,7 @@ struct VecPx : Vec {
 		y = mm2px(_y * scl);
 	}
 };
+
 
 struct RefreshCounter {
 	// Note: because of stagger, and asyncronous dataFromJson, should not assume this processInputs() will return true on first run

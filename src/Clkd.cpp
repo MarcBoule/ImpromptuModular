@@ -320,6 +320,9 @@ struct Clkd : Module {
 			json_array_insert_new(trigOutsJ, i, json_boolean(trigOuts[i]));
 		json_object_set_new(rootJ, "trigOuts", trigOutsJ);
 		
+		// clockMaster
+		json_object_set_new(rootJ, "clockMaster", json_boolean(clockMaster.id == id));
+		
 		return rootJ;
 	}
 
@@ -399,6 +402,14 @@ struct Clkd : Module {
 			}
 
 		resetNonJson(true);
+
+		// clockMaster
+		json_t *clockMasterJ = json_object_get(rootJ, "clockMaster");
+		if (clockMasterJ) {
+			if (json_is_true(clockMasterJ)) {
+				clockMaster.setAsMaster(id, resetClockOutputsHigh);
+			}
+		}
 	}
 
 	void toggleRun(void) {
@@ -835,7 +846,18 @@ struct ClkdWidget : ModuleWidget {
 		TrigOutsItem *trigItem = createMenuItem<TrigOutsItem>("Send triggers (instead of gates)", RIGHT_ARROW);
 		trigItem->module = module;
 		menu->addChild(trigItem);
-	}	
+
+		menu->addChild(new MenuLabel());// empty line
+
+		MenuLabel *expLabel = new MenuLabel();
+		expLabel->text = "Actions";
+		menu->addChild(expLabel);
+		
+		AutopatchItem *apItem = createMenuItem<AutopatchItem>("Auto-patch", RIGHT_ARROW);
+		apItem->idPtr = &module->id;
+		apItem->resetClockOutputsHighPtr = &module->resetClockOutputsHigh;
+		menu->addChild(apItem);
+	}
 	
 	struct BpmKnob : IMMediumKnob<true, true> {
 		int *displayIndexPtr = NULL;

@@ -373,7 +373,7 @@ struct Clocked : Module {
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
-	
+
 
 	void onReset() override {
 		running = true;
@@ -459,6 +459,9 @@ struct Clocked : Module {
 		// momentaryRunInput
 		json_object_set_new(rootJ, "momentaryRunInput", json_boolean(momentaryRunInput));
 		
+		// clockMaster
+		json_object_set_new(rootJ, "clockMaster", json_boolean(clockMaster.id == id));
+		
 		return rootJ;
 	}
 
@@ -538,6 +541,14 @@ struct Clocked : Module {
 			momentaryRunInput = json_is_true(momentaryRunInputJ);
 
 		resetNonJson(true);
+		
+		// clockMaster
+		json_t *clockMasterJ = json_object_get(rootJ, "clockMaster");
+		if (clockMasterJ) {
+			if (json_is_true(clockMasterJ)) {
+				clockMaster.setAsMaster(id, resetClockOutputsHigh);
+			}
+		}
 	}
 
 	void toggleRun(void) {
@@ -985,8 +996,13 @@ struct ClockedWidget : ModuleWidget {
 		menu->addChild(new MenuLabel());// empty line
 
 		MenuLabel *expLabel = new MenuLabel();
-		expLabel->text = "Expander module";
+		expLabel->text = "Actions";
 		menu->addChild(expLabel);
+		
+		AutopatchItem *apItem = createMenuItem<AutopatchItem>("Auto-patch", RIGHT_ARROW);
+		apItem->idPtr = &module->id;
+		apItem->resetClockOutputsHighPtr = &module->resetClockOutputsHigh;
+		menu->addChild(apItem);
 		
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (4HP right side)", "");
 		expItem->model = modelClockedExpander;
