@@ -118,7 +118,7 @@ struct Clkd : Module {
 	};
 	enum OutputIds {
 		ENUMS(CLK_OUTPUTS, 4),// master is index 0
-		RESET_OUTPUT,
+		RESET_OUTPUT,// must be at index 4 because autopatch has this hardcoded
 		RUN_OUTPUT,
 		BPM_OUTPUT,
 		NUM_OUTPUTS
@@ -320,8 +320,8 @@ struct Clkd : Module {
 			json_array_insert_new(trigOutsJ, i, json_boolean(trigOuts[i]));
 		json_object_set_new(rootJ, "trigOuts", trigOutsJ);
 		
-		// clockMaster
-		json_object_set_new(rootJ, "clockMaster", json_boolean(clockMaster.id == id));
+		// clockMaster (stores a valid (non-negative) id when we are the master, -1 when we are not)
+		json_object_set_new(rootJ, "clockMaster", json_integer(clockMaster.id == id ? id : -1));
 		
 		return rootJ;
 	}
@@ -406,11 +406,13 @@ struct Clkd : Module {
 		// clockMaster
 		json_t *clockMasterJ = json_object_get(rootJ, "clockMaster");
 		if (clockMasterJ) {
-			if (json_is_true(clockMasterJ)) {
+			int clkId = json_integer_value(clockMasterJ);
+			if (clkId == id) { // set this as the master only when reload the id of the master and that previous master has same id as this id
 				clockMaster.setAsMaster(id, resetClockOutputsHigh);
 			}
 		}
 	}
+	
 
 	void toggleRun(void) {
 		if (!(bpmDetectionMode && inputs[BPM_INPUT].isConnected()) || running) {// toggle when not BPM detect, turn off only when BPM detect (allows turn off faster than timeout if don't want any trailing beats after stoppage). If allow manually start in bpmDetectionMode   the clock will not know which pulse is the 1st of a ppqn set, so only allow stop
@@ -708,6 +710,7 @@ struct Clkd : Module {
 
 struct ClkdWidget : ModuleWidget {
 	SvgPanel* darkPanel;
+	PortWidget* slaveResetRunBpmInputs[3];
 
 	struct BpmRatioDisplayWidget : TransparentWidget {
 		Clkd *module;
@@ -856,6 +859,7 @@ struct ClkdWidget : ModuleWidget {
 		AutopatchItem *apItem = createMenuItem<AutopatchItem>("Auto-patch", RIGHT_ARROW);
 		apItem->idPtr = &module->id;
 		apItem->resetClockOutputsHighPtr = &module->resetClockOutputsHigh;
+		apItem->slaveResetRunBpmInputs = slaveResetRunBpmInputs;
 		menu->addChild(apItem);
 	}
 	
@@ -915,11 +919,11 @@ struct ClkdWidget : ModuleWidget {
 
 		// Row 0
 		// Reset input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colL, row0), true, module, Clkd::RESET_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[0] = createDynamicPortCentered<IMPort>(VecPx(colL, row0), true, module, Clkd::RESET_INPUT, module ? &module->panelTheme : NULL));
 		// Run input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colC, row0), true, module, Clkd::RUN_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[1] = createDynamicPortCentered<IMPort>(VecPx(colC, row0), true, module, Clkd::RUN_INPUT, module ? &module->panelTheme : NULL));
 		// Bpm input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colR, row0), true, module, Clkd::BPM_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[2] = createDynamicPortCentered<IMPort>(VecPx(colR, row0), true, module, Clkd::BPM_INPUT, module ? &module->panelTheme : NULL));
 		
 
 		// Row 1

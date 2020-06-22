@@ -87,7 +87,8 @@ struct OnStopItem : MenuItem {
 struct AutopatchItem : MenuItem {
 	int *idPtr;
 	bool *resetClockOutputsHighPtr;
-	
+	PortWidget **slaveResetRunBpmInputs;
+		
 	struct AutopatchMakeMasterItem : MenuItem {
 		int *idPtr;
 		bool *resetClockOutputsHighPtr;
@@ -99,26 +100,33 @@ struct AutopatchItem : MenuItem {
 	struct AutopatchToMasterItem : MenuItem {
 		int *idPtr;
 		bool *resetClockOutputsHighPtr;
+		PortWidget **slaveResetRunBpmInputs;
 		void onAction(const event::Action &e) override {
-			DEBUG("TODO autopatch to master");
+			for (Widget* widget : APP->scene->rack->moduleContainer->children) {
+				ModuleWidget* moduleWidget = dynamic_cast<ModuleWidget *>(widget);
+				if (moduleWidget) {
+					int otherId = moduleWidget->module->id;
+					if (otherId == clockMaster.id && moduleWidget->model->slug.substr(0, 7) == std::string("Clocked")) {
+						// here we have found the clock master, so autopatch to it
+						// first we need to find the PortWidgets of the proper outputs
+						PortWidget* masterResetRunBpmOutputs[3];
+						
+						// now we can make the actual cables
+						for (int i = 0; i < 3; i++) {
+							// CableWidget* cable = new CableWidget();
+							// cable->setOutput(masterResetRunBpmOutputs[i]);
+							// cable->setInput(slaveResetRunBpmInputs[i]);
+							// APP->scene->rack->addCable(cable);
+						}
+						return;
+					}
+				}
+			}
+			assert(false);
+			// here the clock master was not found; this should never happen, since AutopatchToMasterItem is never invoked when a valid master does not exist
 		}
 	};
 
-
-	void findModule() {
-		for (Widget* widget : APP->scene->rack->moduleContainer->children) {
-			ModuleWidget* moduleWidget = dynamic_cast<ModuleWidget *>(widget);
-			if (moduleWidget) {
-				Model* model = moduleWidget->model;
-				if (model->slug.substr(0, 7) == std::string("Clocked")) {
-					DEBUG("Found a clocked or clkd, id = %i", moduleWidget->module->id);
-				}
-				else {
-					
-				}
-			}
-		}
-	}
 
 	bool validateClockModule(int id) {
 		for (Widget* widget : APP->scene->rack->moduleContainer->children) {
@@ -136,13 +144,14 @@ struct AutopatchItem : MenuItem {
 	Menu *createChildMenu() override {
 		Menu *menu = new Menu;
 		
-		// master designation
 		if (clockMaster.id == *idPtr) {
+			// the module is the clock master
 			MenuLabel *thismLabel = new MenuLabel();
 			thismLabel->text = "This is the current master";
 			menu->addChild(thismLabel);
 		}
 		else {
+			// the module is not the master
 			AutopatchMakeMasterItem *mastItem = createMenuItem<AutopatchMakeMasterItem>("Make this the master", CHECKMARK(clockMaster.id == *idPtr));
 			mastItem->idPtr = idPtr;
 			mastItem->resetClockOutputsHighPtr = resetClockOutputsHighPtr;
@@ -152,6 +161,7 @@ struct AutopatchItem : MenuItem {
 				AutopatchToMasterItem *mastItem = createMenuItem<AutopatchToMasterItem>("Connect to master", CHECKMARK(clockMaster.id == *idPtr));
 				mastItem->idPtr = idPtr;
 				mastItem->resetClockOutputsHighPtr = resetClockOutputsHighPtr;
+				mastItem->slaveResetRunBpmInputs = slaveResetRunBpmInputs;
 				menu->addChild(mastItem);
 			}
 			else {

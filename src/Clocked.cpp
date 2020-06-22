@@ -209,7 +209,7 @@ struct Clocked : Module {
 	};
 	enum OutputIds {
 		ENUMS(CLK_OUTPUTS, 4),// master is index 0
-		RESET_OUTPUT,
+		RESET_OUTPUT,// must be at index 4 because autopatch has this hardcoded
 		RUN_OUTPUT,
 		BPM_OUTPUT,
 		NUM_OUTPUTS
@@ -839,6 +839,7 @@ struct Clocked : Module {
 
 struct ClockedWidget : ModuleWidget {
 	SvgPanel* darkPanel;
+	PortWidget* slaveResetRunBpmInputs[3];
 
 	struct RatioDisplayWidget : TransparentWidget {
 		Clocked *module;
@@ -1002,6 +1003,7 @@ struct ClockedWidget : ModuleWidget {
 		AutopatchItem *apItem = createMenuItem<AutopatchItem>("Auto-patch", RIGHT_ARROW);
 		apItem->idPtr = &module->id;
 		apItem->resetClockOutputsHighPtr = &module->resetClockOutputsHigh;
+		apItem->slaveResetRunBpmInputs = slaveResetRunBpmInputs;
 		menu->addChild(apItem);
 		
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (4HP right side)", "");
@@ -1088,11 +1090,11 @@ struct ClockedWidget : ModuleWidget {
 		
 		// Row 0
 		// Reset input
-		addInput(createDynamicPort<IMPort>(VecPx(colRulerL, rowRuler0), true, module, Clocked::RESET_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[0] = createDynamicPort<IMPort>(VecPx(colRulerL, rowRuler0), true, module, Clocked::RESET_INPUT, module ? &module->panelTheme : NULL));
 		// Run input
-		addInput(createDynamicPort<IMPort>(VecPx(colRulerT1, rowRuler0), true, module, Clocked::RUN_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[1] = createDynamicPort<IMPort>(VecPx(colRulerT1, rowRuler0), true, module, Clocked::RUN_INPUT, module ? &module->panelTheme : NULL));
 		// In input
-		addInput(createDynamicPort<IMPort>(VecPx(colRulerT2, rowRuler0), true, module, Clocked::BPM_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[2] = createDynamicPort<IMPort>(VecPx(colRulerT2, rowRuler0), true, module, Clocked::BPM_INPUT, module ? &module->panelTheme : NULL));
 		// Master BPM knob
 		addParam(createDynamicParam<IMBigKnob<true, true>>(VecPx(colRulerT3 + 1 + offsetIMBigKnob, rowRuler0 + offsetIMBigKnob), module, Clocked::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		// BPM display
