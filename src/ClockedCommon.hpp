@@ -108,21 +108,29 @@ struct AutopatchItem : MenuItem {
 					int otherId = moduleWidget->module->id;
 					if (otherId == clockMaster.id && moduleWidget->model->slug.substr(0, 7) == std::string("Clocked")) {
 						// here we have found the clock master, so autopatch to it
-						// first we need to find the PortWidgets of the proper outputs
+						// first we need to find the PortWidgets of the proper outputs of the clock master
 						PortWidget* masterResetRunBpmOutputs[3];
-						
-						// now we can make the actual cables
+						for (PortWidget* outputWidgetOnMaster : moduleWidget->outputs) {
+							int outId = outputWidgetOnMaster->portId;
+							if (outId >= 4 && outId <= 6) {
+								masterResetRunBpmOutputs[outId - 4] = outputWidgetOnMaster;
+							}
+						}
+						// now we can make the actual cables between master and slave
 						for (int i = 0; i < 3; i++) {
-							// CableWidget* cable = new CableWidget();
-							// cable->setOutput(masterResetRunBpmOutputs[i]);
-							// cable->setInput(slaveResetRunBpmInputs[i]);
-							// APP->scene->rack->addCable(cable);
+							std::list<CableWidget*> cablesOnSlaveInput = APP->scene->rack->getCablesOnPort(slaveResetRunBpmInputs[i]);
+							if (cablesOnSlaveInput.empty()) {
+								CableWidget* cable = new CableWidget();
+								cable->setInput(slaveResetRunBpmInputs[i]);
+								cable->setOutput(masterResetRunBpmOutputs[i]);
+								APP->scene->rack->addCable(cable);
+							}
 						}
 						return;
 					}
 				}
 			}
-			assert(false);
+			// assert(false);
 			// here the clock master was not found; this should never happen, since AutopatchToMasterItem is never invoked when a valid master does not exist
 		}
 	};
