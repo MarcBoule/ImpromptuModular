@@ -333,6 +333,8 @@ PW and Swing CV inputs are aso available in the Clocked [expander module](#expan
 
 Many options are available in the modules' **right-click menu**, and can be used to setup Clocked/Clkd for your particular needs. In particular, the RUN CV input is trigger sensitive by default, but can be made level sensitive (gate mode) by turning on the "_Run CV input is level sensitive_" option; when chaining multiple Clocked/Clkd modules, only the first module in the chain should have this option turned on. 
 
+Clocked and Clkd also feature the ability to automatically patch the Reset, Run and BPM cables to a designated clock master. Any instance of Clocked or Clkd can be designated as the clock master using the module's "_Auto-patch_" menu entry. When auto-patching clocks: if the slave clock already has a connection to one of the inputs mentioned above, that input un-touched; the status of the "*Outputs reset high when not running*" setting will be copied from the master clock into the slave clock.
+
 
 ### External synchronization <a id="clocked-sync"></a>
 
@@ -346,6 +348,7 @@ When using external clock synchronization, Clocked syncs itself to the incoming 
 1. Clocked will automatically stop when the pulses stop, but in order to detect this, it take a small amount of time. To stop the clock quickly, you can simply send a pulse to the RUN CV input, and if the clock is running, it will turn off.
 1. The external clock must be capable of sending clocks at a minimum of 2 pulses per quarter note (PPQN) and should not have any swing.
 1. Clocked does not perform any interval averaging and tries to sync to the incomming pulses as rapidly as possible. This may sometimes cause the BPM setting to fluctuate widely before reaching a perfect lock.
+1. Clocked can support and synchronize to fractional BPM values (ex.: 133.33 BPM), but will show the BPM rounded to the nearest integer in the BPM display.
 1. For low clock BPMs, synchronization may take some time if the external clock changes markedly from the last BPM it was synchronized to. Making gradual tempo changes is always recommended, and increasing the PPQN setting may also help. An other method consists in priming Clocked with is correct BPM first, to let it learn the new BPM, so that all further runs at that BPM will sync perfectly.
 1. When sending a clock from a DAW or other source external to Clocked in Rack, best results are obtained when sending this clock through an audio channel as opposed to midi clocks.
 
