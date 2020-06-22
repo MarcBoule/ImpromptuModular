@@ -84,6 +84,43 @@ struct OnStopItem : MenuItem {
 	}
 };	
 
+
+
+// must have done validateClockModule() before calling this
+static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveResetClockOutputsHighPtr) {
+	for (Widget* widget : APP->scene->rack->moduleContainer->children) {
+		ModuleWidget* moduleWidget = dynamic_cast<ModuleWidget *>(widget);
+		if (moduleWidget) {
+			int otherId = moduleWidget->module->id;
+			if (otherId == clockMaster.id && moduleWidget->model->slug.substr(0, 7) == std::string("Clocked")) {
+				// here we have found the clock master, so autopatch to it
+				// first we need to find the PortWidgets of the proper outputs of the clock master
+				PortWidget* masterResetRunBpmOutputs[3];
+				for (PortWidget* outputWidgetOnMaster : moduleWidget->outputs) {
+					int outId = outputWidgetOnMaster->portId;
+					if (outId >= 4 && outId <= 6) {
+						masterResetRunBpmOutputs[outId - 4] = outputWidgetOnMaster;
+					}
+				}
+				// now we can make the actual cables between master and slave
+				for (int i = 0; i < 3; i++) {
+					std::list<CableWidget*> cablesOnSlaveInput = APP->scene->rack->getCablesOnPort(slaveResetRunBpmInputs[i]);
+					if (cablesOnSlaveInput.empty()) {
+						CableWidget* cable = new CableWidget();
+						cable->setInput(slaveResetRunBpmInputs[i]);
+						cable->setOutput(masterResetRunBpmOutputs[i]);
+						APP->scene->rack->addCable(cable);
+					}
+				}
+				*slaveResetClockOutputsHighPtr = clockMaster.resetClockOutputsHigh;
+				return;
+			}
+		}
+	}
+	// assert(false);
+	// here the clock master was not found; this should never happen, since AutopatchToMasterItem is never invoked when a valid master does not exist
+}
+
 struct AutopatchItem : MenuItem {
 	int *idPtr;
 	bool *resetClockOutputsHighPtr;
@@ -97,56 +134,13 @@ struct AutopatchItem : MenuItem {
 		}
 	};
 
-	struct AutopatchToMasterItem : MenuItem {
-		int *idPtr;
-		bool *resetClockOutputsHighPtr;
+	struct AutopatchToMasterItem : MenuItem {// must have done validateClockModule() before allowing this onAction to execute
 		PortWidget **slaveResetRunBpmInputs;
+		bool *resetClockOutputsHighPtr;
 		void onAction(const event::Action &e) override {
-			for (Widget* widget : APP->scene->rack->moduleContainer->children) {
-				ModuleWidget* moduleWidget = dynamic_cast<ModuleWidget *>(widget);
-				if (moduleWidget) {
-					int otherId = moduleWidget->module->id;
-					if (otherId == clockMaster.id && moduleWidget->model->slug.substr(0, 7) == std::string("Clocked")) {
-						// here we have found the clock master, so autopatch to it
-						// first we need to find the PortWidgets of the proper outputs of the clock master
-						PortWidget* masterResetRunBpmOutputs[3];
-						for (PortWidget* outputWidgetOnMaster : moduleWidget->outputs) {
-							int outId = outputWidgetOnMaster->portId;
-							if (outId >= 4 && outId <= 6) {
-								masterResetRunBpmOutputs[outId - 4] = outputWidgetOnMaster;
-							}
-						}
-						// now we can make the actual cables between master and slave
-						for (int i = 0; i < 3; i++) {
-							std::list<CableWidget*> cablesOnSlaveInput = APP->scene->rack->getCablesOnPort(slaveResetRunBpmInputs[i]);
-							if (cablesOnSlaveInput.empty()) {
-								CableWidget* cable = new CableWidget();
-								cable->setInput(slaveResetRunBpmInputs[i]);
-								cable->setOutput(masterResetRunBpmOutputs[i]);
-								APP->scene->rack->addCable(cable);
-							}
-						}
-						return;
-					}
-				}
-			}
-			// assert(false);
-			// here the clock master was not found; this should never happen, since AutopatchToMasterItem is never invoked when a valid master does not exist
+			autopatch(slaveResetRunBpmInputs, resetClockOutputsHighPtr);
 		}
 	};
-
-
-	bool validateClockModule(int id) {
-		for (Widget* widget : APP->scene->rack->moduleContainer->children) {
-			ModuleWidget* moduleWidget = dynamic_cast<ModuleWidget *>(widget);
-			if (moduleWidget && moduleWidget->module->id == id) {
-				if (moduleWidget->model->slug.substr(0, 7) == std::string("Clocked")) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
 
 
 	Menu *createChildMenu() override {
@@ -160,17 +154,16 @@ struct AutopatchItem : MenuItem {
 		}
 		else {
 			// the module is not the master
-			AutopatchMakeMasterItem *mastItem = createMenuItem<AutopatchMakeMasterItem>("Make this the master", CHECKMARK(clockMaster.id == *idPtr));
+			AutopatchMakeMasterItem *mastItem = createMenuItem<AutopatchMakeMasterItem>("Make this the master", "");
 			mastItem->idPtr = idPtr;
 			mastItem->resetClockOutputsHighPtr = resetClockOutputsHighPtr;
 			menu->addChild(mastItem);
 			
-			if (validateClockModule(*idPtr)) {
-				AutopatchToMasterItem *mastItem = createMenuItem<AutopatchToMasterItem>("Connect to master", CHECKMARK(clockMaster.id == *idPtr));
-				mastItem->idPtr = idPtr;
-				mastItem->resetClockOutputsHighPtr = resetClockOutputsHighPtr;
-				mastItem->slaveResetRunBpmInputs = slaveResetRunBpmInputs;
-				menu->addChild(mastItem);
+			if (clockMaster.validateClockModule()) {
+				AutopatchToMasterItem *connItem = createMenuItem<AutopatchToMasterItem>("Connect to master (Ctrl/Cmd + M)", "");
+				connItem->slaveResetRunBpmInputs = slaveResetRunBpmInputs;
+				connItem->resetClockOutputsHighPtr = resetClockOutputsHighPtr;
+				menu->addChild(connItem);
 			}
 			else {
 				MenuLabel *nomLabel = new MenuLabel();

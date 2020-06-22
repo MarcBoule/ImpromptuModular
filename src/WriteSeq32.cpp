@@ -72,6 +72,7 @@ struct WriteSeq32 : Module {
 	float cv[4][32];
 	int gates[4][32];
 	bool resetOnRun;
+	int stepRotates;
 
 	// No need to save, with reset
 	long clockIgnoreOnReset;
@@ -80,7 +81,6 @@ struct WriteSeq32 : Module {
 	long infoCopyPaste;// 0 when no info, positive downward step counter timer when copy, negative upward when paste
 	int pendingPaste;// 0 = nothing to paste, 1 = paste on clk, 2 = paste on seq, destination channel in next msbits
 	unsigned long editingGate;// 0 when no edit gate, downward step counter timer when edit gate
-	int stepRotates;
 
 	// No need to save, no reset
 	RefreshCounter refresh;	
@@ -143,6 +143,7 @@ struct WriteSeq32 : Module {
 			}
 		}
 		resetOnRun = false;
+		stepRotates = 0;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -154,7 +155,6 @@ struct WriteSeq32 : Module {
 		infoCopyPaste = 0l;
 		pendingPaste = 0;
 		editingGate = 0ul;
-		stepRotates = 0;
 	}
 
 	
@@ -204,6 +204,9 @@ struct WriteSeq32 : Module {
 		// resetOnRun
 		json_object_set_new(rootJ, "resetOnRun", json_boolean(resetOnRun));
 		
+		// stepRotates
+		json_object_set_new(rootJ, "stepRotates", json_integer(stepRotates));
+
 		return rootJ;
 	}
 
@@ -260,6 +263,11 @@ struct WriteSeq32 : Module {
 		if (resetOnRunJ)
 			resetOnRun = json_is_true(resetOnRunJ);
 		
+		// stepRotates
+		json_t *stepRotatesJ = json_object_get(rootJ, "stepRotates");
+		if (stepRotatesJ)
+			stepRotates = json_integer_value(stepRotatesJ);
+
 		resetNonJson();
 	}
 

@@ -5,6 +5,7 @@
 - Added option in WriteSeq32/64 to make arrow controls rotate instead of step (step is default)
 - Added auto-return options to Tact and Tact1
 - Added tracer option to TwelveKey
+- Added auto-patching Clocked and Clkd to a designated clock master
 
 
 ### 1.1.6 (2020-05-04)
