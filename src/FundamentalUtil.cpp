@@ -114,7 +114,7 @@ void VoltageControlledOscillator::process(float deltaTime, float syncValue) {
 			sinBuffer[i] *= 1.08f;
 		}
 		else {
-			sinBuffer[i] = std::sin(2.f*M_PI * phase);
+			sinBuffer[i] = std::sin(2.f*float(M_PI) * phase);
 		}
 		if (analog) {
 			triBuffer[i] = 1.25f * interpolateLinear(triTable, phase * 2047.f);

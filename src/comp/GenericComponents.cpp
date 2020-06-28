@@ -34,7 +34,7 @@ CKSSH::CKSSH() {
 
 	Vec center = sw->box.getCenter();
 	tw->translate(center);
-	tw->rotate(M_PI/2.0f);
+	tw->rotate(float(M_PI_2));
 	tw->translate(Vec(center.y, sw->box.size.x).neg());
 	
 	tw->box.size = sw->box.size.flip();

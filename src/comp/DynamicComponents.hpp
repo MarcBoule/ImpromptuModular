@@ -155,8 +155,8 @@ struct IMPushButton : DynamicSVGSwitch {
 
 struct IMKnob : DynamicSVGKnob {
 	IMKnob() {
-		minAngle = -0.83*M_PI;
-		maxAngle = 0.83*M_PI;
+		minAngle = -0.83*float(M_PI);
+		maxAngle = 0.83*float(M_PI);
 	}
 };
 
@@ -235,15 +235,15 @@ struct IMMediumKnob : IMKnob {
 struct IMFivePosSmallKnob : IMSmallKnob<false, true> {
 	IMFivePosSmallKnob() {
 		speed = 1.6f;
-		minAngle = -0.5*M_PI;
-		maxAngle = 0.5*M_PI;
+		minAngle = -0.5*float(M_PI);
+		maxAngle = 0.5*float(M_PI);
 	}
 };
 
 struct IMSixPosBigKnob : IMBigKnob<false, true> {
 	IMSixPosBigKnob() {
 		speed = 1.3f;
-		minAngle = -0.4*M_PI;
-		maxAngle = 0.4*M_PI;
+		minAngle = -0.4*float(M_PI);
+		maxAngle = 0.4*float(M_PI);
 	}
 };

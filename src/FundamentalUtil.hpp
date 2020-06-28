@@ -34,7 +34,7 @@ struct LadderFilter {
 		}
 	}
 	void setCutoff(float cutoff) {
-		omega0 = 2.f*M_PI * cutoff;
+		omega0 = 2.f*float(M_PI) * cutoff;
 	}
 	void process(float input, float dt);
 };
@@ -87,7 +87,7 @@ struct VoltageControlledOscillator {
 		return sqrDecimator.process(sqrBuffer);
 	}
 	float light() {
-		return std::sin(2*M_PI * phase);
+		return std::sin(2*float(M_PI) * phase);
 	}
 };
 
@@ -124,9 +124,9 @@ struct LowFrequencyOscillator {
 	}
 	float sin() {
 		if (offset)
-			return 1.0f - std::cos(2*M_PI * phase) * (invert ? -1.0f : 1.0f);
+			return 1.0f - std::cos(2*float(M_PI) * phase) * (invert ? -1.0f : 1.0f);
 		else
-			return std::sin(2*M_PI * phase) * (invert ? -1.0f : 1.0f);
+			return std::sin(2*float(M_PI) * phase) * (invert ? -1.0f : 1.0f);
 	}
 	float tri(float x) {
 		return 4.0f * std::fabs(x - std::round(x));
@@ -151,6 +151,6 @@ struct LowFrequencyOscillator {
 		return offset ? sqr + 1.0f : sqr;
 	}
 	float light() {
-		return std::sin(2*M_PI * phase);
+		return std::sin(2*float(M_PI) * phase);
 	}
 };
