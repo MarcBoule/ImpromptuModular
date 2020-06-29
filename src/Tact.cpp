@@ -51,8 +51,7 @@ struct Tact : Module {
 	float storeCV[2];
 	float rateMultiplier;
 	bool levelSensitiveTopBot;
-	int8_t autoReturnLeft; //-1 is off
-	int8_t autoReturnRight; //-1 is off
+	int8_t autoReturn[2]; //-1 is off
 
 	// No need to save, with reset
 	long infoStore;// 0 when no info, positive downward step counter when store left channel, negative upward for right
@@ -60,10 +59,8 @@ struct Tact : Module {
 	// No need to save, no reset
 	float infoCVinLight[2] = {0.0f, 0.0f};
 	RefreshCounter refresh;
-	Trigger topTriggers[2];
-	Trigger botTriggers[2];
-	Trigger topInvTriggers[2];
-	Trigger botInvTriggers[2];
+	TriggerRiseFall topTriggers[2];
+	TriggerRiseFall botTriggers[2];
 	Trigger storeTriggers[2];
 	Trigger recallTriggers[2];
 	dsp::PulseGenerator eocPulses[2];
@@ -99,11 +96,10 @@ struct Tact : Module {
 		for (int i = 0; i < 2; i++) {
 			cv[i] = 0.0f;
 			storeCV[i] = 0.0f;
+			autoReturn[i] = -1;
 		}
 		rateMultiplier = 1.0f;
 		levelSensitiveTopBot = false;
-		autoReturnLeft = -1;
-		autoReturnRight = -1;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -139,10 +135,10 @@ struct Tact : Module {
 		json_object_set_new(rootJ, "levelSensitiveTopBot", json_boolean(levelSensitiveTopBot));
 
 		// autoReturnLeft
-		json_object_set_new(rootJ, "autoReturnLeft", json_integer(autoReturnLeft));
+		json_object_set_new(rootJ, "autoReturnLeft", json_integer(autoReturn[0]));
 
 		// autoReturnRight
-		json_object_set_new(rootJ, "autoReturnRight", json_integer(autoReturnRight));
+		json_object_set_new(rootJ, "autoReturnRight", json_integer(autoReturn[1]));
 
 		return rootJ;
 	}
@@ -183,12 +179,12 @@ struct Tact : Module {
 		// autoReturnLeft
 		json_t *autoReturnLeftJ = json_object_get(rootJ, "autoReturnLeft");
 		if (autoReturnLeftJ)
-			autoReturnLeft = json_integer_value(autoReturnLeftJ);
+			autoReturn[0] = json_integer_value(autoReturnLeftJ);
 
 		// autoReturnRight
 		json_t *autoReturnRightJ = json_object_get(rootJ, "autoReturnRight");
 		if (autoReturnRightJ)
-			autoReturnRight = json_integer_value(autoReturnRightJ);
+			autoReturn[1] = json_integer_value(autoReturnRightJ);
 
 		resetNonJson();
 	}
@@ -210,29 +206,39 @@ struct Tact : Module {
 			
 			// top/bot/recall CV inputs
 			for (int i = 0; i < 2; i++) {
-				if (topTriggers[i].process(inputs[TOP_INPUTS + i].getVoltage())) {
-					if ( !(i == 1 && isLinked()) ) {// ignore right channel top cv in when linked
+				int topTrig = topTriggers[i].process(inputs[TOP_INPUTS + i].getVoltage());
+				if ( !(i == 1 && isLinked()) ) {// ignore right channel top cv in when linked
+					if (topTrig == 1) {// rise
 						params[TACT_PARAMS + i].setValue(10.0f);
 						infoCVinLight[i] = 1.0f;
 					}
-				}
-				if (botTriggers[i].process(inputs[BOT_INPUTS + i].getVoltage())) {
-					if ( !(i == 1 && isLinked()) ) {// ignore right channel bot cv in when linked
-						params[TACT_PARAMS + i].setValue(0.0f);
-						infoCVinLight[i] = 1.0f;
-					}				
-				}
-				if (topInvTriggers[i].process(1.0f - inputs[TOP_INPUTS + i].getVoltage())) {
-					if ( levelSensitiveTopBot && !(i == 1 && isLinked()) ) {// ignore right channel top cv in when linked
-						params[TACT_PARAMS + i].setValue(cv[i]);
-						infoCVinLight[i] = 1.0f;
+					if (topTrig == -1) {// fall
+						if (autoReturn[i] != -1) {
+							params[TACT_PARAMS + i].setValue(autoreturnVoltages[autoReturn[i]]);
+							infoCVinLight[i] = 1.0f;
+						}				
+						else if (levelSensitiveTopBot) {
+							params[TACT_PARAMS + i].setValue(cv[i]);
+							infoCVinLight[i] = 1.0f;
+						}
 					}
 				}
-				if (botInvTriggers[i].process(1.0f - inputs[BOT_INPUTS + i].getVoltage())) {
-					if ( levelSensitiveTopBot && !(i == 1 && isLinked()) ) {// ignore right channel bot cv in when linked
-						params[TACT_PARAMS + i].setValue(cv[i]);
+				int botTrig = botTriggers[i].process(inputs[BOT_INPUTS + i].getVoltage());
+				if ( !(i == 1 && isLinked()) ) {// ignore right channel bot cv in when linked
+					if (botTrig == 1) {// rise
+						params[TACT_PARAMS + i].setValue(0.0f);
 						infoCVinLight[i] = 1.0f;
-					}				
+					}
+					if (botTrig == -1) {// fall
+						if (autoReturn[i] != -1) {
+							params[TACT_PARAMS + i].setValue(autoreturnVoltages[autoReturn[i]]);
+							infoCVinLight[i] = 1.0f;
+						}				
+						else if (levelSensitiveTopBot) {
+							params[TACT_PARAMS + i].setValue(cv[i]);
+							infoCVinLight[i] = 1.0f;
+						}				
+					}
 				}
 				if (recallTriggers[i].process(inputs[RECALL_INPUTS + i].getVoltage())) {// ignore right channel recall cv in when linked
 					if ( !(i == 1 && isLinked()) ) {
@@ -398,12 +404,12 @@ struct TactWidget : ModuleWidget {
 		menu->addChild(levelSensItem);
 		
 		AutoReturnItem *autoRetLItem = createMenuItem<AutoReturnItem>("Auto-return (left pad)", RIGHT_ARROW);
-		autoRetLItem->autoReturnSrc = &(module->autoReturnLeft);
+		autoRetLItem->autoReturnSrc = &(module->autoReturn[0]);
 		autoRetLItem->tactParamSrc = &(module->params[Tact::TACT_PARAMS + 0]);
 		menu->addChild(autoRetLItem);
 
 		AutoReturnItem *autoRetRItem = createMenuItem<AutoReturnItem>("Auto-return (right pad)", RIGHT_ARROW);
-		autoRetRItem->autoReturnSrc = &(module->autoReturnRight);
+		autoRetRItem->autoReturnSrc = &(module->autoReturn[1]);
 		autoRetRItem->tactParamSrc = &(module->params[Tact::TACT_PARAMS + 1]);
 		menu->addChild(autoRetRItem);
 
@@ -458,8 +464,8 @@ struct TactWidget : ModuleWidget {
 		// Left (with width dependant on Link value)	
 		addParam(tpadL = createParam<TactPad2>(VecPx(colRulerPadL, rowRuler0), module, Tact::TACT_PARAMS + 0));
 		if (module) {
-			tpadR->autoReturnSrc = &(module->autoReturnRight);
-			tpadL->autoReturnSrc = &(module->autoReturnLeft);
+			tpadR->autoReturnSrc = &(module->autoReturn[1]);
+			tpadL->autoReturnSrc = &(module->autoReturn[0]);
 		}
 
 			
