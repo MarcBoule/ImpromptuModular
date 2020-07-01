@@ -1,7 +1,7 @@
-### 1.1.7 (in development)
+### 1.1.7 (2020-07-01)
 
 - Converted all SVGs from px to mm
-- Alphabetized modules in module browser
+- Alphabetized modules in module browser and manual
 - Added option in WriteSeq32/64 to make arrow controls rotate instead of step (step is default)
 - Added auto-return options to Tact and Tact1
 - Added tracer option to TwelveKey

@@ -1,5 +1,5 @@
 Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://vcvrack.com/plugins.html).
-Version 1.1.6.
+Version 1.1.7.
 
 Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -178,61 +178,75 @@ Limitations: As a general rule, the Impromptu sequencers are not as expressive a
 
 
 
-## Tact/Tact1 <a id="tact"></a>
+# Module manuals <a id="module-manuals"></a>
 
-![IM](res/img/Tact.jpg)
+The following sections contain more information on how each module works.
 
-A touch-like controller module with dual CV outputs and variable rate of change. With a fast rate of change, the controller offers an alternative to knobs for setting parameters, and with a slow rate of change it can be used to automate in-out fades, for example, freeing the performer to work elsewhere in the patch. Tact-1 is a single channel version of Tact with fewer options. 
+## BigButtonSeq <a id="big-button-seq"></a>
 
-* **RATE**: Transition time of CV, from 0 (instant transition) to 4 seconds per volt. Transition time is the inverse of slew rate. This knob can be turned in real time to affect the rate of change of a transition already under way. An option in the right-click menu called **Rate knob x3** can be used for even slower transitions, in which case a full transition from 0 to 10V (or vice versa) will last 2 minutes instead of 40 seconds in the default setting.
+![IM](res/img/BigButtonSeq.jpg)
 
-* **LINK**: Both controls are linked and will be synchronized to the same value. Useful when controlling stereo sounds. Only the left side controls have an effect in this mode; however, both touch pads can be used to change the single CV (which is sent to both output jacks).
+A 6-channel 64-step trigger sequencer based on the infamous [BigButton](https://www.youtube.com/watch?v=6ArDGcUqiWM) by [Look Mum No Computer](https://www.lookmumnocomputer.com/projects/#/big-button/). Although this is not a direct port of the original module, the intent was to keep it as faithful as possible, while adding a few minor extras such as CV inputs and displays. For two-handed control of the knobs and buttons, connect the sequencer to a midi control surface using Rack's Core MIDI-CC module. To see more examples of what the sequencer can do, please see the following videos:
 
-* **STORE**: memorize the current CV to later be recalled when a trigger is sent to the Recall CV input.
+* [BigButton VCV Rack Module test](https://www.youtube.com/watch?v=uN2l2t5SCyE) by Alberto Zamora;
 
-* **RECALL and ARROW Inputs**: CV inputs for setting the CVs to their stored/top/bottom position. These are edge sensitive inputs with a 1V threshold.
+* [Small impromptu VCV jam](https://www.youtube.com/watch?v=wm5JEH5spbc) by Matt Tyas;
 
-* **SLIDE**: determines whether the recall operation is instantaneous or transitions according to the current rate knob's setting.
+* [lookmom](https://www.youtube.com/watch?v=Jcdok8jJ5hQ) and [bbs](https://www.youtube.com/watch?v=j5ejGH5XgFg) by Clément Foulc.
 
-* **ATTV**: Typical attenuverter to set the maximum CV range output by the module. At full right, a 0 to 10V CV is produced, and at full left, a 0 to -10V CV is produced.
+Here are a few more details on some of the uses of the buttons. The sequencer uses has two types of push-buttons, namely trigger buttons and state buttons. Trigger buttons react to the change in a button's state as it's being pressed, while state buttons react to the position of the push-button, i.e. pressed or not pressed.
 
-* **EXP**: Produces an exponential slide (top position) instead of a linear slide (bottom position).
+* **CHAN**: channel select button (can be changed in real time). All state buttons will have an effect immediately when the channel is changed.
 
-* **EOC**:  EOC is an end-of-cycle trigger that is emitted when a slide is completed (to signal its end); this can be used for more automation, for example, by triggering or chaining other operations when a fade in/out completes. The EOC triggers upon the end of any slide event, whether the end position is at the top/bottom or not.
+* **BIG BUTTON**: trigger-type button to set the trigger at the current step in the current channel and bank. When pressing on a step that has a trigger, nothing is done.
 
-A 0V CV is initially stored in the CV memory and the slide switches are in the off position, thereby allowing the Recall to act as a **Reset** by default. An option in the right-click menu, called **Level sensitive arrow CV inputs** can be activated to control the duration of the transition. When this option is turned on, the input must be continuously held above 1V for the transition to progress, and when the input goes back under 1V, the transition will stop at its current level.
+* **CLK**: clock input. The sequencer is always running. To stop it, the clock has to be stopped.
+
+* **RND**: a 0 to 1 probability knob, used to randomly change the state of a step. The probability is applied to the trigger of the next step being reached at every clock pulse, in the current channel. A 0 value means no change, 1 means the state of the trigger will be toggled (useful for inverting a pattern). The RND CV input's voltage is divided by 10 and added to the value of the knob to yield the actual probability. For example, with the knob at full right, the CV input has no effect, and with the knob at full left, a value of 10V on the CV input gives a probability of 1.  
+
+* **CLEAR**: state-type button that turns of all triggers of the current channel.
+
+* **BANK**: trigger-type button that toggles between two possible banks (i.e. sequences) for the current channel.
+
+* **DEL**: state-type button that clears the trigger at the current step. The button can be held to clear multiple steps.
+
+* **FILL**: state-type button that plays continuous triggers for the given channel as long as the button is kept pressed. The fill starts on the next clock edge and continues on each clock edge while the button is held. 
+
+* **MEM**: when the MEM button is turned off, the fills are not written to memory and are only for playback. 
+
+* **SNAP**: the BIG and DEL buttons are quantized to the nearest beat when the SNAP button is active. Without quantization, button presses always affect the current beat (step) of the sequencer. With quantized buttons, they affect the nearest beat. For example, without quantization, pressing the big button 1 microsecond before a beat would normally record the beat in the current step and not the next one that is about to occur (which is actually the closest). For the quantization to work properly however, the sequencer must receive a stable clock of at least 30 BPM. When this is not the case, the option is automatically disabled internally. When manually advancing the clock to program a sequence in non real-time, for example, the option has no effect and the current step is always the target of a button press.
+
+* **Big and Del on next step**: this option is available in the right-click menu of the module. When active, all hits of the big and del buttons are registered on the step that follows the current step. Snap has no effect when this option is activated.
+
+Here is a summary of how **SNAP** and the **Big and Del on next step** option work.
+* Big button hit (or del) with **snap off** and the next step **option off**:
+	* play the trigger exactly when the button is hit
+	* record the trigger in the beat that last happened (i.e. the current step)
+* Big button hit (or del) with **snap on** and the next step **option off**:
+	* if the nearest beat is the one that should come next (given current BPM), play and record the trigger in the next beat to come
+	* if the nearest beat is the last one that happened, do the same as when SNAP is off
+* Big button hit (or del) with the next step **option on** (snap has no effect): 
+	* play and record the trigger in the step that follows the current step (loops around according to selected length)
 
 ([Back to module list](#modules))
 
 
 
-## TwelveKey <a id="twelve-key"></a>
+## BigButtonSeq2 <a id="big-button-seq2"></a>
 
-![IM](res/img/TwelveKey.jpg)
+![IM](res/img/BigButtonSeq2.jpg)
 
-A chainable keyboard controller for your virtual Rack. When multiple TwelveKey modules are connected in series from left to right, only the octave of the left-most module needs to be set, all other down-chain modules' octaves are set automatically. The aggregate output is that of the right-most module. To set up a chain of TwelveKey modules, simply connect the four outputs on the right side of a module to the four inputs of the next module beside it (typically to the right). With creative patching, the velocity output can be used to modulate a filter, to perform pitch bends, etc. The velocity is controlled by pressing the keys at different vertical positions within the guide marks on the keys. For a short introduction to the module, please see Omri Cohen's [TwelveKey video](https://www.youtube.com/watch?v=__LtuPD3y_c).
+A 6-channel 128-step gate and CV sequencer based on [BigButtonSeq](#big-button-seq). Familiarity with that sequencer is recommended since only the differences are discussed here. With its long sequence lengths and CV capabilities, the sequencer can be used as a CV recorder by setting the FILL CV input to a constant voltage greater than 1V and activating the MEM button, thereby sampling the CV IN port at every clock edge and committing its voltage to memory.
 
-* **CV**: The CV output from the keyboard or its CV input, depending on which key was last pressed, i.e. an up-chain key (from a module to the left) or a key of the given keyboard module.
+* **BIG BUTTON**: as well as turning on the gate of the current step, the CV IN port is also read and stored as the CV value of the given step.
 
-* **GATE**: Gate output signal from the keyboard or its gate input.
+* **GATE**: the clock signal's pulse is used as the gate out pulse, contrary to BigButtonSeq that emits 1 millisecond triggers.
 
-* **OCTAVE -/+**: Buttons to set the base octave of the module. These buttons have no effect when a cable is connected to the OCT input.
+* **CLEAR**: trigger-type button that turns of all gates and reinitialized all CVs to C4 for the current channel, contrary to BigButtonSeq where CLEAR is a state-type button.
 
-* **OCT**: CV input to set the base octave of the module. The voltage range is 0V (octave 0) to 9V (octave 9). Non-integer voltages or voltages outside this range are floored/clamped. 
+* **S&H**: sample and hold the CV outputs using the gate outputs as the triggers for the sampling.
 
-* **OCT+1**: CV output for setting the voltage of the next down-chain TwelveKey module. This corresponds to the base octave of the current module incremented by 1V.
-
-* **VEL**: The velocity output from the keyboard or its velocity input, depending on which key was last pressed, i.e. an up-chain key (from a module to the left) or a key of the given keyboard module. The velocity is a voltage corresponding to the vertical position of the mouse click on the key. The voltage range is determined by the BIPOL and MAX VEL settings.
-
-* **MAX VEL**: Maximum voltage of the velocity output. "ST" is shorthand for semitone. 
-
-* **BIPOL**: allows the selection of unipolar velocity (bottom position), or bipolar velocity (top position). For example, with a maximum velocity voltage of 10V, the velocity range of a key is 0 to 10V in unipolar mode, or -10V to 10V in bipolar mode.
-
-Two options are also available in the right-click menu:
-
-* **Inverted velocity range**: When this option is active, the maximum velocity will be at the top-most part of the keys, instead of at the default bottom-most part of the keys.
-
-* **Link velocity settings from left**: When linking multiple TwelveKey, this option can be activated to propagate the velocity settings (Max Vel, Bipol and Velocity Inversion) from the first module in the chain down to all the other ones placed to the right; no spaces between modules are allowed in this case.
+This sequencer has no concept of tied notes; when pasting sequences using the [Portable sequence](#portable_seq) format, notes that are longer than one step will have successive gate pulses on each step comprising the note.
 
 ([Back to module list](#modules))
 
@@ -272,36 +286,6 @@ The **Portable sequence** standard can also be used to copy/paste chords externa
 * _Paste chord_: SHIFT + V
 * _Copy chord as sequence_: SHIFT + ALT + C
 * _Paste sequence as chord_: SHIFT + ALT + V
-
-([Back to module list](#modules))
-
-
-
-## CVPad <a id="cv-pad"></a>
-
-![IM](res/img/CvPad.jpg)
-
-A programmable CV controller with 16 pads, that can be configured into 1x16, 2x8 or 4x4 group(s). Many use cases are possible, one of which can be to manually select sequences to play in Foundry and many of the Phrase Sequencers, and more generally to control parameters for a live performance by providing quick access to different CV values. 
-
-The [FourView](#four-view) module can also be used as an expander for the CVPad to view the note names of the selected pads; in this case no cables need to be connected to FourView provided it is placed immediately to the right of CVPad.
-
-* **CV**: The main CV display and its knob can be used to set the CV for the currently selected pad, as indicated by the yellow/red light above a pad when attached/detached respectively. By default this knob is set to high sensitivity such that the range from -10V to 10V can be easier to scan; however, an option is available in the module's right-click menu to lower the sensitivity. Values can also be entered directly for the selected pad by **right-clicking the display** and typing in a specific voltage. 
-
-* **QUANTIZE**: When activated, this option quantizes only the main CV display and the CV outputs, it does not affect the actual CVs stored in the module.
-
-* **ATTACH**: When attached is activated (default), clicking on a pad to edit its CV will also move the read head(s) to that location. If a pad is to be edited without affecting the currently selected pad, turning attach off will move the editing head only.
-
-* **AUTOSTEP**: When activated, a write operation will automatically move to the next pad after writing the CV, such that the entire array can be filled with CVs from an external source ([TwelveKey](#twelve-key) for example).
-
-* **WRITE**: Writes the CV present on the CV IN jack into the currently selected pad. The unlabeled jack below this button can be used to send a trigger to automate the writing. By connecting the CV output of TwelveKey to the CV IN input of CVPad, the GATE output of TwelveKey into the WRITE input in CVPad, and with AUTOSTEP on, a series of notes can be entered directly into each of the 16 pads.
-
-* **V, sharp, flat**: This three-position switch is used to select the display mode of the main CV display.
-
-* **4x4, 2x8, 1x16**: This is the main configuration switch of the module, and allows the grid of pads to be used as one group of 16 pads (top outputs only), or two groups of 8 pads (top and third row outputs only), or four groups of 4 pads (all rows of outputs).
-
-* **BANK**: This is used to select one of 8 sets of pad values stored in memory, and can itseld be CV controlled.
-
-The module also features sliders and menu items to copy and paste the CVs, and also to offset/multiply/divide the stored CVs.
 
 ([Back to module list](#modules))
 
@@ -351,6 +335,36 @@ When using external clock synchronization, Clocked syncs itself to the incoming 
 1. Clocked can support and synchronize to fractional BPM values (ex.: 133.33 BPM), but will show the BPM rounded to the nearest integer in the BPM display.
 1. For low clock BPMs, synchronization may take some time if the external clock changes markedly from the last BPM it was synchronized to. Making gradual tempo changes is always recommended, and increasing the PPQN setting may also help. An other method consists in priming Clocked with is correct BPM first, to let it learn the new BPM, so that all further runs at that BPM will sync perfectly.
 1. When sending a clock from a DAW or other source external to Clocked in Rack, best results are obtained when sending this clock through an audio channel as opposed to midi clocks.
+
+([Back to module list](#modules))
+
+
+
+## CVPad <a id="cv-pad"></a>
+
+![IM](res/img/CvPad.jpg)
+
+A programmable CV controller with 16 pads, that can be configured into 1x16, 2x8 or 4x4 group(s). Many use cases are possible, one of which can be to manually select sequences to play in Foundry and many of the Phrase Sequencers, and more generally to control parameters for a live performance by providing quick access to different CV values. 
+
+The [FourView](#four-view) module can also be used as an expander for the CVPad to view the note names of the selected pads; in this case no cables need to be connected to FourView provided it is placed immediately to the right of CVPad.
+
+* **CV**: The main CV display and its knob can be used to set the CV for the currently selected pad, as indicated by the yellow/red light above a pad when attached/detached respectively. By default this knob is set to high sensitivity such that the range from -10V to 10V can be easier to scan; however, an option is available in the module's right-click menu to lower the sensitivity. Values can also be entered directly for the selected pad by **right-clicking the display** and typing in a specific voltage. 
+
+* **QUANTIZE**: When activated, this option quantizes only the main CV display and the CV outputs, it does not affect the actual CVs stored in the module.
+
+* **ATTACH**: When attached is activated (default), clicking on a pad to edit its CV will also move the read head(s) to that location. If a pad is to be edited without affecting the currently selected pad, turning attach off will move the editing head only.
+
+* **AUTOSTEP**: When activated, a write operation will automatically move to the next pad after writing the CV, such that the entire array can be filled with CVs from an external source ([TwelveKey](#twelve-key) for example).
+
+* **WRITE**: Writes the CV present on the CV IN jack into the currently selected pad. The unlabeled jack below this button can be used to send a trigger to automate the writing. By connecting the CV output of TwelveKey to the CV IN input of CVPad, the GATE output of TwelveKey into the WRITE input in CVPad, and with AUTOSTEP on, a series of notes can be entered directly into each of the 16 pads.
+
+* **V, sharp, flat**: This three-position switch is used to select the display mode of the main CV display.
+
+* **4x4, 2x8, 1x16**: This is the main configuration switch of the module, and allows the grid of pads to be used as one group of 16 pads (top outputs only), or two groups of 8 pads (top and third row outputs only), or four groups of 4 pads (all rows of outputs).
+
+* **BANK**: This is used to select one of 8 sets of pad values stored in memory, and can itseld be CV controlled.
+
+The module also features sliders and menu items to copy and paste the CVs, and also to offset/multiply/divide the stored CVs.
 
 ([Back to module list](#modules))
 
@@ -418,6 +432,60 @@ Here are some further details on the different functions of the sequencer. It is
 By default the sequencer always restarts the song (when in song mode); however, this may not always be wanted. To play the song just once, activate the option **Single shot song** in the right-click menu of the module. Since Foundry is a multitrack sequencer and there is only one global run state, one of the four tracks has to be used as the reference to stop the sequencer. This option is only well-defined when the song's run mode is either FWD or REV.
 
 For chords or polyphonic content, an option in the module's right-click menu can be used to poly merge other tracks into track A outputs. For example, when the **Poly merge into track A outputs** is set to _Tracks B and C_, each of the CV, GATE, CV2 outputs of track A becomes polyphonic, with the content of track A in the channel 1, the content of track B in channel 2 and track C in channel 3. When a track is poly merged into track A, its output ports are set to a constant 0V. This is perfect for creating chords for polyphonic oscillators/ADSRs etc.
+
+([Back to module list](#modules))
+
+
+
+## GateSeq64 <a id="gate-seq-64"></a>
+
+![IM](res/img/GateSeq64.jpg)
+
+A 64 step gate sequencer with the ability to define **probabilities** for each step. A configuration switch allows the sequencer to output quad 16 step sequences, dual 32 step sequences or single 64 step sequences. To see the sequencer in action and for a tutorial on how it works, please see [this segment](https://youtu.be/bjqWwTKqERQ?t=4645s) of Nigel Sixsmith's Talking Rackheads episode 10; some of the functionality may have changed since the video was created, however.  It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here. 
+
+When running in the 4x16 configuration, each of the four rows is sent to the four **GATE** output jacks (jacks 1 to 4, with jack 1 being the top-most jack). In the 2x32 configuration, jacks 1 and 3 are used, and in the 1x64 configuration, only jack 1 is used (top-most jack). When activating a given step by clicking it once, it will turn green showing that the step is on. Clicking the _"p"_ button turns it yellow, and the main display shows the probability associated with this step. While the probability remains shown, the probability can be adjusted with the main knob, in 0.02 increments, between 0 and 1. When a yellow step is selected, clicking the _"p"_ button again will turn it off.
+
+This sequencer also features the song mode found in [PhraseSeq16](#phrase-seq-16); 64 phrases can be defined, where a phrase is an index into a set of 32 sequences. In GateSeq64, the song steps are shown using the entire grid of steps, overlapped with the actual sequence progression in lighter shades in the lights. The actual content of the sequences is shown in white in Song mode. Here are a few more points regarding Song mode:
+
+1. When not running, the phrase cursor position is shown with a red light. 
+1. When running, the current phrase being played is shown with a full green light and the position in the sequence is shown with a pale green light.
+1. When running, clicking a phrase turns it red (the currently playing one in green is still visible), and the knob can be used to change the sequence mapped to that phrase for live song editing. After 4 seconds of inactivity, the editing disappears.
+
+Copy-pasting ALL also copies the run mode and length of a given sequence, along with gate states and probabilities, whereas only gates and probabilities are copied when 4 or ROW are selected. More advanced copy-paste shortcuts are also available when clicking copy in Seq mode and then paste in Song mode (and vice versa); see [cross paste](#cross-paste-gs) below. The **SEQ** CV input, sequence length selection and run **MODES** are all identical to those found in PhraseSeq16.
+
+Although no **Write** capabilities appear in the main part of the module, automatically storing patterns into the sequencer can be performed using the CV inputs in the GateSeq64 [expander module](#expanders) (this is a separate module labeled \"GS-X\"). The cursor is stepped forward on each write, and can be repositioned at the first step by pressing the reset button, or at an arbitrary step by simply clicking that given step. When the cursor is not flashing, clicking any step will make it appear. The Write-gate (full circle) and Write-empty (empty circle) inputs (2nd and 3rd from the bottom) can be used to enter on-gates and off-gates in succession with separate external triggers (buttons). The bottom-most input is used to move the cursor to the left, whereas the Write input at the top can be used to move the cursor to the right when Gate In and Prob are unconnected. When either of these inputs is connected, the values are used to program the sequencer gates and probabilities. The extra CV inputs only have an effect in Seq mode.
+
+As in the PhraseSeq sequencers, sequence numbers can also be typed in using the computer keyboard when the mouse cursor is placed over the SEQ# display; when in song mode, the space bar can be used to automatically move to the next phrase in the song. Two key presses within the span of one second will register as a two digit sequence number.
+
+
+### Advanced gate mode<a id="advanced-gate-mode-gs"></a>
+
+The advanced gate mode in GateSeq64 has some similarities to the one available in the PhraseSeq16/32 sequencers, and is covered in Omri Cohen's [advanced gate mode tutorial](https://www.youtube.com/watch?v=B2w0_h5oN6M). As of version 0.6.12, each gate type has its own LED button, instead of the two cursor type buttons that were used in the previous versions.
+
+Holding the MODE button for **two seconds** allows the selection of the clock resolution, in number of pulses per step (PPS). When set to a value greater than 1, which unlocks the advanced gate mode, the sequencer will skip this many clock pulses before advancing to the next step. In such cases, a multiplied clock must be supplied in order to keep the same tempo in the sequencer. In advanced gate mode, the pulse width of the clock is not used and has no effect on the gates.
+
+The PPS be a multiple of 4 for the first three gate types, while the PPS be a multiple of 6 for the last five gate types. A chosen gate type not meeting its required pulse rate will have a red LED beside it to indicate this (normally it is green). When a gate type is red, the sequencer will still emit a (possibly empty) gate pattern for that step, but with no guarantee that it will match the type that was selected. All gate types can be used when selecting a PPS value of 12 or 24.
+
+
+### Cross paste<a id="cross-paste-gs"></a>
+
+Pressing the copy button in one mode (Seq or Song), and then the paste button in the opposite mode would normally result in an invalid operation. In these cases, depending on the state of the copy-paste switch (4/8/ALL), called *type* below, the following shortcuts are performed: 
+
+```
+Cross paste from Song to Seq  
+Type   Display   Result
+4      RGT       Randomizes the gate states of the current sequence
+8      RPR       Randomizes the probability states and values of the current sequence
+ALL    CLR       Clears (initializes) the current sequence
+
+Cross paste from Seq to Song
+Type   Display   Result
+4      INC       Sets the song phrases to the sequences 1, 2, ..., 64
+8      RPH       Sets the song phrases to random sequences
+ALL    CLR       Clears (initializes) the song (all 1s)
+```
+
+In cross paste operation, the copied content is actually irrelevant and unused.
 
 ([Back to module list](#modules))
 
@@ -540,130 +608,6 @@ Other than these characteristics, the rest of PhraseSeq32's functionality is ide
 
 
 
-## GateSeq64 <a id="gate-seq-64"></a>
-
-![IM](res/img/GateSeq64.jpg)
-
-A 64 step gate sequencer with the ability to define **probabilities** for each step. A configuration switch allows the sequencer to output quad 16 step sequences, dual 32 step sequences or single 64 step sequences. To see the sequencer in action and for a tutorial on how it works, please see [this segment](https://youtu.be/bjqWwTKqERQ?t=4645s) of Nigel Sixsmith's Talking Rackheads episode 10; some of the functionality may have changed since the video was created, however.  It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here. 
-
-When running in the 4x16 configuration, each of the four rows is sent to the four **GATE** output jacks (jacks 1 to 4, with jack 1 being the top-most jack). In the 2x32 configuration, jacks 1 and 3 are used, and in the 1x64 configuration, only jack 1 is used (top-most jack). When activating a given step by clicking it once, it will turn green showing that the step is on. Clicking the _"p"_ button turns it yellow, and the main display shows the probability associated with this step. While the probability remains shown, the probability can be adjusted with the main knob, in 0.02 increments, between 0 and 1. When a yellow step is selected, clicking the _"p"_ button again will turn it off.
-
-This sequencer also features the song mode found in [PhraseSeq16](#phrase-seq-16); 64 phrases can be defined, where a phrase is an index into a set of 32 sequences. In GateSeq64, the song steps are shown using the entire grid of steps, overlapped with the actual sequence progression in lighter shades in the lights. The actual content of the sequences is shown in white in Song mode. Here are a few more points regarding Song mode:
-
-1. When not running, the phrase cursor position is shown with a red light. 
-1. When running, the current phrase being played is shown with a full green light and the position in the sequence is shown with a pale green light.
-1. When running, clicking a phrase turns it red (the currently playing one in green is still visible), and the knob can be used to change the sequence mapped to that phrase for live song editing. After 4 seconds of inactivity, the editing disappears.
-
-Copy-pasting ALL also copies the run mode and length of a given sequence, along with gate states and probabilities, whereas only gates and probabilities are copied when 4 or ROW are selected. More advanced copy-paste shortcuts are also available when clicking copy in Seq mode and then paste in Song mode (and vice versa); see [cross paste](#cross-paste-gs) below. The **SEQ** CV input, sequence length selection and run **MODES** are all identical to those found in PhraseSeq16.
-
-Although no **Write** capabilities appear in the main part of the module, automatically storing patterns into the sequencer can be performed using the CV inputs in the GateSeq64 [expander module](#expanders) (this is a separate module labeled \"GS-X\"). The cursor is stepped forward on each write, and can be repositioned at the first step by pressing the reset button, or at an arbitrary step by simply clicking that given step. When the cursor is not flashing, clicking any step will make it appear. The Write-gate (full circle) and Write-empty (empty circle) inputs (2nd and 3rd from the bottom) can be used to enter on-gates and off-gates in succession with separate external triggers (buttons). The bottom-most input is used to move the cursor to the left, whereas the Write input at the top can be used to move the cursor to the right when Gate In and Prob are unconnected. When either of these inputs is connected, the values are used to program the sequencer gates and probabilities. The extra CV inputs only have an effect in Seq mode.
-
-As in the PhraseSeq sequencers, sequence numbers can also be typed in using the computer keyboard when the mouse cursor is placed over the SEQ# display; when in song mode, the space bar can be used to automatically move to the next phrase in the song. Two key presses within the span of one second will register as a two digit sequence number.
-
-
-### Advanced gate mode<a id="advanced-gate-mode-gs"></a>
-
-The advanced gate mode in GateSeq64 has some similarities to the one available in the PhraseSeq16/32 sequencers, and is covered in Omri Cohen's [advanced gate mode tutorial](https://www.youtube.com/watch?v=B2w0_h5oN6M). As of version 0.6.12, each gate type has its own LED button, instead of the two cursor type buttons that were used in the previous versions.
-
-Holding the MODE button for **two seconds** allows the selection of the clock resolution, in number of pulses per step (PPS). When set to a value greater than 1, which unlocks the advanced gate mode, the sequencer will skip this many clock pulses before advancing to the next step. In such cases, a multiplied clock must be supplied in order to keep the same tempo in the sequencer. In advanced gate mode, the pulse width of the clock is not used and has no effect on the gates.
-
-The PPS be a multiple of 4 for the first three gate types, while the PPS be a multiple of 6 for the last five gate types. A chosen gate type not meeting its required pulse rate will have a red LED beside it to indicate this (normally it is green). When a gate type is red, the sequencer will still emit a (possibly empty) gate pattern for that step, but with no guarantee that it will match the type that was selected. All gate types can be used when selecting a PPS value of 12 or 24.
-
-
-### Cross paste<a id="cross-paste-gs"></a>
-
-Pressing the copy button in one mode (Seq or Song), and then the paste button in the opposite mode would normally result in an invalid operation. In these cases, depending on the state of the copy-paste switch (4/8/ALL), called *type* below, the following shortcuts are performed: 
-
-```
-Cross paste from Song to Seq  
-Type   Display   Result
-4      RGT       Randomizes the gate states of the current sequence
-8      RPR       Randomizes the probability states and values of the current sequence
-ALL    CLR       Clears (initializes) the current sequence
-
-Cross paste from Seq to Song
-Type   Display   Result
-4      INC       Sets the song phrases to the sequences 1, 2, ..., 64
-8      RPH       Sets the song phrases to random sequences
-ALL    CLR       Clears (initializes) the song (all 1s)
-```
-
-In cross paste operation, the copied content is actually irrelevant and unused.
-
-([Back to module list](#modules))
-
-
-
-## BigButtonSeq <a id="big-button-seq"></a>
-
-![IM](res/img/BigButtonSeq.jpg)
-
-A 6-channel 64-step trigger sequencer based on the infamous [BigButton](https://www.youtube.com/watch?v=6ArDGcUqiWM) by [Look Mum No Computer](https://www.lookmumnocomputer.com/projects/#/big-button/). Although this is not a direct port of the original module, the intent was to keep it as faithful as possible, while adding a few minor extras such as CV inputs and displays. For two-handed control of the knobs and buttons, connect the sequencer to a midi control surface using Rack's Core MIDI-CC module. To see more examples of what the sequencer can do, please see the following videos:
-
-* [BigButton VCV Rack Module test](https://www.youtube.com/watch?v=uN2l2t5SCyE) by Alberto Zamora;
-
-* [Small impromptu VCV jam](https://www.youtube.com/watch?v=wm5JEH5spbc) by Matt Tyas;
-
-* [lookmom](https://www.youtube.com/watch?v=Jcdok8jJ5hQ) and [bbs](https://www.youtube.com/watch?v=j5ejGH5XgFg) by Clément Foulc.
-
-Here are a few more details on some of the uses of the buttons. The sequencer uses has two types of push-buttons, namely trigger buttons and state buttons. Trigger buttons react to the change in a button's state as it's being pressed, while state buttons react to the position of the push-button, i.e. pressed or not pressed.
-
-* **CHAN**: channel select button (can be changed in real time). All state buttons will have an effect immediately when the channel is changed.
-
-* **BIG BUTTON**: trigger-type button to set the trigger at the current step in the current channel and bank. When pressing on a step that has a trigger, nothing is done.
-
-* **CLK**: clock input. The sequencer is always running. To stop it, the clock has to be stopped.
-
-* **RND**: a 0 to 1 probability knob, used to randomly change the state of a step. The probability is applied to the trigger of the next step being reached at every clock pulse, in the current channel. A 0 value means no change, 1 means the state of the trigger will be toggled (useful for inverting a pattern). The RND CV input's voltage is divided by 10 and added to the value of the knob to yield the actual probability. For example, with the knob at full right, the CV input has no effect, and with the knob at full left, a value of 10V on the CV input gives a probability of 1.  
-
-* **CLEAR**: state-type button that turns of all triggers of the current channel.
-
-* **BANK**: trigger-type button that toggles between two possible banks (i.e. sequences) for the current channel.
-
-* **DEL**: state-type button that clears the trigger at the current step. The button can be held to clear multiple steps.
-
-* **FILL**: state-type button that plays continuous triggers for the given channel as long as the button is kept pressed. The fill starts on the next clock edge and continues on each clock edge while the button is held. 
-
-* **MEM**: when the MEM button is turned off, the fills are not written to memory and are only for playback. 
-
-* **SNAP**: the BIG and DEL buttons are quantized to the nearest beat when the SNAP button is active. Without quantization, button presses always affect the current beat (step) of the sequencer. With quantized buttons, they affect the nearest beat. For example, without quantization, pressing the big button 1 microsecond before a beat would normally record the beat in the current step and not the next one that is about to occur (which is actually the closest). For the quantization to work properly however, the sequencer must receive a stable clock of at least 30 BPM. When this is not the case, the option is automatically disabled internally. When manually advancing the clock to program a sequence in non real-time, for example, the option has no effect and the current step is always the target of a button press.
-
-* **Big and Del on next step**: this option is available in the right-click menu of the module. When active, all hits of the big and del buttons are registered on the step that follows the current step. Snap has no effect when this option is activated.
-
-Here is a summary of how **SNAP** and the **Big and Del on next step** option work.
-* Big button hit (or del) with **snap off** and the next step **option off**:
-	* play the trigger exactly when the button is hit
-	* record the trigger in the beat that last happened (i.e. the current step)
-* Big button hit (or del) with **snap on** and the next step **option off**:
-	* if the nearest beat is the one that should come next (given current BPM), play and record the trigger in the next beat to come
-	* if the nearest beat is the last one that happened, do the same as when SNAP is off
-* Big button hit (or del) with the next step **option on** (snap has no effect): 
-	* play and record the trigger in the step that follows the current step (loops around according to selected length)
-
-([Back to module list](#modules))
-
-
-
-## BigButtonSeq2 <a id="big-button-seq2"></a>
-
-![IM](res/img/BigButtonSeq2.jpg)
-
-A 6-channel 128-step gate and CV sequencer based on [BigButtonSeq](#big-button-seq). Familiarity with that sequencer is recommended since only the differences are discussed here. With its long sequence lengths and CV capabilities, the sequencer can be used as a CV recorder by setting the FILL CV input to a constant voltage greater than 1V and activating the MEM button, thereby sampling the CV IN port at every clock edge and committing its voltage to memory.
-
-* **BIG BUTTON**: as well as turning on the gate of the current step, the CV IN port is also read and stored as the CV value of the given step.
-
-* **GATE**: the clock signal's pulse is used as the gate out pulse, contrary to BigButtonSeq that emits 1 millisecond triggers.
-
-* **CLEAR**: trigger-type button that turns of all gates and reinitialized all CVs to C4 for the current channel, contrary to BigButtonSeq where CLEAR is a state-type button.
-
-* **S&H**: sample and hold the CV outputs using the gate outputs as the triggers for the sampling.
-
-This sequencer has no concept of tied notes; when pasting sequences using the [Portable sequence](#portable_seq) format, notes that are longer than one step will have successive gate pulses on each step comprising the note.
-
-([Back to module list](#modules))
-
-
-
 ## SMS16<a id="sms-16"></a>
 
 ![IM](res/img/SemiModularSynth.jpg)
@@ -675,6 +619,70 @@ This module can be used for quickly exploring ideas for sequences, and is also u
 Extra controls were also added to the LFO (Low Frequency Oscillator), namely **GAIN** and **OFFSET**, to be able to easily modulate any other on-board parameter. With maximum gain, the LFO produces a 10V peak-to-peak signal (i.e. 5V amplitude). The offset knob is automatically scaled such that with maximum (minimum) offset, the signal's maximum (minimum) voltage is +10V (-10V). That is, with the gain set to 0, the offset value spans -10V to +10V, and with the gain set to maximum, the offset value spans -5V to +5V. Also note that the clock LFO is automatically reset on every reset event in the sequencer.
 
 The SMS16 also features the advanced gate mode of the PhraseSeq16. When changing the clock resolution in the SMS16, the onboard clock will automatically be scaled accordingly and no multiplied clock needs to be supplied to the module.
+
+([Back to module list](#modules))
+
+
+
+## Tact/Tact1 <a id="tact"></a>
+
+![IM](res/img/Tact.jpg)
+
+A touch-like controller module with dual CV outputs and variable rate of change. With a fast rate of change, the controller offers an alternative to knobs for setting parameters, and with a slow rate of change it can be used to automate in-out fades, for example, freeing the performer to work elsewhere in the patch. Tact-1 is a single channel version of Tact with fewer options. 
+
+* **RATE**: Transition time of CV, from 0 (instant transition) to 4 seconds per volt. Transition time is the inverse of slew rate. This knob can be turned in real time to affect the rate of change of a transition already under way. An option in the right-click menu called **Rate knob x3** can be used for even slower transitions, in which case a full transition from 0 to 10V (or vice versa) will last 2 minutes instead of 40 seconds in the default setting.
+
+* **LINK**: Both controls are linked and will be synchronized to the same value. Useful when controlling stereo sounds. Only the left side controls have an effect in this mode; however, both touch pads can be used to change the single CV (which is sent to both output jacks).
+
+* **STORE**: memorize the current CV to later be recalled when a trigger is sent to the Recall CV input.
+
+* **RECALL and ARROW Inputs**: CV inputs for setting the CVs to their stored/top/bottom position. These are edge sensitive inputs with a 1V threshold.
+
+* **SLIDE**: determines whether the recall operation is instantaneous or transitions according to the current rate knob's setting.
+
+* **ATTV**: Typical attenuverter to set the maximum CV range output by the module. At full right, a 0 to 10V CV is produced, and at full left, a 0 to -10V CV is produced.
+
+* **EXP**: Produces an exponential slide (top position) instead of a linear slide (bottom position).
+
+* **EOC**:  EOC is an end-of-cycle trigger that is emitted when a slide is completed (to signal its end); this can be used for more automation, for example, by triggering or chaining other operations when a fade in/out completes. The EOC triggers upon the end of any slide event, whether the end position is at the top/bottom or not.
+
+A 0V CV is initially stored in the CV memory and the slide switches are in the off position, thereby allowing the Recall to act as a **Reset** by default. An option in the right-click menu, called **Level sensitive arrow CV inputs** can be activated to control the duration of the transition. When this option is turned on, the input must be continuously held above 1V for the transition to progress, and when the input goes back under 1V, the transition will stop at its current level.
+
+The **Auto-return** option in the modules' right menus can be used to momentarily affect the tact pads with the mouse, and have the level return to a prescribed value upon releasing the mouse button. When this option is activated, the Arrow inputs implicitly become level sensitive and can also be used to momentarily effect the level.
+
+([Back to module list](#modules))
+
+
+
+## TwelveKey <a id="twelve-key"></a>
+
+![IM](res/img/TwelveKey.jpg)
+
+A chainable keyboard controller for your virtual Rack. When multiple TwelveKey modules are connected in series from left to right, only the octave of the left-most module needs to be set, all other down-chain modules' octaves are set automatically. The aggregate output is that of the right-most module. To set up a chain of TwelveKey modules, simply connect the four outputs on the right side of a module to the four inputs of the next module beside it (typically to the right). With creative patching, the velocity output can be used to modulate a filter, to perform pitch bends, etc. The velocity is controlled by pressing the keys at different vertical positions within the guide marks on the keys. For a short introduction to the module, please see Omri Cohen's [TwelveKey video](https://www.youtube.com/watch?v=__LtuPD3y_c).
+
+* **CV**: The CV output from the keyboard or its CV input, depending on which key was last pressed, i.e. an up-chain key (from a module to the left) or a key of the given keyboard module.
+
+* **GATE**: Gate output signal from the keyboard or its gate input.
+
+* **OCTAVE -/+**: Buttons to set the base octave of the module. These buttons have no effect when a cable is connected to the OCT input.
+
+* **OCT**: CV input to set the base octave of the module. The voltage range is 0V (octave 0) to 9V (octave 9). Non-integer voltages or voltages outside this range are floored/clamped. 
+
+* **OCT+1**: CV output for setting the voltage of the next down-chain TwelveKey module. This corresponds to the base octave of the current module incremented by 1V.
+
+* **VEL**: The velocity output from the keyboard or its velocity input, depending on which key was last pressed, i.e. an up-chain key (from a module to the left) or a key of the given keyboard module. The velocity is a voltage corresponding to the vertical position of the mouse click on the key. The voltage range is determined by the BIPOL and MAX VEL settings.
+
+* **MAX VEL**: Maximum voltage of the velocity output. "ST" is shorthand for semitone. 
+
+* **BIPOL**: allows the selection of unipolar velocity (bottom position), or bipolar velocity (top position). For example, with a maximum velocity voltage of 10V, the velocity range of a key is 0 to 10V in unipolar mode, or -10V to 10V in bipolar mode.
+
+Options available in the right-click menu include:
+
+* **Inverted velocity range**: When this option is active, the maximum velocity will be at the top-most part of the keys, instead of at the default bottom-most part of the keys.
+
+* **Link velocity settings from left**: When linking multiple TwelveKey, this option can be activated to propagate the velocity settings (Max Vel, Bipol and Velocity Inversion) from the first module in the chain down to all the other ones placed to the right; no spaces between modules are allowed in this case.
+
+* **Tracer**: Keep the last key pressed faintly lit. Because multiple TwelveKey modules do not communicate bi-directionally when making a mutli-octave keyboard, it is not possible to have a single bright light showing the last unique key pressed across all modules.
 
 ([Back to module list](#modules))
 
