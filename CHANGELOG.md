@@ -1,6 +1,6 @@
 ### 1.1.8 (in development)
 
-- Make led displays show when using the Lights Out module (Modular Fungi plugin)
+- Made LED displays show when using the Lights Out module (Modular Fungi plugin)
 
 
 ### 1.1.7 (2020-07-01)
