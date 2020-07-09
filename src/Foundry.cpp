@@ -1378,7 +1378,7 @@ struct FoundryWidget : ModuleWidget {
 	SvgPanel* darkPanel;
 	
 	template <int NUMCHAR>
-	struct DisplayWidget : TransparentWidget {// a centered display, must derive from this
+	struct DisplayWidget : LightWidget {//TransparentWidget {// a centered display, must derive from this
 		Foundry *module;
 		std::shared_ptr<Font> font;
 		char displayStr[NUMCHAR + 1];

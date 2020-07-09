@@ -146,7 +146,7 @@ struct Part : Module {
 struct PartWidget : ModuleWidget {
 	SvgPanel* darkPanel;
 
-	struct SplitDisplayWidget : TransparentWidget {
+	struct SplitDisplayWidget : LightWidget {//TransparentWidget {
 		Part *module;
 		std::shared_ptr<Font> font;
 		char displayStr[5 + 1];// room for two chars left of decimal point, then decimal point, then two chars right of decimal point, plus null

@@ -624,9 +624,9 @@ struct SemiModularSynth : Module {
 			}			
 		}
 		else {// legacy
-			int lengths[16];//1 to 16
-			int runModeSeq[16]; 
-			int transposeOffsets[16];
+			int lengths[16] = {};//1 to 16
+			int runModeSeq[16] = {}; 
+			int transposeOffsets[16] = {};
 
 		
 			// lengths
@@ -1826,7 +1826,7 @@ struct SemiModularSynth : Module {
 struct SemiModularSynthWidget : ModuleWidget {
 	SvgPanel* darkPanel;
 
-	struct SequenceDisplayWidget : TransparentWidget {
+	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
 		SemiModularSynth *module;
 		std::shared_ptr<Font> font;
 		char displayStr[4];

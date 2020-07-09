@@ -531,7 +531,7 @@ struct WriteSeq64 : Module {
 struct WriteSeq64Widget : ModuleWidget {
 	SvgPanel* darkPanel;
 
-	struct NoteDisplayWidget : TransparentWidget {
+	struct NoteDisplayWidget : LightWidget {//TransparentWidget {
 		WriteSeq64 *module;
 		std::shared_ptr<Font> font;
 		char text[7];
@@ -586,7 +586,7 @@ struct WriteSeq64Widget : ModuleWidget {
 	};
 
 
-	struct StepsDisplayWidget : TransparentWidget {
+	struct StepsDisplayWidget : LightWidget {//TransparentWidget {
 		WriteSeq64 *module;
 		std::shared_ptr<Font> font;
 		
@@ -611,7 +611,7 @@ struct WriteSeq64Widget : ModuleWidget {
 	};	
 	
 	
-	struct StepDisplayWidget : TransparentWidget {
+	struct StepDisplayWidget : LightWidget {//TransparentWidget {
 		WriteSeq64 *module;
 		std::shared_ptr<Font> font;
 		
@@ -636,7 +636,7 @@ struct WriteSeq64Widget : ModuleWidget {
 	};
 	
 	
-	struct ChannelDisplayWidget : TransparentWidget {
+	struct ChannelDisplayWidget : LightWidget {//TransparentWidget {
 		WriteSeq64 *module;
 		std::shared_ptr<Font> font;
 		

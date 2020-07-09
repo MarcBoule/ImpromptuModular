@@ -529,7 +529,7 @@ struct WriteSeq32Widget : ModuleWidget {
 	SvgPanel* darkPanel;
 	int notesPos[8]; // used for rendering notes in LCD_24, 8 gate and 8 step LEDs 
 
-	struct NotesDisplayWidget : TransparentWidget {
+	struct NotesDisplayWidget : LightWidget {//TransparentWidget {
 		WriteSeq32 *module;
 		std::shared_ptr<Font> font;
 		char text[4];
@@ -589,7 +589,7 @@ struct WriteSeq32Widget : ModuleWidget {
 	};
 
 
-	struct StepsDisplayWidget : TransparentWidget {
+	struct StepsDisplayWidget : LightWidget {//TransparentWidget {
 		WriteSeq32 *module;
 		std::shared_ptr<Font> font;
 		

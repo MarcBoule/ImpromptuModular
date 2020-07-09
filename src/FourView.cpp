@@ -489,7 +489,7 @@ struct FourView : Module {
 struct FourViewWidget : ModuleWidget {
 	SvgPanel* darkPanel;
 
-	struct NotesDisplayWidget : TransparentWidget {
+	struct NotesDisplayWidget : LightWidget {//TransparentWidget {
 		FourView* module;
 		int baseIndex;
 		std::shared_ptr<Font> font;

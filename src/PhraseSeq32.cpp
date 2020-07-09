@@ -482,9 +482,9 @@ struct PhraseSeq32 : Module {
 			}			
 		}
 		else {// legacy
-			int lengths[32];//1 to 32
-			int runModeSeq[32]; 
-			int transposeOffsets[32];	
+			int lengths[32] = {};//1 to 32
+			int runModeSeq[32] = {}; 
+			int transposeOffsets[32] = {};	
 			
 			// runModeSeq
 			json_t *runModeSeqJ = json_object_get(rootJ, "runModeSeq3");
@@ -1725,7 +1725,7 @@ struct PhraseSeq32 : Module {
 struct PhraseSeq32Widget : ModuleWidget {
 	SvgPanel* darkPanel;
 	
-	struct SequenceDisplayWidget : TransparentWidget {
+	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
 		PhraseSeq32 *module;
 		std::shared_ptr<Font> font;
 		char displayStr[4];

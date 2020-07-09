@@ -841,7 +841,7 @@ struct ClockedWidget : ModuleWidget {
 	SvgPanel* darkPanel;
 	PortWidget* slaveResetRunBpmInputs[3];
 
-	struct RatioDisplayWidget : TransparentWidget {
+	struct RatioDisplayWidget : LightWidget {//TransparentWidget {
 		Clocked *module;
 		int knobIndex;
 		std::shared_ptr<Font> font;

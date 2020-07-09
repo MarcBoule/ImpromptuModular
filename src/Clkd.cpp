@@ -712,7 +712,7 @@ struct ClkdWidget : ModuleWidget {
 	SvgPanel* darkPanel;
 	PortWidget* slaveResetRunBpmInputs[3];
 
-	struct BpmRatioDisplayWidget : TransparentWidget {
+	struct BpmRatioDisplayWidget : LightWidget {//TransparentWidget {
 		Clkd *module;
 		std::shared_ptr<Font> font;
 		char displayStr[4];

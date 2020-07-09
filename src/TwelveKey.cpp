@@ -336,7 +336,7 @@ struct TwelveKey : Module {
 struct TwelveKeyWidget : ModuleWidget {
 	SvgPanel* darkPanel;
 
-	struct OctaveNumDisplayWidget : TransparentWidget {
+	struct OctaveNumDisplayWidget : LightWidget {//TransparentWidget {
 		int *octaveNum;
 		std::shared_ptr<Font> font;
 		
