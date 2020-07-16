@@ -1,7 +1,7 @@
 ### 1.1.8 (in development)
 
 - Made LED displays show when using the Lights Out module (Modular Fungi plugin)
-- Add note viewer option to TwelveKey
+- Add "CV input viewer" option to TwelveKey
 
 
 ### 1.1.7 (2020-07-01)

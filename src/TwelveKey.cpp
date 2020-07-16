@@ -472,7 +472,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		traceItem->module = module;
 		menu->addChild(traceItem);	
 
-		KeyViewItem *keyvItem = createMenuItem<KeyViewItem>("Note viewer", CHECKMARK(module->keyView != 0));
+		KeyViewItem *keyvItem = createMenuItem<KeyViewItem>("CV input viewer", CHECKMARK(module->keyView != 0));
 		keyvItem->module = module;
 		menu->addChild(keyvItem);	
 	}	
