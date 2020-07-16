@@ -59,6 +59,7 @@ struct TwelveKey : Module {
 	bool invertVel;// range is inverted (min vel is end of key)
 	bool linkVelSettings;
 	int8_t tracer;
+	int8_t keyView;
 	
 	
 	// No need to save, with reset
@@ -104,6 +105,7 @@ struct TwelveKey : Module {
 		invertVel = false;
 		linkVelSettings = false;
 		tracer = 0;// off by default
+		keyView = 0;// off by default
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -148,6 +150,9 @@ struct TwelveKey : Module {
 
 		// tracer
 		json_object_set_new(rootJ, "tracer", json_integer(tracer));
+
+		// keyView
+		json_object_set_new(rootJ, "keyView", json_integer(keyView));
 
 		return rootJ;
 	}
@@ -200,6 +205,11 @@ struct TwelveKey : Module {
 		if (tracerJ)
 			tracer = json_integer_value(tracerJ);
 
+		// keyView
+		json_t *keyViewJ = json_object_get(rootJ, "keyView");
+		if (keyViewJ)
+			keyView = json_integer_value(keyViewJ);
+
 		resetNonJson();
 	}
 
@@ -222,11 +232,12 @@ struct TwelveKey : Module {
 				params[VELPOL_PARAM].setValue(message[2]);
 			}
 
-			// Octave buttons and input
-			upOctTrig = octIncTrigger.process(params[OCTINC_PARAM].getValue());
-			downOctTrig = octDecTrigger.process(params[OCTDEC_PARAM].getValue());
+			// Octave buttons
+			upOctTrig = octIncTrigger.process(params[OCTINC_PARAM].getValue()) && keyView != 0;
+			downOctTrig = octDecTrigger.process(params[OCTDEC_PARAM].getValue()) && keyView != 0;
 			
-			if (maxVelTrigger.process(params[MAXVEL_PARAM].getValue())) {
+			// Max velocity button
+			if (maxVelTrigger.process(params[MAXVEL_PARAM].getValue()) && keyView != 0) {
 				if (maxVel > 7.5f) maxVel = 5.0f;
 				else if (maxVel > 3.0f) maxVel = 1.0f;
 				else if (maxVel > 0.5f) maxVel = 2.0f/12.0f;
@@ -236,6 +247,7 @@ struct TwelveKey : Module {
 			
 			pkInfo.showMarks = outputs[VEL_OUTPUT].isConnected() ? 2 : 0;
 		}// userInputs refresh
+
 
 		// Keyboard buttons and gate input (don't put in refresh scope or else trigger will go out to next module before cv and cv)
 		if (keyTrigger.process(pkInfo.gate)) {
@@ -258,15 +270,16 @@ struct TwelveKey : Module {
 				octaveNum--;
 		}
 		octaveNum = clamp(octaveNum, 0, 9);
+
 		
 		
 		
 		//********** Outputs and lights **********
 		
-		// cv output
+		// CV output
 		outputs[CV_OUTPUT].setVoltage(cv);
 		
-		// velocity output
+		// Velocity output
 		if (stateInternal == false) {// if receiving a key from left chain
 			outputs[VEL_OUTPUT].setVoltage(inputs[VEL_INPUT].getVoltage());
 		}
@@ -279,12 +292,10 @@ struct TwelveKey : Module {
 			outputs[VEL_OUTPUT].setVoltage(velVolt);
 		}
 		
-
 		// Octave output
 		outputs[OCT_OUTPUT].setVoltage(std::round( (float)(octaveNum + 1) ));
 		
-		
-		// gate output
+		// Gate output
 		if (stateInternal == false) {// if receiving a key from left chain
 			outputs[GATE_OUTPUT].setVoltage(inputs[GATE_INPUT].getVoltage());
 		}
@@ -296,20 +307,35 @@ struct TwelveKey : Module {
 		// lights
 		if (refresh.processLights()) {
 			// Key lights
-			for (int i = 0; i < 12; i++) {
-				float lightVoltage = 0.0f;
-				if (i == pkInfo.key) {
-					lightVoltage = (noteLightCounter > 0ul || pkInfo.gate) ? 1.0f : (tracer ? 0.15f : 0.0f);
+			if (keyView != 0) {
+				int note12;
+				int oct0;
+				calcNoteAndOct(inputs[CV_INPUT].getVoltage(), &note12, &oct0);
+				for (int i = 0; i < 12; i++) {
+					lights[KEY_LIGHTS + i].setBrightness(i == note12 ? 1.0f : 0.0f);
+				}				
+			}
+			else {	
+				for (int i = 0; i < 12; i++) {
+					float lightVoltage = 0.0f;
+						if (i == pkInfo.key) {
+							lightVoltage = (noteLightCounter > 0ul || pkInfo.gate) ? 1.0f : (tracer ? 0.15f : 0.0f);
+						}
+					lights[KEY_LIGHTS + i].setBrightness(lightVoltage);
 				}
-				lights[KEY_LIGHTS + i].setBrightness(lightVoltage);
 			}
 			
 			// Max velocity lights
-			if (maxVel > 7.5f) setMaxVelLights(0);
-			else if (maxVel > 3.0f) setMaxVelLights(1);
-			else if (maxVel > 0.5f) setMaxVelLights(2);
-			else if (maxVel > 1.5f/12.0f) setMaxVelLights(3);
-			else setMaxVelLights(4);
+			if (keyView != 0) {
+				setMaxVelLights(5);// this means all lights will be off
+			}
+			else {
+				if (maxVel > 7.5f) setMaxVelLights(0);
+				else if (maxVel > 3.0f) setMaxVelLights(1);
+				else if (maxVel > 0.5f) setMaxVelLights(2);
+				else if (maxVel > 1.5f/12.0f) setMaxVelLights(3);
+				else setMaxVelLights(4);
+			}
 			
 			if (noteLightCounter > 0ul)
 				noteLightCounter--;
@@ -337,7 +363,7 @@ struct TwelveKeyWidget : ModuleWidget {
 	SvgPanel* darkPanel;
 
 	struct OctaveNumDisplayWidget : LightWidget {//TransparentWidget {
-		int *octaveNum;
+		TwelveKey *module;
 		std::shared_ptr<Font> font;
 		
 		OctaveNumDisplayWidget() {
@@ -348,14 +374,33 @@ struct TwelveKeyWidget : ModuleWidget {
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);
-
+						
 			Vec textPos = VecPx(6, 24);
 			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
 			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
 			nvgFillColor(args.vg, textColor);
+			
 			char displayStr[2];
-			displayStr[0] = 0x30 + (char) (octaveNum != NULL ? *octaveNum : 4);
+			if (module == NULL) {
+				displayStr[0] = '4';
+			}
+			else if (module->keyView != 0) {
+				int note12;
+				int oct0;
+				calcNoteAndOct(module->inputs[TwelveKey::CV_INPUT].getVoltage(), &note12, &oct0);
+				oct0 += 4;
+				if (oct0 >= 0 && oct0 <= 9) {
+					displayStr[0] = 0x30 + (char)oct0;
+				}
+				else {
+					displayStr[0] = '-';
+				}
+			}
+			else {	
+				displayStr[0] = 0x30 + (char)(module->octaveNum);
+			}
 			displayStr[1] = 0;
+			
 			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};
@@ -383,6 +428,12 @@ struct TwelveKeyWidget : ModuleWidget {
 		TwelveKey *module;
 		void onAction(const event::Action &e) override {
 			module->tracer ^= 0x1;
+		}
+	};
+	struct KeyViewItem : MenuItem {
+		TwelveKey *module;
+		void onAction(const event::Action &e) override {
+			module->keyView ^= 0x1;
 		}
 	};
 	void appendContextMenu(Menu *menu) override {
@@ -420,6 +471,10 @@ struct TwelveKeyWidget : ModuleWidget {
 		TracerItem *traceItem = createMenuItem<TracerItem>("Tracer", CHECKMARK(module->tracer != 0));
 		traceItem->module = module;
 		menu->addChild(traceItem);	
+
+		KeyViewItem *keyvItem = createMenuItem<KeyViewItem>("Note viewer", CHECKMARK(module->keyView != 0));
+		keyvItem->module = module;
+		menu->addChild(keyvItem);	
 	}	
 	
 	
@@ -509,7 +564,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		OctaveNumDisplayWidget *octaveNumDisplay = new OctaveNumDisplayWidget();
 		octaveNumDisplay->box.size = VecPx(24, 30);// 1 character
 		octaveNumDisplay->box.pos = VecPx(columnRulerR2 - octaveNumDisplay->box.size.x / 2, rowRuler0 - octaveNumDisplay->box.size.y / 2);
-		octaveNumDisplay->octaveNum = module ? &module->octaveNum : NULL;
+		octaveNumDisplay->module = module;
 		addChild(octaveNumDisplay);
 		
 		// Max velocity button and lights
