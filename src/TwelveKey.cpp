@@ -233,11 +233,11 @@ struct TwelveKey : Module {
 			}
 
 			// Octave buttons
-			upOctTrig = octIncTrigger.process(params[OCTINC_PARAM].getValue()) && keyView != 0;
-			downOctTrig = octDecTrigger.process(params[OCTDEC_PARAM].getValue()) && keyView != 0;
+			upOctTrig = octIncTrigger.process(params[OCTINC_PARAM].getValue());
+			downOctTrig = octDecTrigger.process(params[OCTDEC_PARAM].getValue());
 			
 			// Max velocity button
-			if (maxVelTrigger.process(params[MAXVEL_PARAM].getValue()) && keyView != 0) {
+			if (maxVelTrigger.process(params[MAXVEL_PARAM].getValue()) && keyView == 0) {
 				if (maxVel > 7.5f) maxVel = 5.0f;
 				else if (maxVel > 3.0f) maxVel = 1.0f;
 				else if (maxVel > 0.5f) maxVel = 2.0f/12.0f;
@@ -277,10 +277,10 @@ struct TwelveKey : Module {
 		//********** Outputs and lights **********
 		
 		// CV output
-		outputs[CV_OUTPUT].setVoltage(cv);
+		outputs[CV_OUTPUT].setVoltage(keyView != 0 ? inputs[CV_INPUT].getVoltage() : cv);
 		
 		// Velocity output
-		if (stateInternal == false) {// if receiving a key from left chain
+		if (stateInternal == false || keyView != 0) {// if receiving a key from left chain or in keyView mode
 			outputs[VEL_OUTPUT].setVoltage(inputs[VEL_INPUT].getVoltage());
 		}
 		else {// key from this
@@ -296,7 +296,15 @@ struct TwelveKey : Module {
 		outputs[OCT_OUTPUT].setVoltage(std::round( (float)(octaveNum + 1) ));
 		
 		// Gate output
-		if (stateInternal == false) {// if receiving a key from left chain
+		if (keyView != 0) {
+			if (inputs[GATE_INPUT].isConnected()) {
+				outputs[GATE_OUTPUT].setVoltage(inputs[GATE_INPUT].getVoltage());
+			}
+			else {
+				outputs[GATE_OUTPUT].setVoltage(10.0f);
+			}
+		}
+		else if (stateInternal == false) {// if receiving a key from left chain 
 			outputs[GATE_OUTPUT].setVoltage(inputs[GATE_INPUT].getVoltage());
 		}
 		else {// key from this
@@ -306,36 +314,35 @@ struct TwelveKey : Module {
 
 		// lights
 		if (refresh.processLights()) {
-			// Key lights
+			int note12 = -100;
+			int oct0 = -100;
 			if (keyView != 0) {
-				int note12;
-				int oct0;
 				calcNoteAndOct(inputs[CV_INPUT].getVoltage(), &note12, &oct0);
-				for (int i = 0; i < 12; i++) {
-					lights[KEY_LIGHTS + i].setBrightness(i == note12 ? 1.0f : 0.0f);
-				}				
 			}
-			else {	
-				for (int i = 0; i < 12; i++) {
-					float lightVoltage = 0.0f;
-						if (i == pkInfo.key) {
-							lightVoltage = (noteLightCounter > 0ul || pkInfo.gate) ? 1.0f : (tracer ? 0.15f : 0.0f);
-						}
-					lights[KEY_LIGHTS + i].setBrightness(lightVoltage);
+
+			for (int i = 0; i < 12; i++) {
+				float lightVoltage = 0.0f;
+				if (i == pkInfo.key) {
+					lightVoltage = (noteLightCounter > 0ul || pkInfo.gate) ? 1.0f : (tracer ? 0.15f : 0.0f);
 				}
+				if (i == note12 && octaveNum == (oct0 + 4) && (!inputs[GATE_INPUT].isConnected() || gateInputTrigger.isHigh())) {
+					lightVoltage = 1.0f;
+				}						
+				lights[KEY_LIGHTS + i].setBrightness(lightVoltage);
 			}
 			
 			// Max velocity lights
 			if (keyView != 0) {
 				setMaxVelLights(5);// this means all lights will be off
 			}
-			else {
+			else {			
 				if (maxVel > 7.5f) setMaxVelLights(0);
 				else if (maxVel > 3.0f) setMaxVelLights(1);
 				else if (maxVel > 0.5f) setMaxVelLights(2);
 				else if (maxVel > 1.5f/12.0f) setMaxVelLights(3);
 				else setMaxVelLights(4);
 			}
+
 			
 			if (noteLightCounter > 0ul)
 				noteLightCounter--;
@@ -383,18 +390,6 @@ struct TwelveKeyWidget : ModuleWidget {
 			char displayStr[2];
 			if (module == NULL) {
 				displayStr[0] = '4';
-			}
-			else if (module->keyView != 0) {
-				int note12;
-				int oct0;
-				calcNoteAndOct(module->inputs[TwelveKey::CV_INPUT].getVoltage(), &note12, &oct0);
-				oct0 += 4;
-				if (oct0 >= 0 && oct0 <= 9) {
-					displayStr[0] = 0x30 + (char)oct0;
-				}
-				else {
-					displayStr[0] = '-';
-				}
 			}
 			else {	
 				displayStr[0] = 0x30 + (char)(module->octaveNum);
