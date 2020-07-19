@@ -1,5 +1,5 @@
 Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://vcvrack.com/plugins.html).
-Version 1.1.7.
+Version 1.1.8.
 
 Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -683,6 +683,9 @@ Options available in the right-click menu include:
 * **Link velocity settings from left**: When linking multiple TwelveKey, this option can be activated to propagate the velocity settings (Max Vel, Bipol and Velocity Inversion) from the first module in the chain down to all the other ones placed to the right; no spaces between modules are allowed in this case.
 
 * **Tracer**: Keep the last key pressed faintly lit. Because multiple TwelveKey modules do not communicate bi-directionally when making a mutli-octave keyboard, it is not possible to have a single bright light showing the last unique key pressed across all modules.
+
+* **CV input viewer**: When this option is activated, the module will not respond to key presses but will instead show which  key the CV input corresponds to, provided that the given CV is within in the selected octave. In this manner, a chain of TwelveKey modules, each having the option activated, will serve as a keyboard note indicator. When a note is outside of the octave intervals of the chain, no key will light up. When using this setup, the Octave, CV and Gate connections should be made between all TwelveKey modules. The CV is simply a pass through, the Octave automatically sets up consecutive octaves as usual, and the gate is used as an enable for the key light. When the left-most module's Gate input is unconnected, a selected key's light will stay continually on.
+
 
 ([Back to module list](#modules))
 
