@@ -601,6 +601,7 @@ struct Tact1 : Module {
 	// No need to save, no reset
 	RefreshCounter refresh;	
 	
+
 	inline bool isExpSliding(void) {return params[EXP_PARAM].getValue() > 0.5f;}
 
 	
@@ -846,6 +847,312 @@ struct Tact1Widget : ModuleWidget {
 
 //*****************************************************************************
 
+
+struct Tact2 : Module {
+	static const int numLights = 10;// number of lights per channel
+
+	enum ParamIds {
+		TACT_PARAM,// touch pad
+		ATTV_PARAM,// attenuverter
+		RATE_PARAM,// rate knob
+		EXP_PARAM,
+		OFFSET_PARAM,
+		NUM_PARAMS
+	};
+	enum InputIds {
+		GATE_INPUT,
+		NUM_INPUTS
+	};
+	enum OutputIds {
+		CV_OUTPUT,
+		GATE_OUTPUT,
+		NUM_OUTPUTS
+	};
+	enum LightIds {
+		ENUMS(TACT_LIGHTS, numLights * 2), // (*2 for GreenRed)
+		NUM_LIGHTS
+	};
+		
+	// Need to save, no reset
+	int panelTheme;
+	
+	// Need to save, with reset
+	double cv;// actual Tact CV since Tactknob can be different than these when transitioning
+	float rateMultiplier;
+	int8_t autoReturn; //-1 is off
+
+	// No need to save, with reset
+	int8_t gate;	
+	
+	// No need to save, no reset
+	RefreshCounter refresh;	
+	
+	
+	inline bool isExpSliding(void) {return params[EXP_PARAM].getValue() > 0.5f;}
+
+	
+	Tact2() {
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		
+		configParam(TACT_PARAM, 0.0f, 10.0f, 0.0f, "Tact pad");
+		configParam(ATTV_PARAM, -1.0f, 1.0f, 1.0f, "Attenuverter");
+		configParam(RATE_PARAM, 0.0f, 4.0f, 0.2f, "Rate", " s/V");
+		configParam(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential");			
+		configParam(OFFSET_PARAM,  -10.0f, 10.0f, 0.0f,"Offset", " V");			
+		
+		onReset();
+		
+		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+	}
+
+	
+	void onReset() override {
+		cv = 0.0f;
+		rateMultiplier = 1.0f;
+		autoReturn = -1;
+		resetNonJson();
+	}
+	void resetNonJson() {
+		gate = 0;
+	}
+
+	
+	void onRandomize() override {
+		cv = params[TACT_PARAM].getValue();
+	}
+
+	
+	json_t *dataToJson() override {
+		json_t *rootJ = json_object();
+
+		// panelTheme
+		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+
+		// cv
+		json_object_set_new(rootJ, "cv", json_real(cv));
+		
+		// rateMultiplier
+		json_object_set_new(rootJ, "rateMultiplier", json_real(rateMultiplier));
+		
+		// autoReturn
+		json_object_set_new(rootJ, "autoReturn", json_integer(autoReturn));
+
+		return rootJ;
+	}
+
+	
+	void dataFromJson(json_t *rootJ) override {
+		// panelTheme
+		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+		if (panelThemeJ)
+			panelTheme = json_integer_value(panelThemeJ);
+
+		// cv
+		json_t *cvJ = json_object_get(rootJ, "cv");
+		if (cvJ)
+			cv = json_number_value(cvJ);
+
+		// rateMultiplier
+		json_t *rateMultiplierJ = json_object_get(rootJ, "rateMultiplier");
+		if (rateMultiplierJ)
+			rateMultiplier = json_number_value(rateMultiplierJ);
+		
+		// autoReturn
+		json_t *autoReturnJ = json_object_get(rootJ, "autoReturn");
+		if (autoReturnJ)
+			autoReturn = json_integer_value(autoReturnJ);
+
+		resetNonJson();
+	}
+
+	
+	void process(const ProcessArgs &args) override {		
+		// cv
+		float newParamValue = params[TACT_PARAM].getValue();
+		if (newParamValue != cv) {
+			newParamValue = clamp(newParamValue, 0.0f, 10.0f);// legacy for when range was -1.0f to 11.0f
+			double transitionRate = std::max(0.001, (double)params[RATE_PARAM].getValue() * rateMultiplier); // s/V
+			double dt = args.sampleTime;
+			if ((newParamValue - cv) > 0.001f) {
+				double dV = isExpSliding() ? (cv + 1.0) * (pow(11.0, dt / (10.0 * transitionRate)) - 1.0) : dt/transitionRate;
+				double newCV = cv + dV;
+				if (newCV > newParamValue)
+					cv = newParamValue;
+				else
+					cv = (float)newCV;
+			}
+			else if ((newParamValue - cv) < -0.001f) {
+				dt *= -1.0;
+				double dV = isExpSliding() ? (cv + 1.0) * (pow(11.0, dt / (10.0 * transitionRate)) - 1.0) : dt/transitionRate;
+				double newCV = cv + dV;
+				if (newCV < newParamValue)
+					cv = newParamValue;
+				else
+					cv = (float)newCV;
+			}
+			else {// too close to target or rate too fast, thus no slide
+				cv = newParamValue;	
+			}
+		}
+		
+	
+		// Gate Output
+		float gateOut = (inputs[GATE_INPUT].getVoltage() >= 1.0f || gate != 0) ?  10.0f : 0.0f;
+		outputs[GATE_OUTPUT].setVoltage(std::min(10.0f, gateOut));
+	
+		// CV Output
+		float cvOut = (float)cv * params[ATTV_PARAM].getValue() + params[OFFSET_PARAM].getValue();
+		outputs[CV_OUTPUT].setVoltage(clamp(cvOut, -10.0f, 10.0f));
+		
+		
+		// lights
+		if (refresh.processLights()) {
+			setTLights();
+		}
+	}
+	
+	void setTLights() {
+		float cvValue = (float)cv;
+		for (int i = 0; i < numLights; i++) {
+			float level = clamp( cvValue - ((float)(i)), 0.0f, 1.0f);
+			// Green diode
+			lights[TACT_LIGHTS + (numLights - 1 - i) * 2 + 0].setBrightness(level);
+			// Red diode
+			lights[TACT_LIGHTS + (numLights - 1 - i) * 2 + 1].setBrightness(0.0f);
+		}
+	}
+};
+
+struct Tact2Widget : ModuleWidget {
+	SvgPanel* darkPanel;
+
+	struct PanelThemeItem : MenuItem {
+		Tact2 *module;
+		void onAction(const event::Action &e) override {
+			module->panelTheme ^= 0x1;
+		}
+	};
+	struct ExtendRateItem : MenuItem {
+		Tact2 *module;
+		void onAction(const event::Action &e) override {
+			if (module->rateMultiplier < 2.0f)
+				module->rateMultiplier = 3.0f;
+			else
+				module->rateMultiplier = 1.0f;
+		}
+	};
+	
+	void appendContextMenu(Menu *menu) override {
+		MenuLabel *spacerLabel = new MenuLabel();
+		menu->addChild(spacerLabel);
+
+		Tact2 *module = dynamic_cast<Tact2*>(this->module);
+		assert(module);
+
+		MenuLabel *themeLabel = new MenuLabel();
+		themeLabel->text = "Panel Theme";
+		menu->addChild(themeLabel);
+
+		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
+		darkItem->module = module;
+		menu->addChild(darkItem);
+		
+		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+
+		menu->addChild(new MenuLabel());// empty line
+		
+		MenuLabel *settingsLabel = new MenuLabel();
+		settingsLabel->text = "Settings";
+		menu->addChild(settingsLabel);
+		
+		ExtendRateItem *extRateItem = createMenuItem<ExtendRateItem>("Rate knob x3 (max 12 s/V)", CHECKMARK(module->rateMultiplier > 2.0f));
+		extRateItem->module = module;
+		menu->addChild(extRateItem);
+
+		AutoReturnItem *autoRetItem = createMenuItem<AutoReturnItem>("Auto-return", RIGHT_ARROW);
+		autoRetItem->autoReturnSrc = &(module->autoReturn);
+		autoRetItem->tactParamSrc = &(module->params[Tact2::TACT_PARAM]);
+		menu->addChild(autoRetItem);
+	}	
+	
+	Tact2Widget(Tact2 *module) {
+		setModule(module);
+
+		// Main panels from Inkscape
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Tact2.svg")));
+        if (module) {
+			darkPanel = new SvgPanel();
+			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/Tact2_dark.svg")));
+			darkPanel->visible = false;
+			addChild(darkPanel);
+		}
+		
+		// Screws
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		
+		
+		static constexpr float padY = 17.0f;
+		
+		// Tactile touch pad
+		TactPad *tpad;
+		addParam(tpad = createParam<TactPad>(mm2px(Vec(16.0f, padY)), module, Tact2::TACT_PARAM));
+		if (module) {
+			tpad->autoReturnSrc = &(module->autoReturn);
+			tpad->gateSrc = &(module->gate);
+		}
+			
+			
+		static constexpr float colRulerLed = 34.0f;
+		static constexpr float lightsSpacingY = 5.76f;
+				
+		// Tactile lights
+		for (int i = 0 ; i < Tact2::numLights; i++) {
+			addChild(createLight<MediumLight<GreenRedLight>>(mm2px(Vec(colRulerLed, padY + 3.3f + i * lightsSpacingY)), module, Tact2::TACT_LIGHTS + i * 2));
+		}
+
+
+		static constexpr float knobX = 8.0f;
+		static constexpr float knobTopY = 28.0f;
+		static constexpr float knobOffsetY = 21.0f;
+		
+		// Knobs
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY)), module, Tact2::RATE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY)), module, Tact2::ATTV_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 2.0f)), module, Tact2::OFFSET_PARAM, module ? &module->panelTheme : NULL));
+		
+		
+		static constexpr float rowRulerB1 = 96.3f;
+		static constexpr float rowRulerB2 = 111.9f;
+		static constexpr float colRulerL = 11.5f;
+		static constexpr float colRulerR = 40.64f - colRulerL;
+	
+		// Gate in port and Exp switch
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerL, rowRulerB1)), true, module, Tact2::GATE_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerL, rowRulerB2)), module, Tact2::EXP_PARAM));	
+
+		// Gate and CV outputs
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerR, rowRulerB1)), false, module, Tact2::GATE_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerR, rowRulerB2)), false, module, Tact2::CV_OUTPUT, module ? &module->panelTheme : NULL));
+	}
+	
+	void step() override {
+		if (module) {
+			panel->visible = ((((Tact2*)module)->panelTheme) == 0);
+			darkPanel->visible  = ((((Tact2*)module)->panelTheme) == 1);
+		}
+		Widget::step();
+	}
+};
+
+
+//*****************************************************************************
+
+
 Model *modelTact = createModel<Tact, TactWidget>("Tact");
 
 Model *modelTact1 = createModel<Tact1, Tact1Widget>("Tact1");
+
+Model *modelTact2 = createModel<Tact2, Tact2Widget>("Tact2");

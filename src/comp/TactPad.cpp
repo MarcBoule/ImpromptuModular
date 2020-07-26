@@ -29,6 +29,9 @@ void TactPad::onDragEnd(const event::DragEnd &e) {
 			paramQuantity->setValue(autoreturnVoltages[*autoReturnSrc]);
 		}
 	}
+	if (gateSrc != NULL) {
+		*gateSrc = 0;
+	}
 	ParamWidget::onDragEnd(e);
 }
 
@@ -39,6 +42,9 @@ void TactPad::onButton(const event::Button &e) {
 		onButtonPosY = e.pos.y;
 		if (e.action == GLFW_PRESS && e.button == GLFW_MOUSE_BUTTON_LEFT) {
 			setTactParam(onButtonPosY);
+			if (gateSrc != NULL) {
+				*gateSrc = 1;
+			}
 		}
 	}
 	ParamWidget::onButton(e);
@@ -67,6 +73,9 @@ void TactPad::setTactParam(float posY) { // posY in pixel space
 void TactPad::reset() {
 	if (paramQuantity) {
 		paramQuantity->reset();
+	}
+	if (gateSrc != NULL) {
+		*gateSrc = 0;
 	}
 }
 

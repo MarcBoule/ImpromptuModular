@@ -161,6 +161,13 @@
 			"tags": ["Controller"]
 		},
 		{
+			"slug": "Tact2",
+			"name": "Tact2",
+			"description": "Tactile-inspired controller",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#tact",
+			"tags": ["Controller"]
+		},
+		{
 			"slug": "Twelve-Key",
 			"name": "TwelveKey",
 			"description": "Chainable one octave keyboard controller",

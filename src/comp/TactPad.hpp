@@ -22,6 +22,7 @@ struct TactPad : ParamWidget {
 	static const int padWidth = 45;
 	static const int padHeight = 200;// 1/12th of vertical height is used as overflow top, same for bottom
 	int8_t *autoReturnSrc = NULL;
+	int8_t *gateSrc = NULL;
 	
 	TactPad();
 	void onDragMove(const event::DragMove &e) override;

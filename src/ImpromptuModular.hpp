@@ -41,6 +41,7 @@ extern Model *modelPhraseSeqExpander;
 extern Model *modelSemiModularSynth;
 extern Model *modelTact;
 extern Model *modelTact1;
+extern Model *modelTact2;
 extern Model *modelTwelveKey;
 extern Model *modelWriteSeq32;
 extern Model *modelWriteSeq64;
