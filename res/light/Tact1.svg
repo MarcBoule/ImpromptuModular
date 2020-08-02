@@ -13,7 +13,7 @@
    version="1.1"
    id="svg38"
    sodipodi:docname="Tact1.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
      id="metadata44">
     <rdf:RDF>
@@ -43,9 +43,9 @@
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="1.2421053"
-     inkscape:cx="226.58794"
-     inkscape:cy="244.34525"
+     inkscape:zoom="4.9684212"
+     inkscape:cx="131.54143"
+     inkscape:cy="193.16607"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -70,25 +70,20 @@
        id="path4"
        inkscape:connector-curvature="0" />
   </g>
-  <g
-     transform="matrix(1.28,0,0,1.28,-63.100162,-203.85923)"
-     id="g12"
-     style="fill:#a0a0a0;stroke:#646464;stroke-width:0.78125">
-    <rect
-       width="10.716"
-       height="51.726002"
-       x="53.597"
-       y="170.89799"
-       rx="0.66015625"
-       ry="0.66015625"
-       id="rect8"
-       style="stroke-width:0.93046874;paint-order:stroke markers fill" />
-    <path
-       d="m 53.002,218.618 11.275,0.04 0.063,0.04 m -11.338,-44.178 11.275,0.04 0.063,0.041"
-       id="path10"
-       inkscape:connector-curvature="0"
-       style="stroke-width:0.20703124" />
-  </g>
+  <rect
+     style="fill:#a0a0a0;stroke:#646464;stroke-width:1.19099998;paint-order:stroke markers fill"
+     id="rect8"
+     ry="0.84500003"
+     rx="0.84500003"
+     y="14.890203"
+     x="5.5039983"
+     height="66.209282"
+     width="13.716479" />
+  <path
+     style="fill:#a0a0a0;stroke:#646464;stroke-width:0.26499999"
+     inkscape:connector-curvature="0"
+     id="path10"
+     d="m 5.0619226,75.97181 14.4319994,0.0512 0.08064,0.0512 M 5.0619226,19.52637 l 14.4319994,0.0512 0.08064,0.05248" />
   <rect
      rx="2.3399999"
      ry="2.3399999"

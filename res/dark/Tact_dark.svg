@@ -14,7 +14,7 @@
    version="1.1"
    id="svg200"
    sodipodi:docname="Tact_dark.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
      id="metadata204">
     <rdf:RDF>
@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -43,8 +43,8 @@
      inkscape:document-units="mm"
      units="mm"
      inkscape:zoom="4.968421"
-     inkscape:cx="94.059012"
-     inkscape:cy="450.51422"
+     inkscape:cx="147.97953"
+     inkscape:cy="246.27716"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -722,42 +722,32 @@
        ry="0.15156488"
        transform="matrix(0.00655,0.99998,-0.99973,0.02317,0,0)" />
   </g>
-  <g
-     style="fill:#787878;stroke:#191919;stroke-width:0.78183937"
-     id="g190"
-     transform="matrix(1.2799809,0,0,1.2780901,-21.906873,-206.14443)">
-    <rect
-       style="stroke-width:0.93117064;paint-order:stroke markers fill"
-       id="rect186"
-       width="10.716"
-       height="51.726002"
-       x="53.597"
-       y="170.89799"
-       rx="0.66016614"
-       ry="0.66114277" />
-    <path
-       style="stroke-width:0.20718741"
-       inkscape:connector-curvature="0"
-       id="path188"
-       d="m 53.002,218.618 11.275,0.04 0.063,0.04 m -11.338,-44.178 11.275,0.04 0.063,0.041" />
-  </g>
-  <g
-     style="fill:#787878;stroke:#191919;stroke-width:0.78183937"
-     id="g196"
-     transform="matrix(1.2799809,0,0,1.2780901,-43.126396,-206.23134)">
-    <rect
-       style="stroke-width:0.93117064;paint-order:stroke markers fill"
-       id="rect192"
-       width="10.716"
-       height="51.726002"
-       x="53.597"
-       y="170.89799"
-       rx="0.66016614"
-       ry="0.66114277" />
-    <path
-       style="stroke-width:0.20718741"
-       inkscape:connector-curvature="0"
-       id="path194"
-       d="m 53.002,218.618 11.275,0.04 0.063,0.04 m -11.338,-44.178 11.275,0.04 0.063,0.041" />
-  </g>
+  <rect
+     ry="0.84500003"
+     rx="0.84500003"
+     y="12.278605"
+     x="46.696262"
+     height="66.110489"
+     width="13.716275"
+     id="rect186"
+     style="fill:#787878;stroke:#191919;stroke-width:1.19099998;paint-order:stroke markers fill" />
+  <path
+     d="m 46.254193,73.269071 14.431784,0.05112 0.08064,0.05112 m -14.512423,-56.463465 14.431784,0.05112 0.08064,0.0524"
+     id="path188"
+     inkscape:connector-curvature="0"
+     style="fill:#787878;stroke:#191919;stroke-width:0.26499999" />
+  <rect
+     ry="0.84500003"
+     rx="0.84500003"
+     y="12.191695"
+     x="25.47674"
+     height="66.110489"
+     width="13.716275"
+     id="rect192"
+     style="fill:#787878;stroke:#191919;stroke-width:1.19099998;paint-order:stroke markers fill" />
+  <path
+     d="m 24.981417,73.182161 14.431784,0.05112 0.08064,0.05112 m -14.512423,-56.463465 14.431784,0.05112 0.08064,0.0524"
+     id="path194"
+     inkscape:connector-curvature="0"
+     style="fill:#787878;stroke:#191919;stroke-width:0.26499999" />
 </svg>

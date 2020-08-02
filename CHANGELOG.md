@@ -1,4 +1,9 @@
-### 1.1.8 (in development)
+### 1.1.9 (in development)
+
+- Added a new module called TactG, which is a Tact1 with one gate output and two offset controls
+
+
+### 1.1.8 (2020-07-19)
 
 - Made LED displays show when using the Lights Out module (Modular Fungi plugin)
 - Add "CV input viewer" option to TwelveKey

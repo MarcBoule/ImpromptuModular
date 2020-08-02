@@ -38,7 +38,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelSemiModularSynth);
 	p->addModel(modelTact);
 	p->addModel(modelTact1);
-	p->addModel(modelTact2);
+	p->addModel(modelTactG);
 	p->addModel(modelTwelveKey);
 	p->addModel(modelWriteSeq32);
 	p->addModel(modelWriteSeq64);

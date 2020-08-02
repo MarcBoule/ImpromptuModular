@@ -848,7 +848,7 @@ struct Tact1Widget : ModuleWidget {
 //*****************************************************************************
 
 
-struct Tact2 : Module {
+struct TactG : Module {
 	static const int numLights = 10;// number of lights per channel
 
 	enum ParamIds {
@@ -893,7 +893,7 @@ struct Tact2 : Module {
 	inline bool isExpSliding(void) {return params[EXP_PARAM].getValue() > 0.5f;}
 
 	
-	Tact2() {
+	TactG() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
 		configParam(TACT_PARAM, 0.0f, 10.0f, 0.0f, "Tact pad");
@@ -1021,11 +1021,11 @@ struct Tact2 : Module {
 	}
 };
 
-struct Tact2Widget : ModuleWidget {
+struct TactGWidget : ModuleWidget {
 	SvgPanel* darkPanel;
 
 	struct PanelThemeItem : MenuItem {
-		Tact2 *module;
+		TactG *module;
 		void onAction(const event::Action &e) override {
 			module->panelTheme ^= 0x1;
 		}
@@ -1035,7 +1035,7 @@ struct Tact2Widget : ModuleWidget {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
 
-		Tact2 *module = dynamic_cast<Tact2*>(this->module);
+		TactG *module = dynamic_cast<TactG*>(this->module);
 		assert(module);
 
 		MenuLabel *themeLabel = new MenuLabel();
@@ -1056,18 +1056,18 @@ struct Tact2Widget : ModuleWidget {
 		
 		AutoReturnItem *autoRetItem = createMenuItem<AutoReturnItem>("Auto-return", RIGHT_ARROW);
 		autoRetItem->autoReturnSrc = &(module->autoReturn);
-		autoRetItem->tactParamSrc = &(module->params[Tact2::TACT_PARAM]);
+		autoRetItem->tactParamSrc = &(module->params[TactG::TACT_PARAM]);
 		menu->addChild(autoRetItem);
 	}	
 	
-	Tact2Widget(Tact2 *module) {
+	TactGWidget(TactG *module) {
 		setModule(module);
 
 		// Main panels from Inkscape
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Tact2.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/TactG.svg")));
         if (module) {
 			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/Tact2_dark.svg")));
+			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/TactG_dark.svg")));
 			darkPanel->visible = false;
 			addChild(darkPanel);
 		}
@@ -1079,11 +1079,11 @@ struct Tact2Widget : ModuleWidget {
 		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
 		
 		
-		static constexpr float padY = 13.8f;
+		static constexpr float padY = 12.8f;
 		
 		// Tactile touch pad
 		TactPad *tpad;
-		addParam(tpad = createParam<TactPad>(mm2px(Vec(16.0f, padY)), module, Tact2::TACT_PARAM));
+		addParam(tpad = createParam<TactPad>(mm2px(Vec(16.0f, padY)), module, TactG::TACT_PARAM));
 		if (module) {
 			tpad->autoReturnSrc = &(module->autoReturn);
 			tpad->gateSrc = &(module->gate);
@@ -1094,46 +1094,46 @@ struct Tact2Widget : ModuleWidget {
 		static constexpr float lightsSpacingY = 5.76f;
 				
 		// Tactile lights
-		for (int i = 0 ; i < Tact2::numLights; i++) {
-			addChild(createLight<MediumLight<GreenRedLight>>(mm2px(Vec(colRulerLed, padY + 6.2f + i * lightsSpacingY)), module, Tact2::TACT_LIGHTS + i * 2));
+		for (int i = 0 ; i < TactG::numLights; i++) {
+			addChild(createLight<MediumLight<GreenRedLight>>(mm2px(Vec(colRulerLed, padY + 6.2f + i * lightsSpacingY)), module, TactG::TACT_LIGHTS + i * 2));
 		}
 
 
 		static constexpr float knobX = 8.0f;
-		static constexpr float knobTopY = 23.0f;
+		static constexpr float knobTopY = 22.0f;
 		static constexpr float knobOffsetY = 20.5f;
 		
 		// Rate, Attv, Ofst Knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY)), module, Tact2::RATE_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY)), module, Tact2::ATTV_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 2.0f)), module, Tact2::OFFSET_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY)), module, TactG::RATE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY)), module, TactG::ATTV_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 2.0f)), module, TactG::OFFSET_PARAM, module ? &module->panelTheme : NULL));
 		
 		
-		static constexpr float rowRulerB1 = 95.8f;
-		static constexpr float rowRulerB2 = 111.9f;
-		static constexpr float colRulerM = 23.0f;
+		static constexpr float rowRulerB1 = 94.8f;
+		static constexpr float rowRulerB2 = 110.9f;
+		static constexpr float colRulerM = 23.454f;
 		static constexpr float colRulerR = 35.1f;
 	
 		// Offset 2 input and cv knob
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 3.0f - 1.6f)), true, module, Tact2::OFFSET2_INPUT, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, rowRulerB1)), module, Tact2::OFFSET2_CV_PARAM, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 3.0f - 1.6f)), true, module, TactG::OFFSET2_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, rowRulerB1)), module, TactG::OFFSET2_CV_PARAM, module ? &module->panelTheme : NULL));
 		
 		// x3 and Exp switches
-		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerR, rowRulerB1)), module, Tact2::RATE_MULT_PARAM));	
-		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerR, rowRulerB2)), module, Tact2::EXP_PARAM));	
+		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerR, rowRulerB1)), module, TactG::RATE_MULT_PARAM));	
+		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerR, rowRulerB2)), module, TactG::EXP_PARAM));	
 
 		// Gate in port (chain)
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, rowRulerB2)), true, module, Tact2::GATE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, rowRulerB2)), true, module, TactG::GATE_INPUT, module ? &module->panelTheme : NULL));
 
 		// Gate and CV outputs
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB1)), false, module, Tact2::CV_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB2)), false, module, Tact2::GATE_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB1)), false, module, TactG::CV_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB2)), false, module, TactG::GATE_OUTPUT, module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((Tact2*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((Tact2*)module)->panelTheme) == 1);
+			panel->visible = ((((TactG*)module)->panelTheme) == 0);
+			darkPanel->visible  = ((((TactG*)module)->panelTheme) == 1);
 		}
 		Widget::step();
 	}
@@ -1147,4 +1147,4 @@ Model *modelTact = createModel<Tact, TactWidget>("Tact");
 
 Model *modelTact1 = createModel<Tact1, Tact1Widget>("Tact1");
 
-Model *modelTact2 = createModel<Tact2, Tact2Widget>("Tact2");
+Model *modelTactG = createModel<TactG, TactGWidget>("TactG");

@@ -36,7 +36,7 @@ Each module is available in light (Classic) or dark (Dark-Valor) panels, selecta
 
 * [SMS16](#sms-16): Internally pre-patched all-in-one semi-modular synthesizer for quickly getting sounds and learning the basics of modular synthesis.
 
-* [Tact/Tact1](#tact): Touch-like controller modules with variable CV outputs and rates of change.
+* [Tact/Tact1/TactG](#tact): Touch-like CV controller modules.
 
 * [TwelveKey](#twelve-key): Chainable one-octave keyboard controller.
 
@@ -624,13 +624,15 @@ The SMS16 also features the advanced gate mode of the PhraseSeq16. When changing
 
 
 
-## Tact/Tact1 <a id="tact"></a>
+## Tact/Tact1/TactG <a id="tact"></a>
 
 ![IM](res/img/Tact.jpg)
 
-A touch-like controller module with dual CV outputs and variable rate of change. With a fast rate of change, the controller offers an alternative to knobs for setting parameters, and with a slow rate of change it can be used to automate in-out fades, for example, freeing the performer to work elsewhere in the patch. Tact-1 is a single channel version of Tact with fewer options. 
+Touch-like controller modules CV outputs and variable rate of change. With a fast rate of change, the controllers offer an alternative to knobs for setting parameters, and with a slow rate of change they can be used to automate in-out fades, for example, freeing the performer to work elsewhere in the patch. Tact-1 is a single channel version of Tact with fewer options, while Tact-G is a Tact-1 with one gate output and two offset controls. 
 
 * **RATE**: Transition time of CV, from 0 (instant transition) to 4 seconds per volt. Transition time is the inverse of slew rate. This knob can be turned in real time to affect the rate of change of a transition already under way. An option in the right-click menu called **Rate knob x3** can be used for even slower transitions, in which case a full transition from 0 to 10V (or vice versa) will last 2 minutes instead of 40 seconds in the default setting.
+
+* **ATTV**: Typical attenuverter to set the maximum CV range output by the module. At full right, a 0 to 10V CV is produced, and at full left, a 0 to -10V CV is produced.
 
 * **LINK**: Both controls are linked and will be synchronized to the same value. Useful when controlling stereo sounds. Only the left side controls have an effect in this mode; however, both touch pads can be used to change the single CV (which is sent to both output jacks).
 
@@ -640,8 +642,6 @@ A touch-like controller module with dual CV outputs and variable rate of change.
 
 * **SLIDE**: determines whether the recall operation is instantaneous or transitions according to the current rate knob's setting.
 
-* **ATTV**: Typical attenuverter to set the maximum CV range output by the module. At full right, a 0 to 10V CV is produced, and at full left, a 0 to -10V CV is produced.
-
 * **EXP**: Produces an exponential slide (top position) instead of a linear slide (bottom position).
 
 * **EOC**:  EOC is an end-of-cycle trigger that is emitted when a slide is completed (to signal its end); this can be used for more automation, for example, by triggering or chaining other operations when a fade in/out completes. The EOC triggers upon the end of any slide event, whether the end position is at the top/bottom or not.
@@ -649,6 +649,10 @@ A touch-like controller module with dual CV outputs and variable rate of change.
 A 0V CV is initially stored in the CV memory and the slide switches are in the off position, thereby allowing the Recall to act as a **Reset** by default. An option in the right-click menu, called **Level sensitive arrow CV inputs** can be activated to control the duration of the transition. When this option is turned on, the input must be continuously held above 1V for the transition to progress, and when the input goes back under 1V, the transition will stop at its current level.
 
 The **Auto-return** option in the modules' right menus can be used to momentarily affect the tact pads with the mouse, and have the level return to a prescribed value upon releasing the mouse button. When this option is activated, the Arrow inputs implicitly become level sensitive and can also be used to momentarily effect the level.
+
+The x3 switch on Tact-G, or alternatively the x3 menu options in Tact and Tact-1, can be used to tripple the rate knob's value for even slower transitions (rate knob is 0 to 12 s/V when active).
+
+In Tact-G, two offset controls are added, one is a knob for direct control while the other is a CV input with attenuverter. Both options can be used simultaneously, for adding a random source in offset 2 while still allowing a manual offset using the first offset. The gate outputs can be chained when using multiple Tact-G modules using the chain input.
 
 ([Back to module list](#modules))
 

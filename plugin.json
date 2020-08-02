@@ -161,9 +161,9 @@
 			"tags": ["Controller"]
 		},
 		{
-			"slug": "Tact2",
-			"name": "Tact2",
-			"description": "Tactile-inspired controller",
+			"slug": "TactG",
+			"name": "TactG",
+			"description": "Tactile-inspired controller with gate output",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#tact",
 			"tags": ["Controller"]
 		},
