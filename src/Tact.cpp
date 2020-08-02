@@ -857,10 +857,13 @@ struct Tact2 : Module {
 		RATE_PARAM,// rate knob
 		EXP_PARAM,
 		OFFSET_PARAM,
+		OFFSET2_CV_PARAM,
+		RATE_MULT_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
 		GATE_INPUT,
+		OFFSET2_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -878,7 +881,6 @@ struct Tact2 : Module {
 	
 	// Need to save, with reset
 	double cv;// actual Tact CV since Tactknob can be different than these when transitioning
-	float rateMultiplier;
 	int8_t autoReturn; //-1 is off
 
 	// No need to save, with reset
@@ -898,7 +900,9 @@ struct Tact2 : Module {
 		configParam(ATTV_PARAM, -1.0f, 1.0f, 1.0f, "Attenuverter");
 		configParam(RATE_PARAM, 0.0f, 4.0f, 0.2f, "Rate", " s/V");
 		configParam(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential");			
-		configParam(OFFSET_PARAM,  -10.0f, 10.0f, 0.0f,"Offset", " V");			
+		configParam(OFFSET_PARAM,  -10.0f, 10.0f, 0.0f, "Offset", " V");			
+		configParam(OFFSET2_CV_PARAM,  -1.0f, 1.0f, 0.0f, "Offset2 CV");			
+		configParam(RATE_MULT_PARAM,  0.0f, 1.0f, 0.0f, "Slow (rate knob x3)");			
 		
 		onReset();
 		
@@ -908,7 +912,6 @@ struct Tact2 : Module {
 	
 	void onReset() override {
 		cv = 0.0f;
-		rateMultiplier = 1.0f;
 		autoReturn = -1;
 		resetNonJson();
 	}
@@ -931,9 +934,6 @@ struct Tact2 : Module {
 		// cv
 		json_object_set_new(rootJ, "cv", json_real(cv));
 		
-		// rateMultiplier
-		json_object_set_new(rootJ, "rateMultiplier", json_real(rateMultiplier));
-		
 		// autoReturn
 		json_object_set_new(rootJ, "autoReturn", json_integer(autoReturn));
 
@@ -952,11 +952,6 @@ struct Tact2 : Module {
 		if (cvJ)
 			cv = json_number_value(cvJ);
 
-		// rateMultiplier
-		json_t *rateMultiplierJ = json_object_get(rootJ, "rateMultiplier");
-		if (rateMultiplierJ)
-			rateMultiplier = json_number_value(rateMultiplierJ);
-		
 		// autoReturn
 		json_t *autoReturnJ = json_object_get(rootJ, "autoReturn");
 		if (autoReturnJ)
@@ -971,6 +966,7 @@ struct Tact2 : Module {
 		float newParamValue = params[TACT_PARAM].getValue();
 		if (newParamValue != cv) {
 			newParamValue = clamp(newParamValue, 0.0f, 10.0f);// legacy for when range was -1.0f to 11.0f
+			float rateMultiplier = params[RATE_MULT_PARAM].getValue() * 2.0f + 1.0f;
 			double transitionRate = std::max(0.001, (double)params[RATE_PARAM].getValue() * rateMultiplier); // s/V
 			double dt = args.sampleTime;
 			if ((newParamValue - cv) > 0.001f) {
@@ -1001,7 +997,9 @@ struct Tact2 : Module {
 		outputs[GATE_OUTPUT].setVoltage(std::min(10.0f, gateOut));
 	
 		// CV Output
-		float cvOut = (float)cv * params[ATTV_PARAM].getValue() + params[OFFSET_PARAM].getValue();
+		float cvOut = (float)cv * params[ATTV_PARAM].getValue();
+		cvOut += params[OFFSET_PARAM].getValue();
+		cvOut += inputs[OFFSET2_INPUT].getVoltage() * params[OFFSET2_CV_PARAM].getValue();
 		outputs[CV_OUTPUT].setVoltage(clamp(cvOut, -10.0f, 10.0f));
 		
 		
@@ -1032,15 +1030,6 @@ struct Tact2Widget : ModuleWidget {
 			module->panelTheme ^= 0x1;
 		}
 	};
-	struct ExtendRateItem : MenuItem {
-		Tact2 *module;
-		void onAction(const event::Action &e) override {
-			if (module->rateMultiplier < 2.0f)
-				module->rateMultiplier = 3.0f;
-			else
-				module->rateMultiplier = 1.0f;
-		}
-	};
 	
 	void appendContextMenu(Menu *menu) override {
 		MenuLabel *spacerLabel = new MenuLabel();
@@ -1065,10 +1054,6 @@ struct Tact2Widget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		ExtendRateItem *extRateItem = createMenuItem<ExtendRateItem>("Rate knob x3 (max 12 s/V)", CHECKMARK(module->rateMultiplier > 2.0f));
-		extRateItem->module = module;
-		menu->addChild(extRateItem);
-
 		AutoReturnItem *autoRetItem = createMenuItem<AutoReturnItem>("Auto-return", RIGHT_ARROW);
 		autoRetItem->autoReturnSrc = &(module->autoReturn);
 		autoRetItem->tactParamSrc = &(module->params[Tact2::TACT_PARAM]);
@@ -1094,7 +1079,7 @@ struct Tact2Widget : ModuleWidget {
 		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
 		
 		
-		static constexpr float padY = 17.0f;
+		static constexpr float padY = 13.8f;
 		
 		// Tactile touch pad
 		TactPad *tpad;
@@ -1110,32 +1095,39 @@ struct Tact2Widget : ModuleWidget {
 				
 		// Tactile lights
 		for (int i = 0 ; i < Tact2::numLights; i++) {
-			addChild(createLight<MediumLight<GreenRedLight>>(mm2px(Vec(colRulerLed, padY + 3.3f + i * lightsSpacingY)), module, Tact2::TACT_LIGHTS + i * 2));
+			addChild(createLight<MediumLight<GreenRedLight>>(mm2px(Vec(colRulerLed, padY + 6.2f + i * lightsSpacingY)), module, Tact2::TACT_LIGHTS + i * 2));
 		}
 
 
 		static constexpr float knobX = 8.0f;
-		static constexpr float knobTopY = 28.0f;
-		static constexpr float knobOffsetY = 21.0f;
+		static constexpr float knobTopY = 23.0f;
+		static constexpr float knobOffsetY = 20.5f;
 		
-		// Knobs
+		// Rate, Attv, Ofst Knobs
 		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY)), module, Tact2::RATE_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY)), module, Tact2::ATTV_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 2.0f)), module, Tact2::OFFSET_PARAM, module ? &module->panelTheme : NULL));
 		
 		
-		static constexpr float rowRulerB1 = 96.3f;
+		static constexpr float rowRulerB1 = 95.8f;
 		static constexpr float rowRulerB2 = 111.9f;
-		static constexpr float colRulerL = 11.5f;
-		static constexpr float colRulerR = 40.64f - colRulerL;
+		static constexpr float colRulerM = 23.0f;
+		static constexpr float colRulerR = 35.1f;
 	
-		// Gate in port and Exp switch
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerL, rowRulerB1)), true, module, Tact2::GATE_INPUT, module ? &module->panelTheme : NULL));
-		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerL, rowRulerB2)), module, Tact2::EXP_PARAM));	
+		// Offset 2 input and cv knob
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 3.0f - 1.6f)), true, module, Tact2::OFFSET2_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, rowRulerB1)), module, Tact2::OFFSET2_CV_PARAM, module ? &module->panelTheme : NULL));
+		
+		// x3 and Exp switches
+		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerR, rowRulerB1)), module, Tact2::RATE_MULT_PARAM));	
+		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerR, rowRulerB2)), module, Tact2::EXP_PARAM));	
+
+		// Gate in port (chain)
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, rowRulerB2)), true, module, Tact2::GATE_INPUT, module ? &module->panelTheme : NULL));
 
 		// Gate and CV outputs
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerR, rowRulerB1)), false, module, Tact2::GATE_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerR, rowRulerB2)), false, module, Tact2::CV_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB1)), false, module, Tact2::CV_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB2)), false, module, Tact2::GATE_OUTPUT, module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {
