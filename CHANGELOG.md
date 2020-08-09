@@ -1,6 +1,7 @@
 ### 1.1.9 (in development)
 
 - Added a new module called TactG, which is a Tact1 with one gate output and two offset controls
+- Reduced width of blank panel from 10 HP to 9 HP
 
 
 ### 1.1.8 (2020-07-19)

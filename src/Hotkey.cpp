@@ -415,7 +415,7 @@ struct HotkeyWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(centerX, 220.0f), module, Hotkey::DELAY_PARAM, module ? &module->panelTheme : NULL));
 
 		// trig out
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX, 288.0f), false, module, Hotkey::TRIG_OUTPUT, NULL));//module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX, 288.0f), false, module, Hotkey::TRIG_OUTPUT, module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {
