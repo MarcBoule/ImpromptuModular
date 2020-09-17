@@ -1030,6 +1030,15 @@ struct TactGWidget : ModuleWidget {
 			module->panelTheme ^= 0x1;
 		}
 	};
+	struct ExtendRateItem : MenuItem {
+		TactG *module;
+		void onAction(const event::Action &e) override {
+			if (module->params[TactG::RATE_MULT_PARAM].getValue() < 0.5f)
+				module->params[TactG::RATE_MULT_PARAM].setValue(1.0f);
+			else
+				module->params[TactG::RATE_MULT_PARAM].setValue(0.0f);
+		}
+	};
 	
 	void appendContextMenu(Menu *menu) override {
 		MenuLabel *spacerLabel = new MenuLabel();
@@ -1053,7 +1062,11 @@ struct TactGWidget : ModuleWidget {
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
-		
+			
+		ExtendRateItem *extRateItem = createMenuItem<ExtendRateItem>("Rate knob x3 (max 12 s/V)", CHECKMARK(module->params[TactG::RATE_MULT_PARAM].getValue() >= 0.5f));
+		extRateItem->module = module;
+		menu->addChild(extRateItem);
+
 		AutoReturnItem *autoRetItem = createMenuItem<AutoReturnItem>("Auto-return", RIGHT_ARROW);
 		autoRetItem->autoReturnSrc = &(module->autoReturn);
 		autoRetItem->tactParamSrc = &(module->params[TactG::TACT_PARAM]);
