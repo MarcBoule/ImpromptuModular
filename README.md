@@ -1,5 +1,5 @@
 Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://vcvrack.com/plugins.html).
-Version 1.1.8.
+Version 1.1.9.
 
 Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -652,7 +652,7 @@ The **Auto-return** option in the modules' right menus can be used to momentaril
 
 The x3 switch on Tact-G, or alternatively the x3 menu options in Tact and Tact-1, can be used to tripple the rate knob's value for even slower transitions (rate knob is 0 to 12 s/V when active).
 
-In Tact-G, two offset controls are added, one is a knob for direct control while the other is a CV input with attenuverter. Both options can be used simultaneously, for adding a random source in offset 2 while still allowing a manual offset using the first offset. The gate outputs can be chained when using multiple Tact-G modules using the chain input.
+In Tact-G, two offset controls are added, one is a knob for direct control while the other is a CV input with attenuverter. Both options can be used simultaneously, for adding a random source in offset 2 for example, while still allowing a manual offset using the first offset. The gate outputs can be chained when using multiple Tact-G modules using the chain input.
 
 ([Back to module list](#modules))
 
