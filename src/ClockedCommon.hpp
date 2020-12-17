@@ -24,14 +24,89 @@ struct RatioParam : ParamQuantity {
 		int knobVal = (int) std::round(getValue());
 		knobVal = clamp(knobVal, (34 - 1) * -1, 34 - 1);
 		if (knobVal < 0) {
-			knobVal *= -1;
+			return -ratioValues[-knobVal];
 		}
 		return ratioValues[knobVal];
 	}
-	void setDisplayValue(float displayValue) override {}	
+	void setDisplayValue(float displayValue) override {
+		bool div = displayValue < 0;
+		float setVal;
+		if (div) {
+			displayValue = -displayValue;
+		}
+		// code below is not pretty, but easiest since irregular spacing of ratio values
+		if (displayValue > 62.5f) {
+			setVal = 33.0f;
+		}
+		else if (displayValue >= 60.0f) {
+			setVal = 32.0f;
+		}
+		else if (displayValue >= 56.0f) {
+			setVal = 31.0f;
+		}
+		else if (displayValue >= 50.5f) {
+			setVal = 30.0f;
+		}
+		else if (displayValue >= 47.5f) {
+			setVal = 29.0f;
+		}
+		else if (displayValue >= 45.0f) {
+			setVal = 28.0f;
+		}
+		else if (displayValue >= 42.0f) {
+			setVal = 27.0f;
+		}
+		else if (displayValue >= 39.0f) {
+			setVal = 26.0f;
+		}
+		else if (displayValue >= 34.5f) {
+			setVal = 25.0f;
+		}
+		else if (displayValue >= 31.5f) {
+			setVal = 24.0f;
+		}
+		else if (displayValue >= 30.0f) {
+			setVal = 23.0f;
+		}
+		else if (displayValue >= 26.5f) {
+			setVal = 22.0f;
+		}
+		else if (displayValue >= 23.5f) {
+			setVal = 21.0f;
+		}
+		else if (displayValue >= 21.0f) {
+			setVal = 20.0f;
+		}
+		else if (displayValue >= 18.0f) {
+			setVal = 19.0f;
+		}
+		else if (displayValue >= 16.5f) {
+			setVal = 18.0f;
+		}
+		else if (displayValue >= 2.75f) {
+			// 3 to 16 map into 4 to 17
+			setVal = 1.0 + std::round(displayValue);
+		}
+		else if (displayValue >= 2.25f) {
+			setVal = 3.0f;
+		}
+		else if (displayValue >= 1.75f) {
+			setVal = 2.0f;
+		}
+		else if (displayValue >= 1.25f) {
+			setVal = 1.0f;
+		}
+		else {
+			setVal = 0.0f;
+		}
+		if (setVal != 0.0f && div) {
+			setVal *= -1.0f;
+		}
+		setValue(setVal);
+	}	
 	std::string getUnit() override {
 		if (getValue() >= 0.0f) return std::string("x");
-		return std::string("÷");
+		return std::string(" (÷)");
 	}
 };
 

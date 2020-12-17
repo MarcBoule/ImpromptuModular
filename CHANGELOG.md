@@ -1,3 +1,8 @@
+### 1.1.10 (in development)
+
+- Fixed parameter entry in Clkd and Clocked ratio knobs
+
+
 ### 1.1.9 (2020-09-17)
 
 - Added a new module called TactG, which is a Tact1 with a gate output and two offset controls
