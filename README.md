@@ -6,7 +6,8 @@ Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are 
 [//]: # (!!!!!UPDATE VERSION NUMBER IN PLUGIN.JSON ALSO!!!!!   120% Zoom for jpgs)
 
 
-## Modules <a id="modules"></a>
+<a id="modules"></a>
+## Modules
 
 Each module is available in light (Classic) or dark (Dark-Valor) panels, selectable by right-clicking the module in Rack.
 
@@ -54,6 +55,7 @@ Recommended reading:
 
 * [Portable sequence](#portable_seq)
 
+<a id="set-table"></a>
 The table below shows a comparison of the features available in the Impromptu sequencers. 
 
 | 		      			| WriteSeq32/64 	| PhraseSeq16	| PhraseSeq32	| GateSeq64			| Foundry		| BigButton1/2 	|
@@ -72,7 +74,8 @@ The table below shows a comparison of the features available in the Impromptu se
 
 \* Configuration is noted as follows: Channels/Tracks x Sequence-Length. The distinction between channels and tracks relates to clock inputs: when channels are separately clockable they are referred to as tracks.
 
-## Known issues <a id="known-issues"></a>
+<a id="known-issues"></a>
+## Known issues
 For sequencers and clock modules, it is advisable to have a Audio module added to your patch and assigned to a sound device in order for the timing and response delays in the user interface to be of the proper duration. This is a [known artifact](https://github.com/VCVRack/Rack/issues/919) in VCV Rack.
 
 
@@ -85,7 +88,8 @@ Based on code from the Fundamental and Audible Instruments plugins by Andrew Bel
 Impromptu Modular is not a single-person endeavor. Many people have taken the time to suggest improvements and to collaborate on module concepts, graphics, testing, etc. This list of acknowledgements is too large to maintain properly, and so in place of a detailed list of names and participations, I would simply like to extend a big thank you to all that have helped and contributed to the project. The Dark-valor graphic theme was graciously provided by Xavier Belmont.
 
 
-## General Concepts <a id="general-concepts"></a>
+<a id="general-concepts"></a>
+## General Concepts
 
 Many Impromptu Modular sequencers feature a CV input for entering notes into the sequencers in a quick and natural manner when using, for example:
 
@@ -103,7 +107,8 @@ All edge sensitive inputs have a threshold of 1V. In all sequencers, the duratio
 
 In all sequencers, clicking **Randomize** in the right-click menu of the module will only serve to randomize the content (CVs, gates, slides, etc., as applicable) of the current sequence. For sequencers with a song mode, no song content is randomized when in SONG mode.
 
-### Sequence selection via CV inputs <a id="seq-sel"></a>
+<a id="seq-sel"></a>
+### Sequence selection via CV inputs
 
 Many sequencers feature **SEQ# CV inputs**, which can be used to select the active sequence for editing or to externally control the playing order of the sequences. Three different modes are available for these inputs in the right click menu of the modules, under **Seq CV in**. 
 * 0-10V: a 0 to 10V input is proportionally mapped to the 1 to N sequence numbers; for example:
@@ -118,7 +123,8 @@ Many sequencers feature **SEQ# CV inputs**, which can be used to select the acti
 
 This feature can be used to play difference sequences consecutively under external control, without using the built-in song mode in those sequencers. 
 
-### Expanders <a id="expanders"></a>
+<a id="expanders"></a>
+### Expanders
 
 A few of the modules feature **Expander modules** to provide additional functionality via CV inputs or other controls. An expander modules must be added to the _right_ side of the mother module with no space between the two modules. Expanders automatically match their mother module's panel theme, thus they do not have a panel theme option in their right-click menu. Only compatible expanders will work with a given module. For example, the PS-X expander will only work with the PhraseSeq16 and PhraseSeq32 modules, while the GS-X expander will only work with the GateSeq64 module.
 
@@ -129,7 +135,8 @@ Pictured above are the expanders for the following modules, from left to right: 
 The [FourView](#four-view) module, which is normally used independently, can also be used as an expander for the [ChordKey](#chord-key) and [CVPad](#cv-pad) modules. When both the ChordKey expander and FourView are to be used with ChordKey, the FourView module must be placed to the right of the ChordKey expander.
 
 
-### On resets, clocks and run states... <a id="clk_rst_run"></a>
+<a id="clk_rst_run"></a>
+### On resets, clocks and run states...
 
 Impromptu sequencers implement two particular mechanisms related to resets and clocks in order to ensure proper reset behavior and correctly played first steps/beats.
 
@@ -166,7 +173,8 @@ When Clocked is used with sequential switches or other non-Impromptu sequencers,
 Further information for developpers is available in a short summary of the [code structure used in Impromptu sequencers](README_SeqCode.md), relating to clocks, resets and run states.
 
 
-### Portable sequence <a id="portable_seq"></a>
+<a id="portable_seq"></a>
+### Portable sequence
 
 The [Portable sequence standard](https://github.com/squinkylabs/SquinkyVCV/blob/master/docs/clipboard-format.md) is supported in the following Impromptu sequencers: PhraseSeq16/32, SMS16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence". 
 
@@ -178,11 +186,15 @@ Limitations: As a general rule, the Impromptu sequencers are not as expressive a
 
 
 
-# Module manuals <a id="module-manuals"></a>
+<a id="module-manuals"></a>
+# Module manuals
 
 The following sections contain more information on how each module works.
 
-## BigButtonSeq <a id="big-button-seq"></a>
+
+
+<a id="big-button-seq"></a>
+## BigButtonSeq
 
 ![IM](res/img/BigButtonSeq.jpg)
 
@@ -232,7 +244,8 @@ Here is a summary of how **SNAP** and the **Big and Del on next step** option wo
 
 
 
-## BigButtonSeq2 <a id="big-button-seq2"></a>
+<a id="big-button-seq2"></a>
+## BigButtonSeq2
 
 ![IM](res/img/BigButtonSeq2.jpg)
 
@@ -252,7 +265,8 @@ This sequencer has no concept of tied notes; when pasting sequences using the [P
 
 
 
-## ChordKey <a id="chord-key"></a>
+<a id="chord-key"></a>
+## ChordKey
 
 ![IM](res/img/ChordKey.jpg)
 
@@ -291,7 +305,8 @@ The **Portable sequence** standard can also be used to copy/paste chords externa
 
 
 
-## Clocked/Clkd <a id="clocked"></a>
+<a id="clocked"></a>
+## Clocked/Clkd
 
 ![IM](res/img/Clocked.jpg)
 
@@ -320,7 +335,8 @@ Many options are available in the modules' **right-click menu**, and can be used
 Clocked and Clkd also feature the ability to automatically patch the Reset, Run and BPM cables to a designated clock master. Any instance of Clocked or Clkd can be designated as the clock master using the module's "_Auto-patch_" menu entry. When auto-patching clocks: if the slave clock already has a connection to one of the inputs mentioned above, that input un-touched; the status of the "*Outputs reset high when not running*" setting will be copied from the master clock into the slave clock.
 
 
-### External synchronization <a id="clocked-sync"></a>
+<a id="clocked-sync"></a>
+### External synchronization
 
 By default, the clock's BPM input is level sensitive and follows [Rack standards for BPM CVs](https://vcvrack.com/manual/VoltageStandards.html#pitch-and-frequencies). Synchronizing Clocked to an external clock signal can be done by selecting a mode other than "CV" with the MODE buttons located below the BPM input jack. The possible synchronization settings are: P2, P4, P8, P12, P16, P24, where the number indicates the number of pulses per step of the external clock source.
 
@@ -340,7 +356,8 @@ When using external clock synchronization, Clocked syncs itself to the incoming 
 
 
 
-## CVPad <a id="cv-pad"></a>
+<a id="cv-pad"></a>
+## CVPad
 
 ![IM](res/img/CvPad.jpg)
 
@@ -370,7 +387,8 @@ The module also features sliders and menu items to copy and paste the CVs, and a
 
 
 
-## Foundry <a id="foundry"></a>
+<a id="foundry"></a>
+## Foundry
 
 ![IM](res/img/Foundry.jpg)
 
@@ -437,7 +455,8 @@ For chords or polyphonic content, an option in the module's right-click menu can
 
 
 
-## GateSeq64 <a id="gate-seq-64"></a>
+<a id="gate-seq-64"></a>
+## GateSeq64
 
 ![IM](res/img/GateSeq64.jpg)
 
@@ -458,7 +477,8 @@ Although no **Write** capabilities appear in the main part of the module, automa
 As in the PhraseSeq sequencers, sequence numbers can also be typed in using the computer keyboard when the mouse cursor is placed over the SEQ# display; when in song mode, the space bar can be used to automatically move to the next phrase in the song. Two key presses within the span of one second will register as a two digit sequence number.
 
 
-### Advanced gate mode<a id="advanced-gate-mode-gs"></a>
+<a id="advanced-gate-mode-gs"></a>
+### Advanced gate mode
 
 The advanced gate mode in GateSeq64 has some similarities to the one available in the PhraseSeq16/32 sequencers, and is covered in Omri Cohen's [advanced gate mode tutorial](https://www.youtube.com/watch?v=B2w0_h5oN6M). As of version 0.6.12, each gate type has its own LED button, instead of the two cursor type buttons that were used in the previous versions.
 
@@ -467,7 +487,8 @@ Holding the MODE button for **two seconds** allows the selection of the clock re
 The PPS be a multiple of 4 for the first three gate types, while the PPS be a multiple of 6 for the last five gate types. A chosen gate type not meeting its required pulse rate will have a red LED beside it to indicate this (normally it is green). When a gate type is red, the sequencer will still emit a (possibly empty) gate pattern for that step, but with no guarantee that it will match the type that was selected. All gate types can be used when selecting a PPS value of 12 or 24.
 
 
-### Cross paste<a id="cross-paste-gs"></a>
+<a id="cross-paste-gs"></a>
+### Cross paste
 
 Pressing the copy button in one mode (Seq or Song), and then the paste button in the opposite mode would normally result in an invalid operation. In these cases, depending on the state of the copy-paste switch (4/8/ALL), called *type* below, the following shortcuts are performed: 
 
@@ -491,7 +512,8 @@ In cross paste operation, the copied content is actually irrelevant and unused.
 
 
 
-## PhraseSeq16 <a id="phrase-seq-16"></a>
+<a id="phrase-seq-16"></a>
+## PhraseSeq16
 
 ![IM](res/img/PhraseSeq16.jpg)
 
@@ -528,7 +550,8 @@ Familiarity with the VCV SEQ-3 sequencer is recommended, as some operating princ
 * **TIED STEP**: See [tied steps](#tied-ps) below.
 
 
-### Tied steps<a id="tied-ps"></a>
+<a id="tied-ps"></a>
+### Tied steps
 
 When CVs are intended to be held across subsequent steps, this button can be used to tie the CV of the current step to the CV of the previous step. When tied, any changes to the CV of the head note will be propagated to all consecutive contiguous tied notes automatically. Two different *gate 1 behaviors* are available and can be toggled in the right-click menu. All gate types are adjusted automatically when tying and untying notes, and in all cases, manual inspection of the gate types will reveal what has been done in the sequencer. Any change to this option will only take effect on subsequent edits in the sequencer, such that currently entered tied notes are not automatically changed.
 
@@ -553,7 +576,8 @@ Step:  s1 s2 s3 s4
 Extra CV inputs are also available via the PhraseSeq [expander module](#expanders) (this is a separate module labeled \"PS-X\"). Only the bottom-most input is level sensitive, the other four are trigger inputs. The expander CV inputs can only be used in Seq mode.
 
 
-### Advanced gate mode<a id="advanced-gate-mode-ps"></a>
+<a id="advanced-gate-mode-ps"></a>
+### Advanced gate mode
 
 For a video introduction to the advanced gate mode, please see Omri Cohen's [advanced gate mode tutorial](https://www.youtube.com/watch?v=B2w0_h5oN6M). As of version 0.6.12, the keyboard mode (used to enter notes vs gate types) can be set explicitly using the two small LED buttons above the keyboard, instead of the temporary editing time that was activated when a gate was turned on (previous versions). 
 
@@ -566,7 +590,8 @@ In the advanced gate mode, the Gate1 and Gate2 lights will be a different color,
 All PPS settings will work for the full gate (the F key) as well as triggers (the B key). Triggers are 10ms in duration. A full gate remains high during the entire step, and if the next step's gate is active, then the gate continues without interruption into that next step. When PPS requirements are not met, the sequencer will not allow invalid gate types to be entered on the keyboard. For example, if PPS is set to 6, then the 75% gate (the E key) can not be selected. Selecting a PPS value of 12 or 24 will ensure that all gate types can be used (i.e. that all PPS requirements are met irrespective of the gate type chosen).
 
 
-### Cross paste<a id="cross-paste-ps"></a>
+<a id="cross-paste-ps"></a>
+### Cross paste
 
 Pressing the copy button in one mode (Seq or Song), and then the paste button in the opposite mode would normally result in an invalid operation. In these cases, depending on the state of the copy-paste switch (4/8/ALL), called *type* below, the following shortcuts are performed: 
 
@@ -590,7 +615,8 @@ In cross paste operation, the copied content is actually irrelevant and unused.
 
 
 
-## PhraseSeq32 <a id="phrase-seq-32"></a>
+<a id="phrase-seq-32"></a>
+## PhraseSeq32
 
 ![IM](res/img/PhraseSeq32.jpg)
 
@@ -608,7 +634,8 @@ Other than these characteristics, the rest of PhraseSeq32's functionality is ide
 
 
 
-## SMS16<a id="sms-16"></a>
+<a id="sms-16"></a>
+## SMS16
 
 ![IM](res/img/SemiModularSynth.jpg)
 
@@ -624,7 +651,8 @@ The SMS16 also features the advanced gate mode of the PhraseSeq16. When changing
 
 
 
-## Tact/Tact1/TactG <a id="tact"></a>
+<a id="tact"></a>
+## Tact/Tact1/TactG
 
 ![IM](res/img/Tact.jpg)
 
@@ -658,7 +686,8 @@ In Tact-G, two offset controls are added, one is a knob for direct control while
 
 
 
-## TwelveKey <a id="twelve-key"></a>
+<a id="twelve-key"></a>
+## TwelveKey
 
 ![IM](res/img/TwelveKey.jpg)
 
@@ -695,7 +724,8 @@ Options available in the right-click menu include:
 
 
 
-## WriteSeq32/64 <a id="write-seq"></a>
+<a id="write-seq"></a>
+## WriteSeq32/64
 
 ![IM](res/img/WriteSeqs.jpg)
 
@@ -735,18 +765,22 @@ WriteSeq64 has dual clock inputs, where each controls a pair of channels. When n
 
 
 
-## Utilities <a id="utilities"></a>
+<a id="utilities"></a>
+## Utilities
 
 ![IM](res/img/Utilities.jpg)
 
-### Part <a id="part"></a>
+<a id="part"></a>
+### Part
 
 A gate splitter module based on a CV input and a split point. One use for this module is to split a polyphonic gate signal from a keyboard into two different polyphonic gate signals, such that the left and right hand parts can be sent to different voices. In such a case, the polyphonic CV should also be sent directly to each voice, and only the gates below/above the split point will produce sound in their respective voices. The module can also be used with monophonic signals. When chaining two Part modules to select a range of notes (with an upper and lower bound), it is important that the CV input of the second Part module be connected to the THRU output of the first Part module, to ensure gates and CVs have identical propagation delays. This is necessary to avoid glitches that can occur when gates are held continually high and the CV changes from a value above the upper bound to below the lower bound in two succesive Rack samples (or vice-versa).
 
-### FourView <a id="four-view"></a>
+<a id="four-view"></a>
+### FourView
 A chord viewer module that shows the note names of up to 4 CVs, or the name of the chord represented by these CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs. FourView can also function as an expander for ChordKey or CVPad by placing it to the right of either of those two modules; in this case: a) no cables need to be connected in order to view the note names of the chord notes or pad voltages and b) the through outputs are not used. The FourView module also allows the copying of the displayed notes via the Portable sequence format for pasting as a chord in ChordKey or other modules. For more information, please see the [ChordKey](#chord-key) manual, as the two available copy options are the same as in that module.
 
-### Hotkey <a id="hotkey"></a>
+<a id="hotkey"></a>
+### Hotkey
 Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize audio recording using VCV Recorder with video recording (using OBS Studio for example). Set a hotkey in OBS to automatically have it start/stop recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same key in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press. Send the trig output of Hotkey into the trig input of VCV Recorder.
 
 * **SET**: The hotkey can be programmed using the SET button. When armed, any key press will be captured and used as the hotkey. For key combinations, like ALT+K for example, all modifiers (ALT, CTRL/CMD, SHIFT) must be pressed before arming the SET button. Once armed the next key is automatically taken, along with any modifyers that are pressed. This allows the CTRL key itself to be used as a hotkey (when pressed after arming).
@@ -759,7 +793,8 @@ The current hotkey is visible in the right-click menu of the module and is autom
 
 
 
-# Hall of Fame <a id="hall-of-fame"></a>
+<a id="hall-of-fame"></a>
+# Hall of Fame
 
 Here are a few videos featuring Impromptu Modular, which I find particularly very inspiring and interesting (listed in no particular order). Many talented Rackheads have made tracks using Impromptu modules, and this list could in fact be quite long. I have no formal criteria for why a track ends up in the list or doesn't. 
 
