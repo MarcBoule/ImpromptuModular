@@ -6,8 +6,8 @@
 
 #include "ImpromptuModular.hpp"
 
-
-static const float ratioValues[34] = {1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 23, 24, 29, 31, 32, 37, 41, 43, 47, 48, 53, 59, 61, 64};
+static const int numRatios = 35;
+static const float ratioValues[numRatios] = {1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 23, 24, 29, 31, 32, 37, 41, 43, 47, 48, 53, 59, 61, 64, 96};
 
 static const int bpmMax = 300;
 static const int bpmMin = 30;
@@ -22,7 +22,7 @@ static const unsigned int ON_START_EXT_RST_MSK = 0x8;
 struct RatioParam : ParamQuantity {
 	float getDisplayValue() override {
 		int knobVal = (int) std::round(getValue());
-		knobVal = clamp(knobVal, (34 - 1) * -1, 34 - 1);
+		knobVal = clamp(knobVal, (numRatios - 1) * -1, numRatios - 1);
 		if (knobVal < 0) {
 			return -ratioValues[-knobVal];
 		}
@@ -35,7 +35,10 @@ struct RatioParam : ParamQuantity {
 			displayValue = -displayValue;
 		}
 		// code below is not pretty, but easiest since irregular spacing of ratio values
-		if (displayValue > 62.5f) {
+		if (displayValue > 80.0f) {
+			setVal = 34.0f;
+		}
+		else if (displayValue >= 62.5f) {
 			setVal = 33.0f;
 		}
 		else if (displayValue >= 60.0f) {

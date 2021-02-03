@@ -2,6 +2,7 @@
 
 - Fixed parameter entry in Clkd and Clocked ratio knobs
 - Added lock option to GateSeq64 to prevent steps, gate types and gate p from being clicked
+- Added x96 clock ratio to Clocked and Clkd
 
 
 ### 1.1.9 (2020-09-17)

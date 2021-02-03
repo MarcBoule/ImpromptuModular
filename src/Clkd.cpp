@@ -191,8 +191,8 @@ struct Clkd : Module {
 			i *= -1;
 			isDivision = true;
 		}
-		if (i >= 34) {
-			i = 34 - 1;
+		if (i >= numRatios) {
+			i = numRatios - 1;
 		}
 		int ret = (int) (ratioValues[i] * 2.0f + 0.5f);
 		if (isDivision) 
@@ -214,7 +214,7 @@ struct Clkd : Module {
 		for (int i = 0; i < 3; i++) {// Row 2-4 (sub clocks)
 			// Ratio1 knob
 			snprintf(strBuf, 32, "Clk %i ratio", i + 1);
-			configParam<RatioParam>(RATIO_PARAMS + i, (34.0f - 1.0f)*-1.0f, 34.0f - 1.0f, 0.0f, strBuf);		
+			configParam<RatioParam>(RATIO_PARAMS + i, ((float)numRatios - 1.0f)*-1.0f, float(numRatios) - 1.0f, 0.0f, strBuf);		
 		}
 		configParam(BPM_PARAM, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		

@@ -310,7 +310,7 @@ The **Portable sequence** standard can also be used to copy/paste chords externa
 
 ![IM](res/img/Clocked.jpg)
 
-Clocked: A chainable master clock module with swing, clock delay and pulse width controls, with master BPM from 30 to 300 and all mult/div ratios up to 16, including 1.5 and 2.5, and with additional ratios spanning prime numbers and powers of two up to 64. The clock can produce waveforms with adjustable pulse widths for use with envelope generators or sequencers that use the clock pulse to produce their gate signals. The clock can also be synchronized to an external clock source.
+Clocked: A chainable master clock module with swing, clock delay and pulse width controls, with master BPM from 30 to 300 and all mult/div ratios up to 16, including 1.5 and 2.5, and with additional ratios spanning prime numbers, powers of two and common PPQN values up to 96. The clock can produce waveforms with adjustable pulse widths for use with envelope generators or sequencers that use the clock pulse to produce their gate signals. The clock can also be synchronized to an external clock source.
 
 Clkd: A smaller version of Clocked but without swing, clock delay and pulse width.
 
@@ -475,6 +475,8 @@ Copy-pasting ALL also copies the run mode and length of a given sequence, along 
 Although no **Write** capabilities appear in the main part of the module, automatically storing patterns into the sequencer can be performed using the CV inputs in the GateSeq64 [expander module](#expanders) (this is a separate module labeled \"GS-X\"). The cursor is stepped forward on each write, and can be repositioned at the first step by pressing the reset button, or at an arbitrary step by simply clicking that given step. When the cursor is not flashing, clicking any step will make it appear. The Write-gate (full circle) and Write-empty (empty circle) inputs (2nd and 3rd from the bottom) can be used to enter on-gates and off-gates in succession with separate external triggers (buttons). The bottom-most input is used to move the cursor to the left, whereas the Write input at the top can be used to move the cursor to the right when Gate In and Prob are unconnected. When either of these inputs is connected, the values are used to program the sequencer gates and probabilities. The extra CV inputs only have an effect in Seq mode.
 
 As in the PhraseSeq sequencers, sequence numbers can also be typed in using the computer keyboard when the mouse cursor is placed over the SEQ# display; when in song mode, the space bar can be used to automatically move to the next phrase in the song. Two key presses within the span of one second will register as a two digit sequence number.
+
+An option is also available in the right-click menu to lock the main display so that steps can not be inadvertantly changed. This setting also locks the gate types and the gate p button (gate probability).
 
 
 <a id="advanced-gate-mode-gs"></a>

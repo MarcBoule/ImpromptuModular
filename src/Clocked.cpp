@@ -82,17 +82,15 @@ class Clock {
 		length *= lengthStretchFactor;
 	}
 	
-	int isHigh(float swing, float pulseWidth) {
+	int isHigh(float swingParam, float pulseWidth) {
 		// last 0.5ms (guard time) must be low so that sync mechanism will work properly (i.e. no missed pulses)
 		//   this will automatically be the case, since code below disallows any pulses or inter-pulse times less than 1ms
 		int high = 0;
 		if (step >= 0.0) {
-			float swParam = swing;// swing is [-1 : 1]
-			
 			// all following values are in seconds
 			float onems = 0.001f;
 			float period = (float)length / 2.0f;
-			float swing = (period - 2.0f * onems) * swParam;
+			float swing = (period - 2.0f * onems) * swingParam;// swingParam is [-1 : 1]
 			float p2min = onems;
 			float p2max = period - onems - std::fabs(swing);
 			if (p2max < p2min) {
@@ -295,8 +293,8 @@ struct Clocked : Module {
 			i *= -1;
 			isDivision = true;
 		}
-		if (i >= 34) {
-			i = 34 - 1;
+		if (i >= numRatios) {
+			i = numRatios - 1;
 		}
 		int ret = (int) (ratioValues[i] * 2.0f + 0.5f);
 		if (isDivision) 
@@ -353,7 +351,7 @@ struct Clocked : Module {
 		for (int i = 0; i < 3; i++) {// Row 2-4 (sub clocks)
 			// Ratio knobs
 			snprintf(strBuf, 32, "Clk %i ratio", i + 1);
-			configParam<RatioParam>(RATIO_PARAMS + 1 + i, (34.0f - 1.0f)*-1.0f, 34.0f - 1.0f, 0.0f, strBuf);		
+			configParam<RatioParam>(RATIO_PARAMS + 1 + i, ((float)numRatios - 1.0f)*-1.0f, (float)numRatios - 1.0f, 0.0f, strBuf);		
 			// Swing knobs
 			snprintf(strBuf, 32, "Swing clk %i", i + 1);
 			configParam(SWING_PARAMS + 1 + i, -1.0f, 1.0f, 0.0f, strBuf);
