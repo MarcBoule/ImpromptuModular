@@ -1,6 +1,7 @@
 ### 1.1.10 (in development)
 
 - Fixed parameter entry in Clkd and Clocked ratio knobs
+- Added lock option to GateSeq64 to prevent steps, gate types and gate p from being clicked
 
 
 ### 1.1.9 (2020-09-17)

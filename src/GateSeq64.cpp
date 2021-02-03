@@ -82,6 +82,7 @@ struct GateSeq64 : Module {
 	int phrase[64];// This is the song (series of phases; a phrase is a patten number)
 	bool resetOnRun;
 	bool stopAtEndOfSong;
+	bool lock;
 
 	// No need to save, with reset
 	int displayState;
@@ -223,6 +224,7 @@ struct GateSeq64 : Module {
 		}
 		resetOnRun = false;
 		stopAtEndOfSong = false;
+		lock = false;
 		resetNonJson(false);
 	}
 	void resetNonJson(bool delayed) {// delay thread sensitive parts (i.e. schedule them so that process() will do them)
@@ -334,6 +336,9 @@ struct GateSeq64 : Module {
 		
 		// stopAtEndOfSong
 		json_object_set_new(rootJ, "stopAtEndOfSong", json_boolean(stopAtEndOfSong));
+
+		// lock
+		json_object_set_new(rootJ, "lock", json_boolean(lock));
 
 		return rootJ;
 	}
@@ -515,6 +520,11 @@ struct GateSeq64 : Module {
 		json_t *stopAtEndOfSongJ = json_object_get(rootJ, "stopAtEndOfSong");
 		if (stopAtEndOfSongJ)
 			stopAtEndOfSong = json_is_true(stopAtEndOfSongJ);
+		
+		// lock
+		json_t *lockJ = json_object_get(rootJ, "lock");
+		if (lockJ)
+			lock = json_is_true(lockJ);
 		
 		resetNonJson(true);
 	}
@@ -725,7 +735,7 @@ struct GateSeq64 : Module {
 				if (stepTriggers[i].process(params[STEP_PARAMS + i].getValue()))
 					stepPressed = i;
 			}		
-			if (stepPressed != -1) {
+			if (stepPressed != -1 && !lock) {
 				if (editingSequence) {
 					if (displayState == DISP_LENGTH) {
 						sequences[sequence].setLength(stepPressed % (16 * stepConfig) + 1);
@@ -808,21 +818,7 @@ struct GateSeq64 : Module {
 			// Prob button
 			if (probTrigger.process(params[PROB_PARAM].getValue())) {
 				blinkNum = blinkNumInit;
-				
-				// version 1
-				/*if (editingSequence && attributes[sequence][stepIndexEdit].getGate()) {
-					if (attributes[sequence][stepIndexEdit].getGateP()) {
-						displayProbInfo = 0l;
-						attributes[sequence][stepIndexEdit].setGateP(false);
-					}
-					else {
-						displayProbInfo = (long) (displayProbInfoTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
-						attributes[sequence][stepIndexEdit].setGateP(true);
-					}
-				}*/
-				
-				// version 2
-				if (editingSequence) {
+				if (editingSequence && !lock) {
 					if (attributes[sequence][stepIndexEdit].getGate()) {// gate is on and pressed gatep
 						if (attributes[sequence][stepIndexEdit].getGateP()) {
 							displayProbInfo = 0l;
@@ -846,7 +842,7 @@ struct GateSeq64 : Module {
 			for (int i = 0; i < 8; i++) {
 				if (gModeTriggers[i].process(params[GMODE_PARAMS + i].getValue())) {
 					blinkNum = blinkNumInit;
-					if (editingSequence && attributes[sequence][stepIndexEdit].getGate()) {
+					if (editingSequence && !lock && attributes[sequence][stepIndexEdit].getGate()) {
 						if (ppsRequirementMet(i)) {
 							editingPpqn = 0l;
 							attributes[sequence][stepIndexEdit].setGateMode(i);
@@ -937,13 +933,7 @@ struct GateSeq64 : Module {
 				if (ppqnCount == 0) {
 					int oldStepIndexRun[4] = {stepIndexRun[0], stepIndexRun[1], stepIndexRun[2], stepIndexRun[3]};
 					if (editingSequence) {
-						//bool seqLoopOver = 
 						moveIndexRunMode(&stepIndexRun[0], sequences[sequence].getLength(), sequences[sequence].getRunMode(), &stepIndexRunHistory);
-						// if (seqLoopOver && stopAtEndOfSong) {						
-							// running = false;
-							// for (int i = 0; i < 4; i++) 
-								// stepIndexRun[i] = oldStepIndexRun[i];
-						// }
 					}
 					else {
 						if (moveIndexRunMode(&stepIndexRun[0], sequences[phrase[phraseIndexRun]].getLength(), sequences[phrase[phraseIndexRun]].getRunMode(), &stepIndexRunHistory)) {
@@ -1359,6 +1349,12 @@ struct GateSeq64Widget : ModuleWidget {
 			module->stopAtEndOfSong = !module->stopAtEndOfSong;
 		}
 	};
+	struct LockItem : MenuItem {
+		GateSeq64 *module;
+		void onAction(const event::Action &e) override {
+			module->lock = !module->lock;
+		}
+	};
 	struct AutoseqItem : MenuItem {
 		GateSeq64 *module;
 		void onAction(const event::Action &e) override {
@@ -1433,6 +1429,10 @@ struct GateSeq64Widget : ModuleWidget {
 		aseqItem->module = module;
 		menu->addChild(aseqItem);
 
+		LockItem *lockItem = createMenuItem<LockItem>("Lock steps, gates and gate p", CHECKMARK(module->lock));
+		lockItem->module = module;
+		menu->addChild(lockItem);
+		
 		menu->addChild(new MenuLabel());// empty line
 
 		MenuLabel *expLabel = new MenuLabel();
@@ -1455,13 +1455,10 @@ struct GateSeq64Widget : ModuleWidget {
 				// same code structure below as in sequence knob in main step()
 				bool editingSequence = module->isEditingSequence();
 				if (module->displayProbInfo != 0l && editingSequence) {
-					//blinkNum = blinkNumInit;
 					module->attributes[module->sequence][module->stepIndexEdit].setGatePVal(50);
-					//displayProbInfo = (long) (displayProbInfoTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 				}
 				else if (module->editingPpqn != 0) {
 					module->pulsesPerStep = 1;
-					//editingPpqn = (long) (editingPpqnTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 				}
 				else if (module->displayState == GateSeq64::DISP_MODES) {
 					if (editingSequence) {
@@ -1481,7 +1478,6 @@ struct GateSeq64Widget : ModuleWidget {
 				}
 				else {
 					if (editingSequence) {
-						//blinkNum = blinkNumInit;
 						if (!module->inputs[GateSeq64::SEQCV_INPUT].isConnected()) {
 							module->sequence = 0;
 						}
@@ -1489,8 +1485,6 @@ struct GateSeq64Widget : ModuleWidget {
 					else {
 						if (module->editingPhraseSongRunning > 0l || !module->running) {
 							module->phrase[module->phraseIndexEdit] = 0;
-							// if (running)
-								// editingPhraseSongRunning = (long) (editingPhraseSongRunningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 						}
 					}	
 				}			
