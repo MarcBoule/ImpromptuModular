@@ -1,6 +1,6 @@
-### 1.1.10 (in development)
+### 1.1.10 (2021-02-04)
 
-- Fixed parameter entry in Clkd and Clocked ratio knobs
+- Fixed parameter entry in Clkd and Clocked ratio knobs, and improved tooltip on main BPM knob when external BPM
 - Added lock option to GateSeq64 to prevent steps, gate types and gate p from being clicked
 - Added x96 clock ratio to Clocked and Clkd
 

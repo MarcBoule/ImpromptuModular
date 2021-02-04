@@ -187,6 +187,13 @@ class ClockDelay {
 
 
 struct Clocked : Module {
+	
+	struct BpmParam : ParamQuantity {
+		std::string getDisplayValueString() override {
+			return module->inputs[BPM_INPUT].isConnected() ? "Ext." : ParamQuantity::getDisplayValueString();
+		}
+	};
+	
 	enum ParamIds {
 		ENUMS(RATIO_PARAMS, 4),// master is index 0
 		ENUMS(SWING_PARAMS, 4),// master is index 0
@@ -340,7 +347,7 @@ struct Clocked : Module {
 		rightExpander.producerMessage = rightMessages[0];
 		rightExpander.consumerMessage = rightMessages[1];
 
-		configParam(RATIO_PARAMS + 0, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		configParam<BpmParam>(RATIO_PARAMS + 0, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");
 		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
 		configParam(BPMMODE_DOWN_PARAM, 0.0f, 1.0f, 0.0f, "Bpm mode prev");

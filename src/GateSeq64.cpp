@@ -1498,7 +1498,7 @@ struct GateSeq64Widget : ModuleWidget {
 		void onDragStart(const event::DragStart &e) override {
 			if (paramQuantity) {
 				GateSeq64 *module = dynamic_cast<GateSeq64*>(paramQuantity->module);
-				if (module->isEditingSequence() && module->displayState != GateSeq64::DISP_LENGTH && module->displayState != GateSeq64::DISP_MODES) {
+				if (module->isEditingSequence() && module->displayState != GateSeq64::DISP_LENGTH && module->displayState != GateSeq64::DISP_MODES && !module->lock) {
 					int step = paramQuantity->paramId - GateSeq64::STEP_PARAMS;
 					if ( (step >= 0) && (step < 64) ) {
 						module->lastStep = step;

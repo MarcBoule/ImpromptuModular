@@ -99,6 +99,13 @@ class Clock {
 
 
 struct Clkd : Module {
+	
+	struct BpmParam : ParamQuantity {
+		std::string getDisplayValueString() override {
+			return module->inputs[BPM_INPUT].isConnected() ? "Ext." : ParamQuantity::getDisplayValueString();
+		}
+	};
+
 	enum ParamIds {
 		ENUMS(RATIO_PARAMS, 3),
 		BPM_PARAM,// must be contiguous with RATIO_PARAMS
@@ -216,7 +223,7 @@ struct Clkd : Module {
 			snprintf(strBuf, 32, "Clk %i ratio", i + 1);
 			configParam<RatioParam>(RATIO_PARAMS + i, ((float)numRatios - 1.0f)*-1.0f, float(numRatios) - 1.0f, 0.0f, strBuf);		
 		}
-		configParam(BPM_PARAM, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		configParam<BpmParam>(BPM_PARAM, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		
 		clk[0].construct(nullptr, &resetClockOutputsHigh, &trigOuts[0]);
 		for (int i = 1; i < 4; i++) {
