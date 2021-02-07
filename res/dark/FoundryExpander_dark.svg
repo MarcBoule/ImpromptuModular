@@ -42,15 +42,26 @@
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="1.7566021"
-     inkscape:cx="-7.4383976"
-     inkscape:cy="80.397504"
+     inkscape:zoom="1.0192121"
+     inkscape:cx="93.620881"
+     inkscape:cy="225.94421"
      inkscape:window-x="251"
      inkscape:window-y="1072"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg256" />
   <defs
      id="defs40">
+    <linearGradient
+       id="linearGradient954">
+      <stop
+         id="stop950"
+         offset="0" />
+      <stop
+         id="stop952"
+         stop-color="#fff"
+         offset="1"
+         style="stop-color:#8c8c8c;stop-opacity:1" />
+    </linearGradient>
     <linearGradient
        id="a">
       <stop
@@ -171,79 +182,7 @@
        x2="2.6459999"
        y2="6.085" />
     <linearGradient
-       xlink:href="#c"
-       id="n"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#c"
-       id="o"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#c"
-       id="p"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#c"
-       id="q"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#c"
-       id="r"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#c"
-       id="s"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#c"
-       id="t"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#c"
-       id="u"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#c"
+       xlink:href="#linearGradient954"
        id="v"
        x1="90.010002"
        y1="192.064"
@@ -251,42 +190,6 @@
        y2="200.961"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(0.48131836,0,0,0.88404473,-0.22765385,-133.60833)" />
-    <linearGradient
-       xlink:href="#c"
-       id="w"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#c"
-       id="x"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#c"
-       id="y"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#c"
-       id="z"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
   </defs>
   <path
      d="M 45.687458,5.4082852 V 2.3664338 c 0,0 0.341479,-2.36702061899 -2.386496,-2.36702061899 -2.726685,0 -2.726685,2.02960511899 -2.726685,2.02960511899 V 5.7482568 Z M 9.8874589,5.4095633 V 2.3677119 c 0,0 0.3414801,-2.36829871899 -2.3864946,-2.36829871899 -2.7279748,0 -2.7279748,2.02960511899 -2.7279748,2.02960511899 V 5.7482568 Z M 4.7729895,123.09088 v 3.04185 c 0,0 -0.3401915,2.3683 2.3877833,2.3683 2.7266861,0 2.7266861,-2.02961 2.7266861,-2.02961 v -3.71923 z m 35.8012875,0 v 3.04185 c 0,0 -0.341481,2.36702 2.386494,2.36702 2.726687,0 2.726687,-2.0296 2.726687,-2.0296 v -3.71924 z"
@@ -698,78 +601,6 @@
        inkscape:connector-curvature="0"
        style="fill:#4d4d4d;stroke-width:0.78125006" />
   </g>
-  <g
-     transform="matrix(0.87745276,0,0,0.87745276,-39.532612,49.086062)"
-     id="g174"
-     style="stroke-width:1.13984382">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle170"
-       style="fill:url(#n);stroke-width:1.13984382" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle172"
-       style="fill:url(#o);stroke-width:1.13984382" />
-  </g>
-  <g
-     transform="matrix(0.87745276,0,0,0.87745276,-35.419972,49.125742)"
-     id="g180"
-     style="stroke-width:1.13984382">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle176"
-       style="fill:url(#p);stroke-width:1.13984382" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle178"
-       style="fill:url(#q);stroke-width:1.13984382" />
-  </g>
-  <g
-     transform="matrix(0.87745276,0,0,0.87745276,-39.491652,53.476462)"
-     id="g186"
-     style="stroke-width:1.13984382">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle182"
-       style="fill:url(#r);stroke-width:1.13984382" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle184"
-       style="fill:url(#s);stroke-width:1.13984382" />
-  </g>
-  <g
-     transform="matrix(0.87745276,0,0,0.87745276,-35.380292,53.516142)"
-     id="g192"
-     style="stroke-width:1.13984382">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle188"
-       style="fill:url(#t);stroke-width:1.13984382" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle190"
-       style="fill:url(#u);stroke-width:1.13984382" />
-  </g>
   <rect
      ry="0.52899998"
      rx="0.52899998"
@@ -779,42 +610,6 @@
      width="5.5718398"
      id="rect194"
      style="fill:url(#v);stroke-width:1" />
-  <g
-     transform="matrix(0.87745276,0,0,0.87745276,-19.212613,44.039022)"
-     id="g200"
-     style="stroke-width:1.13984382">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle196"
-       style="fill:url(#w);stroke-width:1.13984382" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle198"
-       style="fill:url(#x);stroke-width:1.13984382" />
-  </g>
-  <g
-     transform="matrix(0.87745276,0,0,0.87745276,-11.084613,44.012142)"
-     id="g206"
-     style="stroke-width:1.13984382">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle202"
-       style="fill:url(#y);stroke-width:1.13984382" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle204"
-       style="fill:url(#z);stroke-width:1.13984382" />
-  </g>
   <g
      style="line-height:1.25;stroke-width:0.78125006"
      id="g210"

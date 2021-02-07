@@ -36,21 +36,32 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
      id="namedview274"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="8.494823"
-     inkscape:cx="28.275472"
-     inkscape:cy="464.32925"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:zoom="1.0192121"
+     inkscape:cx="163.2"
+     inkscape:cy="242.83465"
+     inkscape:window-x="251"
+     inkscape:window-y="1072"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg272" />
   <defs
      id="defs62">
+    <linearGradient
+       id="linearGradient971">
+      <stop
+         id="stop967"
+         offset="0" />
+      <stop
+         id="stop969"
+         stop-color="#fff"
+         offset="1"
+         style="stop-color:#8c8c8c;stop-opacity:1" />
+    </linearGradient>
     <linearGradient
        id="b">
       <stop
@@ -397,7 +408,7 @@
        x2="45.258999"
        y2="34.750999" />
     <linearGradient
-       xlink:href="#a"
+       xlink:href="#linearGradient971"
        id="O"
        x1="90.010002"
        y1="192.064"
@@ -406,7 +417,7 @@
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1.2799809,0,0,1.2799809,-33.974533,-206.56493)" />
     <linearGradient
-       xlink:href="#a"
+       xlink:href="#linearGradient971"
        id="P"
        x1="90.010002"
        y1="192.064"
@@ -462,7 +473,7 @@
      d="M 0,0 H 86.360311 V 128.50046 H 0 Z m 0,0"
      id="path64"
      inkscape:connector-curvature="0"
-     style="fill:#191919;stroke-width:1" />
+     style="fill:#1e1e1e;stroke-width:1;fill-opacity:1" />
   <path
      d="m 36.040422,10.709269 c -3.627466,0 -6.568862,2.864597 -6.568862,6.398624 0.0013,0.108799 0.0051,0.217597 0.0128,0.325115 h -0.0013 l 0.06912,0.645111 c 0.0128,0.0832 0.02816,0.166397 0.04608,0.249596 l 2.320606,12.863808 h 0.0051 c 0.345594,2.073569 2.184927,3.599306 4.341695,3.599306 2.430684,0 4.400574,-1.919971 4.400574,-4.286656 l -0.0026,-0.04992 1.804773,-12.0395 c 0.0512,-0.245757 0.0896,-0.494073 0.111359,-0.743669 l 0.02176,-0.408314 v -0.0026 l 0.0064,-0.153598 c 0,-3.532747 -2.940116,-6.398624 -6.567582,-6.398624 z"
      id="path66"
@@ -1074,7 +1085,7 @@
      height="11.307351"
      width="9.2837009"
      id="rect256"
-     style="fill:url(#P);stroke-width:1"
+     style="fill:url(#P);stroke-width:1;fill-opacity:1.0"
      ry="0.88800007" />
   <g
      transform="matrix(1.2799809,0,0,1.2799809,-33.836295,-206.43674)"

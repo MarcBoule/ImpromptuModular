@@ -42,9 +42,9 @@
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="2.4842105"
-     inkscape:cx="110.74571"
-     inkscape:cy="362.58218"
+     inkscape:zoom="1.6616245"
+     inkscape:cx="192.00066"
+     inkscape:cy="242.83465"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -52,7 +52,18 @@
   <defs
      id="defs36">
     <linearGradient
-       xlink:href="#a"
+       id="linearGradient920">
+      <stop
+         id="stop916"
+         offset="0" />
+      <stop
+         id="stop918"
+         stop-color="#fff"
+         offset="1"
+         style="stop-color:#8c8c8c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       xlink:href="#linearGradient920"
        id="f"
        x1="90.010002"
        y1="192.064"
@@ -61,17 +72,7 @@
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(0.80196116,0,0,1.2709932,-23.858002,-232.29864)" />
     <linearGradient
-       id="a">
-      <stop
-         offset="0"
-         id="stop3" />
-      <stop
-         offset="1"
-         stop-color="#fff"
-         id="stop5" />
-    </linearGradient>
-    <linearGradient
-       xlink:href="#a"
+       xlink:href="#linearGradient920"
        id="g"
        x1="90.010002"
        y1="192.064"
@@ -79,132 +80,6 @@
        y2="200.961"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1.7246779,0,0,1.2800044,-60.783569,-234.02281)" />
-    <linearGradient
-       xlink:href="#a"
-       id="h"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="i"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="j"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="k"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="d"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="e"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="l"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="m"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="n"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="o"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="p"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="q"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="r"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.25816,0,0,1.25816,32.958,-15.82)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
-    <linearGradient
-       xlink:href="#a"
-       id="s"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.00722,0,0,1.00722,-69.402,-137.27)"
-       x1="24.039"
-       y1="62.948002"
-       x2="24.039"
-       y2="59.622002" />
     <linearGradient
        xlink:href="#b"
        id="u"
@@ -249,7 +124,7 @@
          id="stop32" />
     </linearGradient>
     <linearGradient
-       xlink:href="#a"
+       xlink:href="#linearGradient920"
        id="t"
        x1="69.097"
        y1="21.047001"
@@ -262,25 +137,7 @@
      d="M 0,0 H 101.60035 V 128.50044 H 0 Z m 0,0"
      id="path38"
      inkscape:connector-curvature="0"
-     style="fill:#191919;stroke-width:1" />
-  <g
-     transform="matrix(1.2800044,0,0,1.2800044,-57.536198,9.4980345)"
-     id="g44"
-     style="stroke-width:0.78124732">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle40"
-       style="fill:url(#d);stroke-width:0.78124732" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle42"
-       style="fill:url(#e);stroke-width:0.78124732" />
-  </g>
+     style="fill:#1e1e1e;stroke-width:1;fill-opacity:1" />
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -289,7 +146,7 @@
      height="29.511782"
      width="13.871408"
      id="rect46"
-     style="fill:#3e3e3e;stroke:#c8c8c8;stroke-width:0.26499999;paint-order:stroke markers fill" />
+     style="fill:#3e3e3e;stroke:#8c8c8c;stroke-width:0.26499999;paint-order:stroke markers fill;stroke-opacity:1" />
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -298,7 +155,7 @@
      height="27.317852"
      width="96.182091"
      id="rect48"
-     style="fill:#3e3e3e;stroke:#c8c8c8;stroke-width:0.26499999;paint-order:stroke markers fill" />
+     style="fill:#3e3e3e;stroke:#8c8c8c;stroke-width:0.26499999;paint-order:stroke markers fill;stroke-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78124732"
      id="g52"
@@ -551,7 +408,7 @@
      height="29.511782"
      width="13.871408"
      id="rect116"
-     style="fill:#3e3e3e;stroke:#c8c8c8;stroke-width:0.26499999;paint-order:stroke markers fill" />
+     style="fill:#3e3e3e;stroke:#8c8c8c;stroke-width:0.26499999;paint-order:stroke markers fill;stroke-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78124732"
      id="g120"
@@ -655,7 +512,7 @@
      height="11.307558"
      width="9.2838717"
      id="rect144"
-     style="fill:url(#f);stroke-width:1" />
+     style="fill:url(#f);stroke-width:1;fill-opacity:1.0" />
   <rect
      ry="1.418"
      rx="1.418"
@@ -665,114 +522,6 @@
      width="19.96423"
      id="rect146"
      style="fill:url(#g);stroke-width:1" />
-  <g
-     transform="matrix(1.2800044,0,0,1.2800044,-71.085045,-31.084507)"
-     id="g152"
-     style="stroke-width:0.78124732">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle148"
-       style="fill:url(#h);stroke-width:0.78124732" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle150"
-       style="fill:url(#i);stroke-width:0.78124732" />
-  </g>
-  <g
-     transform="matrix(1.2800044,0,0,1.2800044,-71.076085,9.5095545)"
-     id="g158"
-     style="stroke-width:0.78124732">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle154"
-       style="fill:url(#j);stroke-width:0.78124732" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle156"
-       style="fill:url(#k);stroke-width:0.78124732" />
-  </g>
-  <g
-     transform="matrix(1.2800044,0,0,1.2800044,-44.011672,9.4980345)"
-     id="g164"
-     style="stroke-width:0.78124732">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle160"
-       style="fill:url(#l);stroke-width:0.78124732" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle162"
-       style="fill:url(#m);stroke-width:0.78124732" />
-  </g>
-  <g
-     transform="matrix(1.2800044,0,0,1.2800044,-30.462825,9.4481143)"
-     id="g170"
-     style="stroke-width:0.78124732">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle166"
-       style="fill:url(#n);stroke-width:0.78124732" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle168"
-       style="fill:url(#o);stroke-width:0.78124732" />
-  </g>
-  <g
-     transform="matrix(1.2800044,0,0,1.2800044,-16.902458,9.4890745)"
-     id="g176"
-     style="stroke-width:0.78124732">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle172"
-       style="fill:url(#p);stroke-width:0.78124732" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle174"
-       style="fill:url(#q);stroke-width:0.78124732" />
-  </g>
-  <g
-     transform="matrix(1.2800044,0,0,1.2800044,-3.3664116,9.5300346)"
-     id="g182"
-     style="stroke-width:0.78124732">
-    <circle
-       cx="63.202999"
-       cy="61.278999"
-       r="2.082"
-       id="circle178"
-       style="fill:url(#r);stroke-width:0.78124732" />
-    <circle
-       cx="-45.188999"
-       cy="-75.549004"
-       r="1.6670001"
-       transform="rotate(165)"
-       id="circle180"
-       style="fill:url(#s);stroke-width:0.78124732" />
-  </g>
   <rect
      width="7.8592267"
      height="5.5616188"
@@ -781,7 +530,7 @@
      rx="0.52899998"
      ry="0.52899998"
      id="rect184"
-     style="fill:url(#t);fill-rule:evenodd;stroke-width:1" />
+     style="fill:url(#t);fill-rule:evenodd;stroke-width:1;fill-opacity:1.0" />
   <g
      transform="matrix(1.2800044,0,0,1.2800044,-33.836812,-206.44064)"
      id="g190"

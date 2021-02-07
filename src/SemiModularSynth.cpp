@@ -1631,14 +1631,16 @@ struct SemiModularSynth : Module {
 		oscillatorVco.setPulseWidth(params[VCO_PW_PARAM].getValue() + params[VCO_PWM_PARAM].getValue() * inputs[VCO_PW_INPUT].getVoltage() / 10.0f);
 		oscillatorVco.syncEnabled = inputs[VCO_SYNC_INPUT].isConnected();
 		oscillatorVco.process(args.sampleTime, inputs[VCO_SYNC_INPUT].getVoltage());
-		if (outputs[VCO_SIN_OUTPUT].isConnected())
+		if (outputs[VCO_SIN_OUTPUT].isConnected()) {
 			outputs[VCO_SIN_OUTPUT].setVoltage(5.0f * oscillatorVco.sin());
-		if (outputs[VCO_TRI_OUTPUT].isConnected())
+		}
+		if (outputs[VCO_TRI_OUTPUT].isConnected()) {
 			outputs[VCO_TRI_OUTPUT].setVoltage(5.0f * oscillatorVco.tri());
-		if (outputs[VCO_SAW_OUTPUT].isConnected())
+		}
+		if (outputs[VCO_SAW_OUTPUT].isConnected()) {
 			outputs[VCO_SAW_OUTPUT].setVoltage(5.0f * oscillatorVco.saw());
-		//if (outputs[VCO_SQR_OUTPUT].isConnected())
-			outputs[VCO_SQR_OUTPUT].setVoltage(5.0f * oscillatorVco.sqr());		
+		}
+		outputs[VCO_SQR_OUTPUT].setVoltage(5.0f * oscillatorVco.sqr());		
 			
 			
 		// CLK

@@ -36,17 +36,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
      id="namedview56"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="8.4948213"
-     inkscape:cx="-5.25757"
-     inkscape:cy="479.23144"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:zoom="1.0192121"
+     inkscape:cx="28.800704"
+     inkscape:cy="242.83465"
+     inkscape:window-x="251"
+     inkscape:window-y="1072"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg54" />
   <defs
@@ -99,7 +99,7 @@
      d="M 0,0 H 15.240053 V 128.50044 H 0 Z m 0,0"
      id="path16"
      inkscape:connector-curvature="0"
-     style="fill:#191919;stroke-width:0.99999994" />
+     style="fill:#1e1e1e;stroke-width:0.99999994;fill-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78123093"
      id="g20"
@@ -123,7 +123,7 @@
      height="17.410986"
      width="12.686391"
      id="rect22"
-     style="fill:#3e3e3e;stroke:#c8c8c8;stroke-width:0.26499999;paint-order:stroke markers fill" />
+     style="fill:#3e3e3e;stroke:#8c8c8c;stroke-width:0.26499999;paint-order:stroke markers fill;stroke-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78123093"
      id="g26"

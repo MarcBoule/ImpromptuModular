@@ -36,17 +36,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
      id="namedview84"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="1.2421053"
-     inkscape:cx="-153.80627"
-     inkscape:cy="266.18794"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:zoom="1.0192121"
+     inkscape:cx="57.599998"
+     inkscape:cy="203.58865"
+     inkscape:window-x="251"
+     inkscape:window-y="1072"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg82" />
   <defs
@@ -111,14 +111,15 @@
       <stop
          offset="1"
          stop-color="#fff"
-         id="stop17" />
+         id="stop17"
+         style="stop-color:#8c8c8c;stop-opacity:1" />
     </linearGradient>
   </defs>
   <path
      d="M 0,-0.00112942 H 30.48064 V 128.50157 H 0 Z m 0,0"
      id="path22"
      inkscape:connector-curvature="0"
-     style="fill:#191919;stroke-width:1" />
+     style="fill:#1e1e1e;stroke-width:1;fill-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78125"
      id="g26"
@@ -236,7 +237,7 @@
      width="55.080963"
      transform="matrix(0,-1,-1,0,0,0)"
      id="rect52"
-     style="fill:#3e3e3e;stroke:#c8c8c8;stroke-width:0.26499999;paint-order:stroke markers fill" />
+     style="fill:#3e3e3e;stroke:#8c8c8c;stroke-width:0.26499999;paint-order:stroke markers fill;stroke-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78125"
      id="g56"
