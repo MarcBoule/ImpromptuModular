@@ -43,7 +43,7 @@
      inkscape:document-units="mm"
      units="mm"
      inkscape:zoom="1.14893"
-     inkscape:cx="57.599998"
+     inkscape:cx="-90.798947"
      inkscape:cy="242.83464"
      inkscape:window-x="0"
      inkscape:window-y="0"
@@ -373,29 +373,5 @@
        style="-inkscape-font-specification:'Sniglet, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;stroke-width:0.20703124"
        id="path999"
        inkscape:connector-curvature="0" />
-  </g>
-  <g
-     transform="matrix(1.2800256,0,0,1.2800256,-33.837197,-206.44518)"
-     id="g1007"
-     style="stroke-width:0.78125">
-    <rect
-       rx="0.1609375"
-       width="4.2399998"
-       height="0.43900001"
-       x="26.759001"
-       y="161.61099"
-       ry="0.1609375"
-       id="rect1003"
-       style="fill:url(#c);stroke-width:0.78125" />
-    <rect
-       rx="0.1515625"
-       width="4.2399998"
-       height="0.41299999"
-       x="162.21001"
-       y="-26.118999"
-       ry="0.1515625"
-       transform="matrix(0.00655,0.99998,-0.99973,0.02317,0,0)"
-       id="rect1005"
-       style="fill:url(#d);stroke-width:0.78125" />
   </g>
 </svg>

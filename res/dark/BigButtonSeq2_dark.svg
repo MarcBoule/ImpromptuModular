@@ -36,17 +36,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
      id="namedview194"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
      inkscape:zoom="1.6616245"
-     inkscape:cx="192.00066"
-     inkscape:cy="242.83465"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:cx="89.390233"
+     inkscape:cy="435.41727"
+     inkscape:window-x="251"
+     inkscape:window-y="1072"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg192" />
   <defs
@@ -531,28 +531,4 @@
      ry="0.52899998"
      id="rect184"
      style="fill:url(#t);fill-rule:evenodd;stroke-width:1;fill-opacity:1.0" />
-  <g
-     transform="matrix(1.2800044,0,0,1.2800044,-33.836812,-206.44064)"
-     id="g190"
-     style="stroke-width:0.78124732">
-    <rect
-       rx="0.16093695"
-       width="4.2399998"
-       height="0.43900001"
-       x="26.759001"
-       y="161.61099"
-       ry="0.16093695"
-       id="rect186"
-       style="fill:url(#u);stroke-width:0.78124732" />
-    <rect
-       rx="0.15156198"
-       width="4.2399998"
-       height="0.41299999"
-       x="162.21001"
-       y="-26.118999"
-       ry="0.15156198"
-       transform="matrix(0.00655,0.99998,-0.99973,0.02317,0,0)"
-       id="rect188"
-       style="fill:url(#v);stroke-width:0.78124732" />
-  </g>
 </svg>

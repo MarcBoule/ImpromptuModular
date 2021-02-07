@@ -41,7 +41,7 @@
      id="namedview122"
      showgrid="false"
      inkscape:zoom="1.0192121"
-     inkscape:cx="96.000002"
+     inkscape:cx="-71.286081"
      inkscape:cy="242.83464"
      inkscape:window-x="251"
      inkscape:window-y="1072"
@@ -459,28 +459,4 @@
      ry="1.428"
      id="rect112"
      style="fill:url(#d);stroke-width:1" />
-  <g
-     transform="matrix(1.28,0,0,1.28,-33.836516,-206.44044)"
-     id="g118"
-     style="stroke-width:0.78125">
-    <rect
-       width="4.2399998"
-       height="0.43900001"
-       x="26.759001"
-       y="161.61099"
-       ry="0.1609375"
-       rx="0.1609375"
-       id="rect114"
-       style="fill:url(#e);stroke-width:0.78125" />
-    <rect
-       width="4.2399998"
-       height="0.41299999"
-       x="162.21001"
-       y="-26.118999"
-       ry="0.15156251"
-       transform="matrix(0.00655,0.99998,-0.99973,0.02317,0,0)"
-       rx="0.15156251"
-       id="rect116"
-       style="fill:url(#f);stroke-width:0.78125" />
-  </g>
 </svg>

@@ -43,8 +43,8 @@
      inkscape:document-units="mm"
      units="mm"
      inkscape:zoom="1.0192121"
-     inkscape:cx="28.800704"
-     inkscape:cy="242.83465"
+     inkscape:cx="-138.48538"
+     inkscape:cy="321.32665"
      inkscape:window-x="251"
      inkscape:window-y="1072"
      inkscape:window-maximized="1"
@@ -213,29 +213,5 @@
        word-spacing="0"
        id="path44"
        inkscape:connector-curvature="0" />
-  </g>
-  <g
-     transform="matrix(1.2800313,0,0,1.2800313,-33.837543,-206.4451)"
-     id="g52"
-     style="stroke-width:0.78123093">
-    <rect
-       rx="0.16093357"
-       width="4.2399998"
-       height="0.43900001"
-       x="26.759001"
-       y="161.61099"
-       ry="0.16093357"
-       id="rect48"
-       style="fill:url(#c);stroke-width:0.78123093" />
-    <rect
-       rx="0.1515588"
-       width="4.2399998"
-       height="0.41299999"
-       x="162.21001"
-       y="-26.118999"
-       ry="0.1515588"
-       transform="matrix(0.00655,0.99998,-0.99973,0.02317,0,0)"
-       id="rect50"
-       style="fill:url(#d);stroke-width:0.78123093" />
   </g>
 </svg>

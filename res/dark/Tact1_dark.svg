@@ -43,7 +43,7 @@
      inkscape:document-units="mm"
      units="mm"
      inkscape:zoom="1.0192121"
-     inkscape:cx="57.599998"
+     inkscape:cx="-109.68609"
      inkscape:cy="242.83465"
      inkscape:window-x="251"
      inkscape:window-y="1072"
@@ -273,28 +273,4 @@
      width="5.6384001"
      id="rect66"
      style="fill:url(#f);stroke-width:1;fill-opacity:1.0" />
-  <g
-     transform="matrix(1.28,0,0,1.28,-33.836512,-206.44093)"
-     id="g72"
-     style="stroke-width:0.78125">
-    <rect
-       rx="0.1609375"
-       width="4.2399998"
-       height="0.43900001"
-       x="26.759001"
-       y="161.61099"
-       ry="0.1609375"
-       id="rect68"
-       style="fill:url(#g);stroke-width:0.78125" />
-    <rect
-       rx="0.1515625"
-       width="4.2399998"
-       height="0.41299999"
-       x="162.21001"
-       y="-26.118999"
-       ry="0.1515625"
-       transform="matrix(0.00655,0.99998,-0.99973,0.02317,0,0)"
-       id="rect70"
-       style="fill:url(#h);stroke-width:0.78125" />
-  </g>
 </svg>

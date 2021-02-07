@@ -37,14 +37,14 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1307"
-     inkscape:window-height="891"
+     inkscape:window-height="768"
      id="namedview327"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="2.8827671"
-     inkscape:cx="483.64611"
-     inkscape:cy="98.638246"
+     inkscape:zoom="1.14893"
+     inkscape:cx="307.20104"
+     inkscape:cy="242.83465"
      inkscape:window-x="70"
      inkscape:window-y="62"
      inkscape:window-maximized="0"
@@ -966,30 +966,6 @@
      id="path257"
      inkscape:connector-curvature="0"
      style="fill:url(#m);stroke-width:1" />
-  <g
-     transform="matrix(1.2800044,0,0,1.2800044,-33.836913,-206.44064)"
-     id="g263"
-     style="stroke-width:0.78124732">
-    <rect
-       width="4.2399998"
-       height="0.43900001"
-       x="26.759001"
-       y="161.61099"
-       ry="0.16093695"
-       rx="0.16093695"
-       id="rect259"
-       style="fill:url(#n);stroke-width:0.78124732" />
-    <rect
-       width="4.2399998"
-       height="0.41299999"
-       x="162.21001"
-       y="-26.118999"
-       ry="0.15156198"
-       transform="matrix(0.00655,0.99998,-0.99973,0.02317,0,0)"
-       rx="0.15156198"
-       id="rect261"
-       style="fill:url(#o);stroke-width:0.78124732" />
-  </g>
   <g
      style="line-height:1.25;stroke-width:0.78124732"
      id="g267"
