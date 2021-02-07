@@ -20,6 +20,18 @@
   <defs
      id="defs15240">
     <linearGradient
+       id="linearGradient828"
+       inkscape:collect="always">
+      <stop
+         id="stop824"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:1" />
+      <stop
+         id="stop826"
+         offset="1"
+         style="stop-color:#e6e6e6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
        inkscape:collect="always"
        id="linearGradient3935">
       <stop
@@ -33,7 +45,7 @@
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient3935"
+       xlink:href="#linearGradient828"
        id="linearGradient3937"
        x1="92.785469"
        y1="120.45113"
@@ -42,7 +54,7 @@
        gradientUnits="userSpaceOnUse" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient3935"
+       xlink:href="#linearGradient828"
        id="linearGradient3945"
        x1="92.788963"
        y1="127.42922"
@@ -78,15 +90,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="15.839192"
-     inkscape:cx="-3.2355082"
-     inkscape:cy="13.809697"
+     inkscape:cx="31.027329"
+     inkscape:cy="16.075081"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
+     inkscape:window-x="251"
+     inkscape:window-y="1072"
      inkscape:window-maximized="1"
      units="px"
      fit-margin-top="0"
@@ -120,7 +132,7 @@
        inkscape:connector-curvature="0"
        id="path7261"
        d="m 92.788964,126.29511 c -1.609548,0 -2.918685,-1.30916 -2.918685,-2.91871 0,-1.60954 1.309137,-2.91867 2.918685,-2.91867 1.609549,0 2.918682,1.30913 2.918682,2.91867 0,1.60955 -1.309133,2.91871 -2.918682,2.91871"
-       style="fill:url(#linearGradient3937);fill-opacity:1;fill-rule:nonzero;stroke:#636663;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:url(#linearGradient3937);fill-opacity:1.0;fill-rule:nonzero;stroke:#636663;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <path
        inkscape:connector-curvature="0"
        id="path7265"
