@@ -1164,7 +1164,7 @@ struct GateSeq64Widget : ModuleWidget {
 	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
 		GateSeq64 *module;
 		std::shared_ptr<Font> font;
-		char displayStr[4];
+		char displayStr[16];
 		int lastNum = -1;// -1 means timedout; >= 0 means we have a first number potential, if ever second key comes fast enough
 		clock_t lastTime = 0;
 		
@@ -1290,18 +1290,18 @@ struct GateSeq64Widget : ModuleWidget {
 					if ( prob>= 100)
 						snprintf(displayStr, 4, "1,0");
 					else if (prob >= 1)
-						snprintf(displayStr, 4, ",%02u", (unsigned) prob);
+						snprintf(displayStr, 16, ",%02u", (unsigned) prob);
 					else
 						snprintf(displayStr, 4, "  0");
 				}
 				else if (module->editingPpqn != 0ul) {
-					snprintf(displayStr, 4, "x%2u", (unsigned) module->pulsesPerStep);
+					snprintf(displayStr, 16, "x%2u", (unsigned) module->pulsesPerStep);
 				}
 				else if (module->displayState == GateSeq64::DISP_LENGTH) {
 					if (editingSequence)
-						snprintf(displayStr, 4, "L%2u", (unsigned) module->sequences[module->sequence].getLength());
+						snprintf(displayStr, 16, "L%2u", (unsigned) module->sequences[module->sequence].getLength());
 					else
-						snprintf(displayStr, 4, "L%2u", (unsigned) module->phrases);
+						snprintf(displayStr, 16, "L%2u", (unsigned) module->phrases);
 				}
 				else if (module->displayState == GateSeq64::DISP_MODES) {
 					if (editingSequence)

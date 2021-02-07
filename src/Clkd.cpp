@@ -722,7 +722,7 @@ struct ClkdWidget : ModuleWidget {
 	struct BpmRatioDisplayWidget : LightWidget {//TransparentWidget {
 		Clkd *module;
 		std::shared_ptr<Font> font;
-		char displayStr[4];
+		char displayStr[16];
 
 		
 		BpmRatioDisplayWidget() {
@@ -757,7 +757,7 @@ struct ClkdWidget : ModuleWidget {
 				if ( (ratioDoubled % 2) == 1 )
 					snprintf(displayStr, 4, "%c,5", 0x30 + (char)(ratioDoubled / 2));
 				else {
-					snprintf(displayStr, 4, "X%2u", (unsigned)(ratioDoubled / 2));
+					snprintf(displayStr, 16, "X%2u", (unsigned)(ratioDoubled / 2));
 					if (isDivision)
 						displayStr[0] = '/';
 				}

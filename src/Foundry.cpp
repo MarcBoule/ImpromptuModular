@@ -1381,7 +1381,7 @@ struct FoundryWidget : ModuleWidget {
 	struct DisplayWidget : LightWidget {//TransparentWidget {// a centered display, must derive from this
 		Foundry *module;
 		std::shared_ptr<Font> font;
-		char displayStr[NUMCHAR + 1];
+		char displayStr[16];
 		static const int textFontSize = 15;
 		static constexpr float textOffsetY = 19.9f; // 18.2f for 14 pt, 19.7f for 15pt
 		
@@ -1621,7 +1621,7 @@ struct FoundryWidget : ModuleWidget {
 						snprintf(displayStr, 4, " - ");
 					break;
 					case Foundry::DISP_REPS :
-						snprintf(displayStr, 4, "R%2u", (unsigned) module->seq.getPhraseReps());
+						snprintf(displayStr, 16, "R%2u", (unsigned) module->seq.getPhraseReps());
 					break;
 					case Foundry::DISP_COPY_SEQ :
 						snprintf(displayStr, 4, "CPY");
@@ -1630,12 +1630,12 @@ struct FoundryWidget : ModuleWidget {
 						snprintf(displayStr, 4, "PST");
 					break;
 					case Foundry::DISP_LEN :
-						snprintf(displayStr, 4, "L%2u", (unsigned) module->seq.getLength());
+						snprintf(displayStr, 16, "L%2u", (unsigned) module->seq.getLength());
 					break;
 					case Foundry::DISP_TRANSPOSE :
 					{
 						int tranOffset = module->seq.getTransposeOffset();
-						snprintf(displayStr, 4, "+%2u", (unsigned) abs(tranOffset));
+						snprintf(displayStr, 16, "+%2u", (unsigned) abs(tranOffset));
 						if (tranOffset < 0)
 							displayStr[0] = '-';
 					}
@@ -1643,7 +1643,7 @@ struct FoundryWidget : ModuleWidget {
 					case Foundry::DISP_ROTATE :
 					{
 						int rotOffset = module->seq.getRotateOffset();
-						snprintf(displayStr, 4, ")%2u", (unsigned) abs(rotOffset));
+						snprintf(displayStr, 16, ")%2u", (unsigned) abs(rotOffset));
 						if (rotOffset < 0)
 							displayStr[0] = '(';
 					}
@@ -1651,10 +1651,10 @@ struct FoundryWidget : ModuleWidget {
 					default :
 					{
 						if (module->editingSequence) {
-							snprintf(displayStr, 4, " %2u", (unsigned)(module->seq.getSeqIndexEdit() + 1) );
+							snprintf(displayStr, 16, " %2u", (unsigned)(module->seq.getSeqIndexEdit() + 1) );
 						}
 						else {
-							snprintf(displayStr, 4, " %2u", (unsigned)(module->seq.getPhraseSeq() + 1) );
+							snprintf(displayStr, 16, " %2u", (unsigned)(module->seq.getPhraseSeq() + 1) );
 						}
 					}
 				}

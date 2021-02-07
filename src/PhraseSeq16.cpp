@@ -1630,7 +1630,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
 		PhraseSeq16 *module;
 		std::shared_ptr<Font> font;
-		char displayStr[4];
+		char displayStr[16];
 		int lastNum = -1;// -1 means timedout; >= 0 means we have a first number potential, if ever second key comes fast enough
 		clock_t lastTime = 0;
 		
@@ -1751,7 +1751,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 					}
 				}
 				else if (module->editingPpqn != 0ul) {
-					snprintf(displayStr, 4, "x%2u", (unsigned) module->pulsesPerStep);
+					snprintf(displayStr, 16, "x%2u", (unsigned) module->pulsesPerStep);
 				}
 				else if (module->displayState == PhraseSeq16::DISP_MODE) {
 					if (editingSequence)
@@ -1761,22 +1761,22 @@ struct PhraseSeq16Widget : ModuleWidget {
 				}
 				else if (module->displayState == PhraseSeq16::DISP_LENGTH) {
 					if (editingSequence)
-						snprintf(displayStr, 4, "L%2u", (unsigned) module->sequences[module->seqIndexEdit].getLength());
+						snprintf(displayStr, 16, "L%2u", (unsigned) module->sequences[module->seqIndexEdit].getLength());
 					else
-						snprintf(displayStr, 4, "L%2u", (unsigned) module->phrases);
+						snprintf(displayStr, 16, "L%2u", (unsigned) module->phrases);
 				}
 				else if (module->displayState == PhraseSeq16::DISP_TRANSPOSE) {
-					snprintf(displayStr, 4, "+%2u", (unsigned) abs(module->sequences[module->seqIndexEdit].getTranspose()));
+					snprintf(displayStr, 16, "+%2u", (unsigned) abs(module->sequences[module->seqIndexEdit].getTranspose()));
 					if (module->sequences[module->seqIndexEdit].getTranspose() < 0)
 						displayStr[0] = '-';
 				}
 				else if (module->displayState == PhraseSeq16::DISP_ROTATE) {
-					snprintf(displayStr, 4, ")%2u", (unsigned) abs(module->sequences[module->seqIndexEdit].getRotate()));
+					snprintf(displayStr, 16, ")%2u", (unsigned) abs(module->sequences[module->seqIndexEdit].getRotate()));
 					if (module->sequences[module->seqIndexEdit].getRotate() < 0)
 						displayStr[0] = '(';
 				}
 				else {// DISP_NORMAL
-					snprintf(displayStr, 4, " %2u", (unsigned) (editingSequence ? 
+					snprintf(displayStr, 16, " %2u", (unsigned) (editingSequence ? 
 						module->seqIndexEdit : module->phrase[module->phraseIndexEdit]) + 1 );
 				}
 			}

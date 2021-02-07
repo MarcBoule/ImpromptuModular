@@ -850,7 +850,7 @@ struct ClockedWidget : ModuleWidget {
 		Clocked *module;
 		int knobIndex;
 		std::shared_ptr<Font> font;
-		char displayStr[4];
+		char displayStr[16];
 		const std::string delayLabelsClock[8] = {"D 0", "/16",   "1/8",  "1/4", "1/3",     "1/2", "2/3",     "3/4"};
 		const std::string delayLabelsNote[8]  = {"D 0", "/64",   "/32",  "/16", "/8t",     "1/8", "/4t",     "/8d"};
 
@@ -880,7 +880,7 @@ struct ClockedWidget : ModuleWidget {
 				if ( (srcParam >= Clocked::SWING_PARAMS + 0) && (srcParam <= Clocked::SWING_PARAMS + 3) ) {
 					float swValue = module->swingAmount[knobIndex];//module->params[Clocked::SWING_PARAMS + knobIndex].getValue();
 					int swInt = (int)std::round(swValue * 99.0f);
-					snprintf(displayStr, 4, " %2u", (unsigned) abs(swInt));
+					snprintf(displayStr, 16, " %2u", (unsigned) abs(swInt));
 					if (swInt < 0)
 						displayStr[0] = '-';
 					if (swInt >= 0)
@@ -896,7 +896,7 @@ struct ClockedWidget : ModuleWidget {
 				else if ( (srcParam >= Clocked::PW_PARAMS + 0) && (srcParam <= Clocked::PW_PARAMS + 3) ) {				
 					float pwValue = module->pulseWidth[knobIndex];//module->params[Clocked::PW_PARAMS + knobIndex].getValue();
 					int pwInt = ((int)std::round(pwValue * 98.0f)) + 1;
-					snprintf(displayStr, 4, "_%2u", (unsigned) abs(pwInt));
+					snprintf(displayStr, 16, "_%2u", (unsigned) abs(pwInt));
 				}					
 			}
 			else {
@@ -910,7 +910,7 @@ struct ClockedWidget : ModuleWidget {
 					if ( (ratioDoubled % 2) == 1 )
 						snprintf(displayStr, 4, "%c,5", 0x30 + (char)(ratioDoubled / 2));
 					else {
-						snprintf(displayStr, 4, "X%2u", (unsigned)(ratioDoubled / 2));
+						snprintf(displayStr, 16, "X%2u", (unsigned)(ratioDoubled / 2));
 						if (isDivision)
 							displayStr[0] = '/';
 					}
@@ -920,10 +920,10 @@ struct ClockedWidget : ModuleWidget {
 						if (!module->bpmDetectionMode)
 							snprintf(displayStr, 4, " CV");
 						else
-							snprintf(displayStr, 4, "P%2u", (unsigned) module->ppqn);
+							snprintf(displayStr, 16, "P%2u", (unsigned) module->ppqn);
 					}
 					else
-						snprintf(displayStr, 4, "%3u", (unsigned)((120.0f / module->masterLength) + 0.5f));
+						snprintf(displayStr, 16, "%3u", (unsigned)((120.0f / module->masterLength) + 0.5f));
 				}
 			}
 			displayStr[3] = 0;// more safety
