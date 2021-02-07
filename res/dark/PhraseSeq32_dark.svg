@@ -36,19 +36,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1366"
-     inkscape:window-height="705"
+     inkscape:window-width="1307"
+     inkscape:window-height="891"
      id="namedview327"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="1.0192121"
-     inkscape:cx="307.20104"
-     inkscape:cy="242.83465"
-     inkscape:window-x="251"
-     inkscape:window-y="1072"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg325" />
+     inkscape:zoom="2.8827671"
+     inkscape:cx="483.64611"
+     inkscape:cy="98.638246"
+     inkscape:window-x="70"
+     inkscape:window-y="62"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg325"
+     showguides="false" />
   <defs
      id="defs49">
     <linearGradient
@@ -881,7 +882,7 @@
   <g
      style="line-height:1.25;stroke-width:0.78124732"
      id="g235"
-     transform="matrix(1.2800044,0,0,1.2800044,0,-0.09623859)">
+     transform="matrix(1.2800044,0,0,1.2800044,0,-3.8350849)">
     <path
        word-spacing="0"
        letter-spacing="0"
@@ -896,7 +897,7 @@
   <g
      style="line-height:1.25;stroke-width:0.78124732"
      id="g239"
-     transform="matrix(1.2800044,0,0,1.2800044,0,-0.09623859)">
+     transform="matrix(1.2800044,0,0,1.2800044,0,-3.9399327)">
     <path
        word-spacing="0"
        letter-spacing="0"
@@ -1069,4 +1070,10 @@
        id="path321"
        inkscape:connector-curvature="0" />
   </g>
+  <path
+     d="M 151.20336,95.698484 H 119.1291 m 31.91314,17.847066 H 118.6665"
+     id="path218"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#6e9b2d;stroke-width:0.26500002;stroke-opacity:1"
+     sodipodi:nodetypes="cccc" />
 </svg>

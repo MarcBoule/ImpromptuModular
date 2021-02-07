@@ -9,7 +9,7 @@ Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are 
 <a id="modules"></a>
 ## Modules
 
-Each module is available in light (Classic) or dark (Dark-Valor) panels, selectable by right-clicking the module in Rack.
+Each module is available in light (Classic) or dark (Dark-valor) panels, selectable by right-clicking the module in Rack.
 
 * [BigButtonSeq](#big-button-seq): 6-channel 64-step trigger sequencer based on the infamous BigButton by Look Mum No Computer.
 
