@@ -439,6 +439,8 @@ Here are some further details on the different functions of the sequencer. It is
 
 * **TRACK input**: This CV input is located in the Foundry [expander module](#expanders), and allows the selection of the track number. A 0-10V CV is linearly mapped to the following track selections: A, B, C, D, A\*, B\*, C\*, D\*, where the star denotes that any change will be done across all tracks. This applies to the CV and CV2 inputs as well (see "CV IN and CV2 IN" above).
 
+* **STEP<, STEP>**: These CV inputs are located in the Foundry [expander module](#expanders). A trigger in these CV inputs will step the current sequence one step left or right in SEQ mode, and will step the phase up or down in SONG mode.
+
 * **TIED**: Please see [PhraseSeq16](#phrase-seq-16)'s section on [tied steps](#tied-ps).
 
 * **GATEP**: Activates the use of probability in the current step's gate. The probability controls the chance that when the gate is active it is actually sent to its output jack. The probability for the step can be set using the CV2/p/r section (press the button below CV2 until the yellow LED below the "p" lights up). The probability ranges from 0 to 1, where 0 is no chance to fire and 1 is 100% chance to fire (the default is 0.5 for 50% chance). 
