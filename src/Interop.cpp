@@ -20,7 +20,7 @@ void ioConvertToNotes(int seqLen, IoStep* ioSteps, std::vector<IoNote> &ioNotes)
 			while (si2 < seqLen && ioSteps[si2].tied) {si2++;}
 			IoNote ioNote;
 			ioNote.start = (float)si;
-			ioNote.length = (float)(si2 - si - 0.5f);
+			ioNote.length = (float)(si2 - si) - 0.5f;
 			ioNote.pitch = ioSteps[si].pitch;
 			ioNote.vel = ioSteps[si].vel;
 			ioNote.prob = ioSteps[si].prob;

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "ImpromptuModular.hpp"
+#include "Interop.hpp"
 
 
 inline float quantize(float cv, bool enable) {

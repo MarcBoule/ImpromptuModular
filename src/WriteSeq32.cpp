@@ -165,7 +165,10 @@ struct WriteSeq32 : Module {
 		}
 		pendingPaste = 0;
 	}
-
+	
+	int calcSteps() {
+		return (int) clamp(std::round(params[STEPS_PARAM].getValue()), 1.0f, 32.0f);
+	}
 	
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
@@ -271,6 +274,88 @@ struct WriteSeq32 : Module {
 		resetNonJson();
 	}
 
+
+/*
+	
+	
+	void emptyIoSteps(IoStep* ioSteps, int seqLen) {
+		params[STEPS_PARAM].setValue(clamp((float)seqLen, 1.0f, 32.0f));
+		
+		// populate steps in the sequencer
+		// first pass is done without ties
+		for (int i = 0; i < seqLen; i++) {
+			cv[indexChannel][i] = ioSteps[i].pitch;
+			gates[indexChannel][i] = ioSteps[i].gate
+		}
+		// now do ties, has to be done in a separate pass such that non tied that follows tied can be 
+		//   there in advance for proper gate types
+		for (int i = 0; i < seqLen; i++) {
+			if (ioSteps[i].tied) {
+				activateTiedStep(seqIndexEdit, i);
+			}
+		}
+	}
+*/
+	std::vector<IoNote>* fillIoNotes(int *seqLenPtr) {// caller must delete return array
+		int seqLen = calcSteps();
+		std::vector<IoNote>* ioNotes = new std::vector<IoNote>;
+		
+		// populate ioNotes array
+		for (int i = 0; i < seqLen; ) {
+			if (gates[indexChannel][i] == 0) {
+				i++;
+				continue;
+			}
+			IoNote ioNote;
+			ioNote.start = (float)i;
+			int j = i + 1;
+			if (gates[indexChannel][i] == 2) {
+				// if full gate, check for consecutive full gates with same cv in order to make one long note
+				while (j < seqLen && cv[indexChannel][i] == cv[indexChannel][j] && gates[indexChannel][j] == 2) {j++;}
+				ioNote.length = (float)(j - i);
+			}
+			else {
+				ioNote.length = 0.5f;
+			}
+			ioNote.pitch = cv[indexChannel][i];
+			ioNote.vel = -1.0f;// no concept of velocity in WriteSequencers
+			ioNote.prob = -1.0f;// no concept of probability in WriteSequencers	
+			ioNotes->push_back(ioNote);
+			i = j;
+		}
+
+		// return values 
+		*seqLenPtr = seqLen;
+		return ioNotes;
+	}
+
+
+	void emptyIoNotes(std::vector<IoNote>* ioNotes, int seqLen) {
+		if (seqLen < 1) {
+			return;
+		}
+		params[STEPS_PARAM].setValue(clamp((float)seqLen, 1.0f, 32.0f));// clamp not really needed here, < 1 tested above, 32 max done elsewhere
+		
+		// clear everything first
+		for (int i = 0; i < seqLen; i++) {
+			cv[indexChannel][i] = 0.0f;
+			gates[indexChannel][i] = 0;
+		}
+
+		// Scan notes and write into steps
+		for (unsigned int ni = 0; ni < ioNotes->size(); ni++) {
+			int si = std::max((int)0, (int)(*ioNotes)[ni].start);
+			if (si >= 32) continue;
+			int si2 = si + std::max((int)1, (int)std::ceil((*ioNotes)[ni].length));
+			// bool headStep = true;
+			for (; si < si2 && si < 32; si++) {
+				cv[indexChannel][si] = (*ioNotes)[ni].pitch;
+				gates[indexChannel][si] = (si == (si2 - 1) ? 1 : 2);
+				// headStep = false;
+			}
+		}
+	}	
+	
 	
 	void process(const ProcessArgs &args) override {
 		static const float copyPasteInfoTime = 0.7f;// seconds
@@ -279,7 +364,7 @@ struct WriteSeq32 : Module {
 		
 		//********** Buttons, knobs, switches and inputs **********
 		
-		int numSteps = (int) clamp(std::round(params[STEPS_PARAM].getValue()), 1.0f, 32.0f);	
+		int numSteps = calcSteps();	
 		bool canEdit = !running || (indexChannel == 3);
 		
 		// Run state button
@@ -562,7 +647,7 @@ struct WriteSeq32Widget : ModuleWidget {
 			}
 			else {
 				int index = (module->indexChannel == 3 ? module->indexStepStage : module->indexStep);
-				if ( ( (index&0x18) |index8) >= (int) clamp(std::round(module->params[WriteSeq32::STEPS_PARAM].getValue()), 1.0f, 32.0f) ) {
+				if ( ( (index&0x18) |index8) >= module->calcSteps() ) {
 					text[0] = 0;
 				}
 				else {
@@ -607,8 +692,8 @@ struct WriteSeq32Widget : ModuleWidget {
 			nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
 			nvgFillColor(args.vg, textColor);
 			char displayStr[3];
-			float valueKnob = (module ? module->params[WriteSeq32::STEPS_PARAM].getValue() : 32.0f);
-			snprintf(displayStr, 3, "%2u", (unsigned) clamp(std::round(valueKnob), 1.0f, 32.0f) );
+			int numSteps = module ? module->calcSteps() : 32;
+			snprintf(displayStr, 3, "%2u", (unsigned)numSteps );
 			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};
@@ -627,12 +712,64 @@ struct WriteSeq32Widget : ModuleWidget {
 		}
 	};
 	
+	struct InteropSeqItem : MenuItem {
+		struct InteropCopySeqItem : MenuItem {
+			WriteSeq32 *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				// IoStep* ioSteps = module->fillIoSteps(&seqLen);
+				// interopCopySequence(seqLen, ioSteps);
+				std::vector<IoNote>* ioNotes = module->fillIoNotes(&seqLen);
+				DEBUG("%i", ioNotes->size());
+				interopCopySequenceNotes(seqLen, ioNotes);
+				delete ioNotes;
+			}
+		};
+		struct InteropPasteSeqItem : MenuItem {
+			WriteSeq32 *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				// IoStep* ioSteps = interopPasteSequence(16, &seqLen);
+				// if (ioSteps != nullptr) {
+					// module->emptyIoSteps(ioSteps, seqLen);
+					// delete[] ioSteps;
+				// }
+				std::vector<IoNote>* ioNotes = interopPasteSequenceNotes(32, &seqLen);
+				if (ioNotes != nullptr) {
+					module->emptyIoNotes(ioNotes, seqLen);
+					delete ioNotes;
+				}
+			}
+		};
+		WriteSeq32 *module;
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
+
+			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>(portableSequenceCopyID, "");
+			interopCopySeqItem->module = module;
+			interopCopySeqItem->disabled = disabled;
+			menu->addChild(interopCopySeqItem);		
+			
+			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>(portableSequencePasteID, "");
+			interopPasteSeqItem->module = module;
+			interopPasteSeqItem->disabled = disabled;
+			menu->addChild(interopPasteSeqItem);		
+
+			return menu;
+		}
+	};		
+	
 	void appendContextMenu(Menu *menu) override {
+		WriteSeq32 *module = dynamic_cast<WriteSeq32*>(this->module);
+		assert(module);
+		
+		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
+		interopSeqItem->module = module;
+		menu->addChild(interopSeqItem);		
+				
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
 
-		WriteSeq32 *module = dynamic_cast<WriteSeq32*>(this->module);
-		assert(module);
 
 		MenuLabel *themeLabel = new MenuLabel();
 		themeLabel->text = "Panel Theme";
