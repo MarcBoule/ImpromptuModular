@@ -70,7 +70,7 @@ The table below shows a comparison of the features available in the Impromptu se
 | Probability				| No 				| Global		| Global		| Per step			| Per step		| No			|
 | Slide						| No 				| Global		| Global		| -					| Per step		| - / No		|
 | Edit while runnning		| Gates only 		| Yes 			| Yes			| Yes				| Yes			| Yes			|
-| [Portable sequence](#portable_seq) 	| - 	| Yes 			| Yes			| -					| Yes			| -	/ Yes			|
+| [Portable sequence](#portable_seq) 	| Yes 	| Yes 			| Yes			| -					| Yes			| -	/ Yes			|
 
 \* Configuration is noted as follows: Channels/Tracks x Sequence-Length. The distinction between channels and tracks relates to clock inputs: when channels are separately clockable they are referred to as tracks.
 

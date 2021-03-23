@@ -275,27 +275,6 @@ struct WriteSeq32 : Module {
 	}
 
 
-/*
-	
-	
-	void emptyIoSteps(IoStep* ioSteps, int seqLen) {
-		params[STEPS_PARAM].setValue(clamp((float)seqLen, 1.0f, 32.0f));
-		
-		// populate steps in the sequencer
-		// first pass is done without ties
-		for (int i = 0; i < seqLen; i++) {
-			cv[indexChannel][i] = ioSteps[i].pitch;
-			gates[indexChannel][i] = ioSteps[i].gate
-		}
-		// now do ties, has to be done in a separate pass such that non tied that follows tied can be 
-		//   there in advance for proper gate types
-		for (int i = 0; i < seqLen; i++) {
-			if (ioSteps[i].tied) {
-				activateTiedStep(seqIndexEdit, i);
-			}
-		}
-	}
-*/
 	std::vector<IoNote>* fillIoNotes(int *seqLenPtr) {// caller must delete return array
 		int seqLen = calcSteps();
 		std::vector<IoNote>* ioNotes = new std::vector<IoNote>;
@@ -346,12 +325,16 @@ struct WriteSeq32 : Module {
 		for (unsigned int ni = 0; ni < ioNotes->size(); ni++) {
 			int si = std::max((int)0, (int)(*ioNotes)[ni].start);
 			if (si >= 32) continue;
-			int si2 = si + std::max((int)1, (int)std::ceil((*ioNotes)[ni].length));
-			// bool headStep = true;
-			for (; si < si2 && si < 32; si++) {
+			float noteLen = (*ioNotes)[ni].length;
+			int numFull = (int)std::floor(noteLen);// number of steps with full gate
+			int numNormal = (std::floor(noteLen) == noteLen ? 0 : 1);
+			for (; numFull > 0 && si < 32; si++, numFull--) {
 				cv[indexChannel][si] = (*ioNotes)[ni].pitch;
-				gates[indexChannel][si] = (si == (si2 - 1) ? 1 : 2);
-				// headStep = false;
+				gates[indexChannel][si] = 2;// full gate
+			}
+			if (numNormal != 0 && si < 32) {
+				cv[indexChannel][si] = (*ioNotes)[ni].pitch;
+				gates[indexChannel][si] = 1;// normal gate
 			}
 		}
 	}	
@@ -717,10 +700,7 @@ struct WriteSeq32Widget : ModuleWidget {
 			WriteSeq32 *module;
 			void onAction(const event::Action &e) override {
 				int seqLen;
-				// IoStep* ioSteps = module->fillIoSteps(&seqLen);
-				// interopCopySequence(seqLen, ioSteps);
 				std::vector<IoNote>* ioNotes = module->fillIoNotes(&seqLen);
-				DEBUG("%i", ioNotes->size());
 				interopCopySequenceNotes(seqLen, ioNotes);
 				delete ioNotes;
 			}
@@ -729,11 +709,6 @@ struct WriteSeq32Widget : ModuleWidget {
 			WriteSeq32 *module;
 			void onAction(const event::Action &e) override {
 				int seqLen;
-				// IoStep* ioSteps = interopPasteSequence(16, &seqLen);
-				// if (ioSteps != nullptr) {
-					// module->emptyIoSteps(ioSteps, seqLen);
-					// delete[] ioSteps;
-				// }
 				std::vector<IoNote>* ioNotes = interopPasteSequenceNotes(32, &seqLen);
 				if (ioNotes != nullptr) {
 					module->emptyIoNotes(ioNotes, seqLen);

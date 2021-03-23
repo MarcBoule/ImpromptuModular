@@ -282,6 +282,73 @@ struct WriteSeq64 : Module {
 	}
 	
 	
+	std::vector<IoNote>* fillIoNotes(int *seqLenPtr) {// caller must delete return array
+		int indexChannel = calcChan();
+		int seqLen = indexSteps[indexChannel];
+		std::vector<IoNote>* ioNotes = new std::vector<IoNote>;
+		
+		// populate ioNotes array
+		for (int i = 0; i < seqLen; ) {
+			if (gates[indexChannel][i] == 0) {
+				i++;
+				continue;
+			}
+			IoNote ioNote;
+			ioNote.start = (float)i;
+			int j = i + 1;
+			if (gates[indexChannel][i] == 2) {
+				// if full gate, check for consecutive full gates with same cv in order to make one long note
+				while (j < seqLen && cv[indexChannel][i] == cv[indexChannel][j] && gates[indexChannel][j] == 2) {j++;}
+				ioNote.length = (float)(j - i);
+			}
+			else {
+				ioNote.length = 0.5f;
+			}
+			ioNote.pitch = cv[indexChannel][i];
+			ioNote.vel = -1.0f;// no concept of velocity in WriteSequencers
+			ioNote.prob = -1.0f;// no concept of probability in WriteSequencers	
+			ioNotes->push_back(ioNote);
+			i = j;
+		}
+
+		// return values 
+		*seqLenPtr = seqLen;
+		return ioNotes;
+	}
+
+
+	void emptyIoNotes(std::vector<IoNote>* ioNotes, int seqLen) {
+		if (seqLen < 1) {
+			return;
+		}
+		int indexChannel = calcChan();
+		indexSteps[indexChannel] = clamp(seqLen, 1, 64);// clamp not really needed here, < 1 tested above, 64 max done elsewhere
+		
+		// clear everything first
+		for (int i = 0; i < seqLen; i++) {
+			cv[indexChannel][i] = 0.0f;
+			gates[indexChannel][i] = 0;
+		}
+
+		// Scan notes and write into steps
+		for (unsigned int ni = 0; ni < ioNotes->size(); ni++) {
+			int si = std::max((int)0, (int)(*ioNotes)[ni].start);
+			if (si >= 64) continue;
+			float noteLen = (*ioNotes)[ni].length;
+			int numFull = (int)std::floor(noteLen);// number of steps with full gate
+			int numNormal = (std::floor(noteLen) == noteLen ? 0 : 1);
+			for (; numFull > 0 && si < 64; si++, numFull--) {
+				cv[indexChannel][si] = (*ioNotes)[ni].pitch;
+				gates[indexChannel][si] = 2;// full gate
+			}
+			if (numNormal != 0 && si < 64) {
+				cv[indexChannel][si] = (*ioNotes)[ni].pitch;
+				gates[indexChannel][si] = 1;// normal gate
+			}
+		}
+	}	
+
+
 	void process(const ProcessArgs &args) override {
 		static const float copyPasteInfoTime = 0.7f;// seconds
 		static const float gateTime = 0.15f;// seconds
@@ -674,13 +741,57 @@ struct WriteSeq64Widget : ModuleWidget {
 			module->resetOnRun = !module->resetOnRun;
 		}
 	};
+	
+	struct InteropSeqItem : MenuItem {
+		struct InteropCopySeqItem : MenuItem {
+			WriteSeq64 *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				std::vector<IoNote>* ioNotes = module->fillIoNotes(&seqLen);
+				interopCopySequenceNotes(seqLen, ioNotes);
+				delete ioNotes;
+			}
+		};
+		struct InteropPasteSeqItem : MenuItem {
+			WriteSeq64 *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				std::vector<IoNote>* ioNotes = interopPasteSequenceNotes(64, &seqLen);
+				if (ioNotes != nullptr) {
+					module->emptyIoNotes(ioNotes, seqLen);
+					delete ioNotes;
+				}
+			}
+		};
+		WriteSeq64 *module;
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
+
+			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>(portableSequenceCopyID, "");
+			interopCopySeqItem->module = module;
+			interopCopySeqItem->disabled = disabled;
+			menu->addChild(interopCopySeqItem);		
+			
+			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>(portableSequencePasteID, "");
+			interopPasteSeqItem->module = module;
+			interopPasteSeqItem->disabled = disabled;
+			menu->addChild(interopPasteSeqItem);		
+
+			return menu;
+		}
+	};	
 
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		WriteSeq64 *module = dynamic_cast<WriteSeq64*>(this->module);
 		assert(module);
+
+		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
+		interopSeqItem->module = module;
+		menu->addChild(interopSeqItem);		
+
+
+		MenuLabel *spacerLabel = new MenuLabel();
+		menu->addChild(spacerLabel);
 
 		MenuLabel *themeLabel = new MenuLabel();
 		themeLabel->text = "Panel Theme";

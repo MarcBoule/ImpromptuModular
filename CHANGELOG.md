@@ -1,3 +1,8 @@
+### 1.1.11 (in development)
+
+- Implemented portable sequence copy/paste in WriteSeq32/64
+
+
 ### 1.1.10 (2021-02-07)
 
 - Fixed parameter entry in Clkd and Clocked ratio knobs, and improved tooltip on main BPM knob when external BPM
