@@ -601,10 +601,11 @@ struct WriteSeq64Widget : ModuleWidget {
 	struct NoteDisplayWidget : LightWidget {//TransparentWidget {
 		WriteSeq64 *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		char text[7];
 
 		NoteDisplayWidget() {
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 		
 		void cvToStr(void) {
@@ -639,6 +640,9 @@ struct WriteSeq64Widget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -1.5);
@@ -656,12 +660,16 @@ struct WriteSeq64Widget : ModuleWidget {
 	struct StepsDisplayWidget : LightWidget {//TransparentWidget {
 		WriteSeq64 *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		
 		StepsDisplayWidget() {
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);
@@ -681,12 +689,16 @@ struct WriteSeq64Widget : ModuleWidget {
 	struct StepDisplayWidget : LightWidget {//TransparentWidget {
 		WriteSeq64 *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		
 		StepDisplayWidget() {
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);
@@ -706,12 +718,16 @@ struct WriteSeq64Widget : ModuleWidget {
 	struct ChannelDisplayWidget : LightWidget {//TransparentWidget {
 		WriteSeq64 *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		
 		ChannelDisplayWidget() {
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);

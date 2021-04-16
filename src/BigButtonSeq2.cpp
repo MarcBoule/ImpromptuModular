@@ -618,12 +618,16 @@ struct BigButtonSeq2Widget : ModuleWidget {
 	struct ChanDisplayWidget : LightWidget {//TransparentWidget {
 		BigButtonSeq2 *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		
 		ChanDisplayWidget() {
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);
@@ -642,12 +646,16 @@ struct BigButtonSeq2Widget : ModuleWidget {
 	struct StepsDisplayWidget : LightWidget {//TransparentWidget {
 		BigButtonSeq2 *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		
 		StepsDisplayWidget() {
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);

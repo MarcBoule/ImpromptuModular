@@ -850,16 +850,20 @@ struct ClockedWidget : ModuleWidget {
 		Clocked *module;
 		int knobIndex;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		char displayStr[16];
 		const std::string delayLabelsClock[8] = {"D 0", "/16",   "1/8",  "1/4", "1/3",     "1/2", "2/3",     "3/4"};
 		const std::string delayLabelsNote[8]  = {"D 0", "/64",   "/32",  "/16", "/8t",     "1/8", "/4t",     "/8d"};
 
 		
 		RatioDisplayWidget() {
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 		
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);

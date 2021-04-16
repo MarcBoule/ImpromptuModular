@@ -372,12 +372,16 @@ struct TwelveKeyWidget : ModuleWidget {
 	struct OctaveNumDisplayWidget : LightWidget {//TransparentWidget {
 		TwelveKey *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		
 		OctaveNumDisplayWidget() {
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);

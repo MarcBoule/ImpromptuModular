@@ -493,6 +493,7 @@ struct FourViewWidget : ModuleWidget {
 		FourView* module;
 		int baseIndex;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		char text[4];
 
 		NotesDisplayWidget(Vec _pos, Vec _size, FourView* _module, int _baseIndex) {
@@ -500,7 +501,7 @@ struct FourViewWidget : ModuleWidget {
 			box.pos = _pos.minus(_size.div(2));
 			module = _module;
 			baseIndex = _baseIndex;
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 		
 		void cvToStr() {
@@ -522,6 +523,9 @@ struct FourViewWidget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 17);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -1.5);

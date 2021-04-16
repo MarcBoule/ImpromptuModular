@@ -149,6 +149,7 @@ struct PartWidget : ModuleWidget {
 	struct SplitDisplayWidget : LightWidget {//TransparentWidget {
 		Part *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		char displayStr[5 + 1];// room for two chars left of decimal point, then decimal point, then two chars right of decimal point, plus null
 		static const int textFontSize = 15;
 		static constexpr float textOffsetY = 19.9f;
@@ -157,10 +158,13 @@ struct PartWidget : ModuleWidget {
 			box.size = _size;
 			box.pos = _pos.minus(_size.div(2));
 			module = _module;
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			static const float offsetXfrac = 16.5f;
 			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize);
 			nvgFontFaceId(args.vg, font->handle);

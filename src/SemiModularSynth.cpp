@@ -1831,12 +1831,13 @@ struct SemiModularSynthWidget : ModuleWidget {
 	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
 		SemiModularSynth *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		char displayStr[16];
 		int lastNum = -1;// -1 means timedout; >= 0 means we have a first number potential, if ever second key comes fast enough
 		clock_t lastTime = 0;
 		
 		SequenceDisplayWidget() {
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 		
 		void onHoverKey(const event::HoverKey& e) override {
@@ -1913,6 +1914,9 @@ struct SemiModularSynthWidget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
 			nvgFontFaceId(args.vg, font->handle);
 

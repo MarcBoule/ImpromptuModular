@@ -537,6 +537,7 @@ struct ChordKeyWidget : ModuleWidget {
 		ChordKey *module;
 		int index;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		static const int textFontSize = 15;
 		static constexpr float textOffsetY = 19.9f; // 18.2f for 14 pt, 19.7f for 15pt
 		
@@ -545,10 +546,13 @@ struct ChordKeyWidget : ModuleWidget {
 			box.pos = _pos.minus(_size.div(2));
 			module = _module;
 			index = _index;
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
@@ -577,6 +581,7 @@ struct ChordKeyWidget : ModuleWidget {
 	struct IndexDisplayWidget : LightWidget {//TransparentWidget {
 		ChordKey *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		static const int textFontSize = 15;
 		static constexpr float textOffsetY = 19.9f; // 18.2f for 14 pt, 19.7f for 15pt
 		
@@ -584,10 +589,13 @@ struct ChordKeyWidget : ModuleWidget {
 			box.size = _size;
 			box.pos = _pos.minus(_size.div(2));
 			module = _module;
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);

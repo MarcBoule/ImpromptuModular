@@ -1381,6 +1381,7 @@ struct FoundryWidget : ModuleWidget {
 	struct DisplayWidget : LightWidget {//TransparentWidget {// a centered display, must derive from this
 		Foundry *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		char displayStr[16];
 		static const int textFontSize = 15;
 		static constexpr float textOffsetY = 19.9f; // 18.2f for 14 pt, 19.7f for 15pt
@@ -1394,10 +1395,13 @@ struct FoundryWidget : ModuleWidget {
 			box.size = _size;
 			box.pos = _pos.minus(_size.div(2));
 			module = _module;
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 		
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
@@ -1423,6 +1427,9 @@ struct FoundryWidget : ModuleWidget {
 		VelocityDisplayWidget(Vec _pos, Vec _size, Foundry *_module) : DisplayWidget(_pos, _size, _module) {};
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			static const float offsetXfrac = 3.5f;
 			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize);
 			nvgFontFaceId(args.vg, font->handle);

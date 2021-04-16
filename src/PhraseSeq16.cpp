@@ -1630,12 +1630,13 @@ struct PhraseSeq16Widget : ModuleWidget {
 	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
 		PhraseSeq16 *module;
 		std::shared_ptr<Font> font;
+		std::string fontPath;
 		char displayStr[16];
 		int lastNum = -1;// -1 means timedout; >= 0 means we have a first number potential, if ever second key comes fast enough
 		clock_t lastTime = 0;
 		
 		SequenceDisplayWidget() {
-			font = APP->window->loadFont(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 		
 		void onHoverKey(const event::HoverKey& e) override {
@@ -1713,6 +1714,9 @@ struct PhraseSeq16Widget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
+			if (!(font = APP->window->loadFont(fontPath))) {
+				return;
+			}
 			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
 			nvgFontFaceId(args.vg, font->handle);
 			Vec textPos = VecPx(6, 24);
