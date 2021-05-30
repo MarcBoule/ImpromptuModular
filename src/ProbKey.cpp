@@ -82,16 +82,17 @@ struct ProbKey : Module {
 	// Need to save, no reset
 	int panelTheme;
 	
-	
 	// Need to save, with reset
+	int editMode;
 	ProbKernel probKernel[NUM_INDEXES];
-
 	
 	// No need to save, with reset
+	// none
 
 	// No need to save, no reset
 	RefreshCounter refresh;
 	PianoKeyInfo pkInfo;
+	Trigger modeTriggers[3];
 	
 	
 	int getIndex() {
@@ -105,7 +106,7 @@ struct ProbKey : Module {
 		
 		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		configParam(LENGTH_PARAM, 0.0f, 15.0f, 15.0f, "Lock length", "", 0.0f, 1.0f, 1.0f);
-		configParam(LOCK_PARAM, 0.0f, 1.0f, 0.0f, "Lock (loop) pattern", " %");
+		configParam(LOCK_PARAM, 0.0f, 1.0f, 0.0f, "Lock (loop) pattern", " %", 0.0f, 100.0f, 0.0f);
 		configParam(OFFSET_PARAM, -3.0f, 3.0f, 0.0f, "Range offset", "");
 		configParam(SQUASH_PARAM, 0.0f, 1.0f, 0.0f, "Range squash", "");
 		configParam(MODE_PARAMS + MODE_PROB, 0.0f, 1.0f, 0.0f, "Edit note probabilities", "");
@@ -119,24 +120,32 @@ struct ProbKey : Module {
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
 
+
 	void onReset() override {
+		editMode = MODE_PROB;
 		for (int i = 0; i < NUM_INDEXES; i++) {
 			probKernel[i].reset();
 		}
 		resetNonJson();
 	}
 	void resetNonJson() {
+		
+	}
+
+
+	void onRandomize() override {
 		probKernel[getIndex()].randomize();
 	}
 
-	void onRandomize() override {
-	}
 
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 		
 		// panelTheme
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+
+		// editMode
+		json_object_set_new(rootJ, "editMode", json_integer(editMode));
 
 		// probKernel
 		for (int i = 0; i < NUM_INDEXES; i++) {
@@ -146,11 +155,18 @@ struct ProbKey : Module {
 		return rootJ;
 	}
 
+
 	void dataFromJson(json_t *rootJ) override {
 		// panelTheme
 		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
 		if (panelThemeJ) {
 			panelTheme = json_integer_value(panelThemeJ);
+		}
+
+		// editMode
+		json_t *editModeJ = json_object_get(rootJ, "editMode");
+		if (editModeJ) {
+			editMode = json_integer_value(editModeJ);
 		}
 
 		// probKernel
@@ -168,7 +184,11 @@ struct ProbKey : Module {
 		//********** Buttons, knobs, switches and inputs **********
 		
 		if (refresh.processInputs()) {
-			
+			for (int m = 0; m < 3; m++) {
+				if (modeTriggers[m].process(params[MODE_PARAMS + m].getValue())) {
+					editMode = m;
+				}
+			}
 		}// userInputs refresh
 
 
@@ -180,10 +200,13 @@ struct ProbKey : Module {
 		
 		// lights
 		if (refresh.processLights()) {
-
+			for (int m = 0; m < 3; m++) {
+				lights[MODE_LIGHTS + m].setBrightness(editMode == m ? 1.0f : 0.0f);
+			}
 		}// processLights()
 	}
 };
+
 
 
 struct ProbKeyWidget : ModuleWidget {
@@ -365,7 +388,7 @@ struct ProbKeyWidget : ModuleWidget {
 
 		// Mode led-button - MODE_PROB
 		static constexpr float mdx = 11.5f;
-		static constexpr float mdy = 1.5f;
+		static constexpr float mdy = 1.75f;
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col2 - mdx, row0 - mdy)), module, ProbKey::MODE_PARAMS + ProbKey::MODE_PROB));
 		addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(col2 - mdx, row0 - mdy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_PROB));
 
@@ -374,8 +397,8 @@ struct ProbKeyWidget : ModuleWidget {
 		addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(col2 + mdx, row0 - mdy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_ANCHOR));
 
 		// Mode led-button - MODE_RANGE
-		addParam(createParamCentered<LEDButton>(mm2px(Vec(col2, row0 - mdy - 5.0f)), module, ProbKey::MODE_PARAMS + ProbKey::MODE_RANGE));
-		addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(col2, row0 - mdy - 5.0f)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_RANGE));
+		addParam(createParamCentered<LEDButton>(mm2px(Vec(col2, row0 - mdy)), module, ProbKey::MODE_PARAMS + ProbKey::MODE_RANGE));
+		addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(col2, row0 - mdy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_RANGE));
 
 
 		// Lock knob and input
