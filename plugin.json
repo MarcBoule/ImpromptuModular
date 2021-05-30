@@ -140,6 +140,13 @@
 			"tags": ["Sequencer", "Expander"]
 		},
 		{
+			"slug": "Prob-Key",
+			"name": "ProbKey",
+			"description": "Keyboard-based random sequencer",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#prob-key",
+			"tags": ["Sequencer", "Random"]
+		},
+		{
 			"slug": "Semi-ModularSynth",
 			"name": "SMS16",
 			"description": "Semi-modular monophonic synthesizer, with 16-step sequencer",
