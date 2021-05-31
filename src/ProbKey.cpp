@@ -67,7 +67,7 @@ struct ProbKey : Module {
 	};
 	enum LightIds {
 		ENUMS(KEY_LIGHTS, 12 * 4 * 2),// room for GreenRed
-		ENUMS(MODE_LIGHTS, 3), // see ModeIds enum
+		ENUMS(MODE_LIGHTS, 3 * 2), // see ModeIds enum; room for GreenRed
 		NUM_LIGHTS
 	};
 	
@@ -200,9 +200,13 @@ struct ProbKey : Module {
 		
 		// lights
 		if (refresh.processLights()) {
-			for (int m = 0; m < 3; m++) {
-				lights[MODE_LIGHTS + m].setBrightness(editMode == m ? 1.0f : 0.0f);
-			}
+			// mode lights (green, red)
+			lights[MODE_LIGHTS + MODE_PROB * 2 + 0].setBrightness(editMode == MODE_PROB ? 1.0f : 0.0f);
+			lights[MODE_LIGHTS + MODE_PROB * 2 + 1].setBrightness(0.0f);
+			lights[MODE_LIGHTS + MODE_ANCHOR * 2 + 0].setBrightness(editMode == MODE_ANCHOR ? 1.0f : 0.0f);
+			lights[MODE_LIGHTS + MODE_ANCHOR * 2 + 1].setBrightness(editMode == MODE_ANCHOR ? 1.0f : 0.0f);
+			lights[MODE_LIGHTS + MODE_RANGE * 2 + 0].setBrightness(0.0f);
+			lights[MODE_LIGHTS + MODE_RANGE * 2 + 1].setBrightness(editMode == MODE_RANGE ? 1.0f : 0.0f);
 		}// processLights()
 	}
 };
@@ -242,7 +246,7 @@ struct ProbKeyWidget : ModuleWidget {
 			nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
 			nvgFillColor(args.vg, textColor);
 			char displayStr[4];
-			unsigned dispVal = 128;
+			unsigned dispVal = 1;
 			// if (module) {
 				// dispVal = (unsigned)(module->params[BigButtonSeq2::DISPMODE_PARAM].getValue() < 0.5f ?  module->length : module->indexStep + 1);
 			// }
@@ -390,15 +394,15 @@ struct ProbKeyWidget : ModuleWidget {
 		static constexpr float mdx = 11.5f;
 		static constexpr float mdy = 1.75f;
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col2 - mdx, row0 - mdy)), module, ProbKey::MODE_PARAMS + ProbKey::MODE_PROB));
-		addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(col2 - mdx, row0 - mdy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_PROB));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(mm2px(Vec(col2 - mdx, row0 - mdy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_PROB * 2));
 
 		// Mode led-button - MODE_ANCHOR
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col2 + mdx, row0 - mdy)), module, ProbKey::MODE_PARAMS + ProbKey::MODE_ANCHOR));
-		addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(col2 + mdx, row0 - mdy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_ANCHOR));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(mm2px(Vec(col2 + mdx, row0 - mdy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_ANCHOR * 2));
 
 		// Mode led-button - MODE_RANGE
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col2, row0 - mdy)), module, ProbKey::MODE_PARAMS + ProbKey::MODE_RANGE));
-		addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(col2, row0 - mdy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_RANGE));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(mm2px(Vec(col2, row0 - mdy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_RANGE * 2));
 
 
 		// Lock knob and input
