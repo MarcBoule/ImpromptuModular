@@ -144,7 +144,7 @@
 			"name": "ProbKey",
 			"description": "Keyboard-based random sequencer",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#prob-key",
-			"tags": ["Sequencer", "Random"]
+			"tags": ["Sequencer", "Random", "Polyphonic"]
 		},
 		{
 			"slug": "Semi-ModularSynth",

@@ -14,7 +14,7 @@
 
 
 class ProbKernel {
-	float noteProbs[12];
+	float noteProbs[12];// [0.0f : 1.0f]
 	float noteAnchors[12];
 	float noteRanges[7];
 	
@@ -36,8 +36,93 @@ class ProbKernel {
 	void dataFromJson(json_t *rootJ) {
 		
 	}
+	
+	float calcRandomCv() {
+		// not optimized for audio rate
+		
+		// generate a note according to noteProbs (base note only, C4=0 to B4)
+		float cumulProbs[12];
+		cumulProbs[0] = noteProbs[0];
+		for (int i = 1; i < 12; i++) {
+			cumulProbs[i] = noteProbs[i - 1] + noteProbs[i];
+		}
+		
+		float dice = random::uniform() * cumulProbs[11];
+		int note = 0;
+		for (; note < 12; note++) {
+			if (dice < cumulProbs[note]) {
+				break;
+			}
+		}
+		float cv = ((float)note) / 12.0f;
+		
+		
+		// apply anchor to note (set it's octave)
+		
+		// probabilistically transpose note according to ranges
+		
+		return cv;
+		// return ((float)(random::u32() % 5)) + ((float)(random::u32() % 12)) / 12.0f - 2.0f;
+	}
 };
 
+
+// ----------------------------------------------------------------------------
+
+
+class OutputKernel {
+	public:
+
+	static const int MAX_LENGTH = 16;
+	
+	
+	private:
+	
+	float shiftReg[MAX_LENGTH];
+	
+	
+	public:
+	
+	void reset() {
+		for (int i = 0; i < MAX_LENGTH; i++) {
+			shiftReg[i] = 0.0f;
+		}
+	}
+	
+	void randomize() {
+		// none
+	}
+	
+	void dataToJson(json_t *rootJ) {
+		// todo: if we capture a pattern we like and lock it, it should saved with patch
+	}
+	
+	void dataFromJson(json_t *rootJ) {
+		// todo: if we capture a pattern we like and lock it, it should loaded with patch
+	}
+
+	void shiftWithRecycle(int length0) {
+		float recycledCv = shiftReg[length0];
+		for (int i = MAX_LENGTH - 1; i > 0; i--) {
+			shiftReg[i] = shiftReg[i - 1];
+		}
+		shiftReg[0] = recycledCv;
+	}
+	
+	void shiftWithInsertNew(float newCv) {
+		for (int i = MAX_LENGTH - 1; i > 0; i--) {
+			shiftReg[i] = shiftReg[i - 1];
+		}
+		shiftReg[0] = newCv;
+	}
+	
+	float getCv() {
+		return shiftReg[0];
+	}
+};
+
+
+// ----------------------------------------------------------------------------
 
 
 struct ProbKey : Module {
@@ -78,13 +163,15 @@ struct ProbKey : Module {
 	// Constants
 	enum ModeIds {MODE_PROB, MODE_ANCHOR, MODE_RANGE};
 	static const int NUM_INDEXES = 25;// C4 to C6 incl
+	static const int MAX_LENGTH = 16;
 	
 	// Need to save, no reset
 	int panelTheme;
 	
 	// Need to save, with reset
 	int editMode;
-	ProbKernel probKernel[NUM_INDEXES];
+	ProbKernel probKernels[NUM_INDEXES];
+	OutputKernel outputKernels[PORT_MAX_CHANNELS];
 	
 	// No need to save, with reset
 	// none
@@ -93,11 +180,16 @@ struct ProbKey : Module {
 	RefreshCounter refresh;
 	PianoKeyInfo pkInfo;
 	Trigger modeTriggers[3];
+	Trigger gateInTriggers[PORT_MAX_CHANNELS];
 	
 	
 	int getIndex() {
 		int index = (int)std::round(params[INDEX_PARAM].getValue() + inputs[INDEX_INPUT].getVoltage() * 12.0f);
 		return clamp(index, 0, NUM_INDEXES - 1 );
+	}
+	int getLength0() {// 0 indexed
+		int length = (int)std::round(params[LENGTH_PARAM].getValue() + inputs[LENGTH_INPUT].getVoltage() * 12.0f);
+		return clamp(length, 0, OutputKernel::MAX_LENGTH - 1 );
 	}
 
 
@@ -105,7 +197,7 @@ struct ProbKey : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
 		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
-		configParam(LENGTH_PARAM, 0.0f, 15.0f, 15.0f, "Lock length", "", 0.0f, 1.0f, 1.0f);
+		configParam(LENGTH_PARAM, 0.0f, (float)(OutputKernel::MAX_LENGTH - 1), (float)(OutputKernel::MAX_LENGTH - 1), "Lock length", "", 0.0f, 1.0f, 1.0f);
 		configParam(LOCK_PARAM, 0.0f, 1.0f, 0.0f, "Lock (loop) pattern", " %", 0.0f, 100.0f, 0.0f);
 		configParam(OFFSET_PARAM, -3.0f, 3.0f, 0.0f, "Range offset", "");
 		configParam(SQUASH_PARAM, 0.0f, 1.0f, 0.0f, "Range squash", "");
@@ -124,17 +216,21 @@ struct ProbKey : Module {
 	void onReset() override {
 		editMode = MODE_PROB;
 		for (int i = 0; i < NUM_INDEXES; i++) {
-			probKernel[i].reset();
+			probKernels[i].reset();
+		}
+		for (int i = 0; i < PORT_MAX_CHANNELS; i++) {
+			outputKernels[i].reset();
 		}
 		resetNonJson();
 	}
 	void resetNonJson() {
-		
+		// none
 	}
 
 
 	void onRandomize() override {
-		probKernel[getIndex()].randomize();
+		// only randomize the currently selected probKernel
+		probKernels[getIndex()].randomize();
 	}
 
 
@@ -147,9 +243,14 @@ struct ProbKey : Module {
 		// editMode
 		json_object_set_new(rootJ, "editMode", json_integer(editMode));
 
-		// probKernel
+		// probKernels
 		for (int i = 0; i < NUM_INDEXES; i++) {
-			probKernel[i].dataToJson(rootJ);
+			probKernels[i].dataToJson(rootJ);
+		}
+		
+		// outputKernels
+		for (int i = 0; i < PORT_MAX_CHANNELS; i++) {
+			outputKernels[i].dataToJson(rootJ);
 		}
 		
 		return rootJ;
@@ -169,9 +270,14 @@ struct ProbKey : Module {
 			editMode = json_integer_value(editModeJ);
 		}
 
-		// probKernel
+		// probKernels
 		for (int i = 0; i < NUM_INDEXES; i++) {
-			probKernel[i].dataFromJson(rootJ);
+			probKernels[i].dataFromJson(rootJ);
+		}
+
+		// outputKernels
+		for (int i = 0; i < PORT_MAX_CHANNELS; i++) {
+			outputKernels[i].dataFromJson(rootJ);
 		}
 
 		resetNonJson();
@@ -180,15 +286,24 @@ struct ProbKey : Module {
 		
 	void process(const ProcessArgs &args) override {		
 		int index = getIndex();
+		int length0 = getLength0();
 		
 		//********** Buttons, knobs, switches and inputs **********
 		
 		if (refresh.processInputs()) {
-			for (int m = 0; m < 3; m++) {
-				if (modeTriggers[m].process(params[MODE_PARAMS + m].getValue())) {
-					editMode = m;
+			// poly cable sizes
+			outputs[CV_OUTPUT].setChannels(inputs[GATE_INPUT].getChannels());
+			outputs[GATE_OUTPUT].setChannels(inputs[GATE_INPUT].getChannels());
+			
+			// mode led-buttons
+			for (int i = 0; i < 3; i++) {
+				if (modeTriggers[i].process(params[MODE_PARAMS + i].getValue())) {
+					editMode = i;
 				}
 			}
+			
+			// piano keys if applicable 
+			//   todo: modify probKernels[index]
 		}// userInputs refresh
 
 
@@ -196,6 +311,28 @@ struct ProbKey : Module {
 		
 		//********** Outputs and lights **********
 		
+		for (int i = 0; i < outputs[GATE_OUTPUT].getChannels(); i ++) {
+			// gate input triggers
+			if (gateInTriggers[i].process(inputs[GATE_INPUT].getVoltage(i))) {
+				// got rising edge on gate input poly channel i
+				
+				if (params[LOCK_PARAM].getValue() > random::uniform()) {
+					// recycle CV
+					outputKernels[i].shiftWithRecycle(length0);
+				}
+				else {
+					// generate new random CV
+					float newCv = probKernels[index].calcRandomCv();
+					outputKernels[i].shiftWithInsertNew(newCv);
+				}
+			}
+			
+			
+			// output CV and gate
+			outputs[CV_OUTPUT].setVoltage(i, outputKernels[i].getCv());
+			// outputs[GATE_OUTPUT].setVoltage(i, ); // todo because step may not always play
+		}
+
 
 		
 		// lights
@@ -434,12 +571,8 @@ struct ProbKeyWidget : ModuleWidget {
 
 		// Gate output
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col4, row2)), false, module, ProbKey::GATE_OUTPUT, module ? &module->panelTheme : NULL));
-		
-	
-		
-		
-		
 	}
+	
 	
 	void step() override {
 		if (module) {
