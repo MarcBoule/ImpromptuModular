@@ -14,15 +14,32 @@
 
 
 class ProbKernel {
+	public: 
+	
+	static constexpr float NO_CV = -100.0f;
+	
+	private:
+	
 	float noteProbs[12];// [0.0f : 1.0f]
 	float noteAnchors[12];
-	float noteRanges[7];
+	float noteRanges[7];// [0] is -3, [6] is +3
 	
 	
 	public:
 	
 	void reset() {
+		for (int i = 0; i < 12; i++) {
+			noteProbs[i] = 0.0f;
+			noteAnchors[i] = 0.0f;// todo
+		}
+		noteProbs[0] = 0.25f;
+		noteProbs[4] = 0.25f;
+		noteProbs[7] = 0.25f;
 		
+		for (int i = 0; i < 7; i++) {
+			noteRanges[i] = 0.0f;
+		}
+		noteRanges[3] = 1.0f;
 	}
 	
 	void randomize() {
@@ -39,12 +56,13 @@ class ProbKernel {
 	
 	float calcRandomCv() {
 		// not optimized for audio rate
+		// returns a cv value or NO_CV when a note gets randomly skipped (only possible when sum of probs < 1)
 		
 		// generate a note according to noteProbs (base note only, C4=0 to B4)
 		float cumulProbs[12];
 		cumulProbs[0] = noteProbs[0];
 		for (int i = 1; i < 12; i++) {
-			cumulProbs[i] = noteProbs[i - 1] + noteProbs[i];
+			cumulProbs[i] = cumulProbs[i - 1] + noteProbs[i];
 		}
 		
 		float dice = random::uniform() * cumulProbs[11];
@@ -54,15 +72,21 @@ class ProbKernel {
 				break;
 			}
 		}
-		float cv = ((float)note) / 12.0f;
 		
-		
-		// apply anchor to note (set it's octave)
-		
-		// probabilistically transpose note according to ranges
-		
+		float cv;
+		if (note < 12) {
+			cv = ((float)note) / 12.0f;
+			
+			// apply anchor to note (set it's octave)
+			
+			// probabilistically transpose note according to ranges
+			
+		}
+		else {
+			cv = NO_CV;
+		}
+
 		return cv;
-		// return ((float)(random::u32() % 5)) + ((float)(random::u32() % 12)) / 12.0f - 2.0f;
 	}
 };
 
@@ -311,11 +335,11 @@ struct ProbKey : Module {
 		
 		//********** Outputs and lights **********
 		
-		for (int i = 0; i < outputs[GATE_OUTPUT].getChannels(); i ++) {
+		for (int i = 0; i < inputs[GATE_INPUT].getChannels(); i ++) {
 			// gate input triggers
 			if (gateInTriggers[i].process(inputs[GATE_INPUT].getVoltage(i))) {
 				// got rising edge on gate input poly channel i
-				
+
 				if (params[LOCK_PARAM].getValue() > random::uniform()) {
 					// recycle CV
 					outputKernels[i].shiftWithRecycle(length0);
@@ -323,13 +347,15 @@ struct ProbKey : Module {
 				else {
 					// generate new random CV
 					float newCv = probKernels[index].calcRandomCv();
-					outputKernels[i].shiftWithInsertNew(newCv);
+					if (newCv != ProbKernel::NO_CV) {
+						outputKernels[i].shiftWithInsertNew(newCv);
+					}
 				}
 			}
 			
 			
 			// output CV and gate
-			outputs[CV_OUTPUT].setVoltage(i, outputKernels[i].getCv());
+			outputs[CV_OUTPUT].setVoltage(outputKernels[i].getCv(), i);
 			// outputs[GATE_OUTPUT].setVoltage(i, ); // todo because step may not always play
 		}
 
