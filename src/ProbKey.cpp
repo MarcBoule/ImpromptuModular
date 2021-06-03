@@ -16,7 +16,7 @@
 class ProbKernel {
 	public: 
 	
-	static constexpr float NO_CV = -100.0f;
+	static constexpr float IDEM_CV = -100.0f;
 	static constexpr float MAX_ANCHOR_DELTA = 4.0f;// number of octaves, must be a positive integer
 	
 	private:
@@ -62,6 +62,9 @@ class ProbKernel {
 	float getNoteAnchor(int note) {
 		return noteAnchors[note];
 	}
+	float getNoteRange(int note12) {
+		return noteRanges[key12to7(note12)];
+	}
 	
 	
 	// setters
@@ -70,6 +73,9 @@ class ProbKernel {
 	}
 	void setNoteAnchor(int note, float anch) {
 		noteAnchors[note] = anch;
+	}
+	void setNoteRange(int note12, float range) {
+		noteRanges[key12to7(note12)] = range;
 	}
 	
 	
@@ -80,7 +86,7 @@ class ProbKernel {
 	
 	float calcRandomCv() {
 		// not optimized for audio rate
-		// returns a cv value or NO_CV when a note gets randomly skipped (only possible when sum of probs < 1)
+		// returns a cv value or IDEM_CV when a note gets randomly skipped (only possible when sum of probs < 1)
 		
 		// generate a note according to noteProbs (base note only, C4=0 to B4)
 		float cumulProbs[12];
@@ -107,12 +113,14 @@ class ProbKernel {
 			// todo
 		}
 		else {
-			cv = NO_CV;
+			cv = IDEM_CV;
 		}
 
 		return cv;
 	}
 	
+	
+	// anchor helpers
 	static float anchorToOct(float anch) {
 		return std::round((anch - 0.5f) * 2.0f * MAX_ANCHOR_DELTA);
 	}
@@ -121,6 +129,23 @@ class ProbKernel {
 	}
 	static float quantizeAnchor(float anch) {
 		return std::round(anch * 2.0f * MAX_ANCHOR_DELTA) / (2.0f * MAX_ANCHOR_DELTA);
+	}
+	
+	// range helpers
+	static int key12to7(int key12) {
+		// convert white key numbers from size 12 to size 7
+		if (key12 > 4) {
+			key12++;
+		}
+		return key12 >> 1; 
+	}
+	static int key7to12(int key7) {
+		// convert white key numbers from size 7 to size 12
+		key7 <<= 1;
+		if (key7 > 4) {
+			key7--;
+		}
+		return key7;// this is now a key 12  
 	}
 };
 
@@ -136,8 +161,8 @@ class OutputKernel {
 	
 	private:
 	
-	float shiftReg[MAX_LENGTH];// add a code that says "same CV as previous" to avoid cv change when empty follows a normal step (this might have happend when locked and changing length from 5 to 6 in a test)
-	bool gateEnable[MAX_LENGTH];
+	float shiftReg[MAX_LENGTH];// holds CVs or ProbKernel::IDEM_CV
+	float lastCv;// sample and hold, must never hold ProbKernel::IDEM_CV
 	
 	
 	public:
@@ -145,9 +170,8 @@ class OutputKernel {
 	void reset() {
 		for (int i = 0; i < MAX_LENGTH; i++) {
 			shiftReg[i] = 0.0f;
-			gateEnable[i] = true;
 		}
-		
+		lastCv = 0.0f;
 	}
 	
 	void randomize() {
@@ -162,43 +186,29 @@ class OutputKernel {
 		// todo: if we capture a pattern we like and lock it, it should loaded with patch
 	}
 
+	void shiftWithHold() {
+		for (int i = MAX_LENGTH - 1; i > 0; i--) {
+			shiftReg[i] = shiftReg[i - 1];
+		}
+	}
+		
+	void shiftWithInsertNew(float newCv) {
+		shiftWithHold();
+		shiftReg[0] = newCv;
+		if (shiftReg[0] != ProbKernel::IDEM_CV) {
+			lastCv = shiftReg[0];
+		}
+	}
+		
 	void shiftWithRecycle(int length0) {
-		float recycledCv = shiftReg[length0];
-		bool recycledGateEnable = gateEnable[length0];
-		for (int i = MAX_LENGTH - 1; i > 0; i--) {
-			shiftReg[i] = shiftReg[i - 1];
-			gateEnable[i] = gateEnable[i - 1];
-		}
-		shiftReg[0] = recycledCv;
-		gateEnable[0] = recycledGateEnable; 
-	}
-	
-	void shiftWithInsertNew(float newCv, bool hold) {
-		// hold overrides newCv
-		for (int i = MAX_LENGTH - 1; i > 0; i--) {
-			shiftReg[i] = shiftReg[i - 1];
-			gateEnable[i] = gateEnable[i - 1];
-		}
-		if (!hold) {
-			shiftReg[0] = newCv;
-		}
-		gateEnable[0] = true;
-	}
-	
-	void skipStep() {
-		// CV is implicitly held
-		for (int i = MAX_LENGTH - 1; i > 0; i--) {
-			shiftReg[i] = shiftReg[i - 1];
-			gateEnable[i] = gateEnable[i - 1];
-		}
-		gateEnable[0] = false;
+		shiftWithInsertNew(shiftReg[length0]);
 	}
 	
 	float getCv() {
-		return shiftReg[0];
+		return lastCv;
 	}
 	bool getGateEnable() {
-		return gateEnable[0];
+		return shiftReg[0] != ProbKernel::IDEM_CV;
 	}
 };
 
@@ -210,7 +220,7 @@ struct ProbKey : Module {
 	enum ParamIds {
 		INDEX_PARAM,
 		LENGTH_PARAM,
-		LOCK_PARAM,
+		LOCK_PARAM, // higher priority than hold
 		OFFSET_PARAM,
 		SQUASH_PARAM,
 		ENUMS(MODE_PARAMS, 3), // see ModeIds enum
@@ -223,7 +233,7 @@ struct ProbKey : Module {
 		OFFSET_INPUT,
 		SQUASH_INPUT,
 		GATE_INPUT,
-		HOLD_INPUT,
+		HOLD_INPUT, // can hold an empty step when sum of probs < 1
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -393,6 +403,12 @@ struct ProbKey : Module {
 						probKernels[index].setNoteAnchor(pkInfo.key, 1.0f - pkInfo.vel);
 					}
 				}
+				else {// editMode == MODE_RANGE
+					if (pkInfo.key != 1 && pkInfo.key != 3 && pkInfo.key != 6 && pkInfo.key != 8 && pkInfo.key != 10) {
+						probKernels[index].setNoteRange(pkInfo.key, 1.0f - pkInfo.vel);
+					}
+					
+				}
 			}
 		}// userInputs refresh
 
@@ -411,20 +427,21 @@ struct ProbKey : Module {
 					outputKernels[i].shiftWithRecycle(length0);
 				}
 				else {
-					// generate new random CV
-					float newCv = probKernels[index].calcRandomCv();
-					if (newCv != ProbKernel::NO_CV) {
-						bool hold = inputs[HOLD_INPUT].isConnected() && inputs[HOLD_INPUT].getVoltage(std::min(i, inputs[HOLD_INPUT].getChannels())) > 1.0f;
-						outputKernels[i].shiftWithInsertNew(newCv, hold);
+					// generate new random CV (taking hold into account though)
+					bool hold = inputs[HOLD_INPUT].isConnected() && inputs[HOLD_INPUT].getVoltage(std::min(i, inputs[HOLD_INPUT].getChannels())) > 1.0f;
+					if (hold) {
+						outputKernels[i].shiftWithHold();
 					}
 					else {
-						outputKernels[i].skipStep();
+						float newCv = probKernels[index].calcRandomCv();
+						outputKernels[i].shiftWithInsertNew(newCv);
 					}
 				}
 			}
 			
 			
 			// output CV and gate
+			
 			outputs[CV_OUTPUT].setVoltage(outputKernels[i].getCv(), i);
 			float gateOut = outputKernels[i].getGateEnable() ? inputs[GATE_INPUT].getVoltage(i) : 0.0f;
 			outputs[GATE_OUTPUT].setVoltage(gateOut, i);
@@ -453,7 +470,9 @@ struct ProbKey : Module {
 					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i), probKernels[index].probNonNull(i));
 				}
 			}
-			
+			else {
+				setKeyLightsRange(index);
+			}
 		}// processLights()
 	}
 	
@@ -474,6 +493,18 @@ struct ProbKey : Module {
 		else {
 			for (int j = 0; j < 4 * 2; j++) {
 				lights[KEY_LIGHTS + key * 4 * 2 + j].setBrightness(0.0f);
+			}
+		}
+	}
+	void setKeyLightsRange(int index) {
+		for (int i = 0; i < 12; i++) {
+			float range = 0.0f;
+			if (i != 1 && i != 3 && i != 6 && i != 8 && i != 10) {
+				range = probKernels[index].getNoteRange(i);
+			}
+			for (int j = 0; j < 4; j++) {
+				lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 0].setBrightness(range * 4.0f - (float)j);
+				lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 1].setBrightness(range * 4.0f - (float)j);
 			}
 		}
 	}
