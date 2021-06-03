@@ -73,6 +73,11 @@ class ProbKernel {
 	}
 	
 	
+	bool probNonNull(int note) {
+		return noteProbs[note] > 0.0f;
+	}
+	
+	
 	float calcRandomCv() {
 		// not optimized for audio rate
 		// returns a cv value or NO_CV when a note gets randomly skipped (only possible when sum of probs < 1)
@@ -113,6 +118,9 @@ class ProbKernel {
 	}
 	static float octToAnchor(float oct) {
 		return oct / (2.0f * MAX_ANCHOR_DELTA) + 0.5f;
+	}
+	static float quantizeAnchor(float anch) {
+		return std::round(anch * 2.0f * MAX_ANCHOR_DELTA) / (2.0f * MAX_ANCHOR_DELTA);
 	}
 };
 
@@ -162,11 +170,14 @@ class OutputKernel {
 		gateEnable = true;
 	}
 	
-	void shiftWithInsertNew(float newCv) {
+	void shiftWithInsertNew(float newCv, bool hold) {
+		// hold overrides newCv
 		for (int i = MAX_LENGTH - 1; i > 0; i--) {
 			shiftReg[i] = shiftReg[i - 1];
 		}
-		shiftReg[0] = newCv;
+		if (!hold) {
+			shiftReg[0] = newCv;
+		}
 		gateEnable = true;
 	}
 	
@@ -369,7 +380,9 @@ struct ProbKey : Module {
 					probKernels[index].setNoteProb(pkInfo.key, 1.0f - pkInfo.vel);
 				}
 				else if (editMode == MODE_ANCHOR) {
-					probKernels[index].setNoteAnchor(pkInfo.key, 1.0f - pkInfo.vel);
+					if (probKernels[index].probNonNull(pkInfo.key)) {
+						probKernels[index].setNoteAnchor(pkInfo.key, 1.0f - pkInfo.vel);
+					}
 				}
 			}
 		}// userInputs refresh
@@ -392,7 +405,8 @@ struct ProbKey : Module {
 					// generate new random CV
 					float newCv = probKernels[index].calcRandomCv();
 					if (newCv != ProbKernel::NO_CV) {
-						outputKernels[i].shiftWithInsertNew(newCv);
+						bool hold = inputs[HOLD_INPUT].isConnected() && inputs[HOLD_INPUT].getVoltage(std::min(i, inputs[HOLD_INPUT].getChannels())) > 1.0f;
+						outputKernels[i].shiftWithInsertNew(newCv, hold);
 					}
 					else {
 						outputKernels[i].skipStep();
@@ -427,7 +441,7 @@ struct ProbKey : Module {
 			}
 			else if (editMode == MODE_ANCHOR) {
 				for (int i = 0; i < 12; i++) {
-					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i));
+					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i), probKernels[index].probNonNull(i));
 				}
 			}
 			
@@ -440,11 +454,18 @@ struct ProbKey : Module {
 			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 1].setBrightness(0.0f);
 		}
 	}
-	void setKeyLightsAnchor(int key, float anch) {
-		anch = ProbKernel::octToAnchor(ProbKernel::anchorToOct(anch));// quantize leds for octaves
-		for (int j = 0; j < 4; j++) {
-			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 0].setBrightness(0.0f);
-			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 1].setBrightness(anch * 4.0f - (float)j);
+	void setKeyLightsAnchor(int key, float anch, bool active) {
+		if (active) {
+			anch = ProbKernel::quantizeAnchor(anch);
+			for (int j = 0; j < 4; j++) {
+				lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 0].setBrightness(0.0f);
+				lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 1].setBrightness(anch * 4.0f - (float)j);
+			}
+		}
+		else {
+			for (int j = 0; j < 4 * 2; j++) {
+				lights[KEY_LIGHTS + key * 4 * 2 + j].setBrightness(0.0f);
+			}
 		}
 	}
 };
