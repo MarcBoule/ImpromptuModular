@@ -54,6 +54,18 @@ class ProbKernel {
 		
 	}
 	
+	// getters
+	float getNoteProb(int note) {
+		return noteProbs[note];
+	}
+	
+	
+	// setters
+	void setNoteProb(int note, float prob) {
+		noteProbs[note] = prob;
+	}
+	
+	
 	float calcRandomCv() {
 		// not optimized for audio rate
 		// returns a cv value or NO_CV when a note gets randomly skipped (only possible when sum of probs < 1)
@@ -327,7 +339,11 @@ struct ProbKey : Module {
 			}
 			
 			// piano keys if applicable 
-			//   todo: modify probKernels[index]
+			if (pkInfo.gate && !pkInfo.isRightClick) {
+				if (editMode == MODE_PROB) {
+					probKernels[index].setNoteProb(pkInfo.key, 1.0f - pkInfo.vel);
+				}
+			}
 		}// userInputs refresh
 
 
@@ -370,7 +386,22 @@ struct ProbKey : Module {
 			lights[MODE_LIGHTS + MODE_ANCHOR * 2 + 1].setBrightness(editMode == MODE_ANCHOR ? 1.0f : 0.0f);
 			lights[MODE_LIGHTS + MODE_RANGE * 2 + 0].setBrightness(0.0f);
 			lights[MODE_LIGHTS + MODE_RANGE * 2 + 1].setBrightness(editMode == MODE_RANGE ? 1.0f : 0.0f);
+			
+			// keyboard lights (green, red)
+			if (editMode == MODE_PROB) {
+				for (int i = 0; i < 12; i++) {
+					setKeyLightsProb(i, probKernels[index].getNoteProb(i));
+				}
+			}
+			
 		}// processLights()
+	}
+	
+	void setKeyLightsProb(int key, float prob) {
+		for (int j = 0; j < 4; j++) {
+			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 0].setBrightness(prob * 4.0f - (float)j);
+			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 1].setBrightness(0.0f);
+		}
 	}
 };
 
@@ -485,10 +516,10 @@ struct ProbKeyWidget : ModuleWidget {
 
 
 		#define DROP_LIGHTS(xLoc, yLoc, pNum) \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*0), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 0 * 2)); \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*1), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 1 * 2)); \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*2), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 2 * 2)); \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*3), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 3 * 2));
+			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*3), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 0 * 2)); \
+			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*2), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 1 * 2)); \
+			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*1), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 2 * 2)); \
+			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*0), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 3 * 2));
 
 		// Black keys
 		addChild(createPianoKey<PianoKeyBig>(VecPx(37.5f + ex, posBlackY), 1, module ? &module->pkInfo : NULL));
