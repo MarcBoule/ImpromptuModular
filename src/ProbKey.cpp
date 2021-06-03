@@ -136,8 +136,8 @@ class OutputKernel {
 	
 	private:
 	
-	float shiftReg[MAX_LENGTH];
-	bool gateEnable;
+	float shiftReg[MAX_LENGTH];// add a code that says "same CV as previous" to avoid cv change when empty follows a normal step (this might have happend when locked and changing length from 5 to 6 in a test)
+	bool gateEnable[MAX_LENGTH];
 	
 	
 	public:
@@ -145,8 +145,9 @@ class OutputKernel {
 	void reset() {
 		for (int i = 0; i < MAX_LENGTH; i++) {
 			shiftReg[i] = 0.0f;
+			gateEnable[i] = true;
 		}
-		gateEnable = true;
+		
 	}
 	
 	void randomize() {
@@ -163,33 +164,41 @@ class OutputKernel {
 
 	void shiftWithRecycle(int length0) {
 		float recycledCv = shiftReg[length0];
+		bool recycledGateEnable = gateEnable[length0];
 		for (int i = MAX_LENGTH - 1; i > 0; i--) {
 			shiftReg[i] = shiftReg[i - 1];
+			gateEnable[i] = gateEnable[i - 1];
 		}
 		shiftReg[0] = recycledCv;
-		gateEnable = true;
+		gateEnable[0] = recycledGateEnable; 
 	}
 	
 	void shiftWithInsertNew(float newCv, bool hold) {
 		// hold overrides newCv
 		for (int i = MAX_LENGTH - 1; i > 0; i--) {
 			shiftReg[i] = shiftReg[i - 1];
+			gateEnable[i] = gateEnable[i - 1];
 		}
 		if (!hold) {
 			shiftReg[0] = newCv;
 		}
-		gateEnable = true;
+		gateEnable[0] = true;
 	}
 	
 	void skipStep() {
-		gateEnable = false;
+		// CV is implicitly held
+		for (int i = MAX_LENGTH - 1; i > 0; i--) {
+			shiftReg[i] = shiftReg[i - 1];
+			gateEnable[i] = gateEnable[i - 1];
+		}
+		gateEnable[0] = false;
 	}
 	
 	float getCv() {
 		return shiftReg[0];
 	}
 	bool getGateEnable() {
-		return gateEnable;
+		return gateEnable[0];
 	}
 };
 
