@@ -17,11 +17,12 @@ class ProbKernel {
 	public: 
 	
 	static constexpr float NO_CV = -100.0f;
+	static constexpr float MAX_ANCHOR_DELTA = 4.0f;// number of octaves, must be a positive integer
 	
 	private:
 	
 	float noteProbs[12];// [0.0f : 1.0f]
-	float noteAnchors[12];
+	float noteAnchors[12];// [0.0f : 1.0f];  0.5f=oct"4", 1.0f=oct"4+MAX_ANCHOR_DELTA"; not quantized
 	float noteRanges[7];// [0] is -3, [6] is +3
 	
 	
@@ -30,7 +31,7 @@ class ProbKernel {
 	void reset() {
 		for (int i = 0; i < 12; i++) {
 			noteProbs[i] = 0.0f;
-			noteAnchors[i] = 0.0f;// todo
+			noteAnchors[i] = octToAnchor(0.0f);
 		}
 		noteProbs[0] = 0.25f;
 		noteProbs[4] = 0.25f;
@@ -58,11 +59,17 @@ class ProbKernel {
 	float getNoteProb(int note) {
 		return noteProbs[note];
 	}
+	float getNoteAnchor(int note) {
+		return noteAnchors[note];
+	}
 	
 	
 	// setters
 	void setNoteProb(int note, float prob) {
 		noteProbs[note] = prob;
+	}
+	void setNoteAnchor(int note, float anch) {
+		noteAnchors[note] = anch;
 	}
 	
 	
@@ -77,7 +84,7 @@ class ProbKernel {
 			cumulProbs[i] = cumulProbs[i - 1] + noteProbs[i];
 		}
 		
-		float dice = random::uniform() * cumulProbs[11];
+		float dice = random::uniform() * std::max(cumulProbs[11], 1.0f);
 		int note = 0;
 		for (; note < 12; note++) {
 			if (dice < cumulProbs[note]) {
@@ -89,16 +96,23 @@ class ProbKernel {
 		if (note < 12) {
 			cv = ((float)note) / 12.0f;
 			
-			// apply anchor to note (set it's octave)
+			cv += anchorToOct(noteAnchors[note]);
 			
 			// probabilistically transpose note according to ranges
-			
+			// todo
 		}
 		else {
 			cv = NO_CV;
 		}
 
 		return cv;
+	}
+	
+	static float anchorToOct(float anch) {
+		return std::round((anch - 0.5f) * 2.0f * MAX_ANCHOR_DELTA);
+	}
+	static float octToAnchor(float oct) {
+		return oct / (2.0f * MAX_ANCHOR_DELTA) + 0.5f;
 	}
 };
 
@@ -115,6 +129,7 @@ class OutputKernel {
 	private:
 	
 	float shiftReg[MAX_LENGTH];
+	bool gateEnable;
 	
 	
 	public:
@@ -123,6 +138,7 @@ class OutputKernel {
 		for (int i = 0; i < MAX_LENGTH; i++) {
 			shiftReg[i] = 0.0f;
 		}
+		gateEnable = true;
 	}
 	
 	void randomize() {
@@ -143,6 +159,7 @@ class OutputKernel {
 			shiftReg[i] = shiftReg[i - 1];
 		}
 		shiftReg[0] = recycledCv;
+		gateEnable = true;
 	}
 	
 	void shiftWithInsertNew(float newCv) {
@@ -150,10 +167,18 @@ class OutputKernel {
 			shiftReg[i] = shiftReg[i - 1];
 		}
 		shiftReg[0] = newCv;
+		gateEnable = true;
+	}
+	
+	void skipStep() {
+		gateEnable = false;
 	}
 	
 	float getCv() {
 		return shiftReg[0];
+	}
+	bool getGateEnable() {
+		return gateEnable;
 	}
 };
 
@@ -343,6 +368,9 @@ struct ProbKey : Module {
 				if (editMode == MODE_PROB) {
 					probKernels[index].setNoteProb(pkInfo.key, 1.0f - pkInfo.vel);
 				}
+				else if (editMode == MODE_ANCHOR) {
+					probKernels[index].setNoteAnchor(pkInfo.key, 1.0f - pkInfo.vel);
+				}
 			}
 		}// userInputs refresh
 
@@ -366,13 +394,17 @@ struct ProbKey : Module {
 					if (newCv != ProbKernel::NO_CV) {
 						outputKernels[i].shiftWithInsertNew(newCv);
 					}
+					else {
+						outputKernels[i].skipStep();
+					}
 				}
 			}
 			
 			
 			// output CV and gate
 			outputs[CV_OUTPUT].setVoltage(outputKernels[i].getCv(), i);
-			// outputs[GATE_OUTPUT].setVoltage(i, ); // todo because step may not always play
+			float gateOut = outputKernels[i].getGateEnable() ? inputs[GATE_INPUT].getVoltage(i) : 0.0f;
+			outputs[GATE_OUTPUT].setVoltage(gateOut, i);
 		}
 
 
@@ -382,15 +414,20 @@ struct ProbKey : Module {
 			// mode lights (green, red)
 			lights[MODE_LIGHTS + MODE_PROB * 2 + 0].setBrightness(editMode == MODE_PROB ? 1.0f : 0.0f);
 			lights[MODE_LIGHTS + MODE_PROB * 2 + 1].setBrightness(0.0f);
-			lights[MODE_LIGHTS + MODE_ANCHOR * 2 + 0].setBrightness(editMode == MODE_ANCHOR ? 1.0f : 0.0f);
+			lights[MODE_LIGHTS + MODE_ANCHOR * 2 + 0].setBrightness(0.0f);
 			lights[MODE_LIGHTS + MODE_ANCHOR * 2 + 1].setBrightness(editMode == MODE_ANCHOR ? 1.0f : 0.0f);
-			lights[MODE_LIGHTS + MODE_RANGE * 2 + 0].setBrightness(0.0f);
+			lights[MODE_LIGHTS + MODE_RANGE * 2 + 0].setBrightness(editMode == MODE_RANGE ? 1.0f : 0.0f);
 			lights[MODE_LIGHTS + MODE_RANGE * 2 + 1].setBrightness(editMode == MODE_RANGE ? 1.0f : 0.0f);
 			
 			// keyboard lights (green, red)
 			if (editMode == MODE_PROB) {
 				for (int i = 0; i < 12; i++) {
 					setKeyLightsProb(i, probKernels[index].getNoteProb(i));
+				}
+			}
+			else if (editMode == MODE_ANCHOR) {
+				for (int i = 0; i < 12; i++) {
+					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i));
 				}
 			}
 			
@@ -401,6 +438,13 @@ struct ProbKey : Module {
 		for (int j = 0; j < 4; j++) {
 			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 0].setBrightness(prob * 4.0f - (float)j);
 			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 1].setBrightness(0.0f);
+		}
+	}
+	void setKeyLightsAnchor(int key, float anch) {
+		anch = ProbKernel::octToAnchor(ProbKernel::anchorToOct(anch));// quantize leds for octaves
+		for (int j = 0; j < 4; j++) {
+			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 0].setBrightness(0.0f);
+			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 1].setBrightness(anch * 4.0f - (float)j);
 		}
 	}
 };
