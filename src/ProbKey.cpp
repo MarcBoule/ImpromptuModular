@@ -110,7 +110,23 @@ class ProbKernel {
 			cv += anchorToOct(noteAnchors[note]);
 			
 			// probabilistically transpose note according to ranges
-			// todo
+			float cumulRanges[7];
+			cumulRanges[0] = noteRanges[0];
+			for (int i = 1; i < 7; i++) {
+				cumulRanges[i] = cumulRanges[i - 1] + noteRanges[i];
+			}
+			
+			float dice2 = random::uniform() * cumulRanges[6];
+			int oct = 0;
+			for (; oct < 7; oct++) {
+				if (dice2 < cumulRanges[oct]) {
+					break;
+				}
+			}
+			if (oct < 7) {
+				oct -= 3;
+				cv += (float)oct;
+			}
 		}
 		else {
 			cv = IDEM_CV;
