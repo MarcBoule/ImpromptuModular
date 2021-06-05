@@ -48,10 +48,62 @@ class ProbKernel {
 	}
 	
 	void dataToJson(json_t *rootJ) {
+		// noteProbs
+		json_t *noteProbsJ = json_array();
+		for (int i = 0; i < 12; i++) {
+			json_array_insert_new(noteProbsJ, i, json_real(noteProbs[i]));
+		}
+		json_object_set_new(rootJ, "noteProbs", noteProbsJ);
+		
+		// noteAnchors
+		json_t *noteAnchorsJ = json_array();
+		for (int i = 0; i < 12; i++) {
+			json_array_insert_new(noteAnchorsJ, i, json_real(noteAnchors[i]));
+		}
+		json_object_set_new(rootJ, "noteAnchors", noteAnchorsJ);
+		
+		// noteRanges
+		json_t *noteRangesJ = json_array();
+		for (int i = 0; i < 7; i++) {
+			json_array_insert_new(noteRangesJ, i, json_real(noteRanges[i]));
+		}
+		json_object_set_new(rootJ, "noteRanges", noteRangesJ);
 		
 	}
 	
 	void dataFromJson(json_t *rootJ) {
+		// noteProbs
+		json_t *noteProbsJ = json_object_get(rootJ, "noteProbs");
+		if (noteProbsJ) {
+			for (int i = 0; i < 12; i++) {
+				json_t *noteProbsArrayJ = json_array_get(noteProbsJ, i);
+				if (noteProbsArrayJ) {
+					noteProbs[i] = json_number_value(noteProbsArrayJ);
+				}
+			}
+		}
+		
+		// noteAnchors
+		json_t *noteAnchorsJ = json_object_get(rootJ, "noteAnchors");
+		if (noteAnchorsJ) {
+			for (int i = 0; i < 12; i++) {
+				json_t *noteAnchorsArrayJ = json_array_get(noteAnchorsJ, i);
+				if (noteAnchorsArrayJ) {
+					noteAnchors[i] = json_number_value(noteAnchorsArrayJ);
+				}
+			}
+		}
+		
+		// noteRanges
+		json_t *noteRangesJ = json_object_get(rootJ, "noteRanges");
+		if (noteRangesJ) {
+			for (int i = 0; i < 7; i++) {
+				json_t *noteRangesArrayJ = json_array_get(noteRangesJ, i);
+				if (noteRangesArrayJ) {
+					noteRanges[i] = json_number_value(noteRangesArrayJ);
+				}
+			}
+		}
 		
 	}
 	
@@ -195,11 +247,35 @@ class OutputKernel {
 	}
 	
 	void dataToJson(json_t *rootJ) {
-		// todo: if we capture a pattern we like and lock it, it should saved with patch
+		// shiftReg
+		json_t *shiftRegJ = json_array();
+		for (int i = 0; i < MAX_LENGTH; i++) {
+			json_array_insert_new(shiftRegJ, i, json_real(shiftReg[i]));
+		}
+		json_object_set_new(rootJ, "shiftReg", shiftRegJ);
+		
+		// lastCv
+		json_object_set_new(rootJ, "lastCv", json_real(lastCv));
+
 	}
 	
 	void dataFromJson(json_t *rootJ) {
-		// todo: if we capture a pattern we like and lock it, it should loaded with patch
+		// shiftReg
+		json_t *shiftRegJ = json_object_get(rootJ, "shiftReg");
+		if (shiftRegJ) {
+			for (int i = 0; i < 7; i++) {
+				json_t *shiftRegArrayJ = json_array_get(shiftRegJ, i);
+				if (shiftRegArrayJ) {
+					shiftReg[i] = json_number_value(shiftRegArrayJ);
+				}
+			}
+		}
+
+		// lastCv
+		json_t *lastCvJ = json_object_get(rootJ, "lastCv");
+		if (lastCvJ) {
+			lastCv = json_number_value(lastCvJ);
+		}
 	}
 
 	void shiftWithHold() {
