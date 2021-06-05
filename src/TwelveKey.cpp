@@ -60,6 +60,7 @@ struct TwelveKey : Module {
 	bool linkVelSettings;
 	int8_t tracer;
 	int8_t keyView;
+	PianoKeyInfo pkInfo;// key and vel
 	
 	
 	// No need to save, with reset
@@ -73,7 +74,6 @@ struct TwelveKey : Module {
 	Trigger octDecTrigger;
 	Trigger maxVelTrigger;
 	dsp::BooleanTrigger keyTrigger;
-	PianoKeyInfo pkInfo;
 	
 
 	bool isBipol(void) {return params[VELPOL_PARAM].getValue() > 0.5f;}
@@ -99,13 +99,14 @@ struct TwelveKey : Module {
 		octaveNum = 4;
 		cv = 0.0f;
 		vel = 1.0f;
-		pkInfo.vel = vel;
 		maxVel = 10.0f;
 		stateInternal = inputs[GATE_INPUT].isConnected() ? false : true;
 		invertVel = false;
 		linkVelSettings = false;
 		tracer = 0;// off by default
 		keyView = 0;// off by default
+		pkInfo.vel = vel;
+		pkInfo.key = 0;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -114,9 +115,11 @@ struct TwelveKey : Module {
 
 	void onRandomize() override {
 		octaveNum = random::u32() % 10;
-		cv = ((float)(octaveNum - 4)) + ((float)(random::u32() % 12)) / 12.0f;
+		int rkey = random::u32() % 12;
+		cv = ((float)(octaveNum - 4)) + ((float)rkey) / 12.0f;
 		vel = random::uniform();
 		pkInfo.vel = vel;
+		pkInfo.key = rkey;
 		maxVel = 10.0f;
 		stateInternal = inputs[GATE_INPUT].isConnected() ? false : true;
 	}
@@ -153,6 +156,9 @@ struct TwelveKey : Module {
 
 		// keyView
 		json_object_set_new(rootJ, "keyView", json_integer(keyView));
+
+		// pkinfo.key
+		json_object_set_new(rootJ, "pkinfokey", json_integer(pkInfo.key));
 
 		return rootJ;
 	}
@@ -209,6 +215,11 @@ struct TwelveKey : Module {
 		json_t *keyViewJ = json_object_get(rootJ, "keyView");
 		if (keyViewJ)
 			keyView = json_integer_value(keyViewJ);
+
+		// pkinfo.key
+		json_t *pkinfokeyJ = json_object_get(rootJ, "pkinfokey");
+		if (pkinfokeyJ)
+			pkInfo.key = json_integer_value(pkinfokeyJ);
 
 		resetNonJson();
 	}

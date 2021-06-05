@@ -1,6 +1,7 @@
 ### 1.1.11 (in development)
 
 - Implemented portable sequence copy/paste in WriteSeq32/64
+- Fixed TwelveKey bug with tracer key not saved/loaded with patch
 
 
 ### 1.1.10 (2021-02-07)
