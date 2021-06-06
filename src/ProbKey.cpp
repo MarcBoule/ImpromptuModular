@@ -136,11 +136,39 @@ class ProbKernel {
 	}
 	
 	
-	float calcRandomCv() {
+	void calcOffsetAndSquash(float* destRange, float offset, float squash) {
+		// destRange[] has to be pre-allocated and all 0.0f!!
+		// uses noteRanges[] as const source
+		
+		// calc squash from noteRanges and put in new array
+		float sqRange[7];
+		for (int i = 0; i < 7; i++) {
+			float dist = std::fabs((float)i - 3.0f) / 3.0f;// normalized [0.0f : 1.0f] distance
+			sqRange[i] = noteRanges[i] * (1.0f - dist * squash);
+		}
+		
+		
+		// calc offset from squash and put in destRange
+		for (int i = 0; i < 7; i++) {
+			float ofsi = (float)i - offset;
+			int ileft = (int)std::floor(ofsi);
+			float frac = ofsi - std::floor(ofsi);
+			if (ileft >= 0 && ileft <= 6) {
+				destRange[i] += sqRange[ileft] * (1.0f - frac);
+			}
+			int iright = ileft + 1;
+			if (iright >= 0 && iright <= 6) {
+				destRange[i] += sqRange[iright] * frac;
+			}
+		}		
+	}
+	
+	
+	float calcRandomCv(float offset, float squash) {
 		// not optimized for audio rate
 		// returns a cv value or IDEM_CV when a note gets randomly skipped (only possible when sum of probs < 1)
 		
-		// generate a note according to noteProbs (base note only, C4=0 to B4)
+		// generate a (base) note according to noteProbs (base note only, C4=0 to B4)
 		float cumulProbs[12];
 		cumulProbs[0] = noteProbs[0];
 		for (int i = 1; i < 12; i++) {
@@ -157,15 +185,21 @@ class ProbKernel {
 		
 		float cv;
 		if (note < 12) {
+			// base note
 			cv = ((float)note) / 12.0f;
 			
+			// anchor
 			cv += anchorToOct(noteAnchors[note]);
+			
+			// offset and squash
+			float noteRangesMod[7] = {};
+			calcOffsetAndSquash(noteRangesMod, offset, squash);
 			
 			// probabilistically transpose note according to ranges
 			float cumulRanges[7];
-			cumulRanges[0] = noteRanges[0];
+			cumulRanges[0] = noteRangesMod[0];
 			for (int i = 1; i < 7; i++) {
-				cumulRanges[i] = cumulRanges[i - 1] + noteRanges[i];
+				cumulRanges[i] = cumulRanges[i - 1] + noteRangesMod[i];
 			}
 			
 			float dice2 = random::uniform() * cumulRanges[6];
@@ -374,6 +408,14 @@ struct ProbKey : Module {
 		int length = (int)std::round(params[LENGTH_PARAM].getValue() + inputs[LENGTH_INPUT].getVoltage() * 12.0f);
 		return clamp(length, 0, OutputKernel::MAX_LENGTH - 1 );
 	}
+	float getOffset() {
+		float offset = params[OFFSET_PARAM].getValue() + inputs[OFFSET_INPUT].getVoltage() * 0.3f;
+		return clamp(offset, -3.0f, 3.0f);
+	}
+	float getSquash() {
+		float squash = params[SQUASH_PARAM].getValue() + inputs[SQUASH_INPUT].getVoltage() * 0.1f;
+		return clamp(squash, 0.0f, 1.0f);
+	}
 
 
 	ProbKey() {
@@ -383,7 +425,7 @@ struct ProbKey : Module {
 		configParam(LENGTH_PARAM, 0.0f, (float)(OutputKernel::MAX_LENGTH - 1), (float)(OutputKernel::MAX_LENGTH - 1), "Lock length", "", 0.0f, 1.0f, 1.0f);
 		configParam(LOCK_PARAM, 0.0f, 1.0f, 0.0f, "Lock (loop) pattern", " %", 0.0f, 100.0f, 0.0f);
 		configParam(OFFSET_PARAM, -3.0f, 3.0f, 0.0f, "Range offset", "");
-		configParam(SQUASH_PARAM, 0.0f, 1.0f, 0.0f, "Range squash", "");
+		configParam(SQUASH_PARAM, 0.0f, 1.0f, 0.0f, "Range squash", " %", 0.0f, 100.0f, 0.0f);
 		configParam(MODE_PARAMS + MODE_PROB, 0.0f, 1.0f, 0.0f, "Edit note probabilities", "");
 		configParam(MODE_PARAMS + MODE_ANCHOR, 0.0f, 1.0f, 0.0f, "Edit note octave refs", "");
 		configParam(MODE_PARAMS + MODE_RANGE, 0.0f, 1.0f, 0.0f, "Edit octave range", "");
@@ -525,7 +567,7 @@ struct ProbKey : Module {
 						outputKernels[i].shiftWithHold();
 					}
 					else {
-						float newCv = probKernels[index].calcRandomCv();
+						float newCv = probKernels[index].calcRandomCv(getOffset(), getSquash());
 						outputKernels[i].shiftWithInsertNew(newCv);
 					}
 				}
@@ -589,14 +631,23 @@ struct ProbKey : Module {
 		}
 	}
 	void setKeyLightsRange(int index) {
+		float modRanges[7] = {};
+		probKernels[index].calcOffsetAndSquash(modRanges, getOffset(), getSquash());
+		
 		for (int i = 0; i < 12; i++) {
-			float range = 0.0f;
 			if (i != 1 && i != 3 && i != 6 && i != 8 && i != 10) {
-				range = probKernels[index].getNoteRange(i);
+				for (int j = 0; j < 4; j++) {
+					int i7 = ProbKernel::key12to7(i);
+					float normalRange = probKernels[index].getNoteRange(i);
+					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 0].setBrightness(normalRange   * 4.0f - (float)j);
+					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 1].setBrightness(modRanges[i7] * 4.0f - (float)j);
+				}
 			}
-			for (int j = 0; j < 4; j++) {
-				lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 0].setBrightness(range * 4.0f - (float)j);
-				lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 1].setBrightness(range * 4.0f - (float)j);
+			else {
+				for (int j = 0; j < 4; j++) {
+					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 0].setBrightness(0.0f);
+					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 1].setBrightness(0.0f);
+				}
 			}
 		}
 	}
