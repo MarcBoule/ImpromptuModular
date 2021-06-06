@@ -47,33 +47,33 @@ class ProbKernel {
 		
 	}
 	
-	void dataToJson(json_t *rootJ) {
+	void dataToJson(json_t *rootJ, int id) {
 		// noteProbs
 		json_t *noteProbsJ = json_array();
 		for (int i = 0; i < 12; i++) {
 			json_array_insert_new(noteProbsJ, i, json_real(noteProbs[i]));
 		}
-		json_object_set_new(rootJ, "noteProbs", noteProbsJ);
+		json_object_set_new(rootJ, string::f("noteProbs%i", id).c_str(), noteProbsJ);
 		
 		// noteAnchors
 		json_t *noteAnchorsJ = json_array();
 		for (int i = 0; i < 12; i++) {
 			json_array_insert_new(noteAnchorsJ, i, json_real(noteAnchors[i]));
 		}
-		json_object_set_new(rootJ, "noteAnchors", noteAnchorsJ);
+		json_object_set_new(rootJ, string::f("noteAnchors%i", id).c_str(), noteAnchorsJ);
 		
 		// noteRanges
 		json_t *noteRangesJ = json_array();
 		for (int i = 0; i < 7; i++) {
 			json_array_insert_new(noteRangesJ, i, json_real(noteRanges[i]));
 		}
-		json_object_set_new(rootJ, "noteRanges", noteRangesJ);
+		json_object_set_new(rootJ, string::f("noteRanges%i", id).c_str(), noteRangesJ);
 		
 	}
 	
-	void dataFromJson(json_t *rootJ) {
+	void dataFromJson(json_t *rootJ, int id) {
 		// noteProbs
-		json_t *noteProbsJ = json_object_get(rootJ, "noteProbs");
+		json_t *noteProbsJ = json_object_get(rootJ, string::f("noteProbs%i", id).c_str());
 		if (noteProbsJ) {
 			for (int i = 0; i < 12; i++) {
 				json_t *noteProbsArrayJ = json_array_get(noteProbsJ, i);
@@ -84,7 +84,7 @@ class ProbKernel {
 		}
 		
 		// noteAnchors
-		json_t *noteAnchorsJ = json_object_get(rootJ, "noteAnchors");
+		json_t *noteAnchorsJ = json_object_get(rootJ, string::f("noteAnchors%i", id).c_str());
 		if (noteAnchorsJ) {
 			for (int i = 0; i < 12; i++) {
 				json_t *noteAnchorsArrayJ = json_array_get(noteAnchorsJ, i);
@@ -95,7 +95,7 @@ class ProbKernel {
 		}
 		
 		// noteRanges
-		json_t *noteRangesJ = json_object_get(rootJ, "noteRanges");
+		json_t *noteRangesJ = json_object_get(rootJ, string::f("noteRanges%i", id).c_str());
 		if (noteRangesJ) {
 			for (int i = 0; i < 7; i++) {
 				json_t *noteRangesArrayJ = json_array_get(noteRangesJ, i);
@@ -246,24 +246,24 @@ class OutputKernel {
 		// none
 	}
 	
-	void dataToJson(json_t *rootJ) {
+	void dataToJson(json_t *rootJ, int id) {
 		// shiftReg
 		json_t *shiftRegJ = json_array();
 		for (int i = 0; i < MAX_LENGTH; i++) {
 			json_array_insert_new(shiftRegJ, i, json_real(shiftReg[i]));
 		}
-		json_object_set_new(rootJ, "shiftReg", shiftRegJ);
+		json_object_set_new(rootJ, string::f("shiftReg%i", id).c_str(), shiftRegJ);
 		
 		// lastCv
-		json_object_set_new(rootJ, "lastCv", json_real(lastCv));
+		json_object_set_new(rootJ, string::f("lastCv%i", id).c_str(), json_real(lastCv));
 
 	}
 	
-	void dataFromJson(json_t *rootJ) {
+	void dataFromJson(json_t *rootJ, int id) {
 		// shiftReg
-		json_t *shiftRegJ = json_object_get(rootJ, "shiftReg");
+		json_t *shiftRegJ = json_object_get(rootJ, string::f("shiftReg%i", id).c_str());
 		if (shiftRegJ) {
-			for (int i = 0; i < 7; i++) {
+			for (int i = 0; i < MAX_LENGTH; i++) {
 				json_t *shiftRegArrayJ = json_array_get(shiftRegJ, i);
 				if (shiftRegArrayJ) {
 					shiftReg[i] = json_number_value(shiftRegArrayJ);
@@ -272,7 +272,7 @@ class OutputKernel {
 		}
 
 		// lastCv
-		json_t *lastCvJ = json_object_get(rootJ, "lastCv");
+		json_t *lastCvJ = json_object_get(rootJ, string::f("lastCv%i", id).c_str());
 		if (lastCvJ) {
 			lastCv = json_number_value(lastCvJ);
 		}
@@ -428,12 +428,12 @@ struct ProbKey : Module {
 
 		// probKernels
 		for (int i = 0; i < NUM_INDEXES; i++) {
-			probKernels[i].dataToJson(rootJ);
+			probKernels[i].dataToJson(rootJ, i);
 		}
 		
 		// outputKernels
 		for (int i = 0; i < PORT_MAX_CHANNELS; i++) {
-			outputKernels[i].dataToJson(rootJ);
+			outputKernels[i].dataToJson(rootJ, i);
 		}
 		
 		return rootJ;
@@ -455,12 +455,12 @@ struct ProbKey : Module {
 
 		// probKernels
 		for (int i = 0; i < NUM_INDEXES; i++) {
-			probKernels[i].dataFromJson(rootJ);
+			probKernels[i].dataFromJson(rootJ, i);
 		}
 
 		// outputKernels
 		for (int i = 0; i < PORT_MAX_CHANNELS; i++) {
-			outputKernels[i].dataFromJson(rootJ);
+			outputKernels[i].dataFromJson(rootJ, i);
 		}
 
 		resetNonJson();
