@@ -28,7 +28,7 @@ class ProbKernel {
 	private:
 	
 	float noteProbs[12];// [0.0f : 1.0f]
-	float noteAnchors[12];// [0.0f : 1.0f];  0.5f=oct"4", 1.0f=oct"4+MAX_ANCHOR_DELTA"; not quantized
+	float noteAnchors[12];// [0.0f : 1.0f];  0.5f=oct"4"=0V, 1.0f=oct"4+MAX_ANCHOR_DELTA"; not quantized
 	float noteRanges[7];// [0] is -3, [6] is +3
 	
 	
@@ -234,6 +234,38 @@ class ProbKernel {
 	}
 	
 	
+	void transposeUp() {
+		// rotate noteProbs[] and noteAnchors[] right by 1, and increment noteAnchor of B note
+		// if noteAnchor of B note goes above MAX_ANCHOR_DELTA, do nothing
+		float noteAnchorB = noteAnchors[11] + 1.0f / (2.0f * MAX_ANCHOR_DELTA);
+		if (anchorToOct(noteAnchorB) <= MAX_ANCHOR_DELTA) {// comparison must be done in oct space
+			float noteProbB = noteProbs[11];
+			for (int i = 11; i > 0; i--) {
+				noteProbs[i] = noteProbs[i - 1];
+				noteAnchors[i] = noteAnchors[i - 1];	
+			}
+			noteProbs[0] = noteProbB;
+			noteAnchors[0] = noteAnchorB;
+		}
+	}
+	
+	
+	void transposeDown() {
+		// rotate noteProbs[] and noteAnchors[] left by 1, and decrement noteAnchor of C note
+		// if noteAnchor of C note goes below -MAX_ANCHOR_DELTA, do nothing
+		float noteAnchorC = noteAnchors[0] - 1.0f / (2.0f * MAX_ANCHOR_DELTA);
+		if (anchorToOct(noteAnchorC) >= -MAX_ANCHOR_DELTA) {// comparison must be done in oct space
+			float noteProbC = noteProbs[0];
+			for (int i = 0; i < 11; i++) {
+				noteProbs[i] = noteProbs[i + 1];
+				noteAnchors[i] = noteAnchors[i + 1];	
+			}
+			noteProbs[11] = noteProbC;
+			noteAnchors[11] = noteAnchorC;
+		}
+	}
+	
+	
 	// anchor helpers
 	static float anchorToOct(float anch) {
 		return std::round((anch - 0.5f) * 2.0f * MAX_ANCHOR_DELTA);
@@ -422,6 +454,8 @@ struct ProbKey : Module {
 	Trigger gateInTriggers[PORT_MAX_CHANNELS];
 	Trigger copyTrigger;
 	Trigger pasteTrigger;
+	Trigger tranUpTrigger;
+	Trigger tranDownTrigger;
 	
 	
 	int getIndex() {
@@ -621,7 +655,15 @@ struct ProbKey : Module {
 						}
 					}	
 				}
-			}				
+			}	
+			
+			// transpose buttons
+			if (tranUpTrigger.process(params[TR_UP_PARAM].getValue())) {
+				probKernels[index].transposeUp();
+			}
+			if (tranDownTrigger.process(params[TR_DOWN_PARAM].getValue())) {
+				probKernels[index].transposeDown();
+			}
 			
 			// piano keys if applicable 
 			if (pkInfo.gate && !pkInfo.isRightClick) {
