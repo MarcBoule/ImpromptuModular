@@ -16,7 +16,6 @@
 
 // TODO:
 // * finish squash (needs new math)
-// * make copy-paste use clipboard
 // * add interop sequence copy (don't implement paste, as it's irrelevant)
 
 
@@ -50,38 +49,44 @@ class ProbKernel {
 		noteRanges[3] = 1.0f;
 	}
 	
+	
 	void randomize() {
 		
 	}
 	
-	void dataToJson(json_t *rootJ, int id) {
+	
+	json_t* dataToJsonProb() {
+		json_t* probJ = json_object();
+		
 		// noteProbs
 		json_t *noteProbsJ = json_array();
 		for (int i = 0; i < 12; i++) {
 			json_array_insert_new(noteProbsJ, i, json_real(noteProbs[i]));
 		}
-		json_object_set_new(rootJ, string::f("noteProbs%i", id).c_str(), noteProbsJ);
+		json_object_set_new(probJ, "noteProbs", noteProbsJ);
 		
 		// noteAnchors
 		json_t *noteAnchorsJ = json_array();
 		for (int i = 0; i < 12; i++) {
 			json_array_insert_new(noteAnchorsJ, i, json_real(noteAnchors[i]));
 		}
-		json_object_set_new(rootJ, string::f("noteAnchors%i", id).c_str(), noteAnchorsJ);
+		json_object_set_new(probJ, "noteAnchors", noteAnchorsJ);
 		
 		// noteRanges
 		json_t *noteRangesJ = json_array();
 		for (int i = 0; i < 7; i++) {
 			json_array_insert_new(noteRangesJ, i, json_real(noteRanges[i]));
 		}
-		json_object_set_new(rootJ, string::f("noteRanges%i", id).c_str(), noteRangesJ);
+		json_object_set_new(probJ, "noteRanges", noteRangesJ);
 		
+		return probJ;
 	}
 	
-	void dataFromJson(json_t *rootJ, int id) {
+	
+	void dataFromJsonProb(json_t *probJ) {
 		// noteProbs
-		json_t *noteProbsJ = json_object_get(rootJ, string::f("noteProbs%i", id).c_str());
-		if (noteProbsJ) {
+		json_t *noteProbsJ = json_object_get(probJ, "noteProbs");
+		if (noteProbsJ && json_is_array(noteProbsJ)) {
 			for (int i = 0; i < 12; i++) {
 				json_t *noteProbsArrayJ = json_array_get(noteProbsJ, i);
 				if (noteProbsArrayJ) {
@@ -91,8 +96,8 @@ class ProbKernel {
 		}
 		
 		// noteAnchors
-		json_t *noteAnchorsJ = json_object_get(rootJ, string::f("noteAnchors%i", id).c_str());
-		if (noteAnchorsJ) {
+		json_t *noteAnchorsJ = json_object_get(probJ, "noteAnchors");
+		if (noteAnchorsJ && json_is_array(noteAnchorsJ)) {
 			for (int i = 0; i < 12; i++) {
 				json_t *noteAnchorsArrayJ = json_array_get(noteAnchorsJ, i);
 				if (noteAnchorsArrayJ) {
@@ -102,8 +107,8 @@ class ProbKernel {
 		}
 		
 		// noteRanges
-		json_t *noteRangesJ = json_object_get(rootJ, string::f("noteRanges%i", id).c_str());
-		if (noteRangesJ) {
+		json_t *noteRangesJ = json_object_get(probJ, "noteRanges");
+		if (noteRangesJ && json_is_array(noteRangesJ)) {
 			for (int i = 0; i < 7; i++) {
 				json_t *noteRangesArrayJ = json_array_get(noteRangesJ, i);
 				if (noteRangesArrayJ) {
@@ -111,8 +116,8 @@ class ProbKernel {
 				}
 			}
 		}
-		
 	}
+	
 	
 	// getters
 	float getNoteProb(int note) {
@@ -239,6 +244,7 @@ class ProbKernel {
 	static float quantizeAnchor(float anch) {
 		return std::round(anch * 2.0f * MAX_ANCHOR_DELTA) / (2.0f * MAX_ANCHOR_DELTA);
 	}
+	
 	
 	// range helpers
 	static int key12to7(int key12) {
@@ -414,6 +420,8 @@ struct ProbKey : Module {
 	PianoKeyInfo pkInfo;
 	Trigger modeTriggers[3];
 	Trigger gateInTriggers[PORT_MAX_CHANNELS];
+	Trigger copyTrigger;
+	Trigger pasteTrigger;
 	
 	
 	int getIndex() {
@@ -461,8 +469,8 @@ struct ProbKey : Module {
 		configParam(MODE_PARAMS + MODE_ANCHOR, 0.0f, 1.0f, 0.0f, "Edit note octave refs", "");
 		configParam(MODE_PARAMS + MODE_RANGE, 0.0f, 1.0f, 0.0f, "Edit octave range", "");
 		configParam(PGAIN_PARAM, 0.0f, 1.0f, 0.0f, "Probability gain", "", 0.0f, 1.0f, 0.0f);
-		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy probabilities");
-		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste probabilities");
+		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy keyboard values");
+		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste keyboard values");
 		configParam(TR_UP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up 1 semitone");
 		configParam(TR_DOWN_PARAM, 0.0f, 1.0f, 0.0f, "Transpose down 1 semitone");
 		
@@ -505,9 +513,17 @@ struct ProbKey : Module {
 		json_object_set_new(rootJ, "editMode", json_integer(editMode));
 
 		// probKernels
-		for (int i = 0; i < NUM_INDEXES; i++) {
-			probKernels[i].dataToJson(rootJ, i);
+		// for (int i = 0; i < NUM_INDEXES; i++) {
+			// probKernels[i].dataToJson(rootJ, i);
+		// }
+		// probKernels
+		json_t* probsJ = json_array();
+		for (size_t i = 0; i < NUM_INDEXES; i++) {
+			json_t* probJ = probKernels[i].dataToJsonProb();
+			json_array_insert_new(probsJ, i , probJ);
 		}
+		json_object_set_new(rootJ, "probKernels", probsJ);
+
 		
 		// outputKernels
 		for (int i = 0; i < PORT_MAX_CHANNELS; i++) {
@@ -532,8 +548,16 @@ struct ProbKey : Module {
 		}
 
 		// probKernels
-		for (int i = 0; i < NUM_INDEXES; i++) {
-			probKernels[i].dataFromJson(rootJ, i);
+		// for (int i = 0; i < NUM_INDEXES; i++) {
+			// probKernels[i].dataFromJson(rootJ, i);
+		// }
+		// probKernels
+		json_t* probsJ = json_object_get(rootJ, "probKernels");
+		if (probsJ && json_is_array(probsJ)) {
+			for (size_t i = 0; i < std::min((size_t)NUM_INDEXES, json_array_size(probsJ)); i++) {
+				json_t* probJ = json_array_get(probsJ, i);
+				probKernels[i].dataFromJsonProb(probJ);
+			}
 		}
 
 		// outputKernels
@@ -562,6 +586,42 @@ struct ProbKey : Module {
 					editMode = i;
 				}
 			}
+			
+			// copy-paste buttons
+			if (copyTrigger.process(params[COPY_PARAM].getValue())) {
+				// Clipboard version: 
+				json_t* probJ = probKernels[index].dataToJsonProb();
+				json_t* clipboardJ = json_object();		
+				json_object_set_new(clipboardJ, "Impromptu ProbKey keyboard values", probJ);
+				char* probClip = json_dumps(clipboardJ, JSON_INDENT(2) | JSON_REAL_PRECISION(9));
+				json_decref(clipboardJ);
+				glfwSetClipboardString(APP->window->win, probClip);
+				free(probClip);
+			}				
+			if (pasteTrigger.process(params[PASTE_PARAM].getValue())) {
+				// Clipboard version: 
+				const char* probClip = glfwGetClipboardString(APP->window->win);
+				if (!probClip) {
+					WARN("IOP error getting clipboard string");
+				}
+				else {
+					json_error_t error;
+					json_t* clipboardJ = json_loads(probClip, 0, &error);
+					if (!clipboardJ) {
+						WARN("IOP error json parsing clipboard");
+					}
+					else {
+						DEFER({json_decref(clipboardJ);});
+						json_t* probJ = json_object_get(clipboardJ, "Impromptu ProbKey keyboard values");
+						if (!probJ) {
+							WARN("IOP error no Impromptu ProbKey keyboard values present in clipboard");
+						}
+						else {
+							probKernels[index].dataFromJsonProb(probJ);
+						}
+					}	
+				}
+			}				
 			
 			// piano keys if applicable 
 			if (pkInfo.gate && !pkInfo.isRightClick) {
@@ -727,10 +787,10 @@ struct ProbKeyWidget : ModuleWidget {
 			nvgText(args.vg, textPos.x, textPos.y, "~~~~", NULL);
 			nvgFillColor(args.vg, textColor);
 			char displayStr[5];
-			unsigned dispVal = module->getIndex() + 1;
-			// if (module) {
-				// dispVal = (unsigned)(module->params[BigButtonSeq2::DISPMODE_PARAM].getValue() < 0.5f ?  module->length : module->indexStep + 1);
-			// }
+			unsigned dispVal = 1;
+			if (module) {
+				dispVal = module->getIndex() + 1;
+			}
 			snprintf(displayStr, 5, "%4u",  dispVal);
 			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
