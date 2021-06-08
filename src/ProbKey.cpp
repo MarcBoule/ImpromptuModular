@@ -183,27 +183,13 @@ class ProbKernel {
 		
 		// generate a (base) note according to noteProbs (base note only, C4=0 to B4)
 		float cumulProbs[12];
-		cumulProbs[0] = noteProbs[0];
+		cumulProbs[0] = noteProbs[0] * pgain;
 		for (int i = 1; i < 12; i++) {
-			cumulProbs[i] = cumulProbs[i - 1] + noteProbs[i];
+			cumulProbs[i] = cumulProbs[i - 1] + noteProbs[i] * pgain;
 		}
 		
 		// original version
-		// float dice = random::uniform() * std::max(cumulProbs[11], 1.0f);
-		
-		// new version
-		float dice = random::uniform();
-		if (cumulProbs[11] < 1.0f) {
-			if (pgain < 1e-6) {
-				pgain = 1e-6;
-			}
-			dice /= pgain;
-			// DEBUG("pgain %f", pgain);
-		}		
-		else {
-			dice *= cumulProbs[11];
-		}
-		
+		float dice = random::uniform() * std::max(cumulProbs[11], 1.0f);		
 		int note = 0;
 		for (; note < 12; note++) {
 			if (dice < cumulProbs[note]) {
@@ -480,6 +466,7 @@ struct ProbKey : Module {
 	}
 	float getPgain() {
 		float pgain = params[PGAIN_PARAM].getValue();
+		pgain *= pgain;
 		if (inputs[PGAIN_INPUT].isConnected()) {
 			float pgainCv = inputs[PGAIN_INPUT].getVoltage() * 0.1f;
 			pgain *= clamp(pgainCv, 0.0f, 1.0f);
@@ -526,7 +513,7 @@ struct ProbKey : Module {
 		configParam(MODE_PARAMS + MODE_PROB, 0.0f, 1.0f, 0.0f, "Edit note probabilities", "");
 		configParam(MODE_PARAMS + MODE_ANCHOR, 0.0f, 1.0f, 0.0f, "Edit note octave refs", "");
 		configParam(MODE_PARAMS + MODE_RANGE, 0.0f, 1.0f, 0.0f, "Edit octave range", "");
-		configParam(PGAIN_PARAM, 0.0f, 4.0f, 1.0f, "Probability gain", " dB", -10.0f, 20.0f, 0.0f);
+		configParam(PGAIN_PARAM, 0.0f, 2.0f, 1.0f, "Probability gain", "");
 		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy keyboard values");
 		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste keyboard values");
 		configParam(TR_UP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up 1 semitone");
