@@ -17,6 +17,7 @@
 // TODO:
 // * finish squash (needs new math)
 // * add interop sequence copy (don't implement paste, as it's irrelevant)
+// * implemement SHIFT keyboard modifyer for keys in all modes (p and anchor moves all same, range moves mirror)
 
 
 class ProbKernel {
@@ -176,7 +177,7 @@ class ProbKernel {
 	}
 	
 	
-	float calcRandomCv(float offset, float squash) {
+	float calcRandomCv(float offset, float squash, float pgain) {
 		// not optimized for audio rate
 		// returns a cv value or IDEM_CV when a note gets randomly skipped (only possible when sum of probs < 1)
 		
@@ -187,7 +188,22 @@ class ProbKernel {
 			cumulProbs[i] = cumulProbs[i - 1] + noteProbs[i];
 		}
 		
-		float dice = random::uniform() * std::max(cumulProbs[11], 1.0f);
+		// original version
+		// float dice = random::uniform() * std::max(cumulProbs[11], 1.0f);
+		
+		// new version
+		float dice = random::uniform();
+		if (cumulProbs[11] < 1.0f) {
+			if (pgain < 1e-6) {
+				pgain = 1e-6;
+			}
+			dice /= pgain;
+			// DEBUG("pgain %f", pgain);
+		}		
+		else {
+			dice *= cumulProbs[11];
+		}
+		
 		int note = 0;
 		for (; note < 12; note++) {
 			if (dice < cumulProbs[note]) {
@@ -462,9 +478,13 @@ struct ProbKey : Module {
 		int index = (int)std::round(params[INDEX_PARAM].getValue() + inputs[INDEX_INPUT].getVoltage() * 12.0f);
 		return clamp(index, 0, NUM_INDEXES - 1 );
 	}
-	int getLength0() {// 0 indexed
-		int length = (int)std::round(params[LENGTH_PARAM].getValue() + inputs[LENGTH_INPUT].getVoltage() * 12.0f);
-		return clamp(length, 0, OutputKernel::MAX_LENGTH - 1 );
+	float getPgain() {
+		float pgain = params[PGAIN_PARAM].getValue();
+		if (inputs[PGAIN_INPUT].isConnected()) {
+			float pgainCv = inputs[PGAIN_INPUT].getVoltage() * 0.1f;
+			pgain *= clamp(pgainCv, 0.0f, 1.0f);
+		}
+		return pgain;
 	}
 	float getOffset() {
 		float offset = params[OFFSET_PARAM].getValue() + inputs[OFFSET_INPUT].getVoltage() * 0.3f;
@@ -488,6 +508,10 @@ struct ProbKey : Module {
 		lock += inputs[LOCK_INPUT].getVoltage() * 0.1f;
 		return clamp(lock, 0.0f, 1.0f);
 	}
+	int getLength0() {// 0 indexed
+		int length = (int)std::round(params[LENGTH_PARAM].getValue() + inputs[LENGTH_INPUT].getVoltage() * 12.0f);
+		return clamp(length, 0, OutputKernel::MAX_LENGTH - 1 );
+	}
 
 
 	ProbKey() {
@@ -502,7 +526,7 @@ struct ProbKey : Module {
 		configParam(MODE_PARAMS + MODE_PROB, 0.0f, 1.0f, 0.0f, "Edit note probabilities", "");
 		configParam(MODE_PARAMS + MODE_ANCHOR, 0.0f, 1.0f, 0.0f, "Edit note octave refs", "");
 		configParam(MODE_PARAMS + MODE_RANGE, 0.0f, 1.0f, 0.0f, "Edit octave range", "");
-		configParam(PGAIN_PARAM, 0.0f, 1.0f, 0.0f, "Probability gain", "", 0.0f, 1.0f, 0.0f);
+		configParam(PGAIN_PARAM, 0.0f, 4.0f, 1.0f, "Probability gain", " dB", -10.0f, 20.0f, 0.0f);
 		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy keyboard values");
 		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste keyboard values");
 		configParam(TR_UP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up 1 semitone");
@@ -705,7 +729,7 @@ struct ProbKey : Module {
 						outputKernels[i].shiftWithHold();
 					}
 					else {
-						float newCv = probKernels[index].calcRandomCv(getOffset(), getSquash());
+						float newCv = probKernels[index].calcRandomCv(getOffset(), getSquash(), getPgain());
 						outputKernels[i].shiftWithInsertNew(newCv);
 					}
 				}
