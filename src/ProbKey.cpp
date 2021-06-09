@@ -466,7 +466,6 @@ struct ProbKey : Module {
 	}
 	float getPgain() {
 		float pgain = params[PGAIN_PARAM].getValue();
-		pgain *= pgain;
 		if (inputs[PGAIN_INPUT].isConnected()) {
 			float pgainCv = inputs[PGAIN_INPUT].getVoltage() * 0.1f;
 			pgain *= clamp(pgainCv, 0.0f, 1.0f);
@@ -513,7 +512,7 @@ struct ProbKey : Module {
 		configParam(MODE_PARAMS + MODE_PROB, 0.0f, 1.0f, 0.0f, "Edit note probabilities", "");
 		configParam(MODE_PARAMS + MODE_ANCHOR, 0.0f, 1.0f, 0.0f, "Edit note octave refs", "");
 		configParam(MODE_PARAMS + MODE_RANGE, 0.0f, 1.0f, 0.0f, "Edit octave range", "");
-		configParam(PGAIN_PARAM, 0.0f, 2.0f, 1.0f, "Probability gain", "");
+		configParam(PGAIN_PARAM, 0.0f, 2.0f, 1.0f, "Probability gain", "x");
 		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy keyboard values");
 		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste keyboard values");
 		configParam(TR_UP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up 1 semitone");
