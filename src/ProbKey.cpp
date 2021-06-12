@@ -15,7 +15,8 @@
 // inkscape font sizez: 10.3 and 15.5
 
 // TODO:
-// * finish squash (needs new math)
+// * implement menu for squash method
+// * optimize dice vs pgain (pgain no need to mult all array)
 // * add interop sequence copy (don't implement paste, as it's irrelevant)
 // * implemement SHIFT keyboard modifyer for keys in all modes (p and anchor moves all same, range moves mirror)
 
@@ -133,14 +134,40 @@ class ProbKernel {
 	
 	
 	// setters
-	void setNoteProb(int note, float prob) {
-		noteProbs[note] = prob;
+	void setNoteProb(int note, float prob, bool withSymmetry) {
+		if (withSymmetry) {
+			if (noteProbs[note] != 0.0f) {
+				for (int i = 0; i < 12; i++) {
+					if (noteProbs[i] != 0.0f) {
+						noteProbs[i] = prob;
+					}
+				}
+			}
+		}
+		else {
+			noteProbs[note] = prob;
+		}
 	}
-	void setNoteAnchor(int note, float anch) {
-		noteAnchors[note] = anch;
+	void setNoteAnchor(int note, float anch, bool withSymmetry) {
+		if (withSymmetry) {
+			if (noteProbs[note] != 0.0f) {
+				for (int i = 0; i < 12; i++) {
+					if (noteProbs[i] != 0.0f) {
+						noteAnchors[i] = anch;
+					}
+				}
+			}
+		}
+		else {
+			noteAnchors[note] = anch;
+		}
 	}
-	void setNoteRange(int note12, float range) {
-		noteRanges[key12to7(note12)] = range;
+	void setNoteRange(int note12, float range, bool withSymmetry) {
+		int note7 = key12to7(note12);
+		noteRanges[note7] = range;
+		if (withSymmetry) {
+			noteRanges[6 - note7] = range;
+		}
 	}
 	
 	
@@ -155,10 +182,36 @@ class ProbKernel {
 		
 		// calc squash from noteRanges and put in new array
 		float sqRange[7];
-		for (int i = 0; i < 7; i++) {
-			float dist = std::fabs((float)i - 3.0f) / 3.0f;// normalized [0.0f : 1.0f] distance
-			sqRange[i] = noteRanges[i] * (1.0f - dist * squash);
-		}
+		// method 0 (not used)
+		// for (int i = 0; i < 7; i++) {
+			// float dist = std::fabs((float)i - 3.0f) / 3.0f;// normalized [0.0f : 1.0f] distance
+			// sqRange[i] = noteRanges[i] * (1.0f - dist * squash);
+		// }
+		// method 1
+		squash *= 7.0f;
+		float sq06 = std::max(0.0f, 3.0f - squash) / 3.0f;
+		sqRange[0] = noteRanges[0] * sq06;
+		sqRange[6] = noteRanges[6] * sq06;
+		float sq15 = clamp(5.0f - squash, 0.0f, 3.0f) / 3.0f;
+		sqRange[1] = noteRanges[1] * sq15;
+		sqRange[5] = noteRanges[5] * sq15;
+		float sq24 = std::min(3.0f, 7.0f - squash) / 3.0f;
+		sqRange[2] = noteRanges[2] * sq24;
+		sqRange[4] = noteRanges[4] * sq24;
+		sqRange[3] = noteRanges[3];
+		
+		// method 2 (same as method 1 but without overlap)
+		// squash *= 3.0f;
+		// float sq06 = std::max(0.0f, 1.0f - squash);
+		// sqRange[0] = noteRanges[0] * sq06;
+		// sqRange[6] = noteRanges[6] * sq06;
+		// float sq15 = clamp(2.0f - squash, 0.0f, 1.0f);
+		// sqRange[1] = noteRanges[1] * sq15;
+		// sqRange[5] = noteRanges[5] * sq15;
+		// float sq24 = std::min(1.0f, 3.0f - squash);
+		// sqRange[2] = noteRanges[2] * sq24;
+		// sqRange[4] = noteRanges[4] * sq24;
+		// sqRange[3] = noteRanges[3];
 		
 		
 		// calc offset from squash and put in destRange
@@ -631,7 +684,7 @@ struct ProbKey : Module {
 				}
 			}
 			
-			// copy-paste buttons
+			// copy button
 			if (copyTrigger.process(params[COPY_PARAM].getValue())) {
 				// Clipboard version: 
 				json_t* probJ = probKernels[index].dataToJsonProb();
@@ -641,7 +694,8 @@ struct ProbKey : Module {
 				json_decref(clipboardJ);
 				glfwSetClipboardString(APP->window->win, probClip);
 				free(probClip);
-			}				
+			}	
+			// paste button
 			if (pasteTrigger.process(params[PASTE_PARAM].getValue())) {
 				// Clipboard version: 
 				const char* probClip = glfwGetClipboardString(APP->window->win);
@@ -677,17 +731,18 @@ struct ProbKey : Module {
 			
 			// piano keys if applicable 
 			if (pkInfo.gate && !pkInfo.isRightClick) {
+				bool withSymmetry = (APP->window->getMods() & RACK_MOD_MASK) == GLFW_MOD_SHIFT;
 				if (editMode == MODE_PROB) {
-					probKernels[index].setNoteProb(pkInfo.key, 1.0f - pkInfo.vel);
+					probKernels[index].setNoteProb(pkInfo.key, 1.0f - pkInfo.vel, withSymmetry);
 				}
 				else if (editMode == MODE_ANCHOR) {
 					if (probKernels[index].probNonNull(pkInfo.key)) {
-						probKernels[index].setNoteAnchor(pkInfo.key, 1.0f - pkInfo.vel);
+						probKernels[index].setNoteAnchor(pkInfo.key, 1.0f - pkInfo.vel, withSymmetry);
 					}
 				}
 				else {// editMode == MODE_RANGE
 					if (pkInfo.key != 1 && pkInfo.key != 3 && pkInfo.key != 6 && pkInfo.key != 8 && pkInfo.key != 10) {
-						probKernels[index].setNoteRange(pkInfo.key, 1.0f - pkInfo.vel);
+						probKernels[index].setNoteRange(pkInfo.key, 1.0f - pkInfo.vel, withSymmetry);
 					}
 					
 				}
@@ -991,9 +1046,9 @@ struct ProbKeyWidget : ModuleWidget {
 
 		// **** col2 ****
 
-		// Offset knob and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col2, row0)), module, ProbKey::OFFSET_PARAM, module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row1)), true, module, ProbKey::OFFSET_INPUT, module ? &module->panelTheme : NULL));
+		// Squash knob and input
+		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col2, row0)), module, ProbKey::SQUASH_PARAM, module ? &module->panelTheme : NULL));	
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row1)), true, module, ProbKey::SQUASH_INPUT, module ? &module->panelTheme : NULL));
 
 		// Main display
 		MainDisplayWidget *displayMain = new MainDisplayWidget();
@@ -1005,9 +1060,9 @@ struct ProbKeyWidget : ModuleWidget {
 
 		// **** col3 ****
 
-		// Squash knob and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col3, row0)), module, ProbKey::SQUASH_PARAM, module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row1)), true, module, ProbKey::SQUASH_INPUT, module ? &module->panelTheme : NULL));
+		// Offset knob and input
+		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col3, row0)), module, ProbKey::OFFSET_PARAM, module ? &module->panelTheme : NULL));	
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row1)), true, module, ProbKey::OFFSET_INPUT, module ? &module->panelTheme : NULL));
 
 
 		// **** col4 ****
