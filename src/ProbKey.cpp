@@ -15,8 +15,7 @@
 // inkscape font sizez: 8, 10.3 and 15.5
 
 // TODO:
-// * implement menu for squash method
-// * optimize dice vs pgain (pgain no need to mult all array)
+// * implement menu for Range squash overlap (none, 25%, 50%)
 // * add interop sequence copy (don't implement paste, as it's irrelevant)
 
 
@@ -181,27 +180,50 @@ class ProbKernel {
 		
 		// calc squash from noteRanges and put in new array
 		float sqRange[7];
-		
-		// method 0 (not used)
-		// for (int i = 0; i < 7; i++) {
-			// float dist = std::fabs((float)i - 3.0f) / 3.0f;// normalized [0.0f : 1.0f] distance
-			// sqRange[i] = noteRanges[i] * (1.0f - dist * squash);
-		// }
-		
-		// method 1
-		squash *= 7.0f;
-		float sq06 = std::max(0.0f, 3.0f - squash) / 3.0f;
+				
+		// 1/4 overlap
+		// n=4
+		squash *= 10.0f;// 3n-2
+		float sq06 = std::max(0.0f, 4.0f - squash) / 4.0f;// 4.0 is n
 		sqRange[0] = noteRanges[0] * sq06;
 		sqRange[6] = noteRanges[6] * sq06;
-		float sq15 = clamp(5.0f - squash, 0.0f, 3.0f) / 3.0f;
+		float sq15 = clamp(7.0f - squash, 0.0f, 4.0f) / 4.0f;// 7.0 is 3n-2-n-1
 		sqRange[1] = noteRanges[1] * sq15;
 		sqRange[5] = noteRanges[5] * sq15;
-		float sq24 = std::min(3.0f, 7.0f - squash) / 3.0f;
+		float sq24 = std::min(4.0f, 10.0f - squash) / 4.0f;// 10.0 is 3n-2
 		sqRange[2] = noteRanges[2] * sq24;
 		sqRange[4] = noteRanges[4] * sq24;
 		sqRange[3] = noteRanges[3];
 		
-		// method 2 (same as method 1 but without overlap)
+		// 1/3 overlap
+		// n=3
+		// squash *= 7.0f;// 3n-2
+		// float sq06 = std::max(0.0f, 3.0f - squash) / 3.0f;
+		// sqRange[0] = noteRanges[0] * sq06;
+		// sqRange[6] = noteRanges[6] * sq06;
+		// float sq15 = clamp(5.0f - squash, 0.0f, 3.0f) / 3.0f;
+		// sqRange[1] = noteRanges[1] * sq15;
+		// sqRange[5] = noteRanges[5] * sq15;
+		// float sq24 = std::min(3.0f, 7.0f - squash) / 3.0f;
+		// sqRange[2] = noteRanges[2] * sq24;
+		// sqRange[4] = noteRanges[4] * sq24;
+		// sqRange[3] = noteRanges[3];
+		
+		// 1/2 overlap
+		// n=2
+		// squash *= 4.0f;// 3n-2
+		// float sq06 = std::max(0.0f, 2.0f - squash) / 2.0f;
+		// sqRange[0] = noteRanges[0] * sq06;
+		// sqRange[6] = noteRanges[6] * sq06;
+		// float sq15 = clamp(3.0f - squash, 0.0f, 2.0f) / 2.0f;
+		// sqRange[1] = noteRanges[1] * sq15;
+		// sqRange[5] = noteRanges[5] * sq15;
+		// float sq24 = std::min(2.0f, 4.0f - squash) / 2.0f;
+		// sqRange[2] = noteRanges[2] * sq24;
+		// sqRange[4] = noteRanges[4] * sq24;
+		// sqRange[3] = noteRanges[3];
+		
+		// no overlap
 		// squash *= 3.0f;
 		// float sq06 = std::max(0.0f, 1.0f - squash);
 		// sqRange[0] = noteRanges[0] * sq06;
@@ -242,7 +264,6 @@ class ProbKernel {
 			cumulProbs[i] = cumulProbs[i - 1] + noteProbs[i] * pgain;
 		}
 		
-		// original version
 		float dice = random::uniform() * std::max(cumulProbs[11], 1.0f);		
 		int note = 0;
 		for (; note < 12; note++) {
