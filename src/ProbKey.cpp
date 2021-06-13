@@ -12,13 +12,12 @@
 #include "comp/PianoKey.hpp"
 
 
-// inkscape font sizez: 10.3 and 15.5
+// inkscape font sizez: 8, 10.3 and 15.5
 
 // TODO:
 // * implement menu for squash method
 // * optimize dice vs pgain (pgain no need to mult all array)
 // * add interop sequence copy (don't implement paste, as it's irrelevant)
-// * implemement SHIFT keyboard modifyer for keys in all modes (p and anchor moves all same, range moves mirror)
 
 
 class ProbKernel {
@@ -182,11 +181,13 @@ class ProbKernel {
 		
 		// calc squash from noteRanges and put in new array
 		float sqRange[7];
+		
 		// method 0 (not used)
 		// for (int i = 0; i < 7; i++) {
 			// float dist = std::fabs((float)i - 3.0f) / 3.0f;// normalized [0.0f : 1.0f] distance
 			// sqRange[i] = noteRanges[i] * (1.0f - dist * squash);
 		// }
+		
 		// method 1
 		squash *= 7.0f;
 		float sq06 = std::max(0.0f, 3.0f - squash) / 3.0f;
@@ -1013,7 +1014,7 @@ struct ProbKeyWidget : ModuleWidget {
 		
 		static const float coldx = 17.0f;
 		static const float bigdx = 2.0f;// for big knob
-		static const float col0 = 10.5f;
+		static const float col0 = 11.0f;
 		static const float col1 = col0 + coldx;
 		static const float col2 = col1 + coldx;
 		static const float col3 = col2 + coldx;
