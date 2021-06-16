@@ -17,6 +17,7 @@
 // TODO:
 // * implement menu for Range squash overlap (none, 25%, 50%)
 // * add interop sequence copy (don't implement paste, as it's irrelevant)
+// * implement display manager
 
 
 class ProbKernel {
@@ -39,9 +40,9 @@ class ProbKernel {
 			noteProbs[i] = 0.0f;
 			noteAnchors[i] = octToAnchor(0.0f);
 		}
-		noteProbs[0] = 0.25f;
-		noteProbs[4] = 0.25f;
-		noteProbs[7] = 0.25f;
+		noteProbs[0] = 1.0f;
+		noteProbs[4] = 1.0f;
+		noteProbs[7] = 1.0f;
 		
 		for (int i = 0; i < 7; i++) {
 			noteRanges[i] = 0.0f;
@@ -134,11 +135,18 @@ class ProbKernel {
 	// setters
 	void setNoteProb(int note, float prob, bool withSymmetry) {
 		if (withSymmetry) {
+			// version 1: don't allow click empty
 			if (noteProbs[note] != 0.0f) {
 				for (int i = 0; i < 12; i++) {
 					if (noteProbs[i] != 0.0f) {
 						noteProbs[i] = prob;
 					}
+				}
+			}
+			// version 2: allow click empty
+			for (int i = 0; i < 12; i++) {
+				if (noteProbs[i] != 0.0f || i == note) {
+					noteProbs[i] = prob;
 				}
 			}
 		}
@@ -174,68 +182,24 @@ class ProbKernel {
 	}
 	
 	
-	void calcOffsetAndSquash(float* destRange, float offset, float squash) {
+	void calcOffsetAndSquash(float* destRange, float offset, float squash, float overlap) {
 		// destRange[] has to be pre-allocated and all 0.0f!!
 		// uses noteRanges[] as const source
 		
 		// calc squash from noteRanges and put in new array
 		float sqRange[7];
-				
-		// 1/4 overlap
-		// n=4
-		squash *= 10.0f;// 3n-2
-		float sq06 = std::max(0.0f, 4.0f - squash) / 4.0f;// 4.0 is n
+		float sqMult = 1.0f + 2.0f * (1.0f - overlap);
+		squash = (1.0f - squash) * sqMult;
+		float sq06 = clamp(squash - 2.0f * (1.0f - overlap), 0.0f, 1.0f);
 		sqRange[0] = noteRanges[0] * sq06;
 		sqRange[6] = noteRanges[6] * sq06;
-		float sq15 = clamp(7.0f - squash, 0.0f, 4.0f) / 4.0f;// 7.0 is 3n-2-n-1
+		float sq15 = clamp(squash - (1.0f - overlap), 0.0f, 1.0f);
 		sqRange[1] = noteRanges[1] * sq15;
 		sqRange[5] = noteRanges[5] * sq15;
-		float sq24 = std::min(4.0f, 10.0f - squash) / 4.0f;// 10.0 is 3n-2
+		float sq24 = clamp(squash, 0.0f, 1.0f);
 		sqRange[2] = noteRanges[2] * sq24;
 		sqRange[4] = noteRanges[4] * sq24;
 		sqRange[3] = noteRanges[3];
-		
-		// 1/3 overlap
-		// n=3
-		// squash *= 7.0f;// 3n-2
-		// float sq06 = std::max(0.0f, 3.0f - squash) / 3.0f;
-		// sqRange[0] = noteRanges[0] * sq06;
-		// sqRange[6] = noteRanges[6] * sq06;
-		// float sq15 = clamp(5.0f - squash, 0.0f, 3.0f) / 3.0f;
-		// sqRange[1] = noteRanges[1] * sq15;
-		// sqRange[5] = noteRanges[5] * sq15;
-		// float sq24 = std::min(3.0f, 7.0f - squash) / 3.0f;
-		// sqRange[2] = noteRanges[2] * sq24;
-		// sqRange[4] = noteRanges[4] * sq24;
-		// sqRange[3] = noteRanges[3];
-		
-		// 1/2 overlap
-		// n=2
-		// squash *= 4.0f;// 3n-2
-		// float sq06 = std::max(0.0f, 2.0f - squash) / 2.0f;
-		// sqRange[0] = noteRanges[0] * sq06;
-		// sqRange[6] = noteRanges[6] * sq06;
-		// float sq15 = clamp(3.0f - squash, 0.0f, 2.0f) / 2.0f;
-		// sqRange[1] = noteRanges[1] * sq15;
-		// sqRange[5] = noteRanges[5] * sq15;
-		// float sq24 = std::min(2.0f, 4.0f - squash) / 2.0f;
-		// sqRange[2] = noteRanges[2] * sq24;
-		// sqRange[4] = noteRanges[4] * sq24;
-		// sqRange[3] = noteRanges[3];
-		
-		// no overlap
-		// squash *= 3.0f;
-		// float sq06 = std::max(0.0f, 1.0f - squash);
-		// sqRange[0] = noteRanges[0] * sq06;
-		// sqRange[6] = noteRanges[6] * sq06;
-		// float sq15 = clamp(2.0f - squash, 0.0f, 1.0f);
-		// sqRange[1] = noteRanges[1] * sq15;
-		// sqRange[5] = noteRanges[5] * sq15;
-		// float sq24 = std::min(1.0f, 3.0f - squash);
-		// sqRange[2] = noteRanges[2] * sq24;
-		// sqRange[4] = noteRanges[4] * sq24;
-		// sqRange[3] = noteRanges[3];
-		
 		
 		// calc offset from squash and put in destRange
 		for (int i = 0; i < 7; i++) {
@@ -253,7 +217,7 @@ class ProbKernel {
 	}
 	
 	
-	float calcRandomCv(float offset, float squash, float pgain) {
+	float calcRandomCv(float offset, float squash, float pgain, float overlap) {
 		// not optimized for audio rate
 		// returns a cv value or IDEM_CV when a note gets randomly skipped (only possible when sum of probs < 1)
 		
@@ -282,7 +246,7 @@ class ProbKernel {
 			
 			// offset and squash
 			float noteRangesMod[7] = {};
-			calcOffsetAndSquash(noteRangesMod, offset, squash);
+			calcOffsetAndSquash(noteRangesMod, offset, squash, overlap);
 			
 			// probabilistically transpose note according to ranges
 			float cumulRanges[7];
@@ -518,6 +482,7 @@ struct ProbKey : Module {
 	
 	// Need to save, with reset
 	int editMode;
+	float overlap;
 	ProbKernel probKernels[NUM_INDEXES];
 	OutputKernel outputKernels[PORT_MAX_CHANNELS];
 	
@@ -583,7 +548,7 @@ struct ProbKey : Module {
 		configParam(LOCK_KNOB_PARAM, 0.0f, 1.0f, 0.0f, "Lock sequence", " %", 0.0f, 100.0f, 0.0f);
 		configParam(LOCK_BUTTON_PARAM, 0.0f, 1.0f, 0.0f, "Manual lock opposite");
 		configParam(OFFSET_PARAM, -3.0f, 3.0f, 0.0f, "Range offset", "");
-		configParam(SQUASH_PARAM, 0.0f, 1.0f, 0.0f, "Range squash", " %", 0.0f, 100.0f, 0.0f);
+		configParam(SQUASH_PARAM, 0.0f, 1.0f, 0.0f, "Range squash", "", 0.0f, 1.0f, 0.0f);
 		configParam(MODE_PARAMS + MODE_PROB, 0.0f, 1.0f, 0.0f, "Edit note probabilities", "");
 		configParam(MODE_PARAMS + MODE_ANCHOR, 0.0f, 1.0f, 0.0f, "Edit note octave refs", "");
 		configParam(MODE_PARAMS + MODE_RANGE, 0.0f, 1.0f, 0.0f, "Edit octave range", "");
@@ -603,6 +568,7 @@ struct ProbKey : Module {
 
 	void onReset() override {
 		editMode = MODE_PROB;
+		overlap = 0.5f;// must be 0 to 1
 		for (int i = 0; i < NUM_INDEXES; i++) {
 			probKernels[i].reset();
 		}
@@ -631,10 +597,9 @@ struct ProbKey : Module {
 		// editMode
 		json_object_set_new(rootJ, "editMode", json_integer(editMode));
 
-		// probKernels
-		// for (int i = 0; i < NUM_INDEXES; i++) {
-			// probKernels[i].dataToJson(rootJ, i);
-		// }
+		// overlap
+		json_object_set_new(rootJ, "overlap", json_real(overlap));
+
 		// probKernels
 		json_t* probsJ = json_array();
 		for (size_t i = 0; i < NUM_INDEXES; i++) {
@@ -660,16 +625,18 @@ struct ProbKey : Module {
 			panelTheme = json_integer_value(panelThemeJ);
 		}
 
+		// overlap
+		json_t *overlapJ = json_object_get(rootJ, "overlap");
+		if (overlapJ) {
+			overlap = json_number_value(overlapJ);
+		}
+
 		// editMode
 		json_t *editModeJ = json_object_get(rootJ, "editMode");
 		if (editModeJ) {
 			editMode = json_integer_value(editModeJ);
 		}
 
-		// probKernels
-		// for (int i = 0; i < NUM_INDEXES; i++) {
-			// probKernels[i].dataFromJson(rootJ, i);
-		// }
 		// probKernels
 		json_t* probsJ = json_object_get(rootJ, "probKernels");
 		if (probsJ && json_is_array(probsJ)) {
@@ -745,10 +712,14 @@ struct ProbKey : Module {
 			
 			// transpose buttons
 			if (tranUpTrigger.process(params[TR_UP_PARAM].getValue())) {
-				probKernels[index].transposeUp();
+				if (editMode == MODE_PROB || editMode == MODE_ANCHOR) {
+					probKernels[index].transposeUp();
+				}
 			}
 			if (tranDownTrigger.process(params[TR_DOWN_PARAM].getValue())) {
-				probKernels[index].transposeDown();
+				if (editMode == MODE_PROB || editMode == MODE_ANCHOR) {
+					probKernels[index].transposeDown();
+				}
 			}
 			
 			// piano keys if applicable 
@@ -792,7 +763,7 @@ struct ProbKey : Module {
 						outputKernels[i].shiftWithHold();
 					}
 					else {
-						float newCv = probKernels[index].calcRandomCv(getOffset(), getSquash(), getPgain());
+						float newCv = probKernels[index].calcRandomCv(getOffset(), getSquash(), getPgain(), overlap);
 						outputKernels[i].shiftWithInsertNew(newCv);
 					}
 				}
@@ -860,7 +831,7 @@ struct ProbKey : Module {
 	}
 	void setKeyLightsRange(int index) {
 		float modRanges[7] = {};
-		probKernels[index].calcOffsetAndSquash(modRanges, getOffset(), getSquash());
+		probKernels[index].calcOffsetAndSquash(modRanges, getOffset(), getSquash(), overlap);
 		
 		for (int i = 0; i < 12; i++) {
 			if (i != 1 && i != 3 && i != 6 && i != 8 && i != 10) {
@@ -883,6 +854,7 @@ struct ProbKey : Module {
 
 
 
+
 struct ProbKeyWidget : ModuleWidget {
 	SvgPanel* darkPanel;
 
@@ -894,6 +866,40 @@ struct ProbKeyWidget : ModuleWidget {
 		}
 	};
 	
+	struct OverlapQuantity : Quantity {
+		float *overlapSrc = NULL;
+		  
+		OverlapQuantity(float *_overlapSrc) {
+			overlapSrc = _overlapSrc;
+		}
+		void setValue(float value) override {
+			*overlapSrc = math::clamp(value, getMinValue(), getMaxValue());
+		}
+		float getValue() override {
+			return *overlapSrc;
+		}
+		float getMinValue() override {return 0.0f;}
+		float getMaxValue() override {return 1.0f;}
+		float getDefaultValue() override {return 0.25f;}
+		float getDisplayValue() override {return getValue();}
+		std::string getDisplayValueString() override {
+			return string::f("%.1f", getDisplayValue() * 100.0f);
+		}
+		void setDisplayValue(float displayValue) override {setValue(displayValue);}
+		std::string getLabel() override {return "Squash overlap";}
+		std::string getUnit() override {
+			return " %";
+		}
+	};
+	struct OverlapSlider : ui::Slider {
+		OverlapSlider(float *_overlapSrc) {
+			quantity = new OverlapQuantity(_overlapSrc);
+		}
+		~OverlapSlider() {
+			delete quantity;
+		}
+	};
+
 	struct MainDisplayWidget : LightWidget {
 		ProbKey *module;
 		std::shared_ptr<Font> font;
@@ -942,11 +948,11 @@ struct ProbKeyWidget : ModuleWidget {
 		
 		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
 		
-		menu->addChild(new MenuLabel());// empty line
+		// menu->addChild(new MenuLabel());// empty line
 		
-		MenuLabel *actionsLabel = new MenuLabel();
-		actionsLabel->text = "Actions";
-		menu->addChild(actionsLabel);
+		// MenuLabel *actionsLabel = new MenuLabel();
+		// actionsLabel->text = "Actions";
+		// menu->addChild(actionsLabel);
 
 		// todo
 
@@ -956,7 +962,9 @@ struct ProbKeyWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 
-		// todo
+		OverlapSlider *ovlpSlider = new OverlapSlider(&(module->overlap));
+		ovlpSlider->box.size.x = 200.0f;
+		menu->addChild(ovlpSlider);
 	}	
 	
 	
