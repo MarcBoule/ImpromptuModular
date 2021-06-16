@@ -15,9 +15,9 @@
 // inkscape font sizez: 8, 10.3 and 15.5
 
 // TODO:
-// * implement menu for Range squash overlap (none, 25%, 50%)
 // * add interop sequence copy (don't implement paste, as it's irrelevant)
 // * implement display manager
+// * pgain light
 
 
 class ProbKernel {
@@ -134,24 +134,13 @@ class ProbKernel {
 	
 	// setters
 	void setNoteProb(int note, float prob, bool withSymmetry) {
+		noteProbs[note] = prob;
 		if (withSymmetry) {
-			// version 1: don't allow click empty
-			if (noteProbs[note] != 0.0f) {
-				for (int i = 0; i < 12; i++) {
-					if (noteProbs[i] != 0.0f) {
-						noteProbs[i] = prob;
-					}
-				}
-			}
-			// version 2: allow click empty
 			for (int i = 0; i < 12; i++) {
-				if (noteProbs[i] != 0.0f || i == note) {
+				if (noteProbs[i] != 0.0f) {
 					noteProbs[i] = prob;
 				}
 			}
-		}
-		else {
-			noteProbs[note] = prob;
 		}
 	}
 	void setNoteAnchor(int note, float anch, bool withSymmetry) {
@@ -428,6 +417,71 @@ class OutputKernel {
 // ----------------------------------------------------------------------------
 
 
+class DisplayManager {
+	long dispCounter;
+	int dispMode;
+	char buf[5];// only used when dispMode != DISP_NORMAL
+	
+	
+	public:
+	
+	enum DispIds {DISP_NORMAL, DISP_PROB, DISP_ANCHOR, DISP_LENGTH};
+	
+	int getMode() {
+		return dispMode;
+	}
+	char* getText() {// only used when dispMode != DISP_NORMAL
+		return buf;
+	}
+	
+	void reset() {
+		dispMode = DISP_NORMAL;
+		dispCounter = 0;
+		buf[0] = 0;
+	}
+	
+	void process() {
+		if (dispCounter > 0) {
+			dispCounter--;
+			if (dispCounter <= 0) {
+				dispMode = DISP_NORMAL;
+			}
+		}
+	}
+	
+	void displayProb(float slowSampleRate, float probVal) {
+		dispMode = DISP_PROB;
+		dispCounter = (long)(2.5f * slowSampleRate);
+		int prob = (int)(probVal * 100.0f + 0.5f);
+		if ( prob>= 100) { 
+			snprintf(buf, 5, " 1,0");
+		}	
+		else if (prob >= 1) {
+			snprintf(buf, 5, "0,%02u", (unsigned) prob);
+		}
+		else {
+			snprintf(buf, 5, "   0");
+		}
+	}
+	void displayAnchor(float slowSampleRate, int key, int oct) {
+		dispMode = DISP_ANCHOR;
+		dispCounter = (long)(2.5f * slowSampleRate);
+		float cv = (float)oct + ((float)key) / 12.0f;
+		printNote(cv, buf, true);
+		
+	}
+	void displayLength(float slowSampleRate, int length0) {
+		dispMode = DISP_LENGTH;
+		dispCounter = (long)(2.5f * slowSampleRate);
+		snprintf(buf, 5, "L%3i", length0 + 1);
+	}
+	
+};
+
+
+// ----------------------------------------------------------------------------
+
+
 struct ProbKey : Module {
 	enum ParamIds {
 		INDEX_PARAM,
@@ -487,7 +541,7 @@ struct ProbKey : Module {
 	OutputKernel outputKernels[PORT_MAX_CHANNELS];
 	
 	// No need to save, with reset
-	// none
+	DisplayManager dispManager;
 
 	// No need to save, no reset
 	RefreshCounter refresh;
@@ -578,7 +632,7 @@ struct ProbKey : Module {
 		resetNonJson();
 	}
 	void resetNonJson() {
-		// none
+		dispManager.reset();
 	}
 
 
@@ -726,11 +780,16 @@ struct ProbKey : Module {
 			if (pkInfo.gate && !pkInfo.isRightClick) {
 				bool withSymmetry = (APP->window->getMods() & RACK_MOD_MASK) == GLFW_MOD_SHIFT;
 				if (editMode == MODE_PROB) {
-					probKernels[index].setNoteProb(pkInfo.key, 1.0f - pkInfo.vel, withSymmetry);
+					float prob = 1.0f - pkInfo.vel;
+					probKernels[index].setNoteProb(pkInfo.key, prob, withSymmetry);
+					dispManager.displayProb(args.sampleRate / RefreshCounter::displayRefreshStepSkips, prob);
 				}
 				else if (editMode == MODE_ANCHOR) {
 					if (probKernels[index].probNonNull(pkInfo.key)) {
-						probKernels[index].setNoteAnchor(pkInfo.key, 1.0f - pkInfo.vel, withSymmetry);
+						float anchor = 1.0f - pkInfo.vel;
+						probKernels[index].setNoteAnchor(pkInfo.key, anchor, withSymmetry);
+						int oct = (int)ProbKernel::anchorToOct(anchor);
+						dispManager.displayAnchor(args.sampleRate / RefreshCounter::displayRefreshStepSkips, pkInfo.key, oct);
 					}
 				}
 				else {// editMode == MODE_RANGE
@@ -806,6 +865,8 @@ struct ProbKey : Module {
 			
 			// leds (lock and p-gain
 			lights[LOCK_LIGHT].setBrightness(getLock());
+			
+			dispManager.process();
 		}// processLights()
 	}
 	
@@ -922,11 +983,17 @@ struct ProbKeyWidget : ModuleWidget {
 			nvgText(args.vg, textPos.x, textPos.y, "~~~~", NULL);
 			nvgFillColor(args.vg, textColor);
 			char displayStr[5];
-			unsigned dispVal = 1;
 			if (module) {
-				dispVal = module->getIndex() + 1;
+				if (module->dispManager.getMode() == DisplayManager::DISP_NORMAL) {
+					snprintf(displayStr, 5, "%4u", module->getIndex() + 1);
+				}
+				else {
+					memcpy(displayStr, module->dispManager.getText(), 5);
+				}
 			}
-			snprintf(displayStr, 5, "%4u",  dispVal);
+			else {
+				snprintf(displayStr, 5, "1");
+			}
 			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};
