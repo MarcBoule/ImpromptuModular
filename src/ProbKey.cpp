@@ -16,7 +16,6 @@
 
 // TODO:
 // * add interop sequence copy (don't implement paste, as it's irrelevant)
-// * implement display manager
 // * pgain light
 
 
@@ -166,10 +165,19 @@ class ProbKernel {
 	}
 	
 	
-	bool probNonNull(int note) {
+	bool isProbNonNull(int note) {
 		return noteProbs[note] > 0.0f;
 	}
 	
+	
+	float getCumulProbTotal(float pgain) {
+		float cumulProbTotal = 0.0f;
+		for (int i = 0; i < 12; i++) {
+			cumulProbTotal += noteProbs[i];
+		}
+		cumulProbTotal *= pgain;
+		return cumulProbTotal;
+	}
 	
 	void calcOffsetAndSquash(float* destRange, float offset, float squash, float overlap) {
 		// destRange[] has to be pre-allocated and all 0.0f!!
@@ -295,7 +303,7 @@ class ProbKernel {
 		}
 	}
 	
-	
+		
 	// anchor helpers
 	static float anchorToOct(float anch) {
 		return std::round((anch - 0.5f) * 2.0f * MAX_ANCHOR_DELTA);
@@ -783,7 +791,7 @@ struct ProbKey : Module {
 					dispManager.displayProb(prob);
 				}
 				else if (editMode == MODE_ANCHOR) {
-					if (probKernels[index].probNonNull(pkInfo.key)) {
+					if (probKernels[index].isProbNonNull(pkInfo.key)) {
 						float anchor = 1.0f - pkInfo.vel;
 						probKernels[index].setNoteAnchor(pkInfo.key, anchor, withSymmetry);
 						int oct = (int)ProbKernel::anchorToOct(anchor);
@@ -854,15 +862,26 @@ struct ProbKey : Module {
 			}
 			else if (editMode == MODE_ANCHOR) {
 				for (int i = 0; i < 12; i++) {
-					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i), probKernels[index].probNonNull(i));
+					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i), probKernels[index].isProbNonNull(i));
 				}
 			}
 			else {
 				setKeyLightsRange(index);
 			}
 			
-			// leds (lock and p-gain
+			// lock led
 			lights[LOCK_LIGHT].setBrightness(getLock());
+			
+			// pgain led
+			float cumulProb = probKernels[index].getCumulProbTotal(getPgain());
+			if (cumulProb >= 1.0f) {
+				lights[PGAIN_LIGHT + 0].setBrightness(1.0f);// green
+				lights[PGAIN_LIGHT + 1].setBrightness(0.0f);// red
+			}
+			else {
+				lights[PGAIN_LIGHT + 0].setBrightness(0.0f);// green
+				lights[PGAIN_LIGHT + 1].setBrightness(cumulProb);// red
+			}
 			
 			dispManager.process();
 		}// processLights()
@@ -987,6 +1006,9 @@ struct ProbKeyWidget : ModuleWidget {
 				}
 				else if (module->dispManager.getMode() == DisplayManager::DISP_LENGTH) {
 					snprintf(displayStr, 5, " L%2u", module->getLength0() + 1);
+				}
+				else {
+					memcpy(displayStr, module->dispManager.getText(), 5);
 				}
 			}
 			else {
@@ -1141,7 +1163,7 @@ struct ProbKeyWidget : ModuleWidget {
 
 		// p-gain knob, led and input
 		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col1, row0)), module, ProbKey::PGAIN_PARAM, module ? &module->panelTheme : NULL));	
-		addChild(createLightCentered<SmallLight<GreenLight>>(mm2px(Vec(col1 - 4.5f, row1 - 6.3f)), module, ProbKey::PGAIN_LIGHT));			
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(mm2px(Vec(col1 - 4.5f, row1 - 6.3f)), module, ProbKey::PGAIN_LIGHT));			
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row1)), true, module, ProbKey::PGAIN_INPUT, module ? &module->panelTheme : NULL));
 
 		// Hold input
