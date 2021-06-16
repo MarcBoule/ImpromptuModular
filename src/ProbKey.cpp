@@ -422,7 +422,6 @@ class DisplayManager {
 	int dispMode;
 	char buf[5];// only used when dispMode != DISP_NORMAL
 	
-	
 	public:
 	
 	enum DispIds {DISP_NORMAL, DISP_PROB, DISP_ANCHOR, DISP_LENGTH};
@@ -430,7 +429,7 @@ class DisplayManager {
 	int getMode() {
 		return dispMode;
 	}
-	char* getText() {// only used when dispMode != DISP_NORMAL
+	char* getText() {// only used when DISP_PROB, DISP_ANCHOR
 		return buf;
 	}
 	
@@ -449,9 +448,9 @@ class DisplayManager {
 		}
 	}
 	
-	void displayProb(float slowSampleRate, float probVal) {
+	void displayProb(float probVal) {
 		dispMode = DISP_PROB;
-		dispCounter = (long)(2.5f * slowSampleRate);
+		dispCounter = (long)(2.5f * (APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips));
 		int prob = (int)(probVal * 100.0f + 0.5f);
 		if ( prob>= 100) { 
 			snprintf(buf, 5, " 1,0");
@@ -463,17 +462,16 @@ class DisplayManager {
 			snprintf(buf, 5, "   0");
 		}
 	}
-	void displayAnchor(float slowSampleRate, int key, int oct) {
+	void displayAnchor(int key, int oct) {
 		dispMode = DISP_ANCHOR;
-		dispCounter = (long)(2.5f * slowSampleRate);
+		dispCounter = (long)(2.5f * (APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips));
 		float cv = (float)oct + ((float)key) / 12.0f;
 		printNote(cv, buf, true);
 		
 	}
-	void displayLength(float slowSampleRate, int length0) {
+	void displayLength() {
 		dispMode = DISP_LENGTH;
-		dispCounter = (long)(2.5f * slowSampleRate);
-		snprintf(buf, 5, "L%3i", length0 + 1);
+		dispCounter = (long)(2.5f * (APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips));
 	}
 	
 };
@@ -589,7 +587,7 @@ struct ProbKey : Module {
 		return clamp(lock, 0.0f, 1.0f);
 	}
 	int getLength0() {// 0 indexed
-		int length = (int)std::round(params[LENGTH_PARAM].getValue() + inputs[LENGTH_INPUT].getVoltage() * 12.0f);
+		int length = (int)std::round(params[LENGTH_PARAM].getValue() + inputs[LENGTH_INPUT].getVoltage() * 1.6f);
 		return clamp(length, 0, OutputKernel::MAX_LENGTH - 1 );
 	}
 
@@ -782,14 +780,14 @@ struct ProbKey : Module {
 				if (editMode == MODE_PROB) {
 					float prob = 1.0f - pkInfo.vel;
 					probKernels[index].setNoteProb(pkInfo.key, prob, withSymmetry);
-					dispManager.displayProb(args.sampleRate / RefreshCounter::displayRefreshStepSkips, prob);
+					dispManager.displayProb(prob);
 				}
 				else if (editMode == MODE_ANCHOR) {
 					if (probKernels[index].probNonNull(pkInfo.key)) {
 						float anchor = 1.0f - pkInfo.vel;
 						probKernels[index].setNoteAnchor(pkInfo.key, anchor, withSymmetry);
 						int oct = (int)ProbKernel::anchorToOct(anchor);
-						dispManager.displayAnchor(args.sampleRate / RefreshCounter::displayRefreshStepSkips, pkInfo.key, oct);
+						dispManager.displayAnchor(pkInfo.key, oct);
 					}
 				}
 				else {// editMode == MODE_RANGE
@@ -987,14 +985,23 @@ struct ProbKeyWidget : ModuleWidget {
 				if (module->dispManager.getMode() == DisplayManager::DISP_NORMAL) {
 					snprintf(displayStr, 5, "%4u", module->getIndex() + 1);
 				}
-				else {
-					memcpy(displayStr, module->dispManager.getText(), 5);
+				else if (module->dispManager.getMode() == DisplayManager::DISP_LENGTH) {
+					snprintf(displayStr, 5, " L%2u", module->getLength0() + 1);
 				}
 			}
 			else {
 				snprintf(displayStr, 5, "1");
 			}
 			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+		}
+	};
+	
+	struct LengthKnob : IMMediumKnob<false, true> {
+		DisplayManager* dispManagerSrc = NULL;
+		
+		void onDragMove(const event::DragMove& e) override {
+			IMMediumKnob::onDragMove(e);
+			dispManagerSrc->displayLength();
 		}
 	};
 
@@ -1174,7 +1181,11 @@ struct ProbKeyWidget : ModuleWidget {
 		// **** col5 ****
 
 		// Length knob and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(mm2px(Vec(col5, row0)), module, ProbKey::LENGTH_PARAM, module ? &module->panelTheme : NULL));	
+		LengthKnob* lengthKnob = createDynamicParamCentered<LengthKnob>(mm2px(Vec(col5, row0)), module, ProbKey::LENGTH_PARAM, module ? &module->panelTheme : NULL);
+		addParam(lengthKnob);
+		if (module) {
+			lengthKnob->dispManagerSrc = &(module->dispManager);
+		}
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col5, row1)), true, module, ProbKey::LENGTH_INPUT, module ? &module->panelTheme : NULL));
 
 		// CV output
