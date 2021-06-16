@@ -432,7 +432,7 @@ class DisplayManager {
 	
 	public:
 	
-	enum DispIds {DISP_NORMAL, DISP_PROB, DISP_ANCHOR, DISP_LENGTH};
+	enum DispIds {DISP_NORMAL, DISP_PROB, DISP_ANCHOR, DISP_LENGTH, DISP_COPY, DISP_PASTE};
 	
 	int getMode() {
 		return dispMode;
@@ -480,6 +480,16 @@ class DisplayManager {
 	void displayLength() {
 		dispMode = DISP_LENGTH;
 		dispCounter = (long)(2.5f * (APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips));
+	}
+	void displayCopy() {
+		dispMode = DISP_COPY;
+		dispCounter = (long)(1.0f * (APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips));
+		snprintf(buf, 5, "COPY");
+	}
+	void displayPaste() {
+		dispMode = DISP_PASTE;
+		dispCounter = (long)(1.0f * (APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips));
+		snprintf(buf, 5, "PSTE");
 	}
 	
 };
@@ -730,11 +740,13 @@ struct ProbKey : Module {
 			for (int i = 0; i < 3; i++) {
 				if (modeTriggers[i].process(params[MODE_PARAMS + i].getValue())) {
 					editMode = i;
+					dispManager.reset();
 				}
 			}
 			
 			// copy button
 			if (copyTrigger.process(params[COPY_PARAM].getValue())) {
+				dispManager.displayCopy();
 				// Clipboard version: 
 				json_t* probJ = probKernels[index].dataToJsonProb();
 				json_t* clipboardJ = json_object();		
@@ -746,6 +758,7 @@ struct ProbKey : Module {
 			}	
 			// paste button
 			if (pasteTrigger.process(params[PASTE_PARAM].getValue())) {
+				dispManager.displayPaste();
 				// Clipboard version: 
 				const char* probClip = glfwGetClipboardString(APP->window->win);
 				if (!probClip) {
