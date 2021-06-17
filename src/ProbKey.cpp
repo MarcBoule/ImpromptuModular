@@ -10,6 +10,7 @@
 
 #include "ImpromptuModular.hpp"
 #include "comp/PianoKey.hpp"
+#include "Interop.hpp"
 
 
 // inkscape font sizez: 8, 10.3 and 15.5
@@ -416,6 +417,9 @@ class OutputKernel {
 	float getCv() {
 		return lastCv;
 	}
+	float getReg(int i) {
+		return shiftReg[i];
+	}
 	bool getGateEnable() {
 		return shiftReg[0] != ProbKernel::IDEM_CV;
 	}
@@ -724,7 +728,73 @@ struct ProbKey : Module {
 		resetNonJson();
 	}
 		
+
+	IoStep* fillIoSteps(int *seqLenPtr) {// caller must delete return array
+		int seqLen = getLength0() + 1;
+		int index = getIndex();
+		IoStep* ioSteps = new IoStep[seqLen];
 		
+		// populate ioSteps array
+		// must read outputKernel register backwards!, so all calls to getReg() should be mirrored
+		float lastCv = 0.0f;
+		if (outputKernels[index].getReg(seqLen - 1) == ProbKernel::IDEM_CV) {
+			// find last CV starting from end
+			for (int i = seqLen - 1; i > 0; i--) {
+				float cv = outputKernels[index].getReg(seqLen - 1 - i);
+				if (cv != ProbKernel::IDEM_CV) {
+					lastCv = cv;
+					break;
+				}
+			}
+			// if the for loop above never breaks, lastCv will be C4 and we will have seqLen pitches with no gates
+		}
+		for (int i = 0; i < seqLen; i++) {
+			float cv = outputKernels[index].getReg(seqLen - 1 - i);
+			if (cv == ProbKernel::IDEM_CV) {
+				ioSteps[i].pitch = lastCv;
+				ioSteps[i].gate = false;
+			}
+			else {
+				ioSteps[i].pitch = cv;
+				lastCv = cv;
+				ioSteps[i].gate = true;
+			}
+			ioSteps[i].tied = false;
+			ioSteps[i].vel = -1.0f;// not relevant in ProbKey
+			ioSteps[i].prob = -1.0f;// not relevant in ProbKey
+		}
+		
+		// return values 
+		*seqLenPtr = seqLen;
+		return ioSteps;
+	}
+	
+	
+	void emptyIoSteps(IoStep* ioSteps, int seqLen) {
+/*		sequences[seqIndexEdit].setLength(seqLen);
+		
+		// populate steps in the sequencer
+		// first pass is done without ties
+		for (int i = 0; i < seqLen; i++) {
+			cv[seqIndexEdit][i] = ioSteps[i].pitch;
+			
+ 			StepAttributes stepAttrib;
+			stepAttrib.init();
+			stepAttrib.setGate1(ioSteps[i].gate);
+			stepAttrib.setGate1P(ioSteps[i].prob >= 0.0f);
+			attributes[seqIndexEdit][i] = stepAttrib;
+		}
+		// now do ties, has to be done in a separate pass such that non tied that follows tied can be 
+		//   there in advance for proper gate types
+		for (int i = 0; i < seqLen; i++) {
+			if (ioSteps[i].tied) {
+				activateTiedStep(seqIndexEdit, i);
+			}
+		}
+		*/
+	}
+
+	
 	void process(const ProcessArgs &args) override {		
 		int index = getIndex();
 		int length0 = getLength0();
@@ -1031,6 +1101,7 @@ struct ProbKeyWidget : ModuleWidget {
 		}
 	};
 	
+	
 	struct LengthKnob : IMMediumKnob<false, true> {
 		DisplayManager* dispManagerSrc = NULL;
 		
@@ -1040,10 +1111,55 @@ struct ProbKeyWidget : ModuleWidget {
 		}
 	};
 
+
+	struct InteropSeqItem : MenuItem {
+		struct InteropCopySeqItem : MenuItem {
+			ProbKey *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				IoStep* ioSteps = module->fillIoSteps(&seqLen);
+				interopCopySequence(seqLen, ioSteps);
+				delete[] ioSteps;
+			}
+		};
+		struct InteropPasteSeqItem : MenuItem {
+			ProbKey *module;
+			void onAction(const event::Action &e) override {
+				int seqLen;
+				IoStep* ioSteps = interopPasteSequence(16, &seqLen);
+				if (ioSteps != nullptr) {
+					module->emptyIoSteps(ioSteps, seqLen);
+					delete[] ioSteps;
+				}
+			}
+		};
+		ProbKey *module;
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
+
+			InteropCopySeqItem *interopCopySeqItem = createMenuItem<InteropCopySeqItem>(portableSequenceCopyID, "");
+			interopCopySeqItem->module = module;
+			interopCopySeqItem->disabled = disabled;
+			menu->addChild(interopCopySeqItem);		
+			
+			InteropPasteSeqItem *interopPasteSeqItem = createMenuItem<InteropPasteSeqItem>(portableSequencePasteID, "");
+			interopPasteSeqItem->module = module;
+			interopPasteSeqItem->disabled = disabled;
+			menu->addChild(interopPasteSeqItem);		
+
+			return menu;
+		}
+	};	
+	
+	
 	void appendContextMenu(Menu *menu) override {
 		ProbKey *module = dynamic_cast<ProbKey*>(this->module);
 		assert(module);
 				
+		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
+		interopSeqItem->module = module;
+		menu->addChild(interopSeqItem);		
+
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
 
