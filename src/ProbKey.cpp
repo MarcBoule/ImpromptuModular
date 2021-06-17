@@ -15,9 +15,10 @@
 
 // inkscape font sizez: 8, 10.3 and 15.5
 
-// TODO:
-// * add interop sequence copy (don't implement paste, as it's irrelevant)
-// * pgain light
+// TODO manual:
+// * Lock has highest priority (probabilities, ranges, anchors, p-gain, squash and offset are irrelevant)
+// * interop sequence copy/paste (implicitly signal 0 when polyphony)
+
 
 
 class ProbKernel {
@@ -420,6 +421,9 @@ class OutputKernel {
 	float getReg(int i) {
 		return shiftReg[i];
 	}
+	void setReg(float cv, int i) {
+		shiftReg[i] = cv;
+	}
 	bool getGateEnable() {
 		return shiftReg[0] != ProbKernel::IDEM_CV;
 	}
@@ -731,27 +735,15 @@ struct ProbKey : Module {
 
 	IoStep* fillIoSteps(int *seqLenPtr) {// caller must delete return array
 		int seqLen = getLength0() + 1;
-		int index = getIndex();
 		IoStep* ioSteps = new IoStep[seqLen];
 		
-		// populate ioSteps array
+		// Populate ioSteps array
 		// must read outputKernel register backwards!, so all calls to getReg() should be mirrored
 		float lastCv = 0.0f;
-		if (outputKernels[index].getReg(seqLen - 1) == ProbKernel::IDEM_CV) {
-			// find last CV starting from end
-			for (int i = seqLen - 1; i > 0; i--) {
-				float cv = outputKernels[index].getReg(seqLen - 1 - i);
-				if (cv != ProbKernel::IDEM_CV) {
-					lastCv = cv;
-					break;
-				}
-			}
-			// if the for loop above never breaks, lastCv will be C4 and we will have seqLen pitches with no gates
-		}
 		for (int i = 0; i < seqLen; i++) {
-			float cv = outputKernels[index].getReg(seqLen - 1 - i);
+			float cv = outputKernels[0].getReg(seqLen - 1 - i);
 			if (cv == ProbKernel::IDEM_CV) {
-				ioSteps[i].pitch = lastCv;
+				ioSteps[i].pitch = lastCv;// don't care if init value of 0.0f is used when no gate encountered yet, will have no effect
 				ioSteps[i].gate = false;
 			}
 			else {
@@ -771,27 +763,18 @@ struct ProbKey : Module {
 	
 	
 	void emptyIoSteps(IoStep* ioSteps, int seqLen) {
-/*		sequences[seqIndexEdit].setLength(seqLen);
+		params[LENGTH_PARAM].setValue(seqLen - 1);
 		
-		// populate steps in the sequencer
-		// first pass is done without ties
-		for (int i = 0; i < seqLen; i++) {
-			cv[seqIndexEdit][i] = ioSteps[i].pitch;
-			
- 			StepAttributes stepAttrib;
-			stepAttrib.init();
-			stepAttrib.setGate1(ioSteps[i].gate);
-			stepAttrib.setGate1P(ioSteps[i].prob >= 0.0f);
-			attributes[seqIndexEdit][i] = stepAttrib;
+		// Populate steps in the sequencer
+		// must write outputKernel register backwards!, so all calls to setReg() should be mirrored
+		for (int i = 0; i < MAX_LENGTH; i++) {
+			outputKernels[0].setReg(ProbKernel::IDEM_CV, seqLen - 1 - i);
 		}
-		// now do ties, has to be done in a separate pass such that non tied that follows tied can be 
-		//   there in advance for proper gate types
 		for (int i = 0; i < seqLen; i++) {
-			if (ioSteps[i].tied) {
-				activateTiedStep(seqIndexEdit, i);
+			if (ioSteps[i].gate) {
+				outputKernels[0].setReg(ioSteps[i].pitch, seqLen - 1 - i);
 			}
 		}
-		*/
 	}
 
 	

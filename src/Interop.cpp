@@ -112,7 +112,8 @@ IoStep* ioConvertToSteps(const std::vector<IoNote> &ioNotes, int maxSeqLen) {
 			ioSteps[si].pitch = lastPitch;
 		}
 	}
-	for (int si = 0; si < maxSeqLen; si++) {// second pass to assign empty first steps to real lastPitch (not 0.0f) 
+	// second pass to assign empty first steps to real lastPitch (not 0.0f)
+	for (int si = 0; si < maxSeqLen; si++) { 
 		if (ioSteps[si].gate) {
 			break;
 		}
