@@ -1245,8 +1245,8 @@ struct ProbKeyWidget : ModuleWidget {
 		
 		// ****** Bottom portion ******
 		
-		static const float row0 = 82.0f;
-		static const float row1 = 96.0f;
+		static const float row0 = 82.5f;
+		static const float row1 = 96.5f;
 		static const float row2 = 114.0f;
 		
 		static const float coldx = 17.0f;
