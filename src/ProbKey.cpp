@@ -625,8 +625,8 @@ struct ProbKey : Module {
 		configParam(LENGTH_PARAM, 0.0f, (float)(OutputKernel::MAX_LENGTH - 1), (float)(OutputKernel::MAX_LENGTH - 1), "Lock length", "", 0.0f, 1.0f, 1.0f);
 		configParam(LOCK_KNOB_PARAM, 0.0f, 1.0f, 0.0f, "Lock sequence", " %", 0.0f, 100.0f, 0.0f);
 		configParam(LOCK_BUTTON_PARAM, 0.0f, 1.0f, 0.0f, "Manual lock opposite");
-		configParam(OFFSET_PARAM, -3.0f, 3.0f, 0.0f, "Range offset", "");
-		configParam(SQUASH_PARAM, 0.0f, 1.0f, 0.0f, "Range squash", "", 0.0f, 1.0f, 0.0f);
+		configParam(OFFSET_PARAM, -3.0f, 3.0f, 0.0f, "Oct range offset", "");
+		configParam(SQUASH_PARAM, 0.0f, 1.0f, 0.0f, "Oct range squash", "", 0.0f, 1.0f, 0.0f);
 		configParam(MODE_PARAMS + MODE_PROB, 0.0f, 1.0f, 0.0f, "Edit note probabilities", "");
 		configParam(MODE_PARAMS + MODE_ANCHOR, 0.0f, 1.0f, 0.0f, "Edit note octave refs", "");
 		configParam(MODE_PARAMS + MODE_RANGE, 0.0f, 1.0f, 0.0f, "Edit octave range", "");
