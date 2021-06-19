@@ -904,7 +904,7 @@ struct ProbKey : Module {
 			// output CV and gate
 			
 			outputs[CV_OUTPUT].setVoltage(outputKernels[i].getCv(), i);
-			float gateOut = outputKernels[i].getGateEnable() ? inputs[GATE_INPUT].getVoltage(i) : 0.0f;
+			float gateOut = outputKernels[i].getGateEnable() && gateInTriggers[i].state ? inputs[GATE_INPUT].getVoltage(i) : 0.0f;
 			outputs[GATE_OUTPUT].setVoltage(gateOut, i);
 		}
 
