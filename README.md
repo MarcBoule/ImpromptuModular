@@ -35,6 +35,8 @@ Each module is available in light (Classic) or dark (Dark-valor) panels, selecta
 
 * [PhraseSeq32](#phrase-seq-32): 32-phrase sequencer with 32 steps per sequence, with onboard keyboard and CV input for easy sequence programming (can be configured as 1x32 or 2x16).
 
+* [ProbKey](#prob-key): Keyboard-based random note generator.
+
 * [SMS16](#sms-16): Internally pre-patched all-in-one semi-modular synthesizer for quickly getting sounds and learning the basics of modular synthesis.
 
 * [Tact/Tact1/TactG](#tact): Touch-like CV controller modules.
@@ -633,6 +635,45 @@ When running in the 2x16 configuration and in Seq mode, the following details be
 1. One extra run mode is also available for sequences, called **RN2**. This run mode allows the two sequences to play randomly but separately, as opposed to RND which plays them randomly but together.
 
 Other than these characteristics, the rest of PhraseSeq32's functionality is identical to that of PhraseSeq16, including the use of the expander module.
+
+([Back to module list](#modules))
+
+
+
+<a id="prob-key"></a>
+## ProbKey
+
+![IM](res/img/ProbKey.jpg)
+
+A keyboard-based random note generator with room to store 25 randomization presets, that can be recalled using a 0 to 2V control voltage (index). The module allows per-note probability, per-note root octave (anchor) and an octave range for randomly choosing the octaves of the generated notes. These three settings, accessible in the keyboard's keys, can be edited using the three LED-buttons on the right side. These three buttons are refered to as the edit mode buttons. In the first two modes (_p_ and anchor), the settings are per key note, whereas in octave range edit mode, only the white keys are used to select the probabilities for the -3 to +3 octave offsets. The module does not have clock and reset inputs, it is up to the user to supply the intended tempo via the gate input; in this sense ProbKey does not know about tripplets and dotted notes etc., it simply generates a note on every gate it receives.
+
+The module also has a 16-step buffer for locking interesting patterns in order to repeat them. The main thing to know about lock is that it has the highest priority, meaning that when a locked note is chosen, most of the settings relating to probabilities have no effect. When a random note is chosen, all currently selected randomization settings in the keys will be used to generate a new note. With the lock knob at 50% for example, there is a 50/50 chance that the next note will be a new random note, or the note at that point in the lock buffer (a reused note).
+
+* **INDEX**: This knob is used to select the given randomization settings from the set of 25 possible settings that can be stored in the module. Randomization settings are the values stored in the keys in all three edit modes (probabilities, octave anchors and octave ranges). The values of all knobs are global and are not indexed as part of the randomization settings. The CV input for the Index knob is a CV value that is added to the value of the Index knob. When using the CV input, the knob should ideally be in its left-most position. Each index can then be recalled using the V/Oct voltages corresponding to the interval of notes from C4 (= 0V = 1st setting) to C6 (= 2V = 25th setting). With this range, settings can be recalled using a single note output from another sequencer in order to play progressions. Another interesting use case is to set up the [CV-Pad](#cv-pad) module to recall the settings using single buttons (see its menu option called *Fill with notes C4-D5#* for automatically setting up these voltages in the CV-Pad).
+
+* **LOCK, LENGTH**: This knob determines whether the next note is a new note or a re-used note from the lock buffer. At 0%, every next note is a new note, at 100% every note is a note stored in the lock buffer, and any setting in between controls the probability of this choice. An interesting setting is 90 to 95%, whereby a pattern will be slowly morphed over time to create an repetitive but evolving melody. The lock buffer is simply a shift register of the last CV values that have been output. The length of this buffer can be selected using the Length knob (1 to 16 steps). A lock button is also located below the lock knob, in order to easily and manually inject a repetition (i.e. cause a momentary lock note-reuse) when the lock knob is below 50%, or inject a new random note when the lock knob is above 50%. This buttons has the effect of momentarily turning the knob fully in the opposite direction, depending on its current setting (below 50% or above 50%). The button can be referred to as the _lock-opposite_ button. 
+
+* **GATE in**: A gate signal generates a new note event. A trigger can also be sent to this input. 
+
+* **CV and GATE out**: These outputs at the right side of the module are the different notes that are generated. The gate output is such that when the sum of all note probabilities is less than 1, some notes can be randomly skipped. The gate output is a copy of the gate input when a note is active, and is 0V when a note is skipped.
+
+* **_p_ GAIN**: This determines the gain applied to all the probability values stored in the keys (which are visible in probability edit mode). When the sum of all note probabilities is greater or equal to 1, a new note will always be generated; when the sum is less than 1, then some notes will randomly be skipped according to this sum. Therefore, the probability gain can be used to more easily change this sum, in order to probabilistically skip notes, or force notes to play, depending on the sum value. For example, to gradually decrease the amount of notes generated, the gain knob can be gradually decreased down to 0, where no notes will be produced (provided lock is at 0%). The small LED near the pGain knob shows when the sum of all probabilities is less than 1 (red) or greater or equal to 1 (green). 
+
+* **SQUASH and OFFSET**: To better understand how these knobs work, it is recommended to select range edit mode and turn up all octave range values (-3 to +3) to their maximum values. Gradually turing the Squash knob clockwise gives the ability to reduce the spread of the octave ranges in a sigle control. As expected, the offset knob shifts the octave ranges left or right. Dual colors in the keys show the original shape (green) and the shifted/squashed shape (red), such that with no squash nor offset, the octave ranges are always shown in yellow.
+
+* **COPY/PASTE**: Use this to copy the current randomization settings from one index position and paste them into another index position. This is done using the clipboard, such that copy/pasting to another instance of ProbKey is possible.
+
+* **TR UP/DOWN**: Transpose the probability values of the currently selected randomization settings by one semitone. The octave anchors are automatically adjusted accordingly. These buttons have no effect on the octave ranges and are disabled when the octave range edit mode is selected.
+
+* **_p_ HOLD**: When this CV input is high, any new random note that needs to be gereated will be identical to that previously generated random note. This can be used to set up rachetting with a mutli-track gate sequencer, for example.
+
+Other options are also available in the right-click menu:
+
+* **Squash overlap**: This slider determines how much overlap is applied between octaves as the squash knob is turned up. With 100% squash, all ranges except the center one are controlled in tandem, wherea at 0% overlap, the squash knob will gradually reduce each range consecutively.
+
+* **Portable sequence**: The portable sequence standard can also be used to copy/paste the current lock buffer, for use in sequencers or other modules (and also within ProbKey itself). For this, use the menu item labeled "_Portable sequence_".
+
+The ProbKey module supports **polyphony** such that a polyphonic gate input will generate a polyphonic CV/gate output pair where each channel will generate separate random notes according to the (unique) settings of the module. To have true separate randomness across multiple channels, separate ProbKey modules must unfortunately be used and then merged.
 
 ([Back to module list](#modules))
 
