@@ -9,6 +9,7 @@
 
 
 #include "ImpromptuModular.hpp"
+#include "ProbKeyUtil.hpp"
 #include "comp/PianoKey.hpp"
 #include "Interop.hpp"
 
@@ -350,6 +351,7 @@ class OutputKernel {
 	
 	float shiftReg[MAX_LENGTH];// holds CVs or ProbKernel::IDEM_CV
 	float lastCv;// sample and hold, must never hold ProbKernel::IDEM_CV
+	float minCv;
 	
 	
 	public:
@@ -359,6 +361,7 @@ class OutputKernel {
 			shiftReg[i] = 0.0f;
 		}
 		lastCv = 0.0f;
+		minCv = 0.0f;
 	}
 	
 	void randomize() {
@@ -375,6 +378,9 @@ class OutputKernel {
 		
 		// lastCv
 		json_object_set_new(rootJ, string::f("lastCv%i", id).c_str(), json_real(lastCv));
+
+		// minCv
+		json_object_set_new(rootJ, string::f("minCv%i", id).c_str(), json_real(minCv));
 
 	}
 	
@@ -395,28 +401,55 @@ class OutputKernel {
 		if (lastCvJ) {
 			lastCv = json_number_value(lastCvJ);
 		}
+
+		// minCv
+		json_t *minCvJ = json_object_get(rootJ, string::f("minCv%i", id).c_str());
+		if (minCvJ) {
+			minCv = json_number_value(minCvJ);
+		}
 	}
 
-	void shiftWithHold() {
+
+	void calcMinCv(int length0) {
+		// will leave minCv untouched if all CVs within length are IDEM_CV
+		float srMin = 100.0f;
+		for (int i = 0; i <= length0; i++) {
+			if (shiftReg[i] != ProbKernel::IDEM_CV && shiftReg[i] < srMin) {
+				srMin = shiftReg[i];
+			}
+		}
+		if (srMin != 100.0f) {
+			minCv = srMin;
+		}
+	}
+
+
+	void shiftWithHold(int length0) {
 		for (int i = MAX_LENGTH - 1; i > 0; i--) {
 			shiftReg[i] = shiftReg[i - 1];
 		}
+		calcMinCv(length0);
 	}
 		
-	void shiftWithInsertNew(float newCv) {
-		shiftWithHold();
+	void shiftWithInsertNew(float newCv, int length0) {
+		// DEBUG("shiftWithInsertNew, minCv=%g, newCv=%g", minCv, newCv);
+		shiftWithHold(length0);
 		shiftReg[0] = newCv;
 		if (shiftReg[0] != ProbKernel::IDEM_CV) {
 			lastCv = shiftReg[0];
+			minCv = std::min(minCv, lastCv);
 		}
 	}
 		
 	void shiftWithRecycle(int length0) {
-		shiftWithInsertNew(shiftReg[length0]);
+		shiftWithInsertNew(shiftReg[length0], length0);
 	}
 	
 	float getCv() {
 		return lastCv;
+	}
+	float getMinCv() {
+		return minCv;
 	}
 	float getReg(int i) {
 		return shiftReg[i];
@@ -548,7 +581,7 @@ struct ProbKey : Module {
 	
 	
 	// Expander
-	// none
+	// none (nothing from ProbKeyExpander)
 		
 	// Constants
 	enum ModeIds {MODE_PROB, MODE_ANCHOR, MODE_RANGE};
@@ -891,11 +924,11 @@ struct ProbKey : Module {
 					// generate new random CV (taking hold into account though)
 					bool hold = inputs[HOLD_INPUT].isConnected() && inputs[HOLD_INPUT].getVoltage(std::min(i, inputs[HOLD_INPUT].getChannels())) > 1.0f;
 					if (hold) {
-						outputKernels[i].shiftWithHold();
+						outputKernels[i].shiftWithHold(length0);
 					}
 					else {
 						float newCv = probKernels[index].calcRandomCv(getOffset(), getSquash(), getPgain(), overlap);
-						outputKernels[i].shiftWithInsertNew(newCv);
+						outputKernels[i].shiftWithInsertNew(newCv, length0);
 					}
 				}
 			}
@@ -951,6 +984,14 @@ struct ProbKey : Module {
 			
 			dispManager.process();
 		}// processLights()
+		
+		// To Expander
+		if (rightExpander.module && rightExpander.module->model == modelProbKeyExpander) {
+			PkxInterface *messagesToExpander = (PkxInterface*)(rightExpander.module->leftExpander.producerMessage);
+			messagesToExpander->panelTheme = panelTheme;
+			messagesToExpander->minCvChan0 = outputKernels[0].getMinCv();
+			rightExpander.module->leftExpander.messageFlipRequested = true;
+		}
 	}
 	
 	void setKeyLightsProb(int key, float prob) {

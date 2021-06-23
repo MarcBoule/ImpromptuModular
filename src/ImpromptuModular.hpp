@@ -39,6 +39,7 @@ extern Model *modelPhraseSeq16;
 extern Model *modelPhraseSeq32;
 extern Model *modelPhraseSeqExpander;
 extern Model *modelProbKey;
+extern Model *modelProbKeyExpander;
 extern Model *modelSemiModularSynth;
 extern Model *modelTact;
 extern Model *modelTact1;

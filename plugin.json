@@ -147,6 +147,13 @@
 			"tags": ["Sequencer", "Random", "Polyphonic"]
 		},
 		{
+			"slug": "Prob-Key-Expander",
+			"name": "ProbKey expander",
+			"description": "Expander for ProbKey",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#expanders",
+			"tags": ["Sequencer", "Random", "Polyphonic", "Expander"]
+		},
+		{
 			"slug": "Semi-ModularSynth",
 			"name": "SMS16",
 			"description": "Semi-modular monophonic synthesizer, with 16-step sequencer",
