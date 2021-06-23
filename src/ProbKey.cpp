@@ -432,7 +432,6 @@ class OutputKernel {
 	}
 		
 	void shiftWithInsertNew(float newCv, int length0) {
-		// DEBUG("shiftWithInsertNew, minCv=%g, newCv=%g", minCv, newCv);
 		shiftWithHold(length0);
 		shiftReg[0] = newCv;
 		if (shiftReg[0] != ProbKernel::IDEM_CV) {
