@@ -18,6 +18,7 @@
 
 struct ProbKeyExpander : Module {
 	enum ParamIds {
+		MINOCT_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -44,6 +45,8 @@ struct ProbKeyExpander : Module {
 		leftExpander.producerMessage = &(leftMessages[0]);
 		leftExpander.consumerMessage = &(leftMessages[1]);
 		
+		configParam(MINOCT_PARAM, -4.0f, 4.0f, 0.0f, "Min CV out octave offset");
+
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
 
@@ -58,7 +61,13 @@ struct ProbKeyExpander : Module {
 				// From Mother
 				PkxInterface *messagesFromMother = (PkxInterface*)leftExpander.consumerMessage;
 				panelTheme = clamp(messagesFromMother->panelTheme, 0, 1);
-				outputs[MINCV_OUTPUT].setVoltage(messagesFromMother->minCvChan0);
+				
+				// Min CV out
+				if (outputs[MINCV_OUTPUT].isConnected()) {
+					float minCv = messagesFromMother->minCvChan0;
+					minCv += params[MINOCT_PARAM].getValue();
+					outputs[MINCV_OUTPUT].setVoltage(minCv);
+				}
 			}		
 		}// expanderRefreshCounter			
 	}// process()
@@ -86,11 +95,14 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 
 		// Expansion module
 		static const float col0 = 10.16f;
-		static const float row0 = 25.0f;
+		static const float row0 = 26.5f;
+		static const float row1 = 46.0f;
 		
 		// minCv output
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, row0)), false, module, ProbKeyExpander::MINCV_OUTPUT, module ? &module->panelTheme : NULL));
-
+		
+		// minOct knob
+		addParam(createDynamicParamCentered<IMMediumKnob<true, true>>(mm2px(Vec(col0, row1)), module, ProbKeyExpander::MINOCT_PARAM, module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {

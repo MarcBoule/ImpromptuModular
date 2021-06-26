@@ -436,7 +436,12 @@ class OutputKernel {
 		shiftReg[0] = newCv;
 		if (shiftReg[0] != ProbKernel::IDEM_CV) {
 			lastCv = shiftReg[0];
-			minCv = std::min(minCv, lastCv);
+			if (length0 == 0) {
+				minCv = lastCv;
+			}
+			else {
+				minCv = std::min(minCv, lastCv);
+			}
 		}
 	}
 		
@@ -593,6 +598,7 @@ struct ProbKey : Module {
 	// Need to save, with reset
 	int editMode;
 	float overlap;
+	int indexCvCap12;
 	ProbKernel probKernels[NUM_INDEXES];
 	OutputKernel outputKernels[PORT_MAX_CHANNELS];
 	
@@ -612,6 +618,9 @@ struct ProbKey : Module {
 	
 	int getIndex() {
 		int index = (int)std::round(params[INDEX_PARAM].getValue() + inputs[INDEX_INPUT].getVoltage() * 12.0f);
+		if (indexCvCap12 != 0) {
+			return eucMod(index, 12);
+		}	
 		return clamp(index, 0, NUM_INDEXES - 1 );
 	}
 	float getPgain() {
@@ -679,6 +688,7 @@ struct ProbKey : Module {
 	void onReset() override {
 		editMode = MODE_PROB;
 		overlap = 0.5f;// must be 0 to 1
+		indexCvCap12 = 0;
 		for (int i = 0; i < NUM_INDEXES; i++) {
 			probKernels[i].reset();
 		}
@@ -710,6 +720,9 @@ struct ProbKey : Module {
 		// overlap
 		json_object_set_new(rootJ, "overlap", json_real(overlap));
 
+		// indexCvCap12
+		json_object_set_new(rootJ, "indexCvCap12", json_integer(indexCvCap12));
+
 		// probKernels
 		json_t* probsJ = json_array();
 		for (size_t i = 0; i < NUM_INDEXES; i++) {
@@ -735,16 +748,22 @@ struct ProbKey : Module {
 			panelTheme = json_integer_value(panelThemeJ);
 		}
 
+		// editMode
+		json_t *editModeJ = json_object_get(rootJ, "editMode");
+		if (editModeJ) {
+			editMode = json_integer_value(editModeJ);
+		}
+
 		// overlap
 		json_t *overlapJ = json_object_get(rootJ, "overlap");
 		if (overlapJ) {
 			overlap = json_number_value(overlapJ);
 		}
 
-		// editMode
-		json_t *editModeJ = json_object_get(rootJ, "editMode");
-		if (editModeJ) {
-			editMode = json_integer_value(editModeJ);
+		// indexCvCap12
+		json_t *indexCvCap12J = json_object_get(rootJ, "indexCvCap12");
+		if (indexCvCap12J) {
+			indexCvCap12 = json_integer_value(indexCvCap12J);
 		}
 
 		// probKernels
@@ -1050,6 +1069,13 @@ struct ProbKeyWidget : ModuleWidget {
 		}
 	};
 	
+	struct IndexCvCap12Item : MenuItem {
+		ProbKey *module;
+		void onAction(const event::Action &e) override {
+			module->indexCvCap12 ^= 0x1;
+		}
+	};
+	
 	struct OverlapQuantity : Quantity {
 		float *overlapSrc = NULL;
 		  
@@ -1213,6 +1239,11 @@ struct ProbKeyWidget : ModuleWidget {
 		OverlapSlider *ovlpSlider = new OverlapSlider(&(module->overlap));
 		ovlpSlider->box.size.x = 200.0f;
 		menu->addChild(ovlpSlider);
+		
+		IndexCvCap12Item *cv12Item = createMenuItem<IndexCvCap12Item>("Index mode 12", CHECKMARK(module->indexCvCap12));
+		cv12Item->module = module;
+		menu->addChild(cv12Item);
+		
 	}	
 	
 	
