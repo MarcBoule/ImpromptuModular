@@ -1,5 +1,5 @@
 Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://vcvrack.com/plugins.html).
-Version 1.1.10
+Version 1.1.11
 
 Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -680,7 +680,7 @@ Other options are also available in the right-click menu:
 
 * **Index mode 12**: This option will map the index knob and its CV input (V/Oct voltages) to indexes 1 to 12. This can be used to set up different probability settings for each type of note (C, D, E, etc.) coming from another sequencer or ProbKey module. When this option is active, negative values in the CV input are also taken into account to perform the mapping; for example, notes C3 (-1V), C4 (0V) and C5 (1V) will all map to index #1, whereas C3#, C4#, C5#, will all map to index #2, and so forth 
 
-* **Portable sequence**: The portable sequence standard can also be used to copy/paste the current lock buffer, for use in sequencers or other modules (and also within ProbKey itself). For this, use the menu item labeled "_Portable sequence_".
+* **Portable sequence**: The portable sequence standard can also be used to copy/paste the current lock buffer, for use in sequencers or other modules (and also within ProbKey itself). For this, use the menu item labeled "_Portable sequence_". When working with polyphony, only the lock buffer of the first channel is used.
 
 The ProbKey module supports **polyphony** such that a polyphonic gate input will generate a polyphonic CV/gate output pair where each channel will generate separate random notes according to the (unique) settings of the module. To have true separate randomness across multiple channels, separate ProbKey modules must unfortunately be used and then merged.
 

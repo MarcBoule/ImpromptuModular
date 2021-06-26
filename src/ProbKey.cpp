@@ -5,6 +5,8 @@
 //  from the Component Library by Wes Milholen. 
 //See ./LICENSE.md for all licenses
 //See ./res/fonts/ for font licenses
+//
+//Module inspired by the Stochastic Inspiration Generator by Stochastic Instruments
 //***********************************************************************************************
 
 
@@ -15,10 +17,6 @@
 
 
 // inkscape font sizez: 8, 10.3 and 15.5
-
-// TODO manual:
-// * Lock has highest priority (probabilities, ranges, anchors, p-gain, squash and offset are irrelevant)
-// * interop sequence copy/paste (implicitly signal 0 when polyphony)
 
 
 
