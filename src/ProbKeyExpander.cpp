@@ -1,5 +1,5 @@
 //***********************************************************************************************
-//Expander module for PhraseSeq16/32, by Marc Boulé
+//Expander module for ProbKey, by Marc Boulé
 //
 //Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics  
 //  from the Component Library by Wes Milholen. 
@@ -11,7 +11,6 @@
 //***********************************************************************************************
 
 
-#include "ImpromptuModular.hpp"
 #include "ProbKeyUtil.hpp"
 
 

@@ -10,7 +10,6 @@
 //***********************************************************************************************
 
 
-#include "ImpromptuModular.hpp"
 #include "ProbKeyUtil.hpp"
 #include "comp/PianoKey.hpp"
 #include "Interop.hpp"
@@ -52,7 +51,7 @@ class ProbKernel {
 	
 	
 	void randomize() {
-		
+		// not randomized
 	}
 	
 	
@@ -342,7 +341,7 @@ class ProbKernel {
 class OutputKernel {
 	public:
 
-	static const int MAX_LENGTH = 16;
+	static const int MAX_LENGTH = 32;
 	
 	
 	private:
@@ -363,7 +362,7 @@ class OutputKernel {
 	}
 	
 	void randomize() {
-		// none
+		// not done here
 	}
 	
 	void dataToJson(json_t *rootJ, int id) {
@@ -588,7 +587,6 @@ struct ProbKey : Module {
 	// Constants
 	enum ModeIds {MODE_PROB, MODE_ANCHOR, MODE_RANGE};
 	static const int NUM_INDEXES = 25;// C4 to C6 incl
-	static const int MAX_LENGTH = 16;
 	
 	// Need to save, no reset
 	int panelTheme;
@@ -701,8 +699,7 @@ struct ProbKey : Module {
 
 
 	void onRandomize() override {
-		// only randomize the currently selected probKernel
-		probKernels[getIndex()].randomize();
+		// only randomize the lock buffer
 	}
 
 
@@ -816,7 +813,7 @@ struct ProbKey : Module {
 		
 		// Populate steps in the sequencer
 		// must write outputKernel register backwards!, so all calls to setReg() should be mirrored
-		for (int i = 0; i < MAX_LENGTH; i++) {
+		for (int i = 0; i < OutputKernel::MAX_LENGTH; i++) {
 			outputKernels[0].setReg(ProbKernel::IDEM_CV, seqLen - 1 - i);
 		}
 		for (int i = 0; i < seqLen; i++) {
@@ -1173,7 +1170,7 @@ struct ProbKeyWidget : ModuleWidget {
 			ProbKey *module;
 			void onAction(const event::Action &e) override {
 				int seqLen;
-				IoStep* ioSteps = interopPasteSequence(16, &seqLen);
+				IoStep* ioSteps = interopPasteSequence(OutputKernel::MAX_LENGTH, &seqLen);
 				if (ioSteps != nullptr) {
 					module->emptyIoSteps(ioSteps, seqLen);
 					delete[] ioSteps;
