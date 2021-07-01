@@ -1,3 +1,9 @@
+### 1.1.12 (in development)
+
+- Bumped the lock buffer' maximum length in ProbKey to 32 steps (TODO update manual)
+- Implemented randomization in ProbKey, which randomizes the lock buffer according to the current settings
+
+
 ### 1.1.11 (2021-06-26)
 
 - Implemented portable sequence copy/paste in WriteSeq32/64
