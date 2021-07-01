@@ -700,6 +700,15 @@ struct ProbKey : Module {
 
 	void onRandomize() override {
 		// only randomize the lock buffer
+		float offset = getOffset();
+		float squash = getSquash();
+		float pgain = getPgain();
+		int index = getIndex();
+		int length0 = getLength0();
+		for (int i = 0; i < OutputKernel::MAX_LENGTH; i++) {
+			float newCv = probKernels[index].calcRandomCv(offset, squash, pgain, overlap);
+			outputKernels[0].shiftWithInsertNew(newCv, length0);
+		}
 	}
 
 
