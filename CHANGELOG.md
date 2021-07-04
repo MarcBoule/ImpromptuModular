@@ -1,7 +1,8 @@
 ### 1.1.12 (in development)
 
-- Bumped the lock buffer' maximum length in ProbKey to 32 steps (TODO update manual)
+- Bumped the lock buffer' maximum length in ProbKey to 32 steps
 - Implemented randomization in ProbKey, which randomizes the lock buffer according to the current settings
+- Changed the pGain knob in ProbKey so that it now works like a density knob
 
 
 ### 1.1.11 (2021-06-26)

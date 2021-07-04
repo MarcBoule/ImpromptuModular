@@ -170,12 +170,11 @@ class ProbKernel {
 	}
 	
 	
-	float getCumulProbTotal(float pgain) {
+	float getCumulProbTotal() {
 		float cumulProbTotal = 0.0f;
 		for (int i = 0; i < 12; i++) {
 			cumulProbTotal += noteProbs[i];
 		}
-		cumulProbTotal *= pgain;
 		return cumulProbTotal;
 	}
 	
@@ -214,27 +213,28 @@ class ProbKernel {
 	}
 	
 	
-	float calcRandomCv(float offset, float squash, float pgain, float overlap) {
+	float calcRandomCv(float offset, float squash, float density, float overlap) {
 		// not optimized for audio rate
 		// returns a cv value or IDEM_CV when a note gets randomly skipped (only possible when sum of probs < 1)
 		
 		// generate a (base) note according to noteProbs (base note only, C4=0 to B4)
 		float cumulProbs[12];
-		cumulProbs[0] = noteProbs[0] * pgain;
+		cumulProbs[0] = noteProbs[0];
 		for (int i = 1; i < 12; i++) {
-			cumulProbs[i] = cumulProbs[i - 1] + noteProbs[i] * pgain;
+			cumulProbs[i] = cumulProbs[i - 1] + noteProbs[i];
 		}
 		
-		float dice = random::uniform() * std::max(cumulProbs[11], 1.0f);		
+		float diceNote = random::uniform() * std::max(cumulProbs[11], 1.0f);		
 		int note = 0;
 		for (; note < 12; note++) {
-			if (dice < cumulProbs[note]) {
+			if (diceNote < cumulProbs[note]) {
 				break;
 			}
 		}
 		
 		float cv;
-		if (note < 12) {
+		float diceDensity = random::uniform();
+		if (note < 12 && diceDensity < density) {
 			// base note
 			cv = ((float)note) / 12.0f;
 			
@@ -245,17 +245,17 @@ class ProbKernel {
 			float noteRangesMod[7] = {};
 			calcOffsetAndSquash(noteRangesMod, offset, squash, overlap);
 			
-			// probabilistically transpose note according to ranges
+			// probabilistically transpose note according to octave ranges
 			float cumulRanges[7];
 			cumulRanges[0] = noteRangesMod[0];
 			for (int i = 1; i < 7; i++) {
 				cumulRanges[i] = cumulRanges[i - 1] + noteRangesMod[i];
 			}
 			
-			float dice2 = random::uniform() * cumulRanges[6];
+			float diceOct = random::uniform() * cumulRanges[6];
 			int oct = 0;
 			for (; oct < 7; oct++) {
-				if (dice2 < cumulRanges[oct]) {
+				if (diceOct < cumulRanges[oct]) {
 					break;
 				}
 			}
@@ -265,6 +265,7 @@ class ProbKernel {
 			}
 		}
 		else {
+			// skip note (this can happen when sum of probabilities is less than 1)
 			cv = IDEM_CV;
 		}
 
@@ -549,7 +550,7 @@ struct ProbKey : Module {
 		OFFSET_PARAM,
 		SQUASH_PARAM,
 		ENUMS(MODE_PARAMS, 3), // see ModeIds enum
-		PGAIN_PARAM,
+		DENSITY_PARAM,
 		COPY_PARAM,
 		PASTE_PARAM,
 		TR_UP_PARAM,
@@ -564,7 +565,7 @@ struct ProbKey : Module {
 		SQUASH_INPUT,
 		GATE_INPUT,
 		HOLD_INPUT, // can hold an empty step when sum of probs < 1
-		PGAIN_INPUT,
+		DENSITY_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -575,7 +576,7 @@ struct ProbKey : Module {
 	enum LightIds {
 		ENUMS(KEY_LIGHTS, 12 * 4 * 2),// room for GreenRed
 		ENUMS(MODE_LIGHTS, 3 * 2), // see ModeIds enum; room for GreenRed
-		ENUMS(PGAIN_LIGHT, 2),// room for GreenRed 
+		ENUMS(DENSITY_LIGHT, 2),// room for GreenRed 
 		LOCK_LIGHT,
 		NUM_LIGHTS
 	};
@@ -619,13 +620,9 @@ struct ProbKey : Module {
 		}	
 		return clamp(index, 0, NUM_INDEXES - 1 );
 	}
-	float getPgain() {
-		float pgain = params[PGAIN_PARAM].getValue();
-		if (inputs[PGAIN_INPUT].isConnected()) {
-			float pgainCv = inputs[PGAIN_INPUT].getVoltage() * 0.1f;
-			pgain *= clamp(pgainCv, 0.0f, 1.0f);
-		}
-		return pgain;
+	float getDensity() {
+		float density = params[DENSITY_PARAM].getValue() + inputs[DENSITY_INPUT].getVoltage() * 0.1f;
+		return clamp(density, 0.0f, 1.0f);
 	}
 	float getOffset() {
 		float offset = params[OFFSET_PARAM].getValue() + inputs[OFFSET_INPUT].getVoltage() * 0.3f;
@@ -667,7 +664,7 @@ struct ProbKey : Module {
 		configParam(MODE_PARAMS + MODE_PROB, 0.0f, 1.0f, 0.0f, "Edit note probabilities", "");
 		configParam(MODE_PARAMS + MODE_ANCHOR, 0.0f, 1.0f, 0.0f, "Edit note octave refs", "");
 		configParam(MODE_PARAMS + MODE_RANGE, 0.0f, 1.0f, 0.0f, "Edit octave range", "");
-		configParam(PGAIN_PARAM, 0.0f, 2.0f, 1.0f, "Probability gain", "x");
+		configParam(DENSITY_PARAM, 0.0f, 1.0f, 1.0f, "Density", " %", 0.0f, 100.0f, 0.0f);
 		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy keyboard values");
 		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste keyboard values");
 		configParam(TR_UP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up 1 semitone");
@@ -702,11 +699,11 @@ struct ProbKey : Module {
 		// only randomize the lock buffer
 		float offset = getOffset();
 		float squash = getSquash();
-		float pgain = getPgain();
+		float density = getDensity();
 		int index = getIndex();
 		int length0 = getLength0();
 		for (int i = 0; i < OutputKernel::MAX_LENGTH; i++) {
-			float newCv = probKernels[index].calcRandomCv(offset, squash, pgain, overlap);
+			float newCv = probKernels[index].calcRandomCv(offset, squash, density, overlap);
 			outputKernels[0].shiftWithInsertNew(newCv, length0);
 		}
 	}
@@ -949,7 +946,7 @@ struct ProbKey : Module {
 						outputKernels[i].shiftWithHold(length0);
 					}
 					else {
-						float newCv = probKernels[index].calcRandomCv(getOffset(), getSquash(), getPgain(), overlap);
+						float newCv = probKernels[index].calcRandomCv(getOffset(), getSquash(), getDensity(), overlap);
 						outputKernels[i].shiftWithInsertNew(newCv, length0);
 					}
 				}
@@ -993,15 +990,17 @@ struct ProbKey : Module {
 			// lock led
 			lights[LOCK_LIGHT].setBrightness(getLock());
 			
-			// pgain led
-			float cumulProb = probKernels[index].getCumulProbTotal(getPgain());
-			if (cumulProb >= 1.0f) {
-				lights[PGAIN_LIGHT + 0].setBrightness(1.0f);// green
-				lights[PGAIN_LIGHT + 1].setBrightness(0.0f);// red
+			// density led
+			float cumulProb = probKernels[index].getCumulProbTotal();
+			float density = getDensity();
+			float prod = std::min(cumulProb, 1.0f) * density;
+			if (prod >= 1.0f) {
+				lights[DENSITY_LIGHT + 0].setBrightness(1.0f);// green
+				lights[DENSITY_LIGHT + 1].setBrightness(0.0f);// red
 			}
 			else {
-				lights[PGAIN_LIGHT + 0].setBrightness(0.0f);// green
-				lights[PGAIN_LIGHT + 1].setBrightness(cumulProb);// red
+				lights[DENSITY_LIGHT + 0].setBrightness(0.0f);// green
+				lights[DENSITY_LIGHT + 1].setBrightness(prod);// red
 			}
 			
 			dispManager.process();
@@ -1348,10 +1347,10 @@ struct ProbKeyWidget : ModuleWidget {
 
 		// **** col1 ****
 
-		// p-gain knob, led and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col1, row0)), module, ProbKey::PGAIN_PARAM, module ? &module->panelTheme : NULL));	
-		addChild(createLightCentered<SmallLight<GreenRedLight>>(mm2px(Vec(col1 - 4.5f, row1 - 6.3f)), module, ProbKey::PGAIN_LIGHT));			
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row1)), true, module, ProbKey::PGAIN_INPUT, module ? &module->panelTheme : NULL));
+		// density knob, led and input
+		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col1, row0)), module, ProbKey::DENSITY_PARAM, module ? &module->panelTheme : NULL));	
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(mm2px(Vec(col1 - 4.5f, row1 - 6.3f)), module, ProbKey::DENSITY_LIGHT));			
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row1)), true, module, ProbKey::DENSITY_INPUT, module ? &module->panelTheme : NULL));
 
 		// Hold input
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row2)), true, module, ProbKey::HOLD_INPUT, module ? &module->panelTheme : NULL));
