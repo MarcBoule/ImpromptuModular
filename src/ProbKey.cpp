@@ -620,17 +620,32 @@ struct ProbKey : Module {
 		}	
 		return clamp(index, 0, NUM_INDEXES - 1 );
 	}
-	float getDensity() {
-		float density = params[DENSITY_PARAM].getValue() + inputs[DENSITY_INPUT].getVoltage() * 0.1f;
-		return clamp(density, 0.0f, 1.0f);
+	float getDensity(int chan) {
+		float density = params[DENSITY_PARAM].getValue(); 
+		if (inputs[DENSITY_INPUT].isConnected()) {
+			chan = std::min(chan, inputs[DENSITY_INPUT].getChannels() - 1);// getChannels() is >= 1
+			density += inputs[DENSITY_INPUT].getVoltage(chan) * 0.1f;
+			density = clamp(density, 0.0f, 1.0f);
+		}
+		return density;
 	}
-	float getOffset() {
-		float offset = params[OFFSET_PARAM].getValue() + inputs[OFFSET_INPUT].getVoltage() * 0.3f;
-		return clamp(offset, -3.0f, 3.0f);
+	float getOffset(int chan) {
+		float offset = params[OFFSET_PARAM].getValue();
+		if (inputs[OFFSET_INPUT].isConnected()) {
+			chan = std::min(chan, inputs[OFFSET_INPUT].getChannels() - 1);// getChannels() is >= 1
+			offset += inputs[OFFSET_INPUT].getVoltage(chan) * 0.3f;
+			offset = clamp(offset, -3.0f, 3.0f);
+		}
+		return offset;
 	}
-	float getSquash() {
-		float squash = params[SQUASH_PARAM].getValue() + inputs[SQUASH_INPUT].getVoltage() * 0.1f;
-		return clamp(squash, 0.0f, 1.0f);
+	float getSquash(int chan) {
+		float squash = params[SQUASH_PARAM].getValue();
+		if (inputs[SQUASH_INPUT].isConnected()) {
+			chan = std::min(chan, inputs[SQUASH_INPUT].getChannels() - 1);// getChannels() is >= 1
+			squash += inputs[SQUASH_INPUT].getVoltage(chan) * 0.1f;
+			squash = clamp(squash, 0.0f, 1.0f);
+		}
+		return squash;
 	}
 	float getLock() {
 		float lock = params[LOCK_KNOB_PARAM].getValue();
@@ -696,15 +711,18 @@ struct ProbKey : Module {
 
 
 	void onRandomize() override {
-		// only randomize the lock buffer
-		float offset = getOffset();
-		float squash = getSquash();
-		float density = getDensity();
+		// only randomize the lock buffers
 		int index = getIndex();
 		int length0 = getLength0();
-		for (int i = 0; i < OutputKernel::MAX_LENGTH; i++) {
-			float newCv = probKernels[index].calcRandomCv(offset, squash, density, overlap);
-			outputKernels[0].shiftWithInsertNew(newCv, length0);
+
+		for (int c = 0; c < inputs[GATE_INPUT].getChannels(); c ++) {
+			float offset = getOffset(c);
+			float squash = getSquash(c);
+			float density = getDensity(c);
+			for (int i = 0; i < OutputKernel::MAX_LENGTH; i++) {
+				float newCv = probKernels[index].calcRandomCv(offset, squash, density, overlap);
+				outputKernels[c].shiftWithInsertNew(newCv, length0);
+			}
 		}
 	}
 
@@ -930,24 +948,24 @@ struct ProbKey : Module {
 		
 		//********** Outputs and lights **********
 		
-		for (int i = 0; i < inputs[GATE_INPUT].getChannels(); i ++) {
+		for (int c = 0; c < inputs[GATE_INPUT].getChannels(); c ++) {
 			// gate input triggers
-			if (gateInTriggers[i].process(inputs[GATE_INPUT].getVoltage(i))) {
-				// got rising edge on gate input poly channel i
+			if (gateInTriggers[c].process(inputs[GATE_INPUT].getVoltage(c))) {
+				// got rising edge on gate input poly channel c
 
 				if (getLock() > random::uniform()) {
 					// recycle CV
-					outputKernels[i].shiftWithRecycle(length0);
+					outputKernels[c].shiftWithRecycle(length0);
 				}
 				else {
 					// generate new random CV (taking hold into account though)
-					bool hold = inputs[HOLD_INPUT].isConnected() && inputs[HOLD_INPUT].getVoltage(std::min(i, inputs[HOLD_INPUT].getChannels())) > 1.0f;
+					bool hold = inputs[HOLD_INPUT].isConnected() && inputs[HOLD_INPUT].getVoltage(std::min(c, inputs[HOLD_INPUT].getChannels())) > 1.0f;
 					if (hold) {
-						outputKernels[i].shiftWithHold(length0);
+						outputKernels[c].shiftWithHold(length0);
 					}
 					else {
-						float newCv = probKernels[index].calcRandomCv(getOffset(), getSquash(), getDensity(), overlap);
-						outputKernels[i].shiftWithInsertNew(newCv, length0);
+						float newCv = probKernels[index].calcRandomCv(getOffset(c), getSquash(c), getDensity(c), overlap);
+						outputKernels[c].shiftWithInsertNew(newCv, length0);
 					}
 				}
 			}
@@ -955,9 +973,9 @@ struct ProbKey : Module {
 			
 			// output CV and gate
 			
-			outputs[CV_OUTPUT].setVoltage(outputKernels[i].getCv(), i);
-			float gateOut = outputKernels[i].getGateEnable() && gateInTriggers[i].state ? inputs[GATE_INPUT].getVoltage(i) : 0.0f;
-			outputs[GATE_OUTPUT].setVoltage(gateOut, i);
+			outputs[CV_OUTPUT].setVoltage(outputKernels[c].getCv(), c);
+			float gateOut = outputKernels[c].getGateEnable() && gateInTriggers[c].state ? inputs[GATE_INPUT].getVoltage(c) : 0.0f;
+			outputs[GATE_OUTPUT].setVoltage(gateOut, c);
 		}
 
 
@@ -992,7 +1010,7 @@ struct ProbKey : Module {
 			
 			// density led
 			float cumulProb = probKernels[index].getCumulProbTotal();
-			float density = getDensity();
+			float density = getDensity(0);
 			float prod = std::min(cumulProb, 1.0f) * density;
 			if (prod >= 1.0f) {
 				lights[DENSITY_LIGHT + 0].setBrightness(1.0f);// green
@@ -1037,7 +1055,7 @@ struct ProbKey : Module {
 	}
 	void setKeyLightsRange(int index) {
 		float modRanges[7] = {};
-		probKernels[index].calcOffsetAndSquash(modRanges, getOffset(), getSquash(), overlap);
+		probKernels[index].calcOffsetAndSquash(modRanges, getOffset(0), getSquash(0), overlap);
 		
 		for (int i = 0; i < 12; i++) {
 			if (i != 1 && i != 3 && i != 6 && i != 8 && i != 10) {
