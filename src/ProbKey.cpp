@@ -588,6 +588,7 @@ struct ProbKey : Module {
 	// Constants
 	enum ModeIds {MODE_PROB, MODE_ANCHOR, MODE_RANGE};
 	static const int NUM_INDEXES = 25;// C4 to C6 incl
+	static constexpr float infoTracerTime = 3.0f;// seconds
 	
 	// Need to save, no reset
 	int panelTheme;
@@ -601,6 +602,7 @@ struct ProbKey : Module {
 	
 	// No need to save, with reset
 	DisplayManager dispManager;
+	long infoTracer;
 
 	// No need to save, no reset
 	RefreshCounter refresh;
@@ -707,6 +709,7 @@ struct ProbKey : Module {
 	}
 	void resetNonJson() {
 		dispManager.reset();
+		infoTracer = 0;
 	}
 
 
@@ -968,11 +971,14 @@ struct ProbKey : Module {
 						outputKernels[c].shiftWithInsertNew(newCv, length0);
 					}
 				}
+				
+				if (c == 0) {
+					infoTracer = (long) (infoTracerTime * args.sampleRate / RefreshCounter::displayRefreshStepSkips);
+				}					
 			}
 			
 			
 			// output CV and gate
-			
 			outputs[CV_OUTPUT].setVoltage(outputKernels[c].getCv(), c);
 			float gateOut = outputKernels[c].getGateEnable() && gateInTriggers[c].state ? inputs[GATE_INPUT].getVoltage(c) : 0.0f;
 			outputs[GATE_OUTPUT].setVoltage(gateOut, c);
@@ -992,7 +998,7 @@ struct ProbKey : Module {
 			
 			// keyboard lights (green, red)
 			int tracer = -1;
-			if (inputs[GATE_INPUT].getVoltage(0) >= 1.0f) {
+			if (infoTracer > 0) {// inputs[GATE_INPUT].getVoltage(0) >= 1.0f) {
 				float tcv = outputKernels[0].getCv();
 				tracer = (int)std::round(tcv * 12.0f);
 				tracer = eucMod(tracer, 12);
@@ -1027,6 +1033,10 @@ struct ProbKey : Module {
 				lights[DENSITY_LIGHT + 1].setBrightness(prod);// red
 			}
 			
+			// other stuff
+			if (infoTracer > 0l) {
+				infoTracer--;
+			}
 			dispManager.process();
 		}// processLights()
 		
