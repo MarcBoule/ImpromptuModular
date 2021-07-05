@@ -4,6 +4,7 @@
 - ProbKey: Implemented randomization, which randomizes the lock buffer according to the current settings
 - ProbKey: Changed the pGain knob so that it now works like a density knob
 - ProbKey: Added poly capabilities to the offset, density and squash cv inputs (when using a poly gate in)
+- ProbKey: Added tracer lights in the probability and anchor edit modes
 
 
 ### 1.1.11 (2021-06-26)
