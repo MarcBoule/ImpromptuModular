@@ -574,7 +574,7 @@ struct ProbKey : Module {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		ENUMS(KEY_LIGHTS, 12 * 4 * 2),// room for GreenRed
+		ENUMS(KEY_LIGHTS, 12 * 4 * 3),// room for GreenRedWhite
 		ENUMS(MODE_LIGHTS, 3 * 2), // see ModeIds enum; room for GreenRed
 		ENUMS(DENSITY_LIGHT, 2),// room for GreenRed 
 		LOCK_LIGHT,
@@ -991,18 +991,24 @@ struct ProbKey : Module {
 			lights[MODE_LIGHTS + MODE_RANGE * 2 + 1].setBrightness(editMode == MODE_RANGE ? 1.0f : 0.0f);
 			
 			// keyboard lights (green, red)
+			int tracer = -1;
+			if (inputs[GATE_INPUT].getVoltage(0) >= 1.0f) {
+				float tcv = outputKernels[0].getCv();
+				tracer = (int)std::round(tcv * 12.0f);
+				tracer = eucMod(tracer, 12);
+			}
 			if (editMode == MODE_PROB) {
 				for (int i = 0; i < 12; i++) {
-					setKeyLightsProb(i, probKernels[index].getNoteProb(i));
+					setKeyLightsProb(i, probKernels[index].getNoteProb(i), tracer == i);
 				}
 			}
 			else if (editMode == MODE_ANCHOR) {
 				for (int i = 0; i < 12; i++) {
-					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i), probKernels[index].isProbNonNull(i));
+					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i), probKernels[index].isProbNonNull(i), tracer == i);
 				}
 			}
 			else {
-				setKeyLightsRange(index);
+				setKeyLightsOctRange(index);
 			}
 			
 			// lock led
@@ -1033,27 +1039,29 @@ struct ProbKey : Module {
 		}
 	}
 	
-	void setKeyLightsProb(int key, float prob) {
-		for (int j = 0; j < 4; j++) {
-			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 0].setBrightness(prob * 4.0f - (float)j);
-			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 1].setBrightness(0.0f);
+	void setKeyLightsProb(int key, float prob, bool tracer) {
+		for (int j = 0; j < 4; j++) {// 0 to 3 is bottom to top
+			lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 0].setBrightness((tracer && (j == 3)) ? 0.0f : (prob * 4.0f - (float)j));
+			lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 1].setBrightness(0.0f);
+			lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 2].setBrightness((tracer && (j == 3)) ? 1.0f : 0.0f);
 		}
 	}
-	void setKeyLightsAnchor(int key, float anch, bool active) {
+	void setKeyLightsAnchor(int key, float anch, bool active, bool tracer) {
 		if (active) {
 			anch = ProbKernel::quantizeAnchor(anch);
 			for (int j = 0; j < 4; j++) {
-				lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 0].setBrightness(0.0f);
-				lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 1].setBrightness(anch * 4.0f - (float)j);
+				lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 0].setBrightness(0.0f);
+				lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 1].setBrightness((tracer && (j == 3)) ? 0.0f : (anch * 4.0f - (float)j));
+				lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 2].setBrightness((tracer && (j == 3)) ? 1.0f : 0.0f);
 			}
 		}
 		else {
-			for (int j = 0; j < 4 * 2; j++) {
-				lights[KEY_LIGHTS + key * 4 * 2 + j].setBrightness(0.0f);
+			for (int j = 0; j < 4 * 3; j++) {
+				lights[KEY_LIGHTS + key * 4 * 3 + j].setBrightness(0.0f);
 			}
 		}
 	}
-	void setKeyLightsRange(int index) {
+	void setKeyLightsOctRange(int index) {
 		float modRanges[7] = {};
 		probKernels[index].calcOffsetAndSquash(modRanges, getOffset(0), getSquash(0), overlap);
 		
@@ -1062,14 +1070,14 @@ struct ProbKey : Module {
 				for (int j = 0; j < 4; j++) {
 					int i7 = ProbKernel::key12to7(i);
 					float normalRange = probKernels[index].getNoteRange(i);
-					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 0].setBrightness(normalRange   * 4.0f - (float)j);
-					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 1].setBrightness(modRanges[i7] * 4.0f - (float)j);
+					lights[KEY_LIGHTS + i * 4 * 3 + j * 3 + 0].setBrightness(normalRange   * 4.0f - (float)j);
+					lights[KEY_LIGHTS + i * 4 * 3 + j * 3 + 1].setBrightness(modRanges[i7] * 4.0f - (float)j);
+					lights[KEY_LIGHTS + i * 4 * 3 + j * 3 + 2].setBrightness(0.0f);				
 				}
 			}
 			else {
-				for (int j = 0; j < 4; j++) {
-					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 0].setBrightness(0.0f);
-					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 1].setBrightness(0.0f);
+				for (int j = 0; j < 4 * 3; j++) {
+					lights[KEY_LIGHTS + i * 4 * 3 + j].setBrightness(0.0f);
 				}
 			}
 		}
@@ -1300,10 +1308,10 @@ struct ProbKeyWidget : ModuleWidget {
 
 
 		#define DROP_LIGHTS(xLoc, yLoc, pNum) \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*3), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 0 * 2)); \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*2), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 1 * 2)); \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*1), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 2 * 2)); \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*0), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 3 * 2));
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*3), module, ProbKey::KEY_LIGHTS + pNum * (4 * 3) + 0 * 3)); \
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*2), module, ProbKey::KEY_LIGHTS + pNum * (4 * 3) + 1 * 3)); \
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*1), module, ProbKey::KEY_LIGHTS + pNum * (4 * 3) + 2 * 3)); \
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*0), module, ProbKey::KEY_LIGHTS + pNum * (4 * 3) + 3 * 3));
 
 		// Black keys
 		addChild(createPianoKey<PianoKeyBig>(VecPx(37.5f + ex, posBlackY), 1, module ? &module->pkInfo : NULL));
