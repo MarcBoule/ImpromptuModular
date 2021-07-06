@@ -597,6 +597,7 @@ struct ProbKey : Module {
 	int editMode;
 	float overlap;
 	int indexCvCap12;
+	int showTracer;
 	ProbKernel probKernels[NUM_INDEXES];
 	OutputKernel outputKernels[PORT_MAX_CHANNELS];
 	
@@ -699,6 +700,7 @@ struct ProbKey : Module {
 		editMode = MODE_PROB;
 		overlap = 0.5f;// must be 0 to 1
 		indexCvCap12 = 0;
+		showTracer = 1;
 		for (int i = 0; i < NUM_INDEXES; i++) {
 			probKernels[i].reset();
 		}
@@ -745,6 +747,9 @@ struct ProbKey : Module {
 		// indexCvCap12
 		json_object_set_new(rootJ, "indexCvCap12", json_integer(indexCvCap12));
 
+		// showTracer
+		json_object_set_new(rootJ, "showTracer", json_integer(showTracer));
+
 		// probKernels
 		json_t* probsJ = json_array();
 		for (size_t i = 0; i < NUM_INDEXES; i++) {
@@ -786,6 +791,12 @@ struct ProbKey : Module {
 		json_t *indexCvCap12J = json_object_get(rootJ, "indexCvCap12");
 		if (indexCvCap12J) {
 			indexCvCap12 = json_integer_value(indexCvCap12J);
+		}
+
+		// showTracer
+		json_t *showTracerJ = json_object_get(rootJ, "showTracer");
+		if (showTracerJ) {
+			showTracer = json_integer_value(showTracerJ);
 		}
 
 		// probKernels
@@ -998,7 +1009,7 @@ struct ProbKey : Module {
 			
 			// keyboard lights (green, red)
 			int tracer = -1;
-			if (infoTracer > 0) {// inputs[GATE_INPUT].getVoltage(0) >= 1.0f) {
+			if (showTracer != 0 && infoTracer > 0) {// inputs[GATE_INPUT].getVoltage(0) >= 1.0f) {
 				float tcv = outputKernels[0].getCv();
 				tracer = (int)std::round(tcv * 12.0f);
 				tracer = eucMod(tracer, 12);
@@ -1112,6 +1123,13 @@ struct ProbKeyWidget : ModuleWidget {
 		ProbKey *module;
 		void onAction(const event::Action &e) override {
 			module->indexCvCap12 ^= 0x1;
+		}
+	};
+	
+	struct ShowTracerItem : MenuItem {
+		ProbKey *module;
+		void onAction(const event::Action &e) override {
+			module->showTracer ^= 0x1;
 		}
 	};
 	
@@ -1282,6 +1300,10 @@ struct ProbKeyWidget : ModuleWidget {
 		IndexCvCap12Item *cv12Item = createMenuItem<IndexCvCap12Item>("Index mode 12", CHECKMARK(module->indexCvCap12));
 		cv12Item->module = module;
 		menu->addChild(cv12Item);
+		
+		ShowTracerItem *tracerItem = createMenuItem<ShowTracerItem>("Show generated note", CHECKMARK(module->showTracer));
+		tracerItem->module = module;
+		menu->addChild(tracerItem);
 		
 	}	
 	
