@@ -1000,7 +1000,7 @@ struct ProbKey : Module {
 			}
 			else {
 				lights[DENSITY_LIGHT + 0].setBrightness(0.0f);// green
-				lights[DENSITY_LIGHT + 1].setBrightness(prod);// red
+				lights[DENSITY_LIGHT + 1].setBrightness(1.0f);// red
 			}
 			
 			dispManager.process();
