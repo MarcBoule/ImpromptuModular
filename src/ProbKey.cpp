@@ -574,7 +574,7 @@ struct ProbKey : Module {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		ENUMS(KEY_LIGHTS, 12 * 4 * 2),// room for GreenRed
+		ENUMS(KEY_LIGHTS, 12 * 4 * 3),// room for GreenRedWhite
 		ENUMS(MODE_LIGHTS, 3 * 2), // see ModeIds enum; room for GreenRed
 		ENUMS(DENSITY_LIGHT, 2),// room for GreenRed 
 		LOCK_LIGHT,
@@ -588,6 +588,7 @@ struct ProbKey : Module {
 	// Constants
 	enum ModeIds {MODE_PROB, MODE_ANCHOR, MODE_RANGE};
 	static const int NUM_INDEXES = 25;// C4 to C6 incl
+	static constexpr float infoTracerTime = 3.0f;// seconds
 	
 	// Need to save, no reset
 	int panelTheme;
@@ -596,11 +597,13 @@ struct ProbKey : Module {
 	int editMode;
 	float overlap;
 	int indexCvCap12;
+	int showTracer;
 	ProbKernel probKernels[NUM_INDEXES];
 	OutputKernel outputKernels[PORT_MAX_CHANNELS];
 	
 	// No need to save, with reset
 	DisplayManager dispManager;
+	long infoTracer;
 
 	// No need to save, no reset
 	RefreshCounter refresh;
@@ -620,17 +623,32 @@ struct ProbKey : Module {
 		}	
 		return clamp(index, 0, NUM_INDEXES - 1 );
 	}
-	float getDensity() {
-		float density = params[DENSITY_PARAM].getValue() + inputs[DENSITY_INPUT].getVoltage() * 0.1f;
-		return clamp(density, 0.0f, 1.0f);
+	float getDensity(int chan) {
+		float density = params[DENSITY_PARAM].getValue(); 
+		if (inputs[DENSITY_INPUT].isConnected()) {
+			chan = std::min(chan, inputs[DENSITY_INPUT].getChannels() - 1);// getChannels() is >= 1
+			density += inputs[DENSITY_INPUT].getVoltage(chan) * 0.1f;
+			density = clamp(density, 0.0f, 1.0f);
+		}
+		return density;
 	}
-	float getOffset() {
-		float offset = params[OFFSET_PARAM].getValue() + inputs[OFFSET_INPUT].getVoltage() * 0.3f;
-		return clamp(offset, -3.0f, 3.0f);
+	float getOffset(int chan) {
+		float offset = params[OFFSET_PARAM].getValue();
+		if (inputs[OFFSET_INPUT].isConnected()) {
+			chan = std::min(chan, inputs[OFFSET_INPUT].getChannels() - 1);// getChannels() is >= 1
+			offset += inputs[OFFSET_INPUT].getVoltage(chan) * 0.3f;
+			offset = clamp(offset, -3.0f, 3.0f);
+		}
+		return offset;
 	}
-	float getSquash() {
-		float squash = params[SQUASH_PARAM].getValue() + inputs[SQUASH_INPUT].getVoltage() * 0.1f;
-		return clamp(squash, 0.0f, 1.0f);
+	float getSquash(int chan) {
+		float squash = params[SQUASH_PARAM].getValue();
+		if (inputs[SQUASH_INPUT].isConnected()) {
+			chan = std::min(chan, inputs[SQUASH_INPUT].getChannels() - 1);// getChannels() is >= 1
+			squash += inputs[SQUASH_INPUT].getVoltage(chan) * 0.1f;
+			squash = clamp(squash, 0.0f, 1.0f);
+		}
+		return squash;
 	}
 	float getLock() {
 		float lock = params[LOCK_KNOB_PARAM].getValue();
@@ -682,6 +700,7 @@ struct ProbKey : Module {
 		editMode = MODE_PROB;
 		overlap = 0.5f;// must be 0 to 1
 		indexCvCap12 = 0;
+		showTracer = 1;
 		for (int i = 0; i < NUM_INDEXES; i++) {
 			probKernels[i].reset();
 		}
@@ -692,19 +711,23 @@ struct ProbKey : Module {
 	}
 	void resetNonJson() {
 		dispManager.reset();
+		infoTracer = 0;
 	}
 
 
 	void onRandomize() override {
-		// only randomize the lock buffer
-		float offset = getOffset();
-		float squash = getSquash();
-		float density = getDensity();
+		// only randomize the lock buffers
 		int index = getIndex();
 		int length0 = getLength0();
-		for (int i = 0; i < OutputKernel::MAX_LENGTH; i++) {
-			float newCv = probKernels[index].calcRandomCv(offset, squash, density, overlap);
-			outputKernels[0].shiftWithInsertNew(newCv, length0);
+
+		for (int c = 0; c < inputs[GATE_INPUT].getChannels(); c ++) {
+			float offset = getOffset(c);
+			float squash = getSquash(c);
+			float density = getDensity(c);
+			for (int i = 0; i < OutputKernel::MAX_LENGTH; i++) {
+				float newCv = probKernels[index].calcRandomCv(offset, squash, density, overlap);
+				outputKernels[c].shiftWithInsertNew(newCv, length0);
+			}
 		}
 	}
 
@@ -723,6 +746,9 @@ struct ProbKey : Module {
 
 		// indexCvCap12
 		json_object_set_new(rootJ, "indexCvCap12", json_integer(indexCvCap12));
+
+		// showTracer
+		json_object_set_new(rootJ, "showTracer", json_integer(showTracer));
 
 		// probKernels
 		json_t* probsJ = json_array();
@@ -765,6 +791,12 @@ struct ProbKey : Module {
 		json_t *indexCvCap12J = json_object_get(rootJ, "indexCvCap12");
 		if (indexCvCap12J) {
 			indexCvCap12 = json_integer_value(indexCvCap12J);
+		}
+
+		// showTracer
+		json_t *showTracerJ = json_object_get(rootJ, "showTracer");
+		if (showTracerJ) {
+			showTracer = json_integer_value(showTracerJ);
 		}
 
 		// probKernels
@@ -930,34 +962,37 @@ struct ProbKey : Module {
 		
 		//********** Outputs and lights **********
 		
-		for (int i = 0; i < inputs[GATE_INPUT].getChannels(); i ++) {
+		for (int c = 0; c < inputs[GATE_INPUT].getChannels(); c ++) {
 			// gate input triggers
-			if (gateInTriggers[i].process(inputs[GATE_INPUT].getVoltage(i))) {
-				// got rising edge on gate input poly channel i
+			if (gateInTriggers[c].process(inputs[GATE_INPUT].getVoltage(c))) {
+				// got rising edge on gate input poly channel c
 
 				if (getLock() > random::uniform()) {
 					// recycle CV
-					outputKernels[i].shiftWithRecycle(length0);
+					outputKernels[c].shiftWithRecycle(length0);
 				}
 				else {
 					// generate new random CV (taking hold into account though)
-					bool hold = inputs[HOLD_INPUT].isConnected() && inputs[HOLD_INPUT].getVoltage(std::min(i, inputs[HOLD_INPUT].getChannels())) > 1.0f;
+					bool hold = inputs[HOLD_INPUT].isConnected() && inputs[HOLD_INPUT].getVoltage(std::min(c, inputs[HOLD_INPUT].getChannels())) > 1.0f;
 					if (hold) {
-						outputKernels[i].shiftWithHold(length0);
+						outputKernels[c].shiftWithHold(length0);
 					}
 					else {
-						float newCv = probKernels[index].calcRandomCv(getOffset(), getSquash(), getDensity(), overlap);
-						outputKernels[i].shiftWithInsertNew(newCv, length0);
+						float newCv = probKernels[index].calcRandomCv(getOffset(c), getSquash(c), getDensity(c), overlap);
+						outputKernels[c].shiftWithInsertNew(newCv, length0);
 					}
 				}
+				
+				if (c == 0) {
+					infoTracer = (long) (infoTracerTime * args.sampleRate / RefreshCounter::displayRefreshStepSkips);
+				}					
 			}
 			
 			
 			// output CV and gate
-			
-			outputs[CV_OUTPUT].setVoltage(outputKernels[i].getCv(), i);
-			float gateOut = outputKernels[i].getGateEnable() && gateInTriggers[i].state ? inputs[GATE_INPUT].getVoltage(i) : 0.0f;
-			outputs[GATE_OUTPUT].setVoltage(gateOut, i);
+			outputs[CV_OUTPUT].setVoltage(outputKernels[c].getCv(), c);
+			float gateOut = outputKernels[c].getGateEnable() && gateInTriggers[c].state ? inputs[GATE_INPUT].getVoltage(c) : 0.0f;
+			outputs[GATE_OUTPUT].setVoltage(gateOut, c);
 		}
 
 
@@ -973,18 +1008,24 @@ struct ProbKey : Module {
 			lights[MODE_LIGHTS + MODE_RANGE * 2 + 1].setBrightness(editMode == MODE_RANGE ? 1.0f : 0.0f);
 			
 			// keyboard lights (green, red)
+			int tracer = -1;
+			if (showTracer != 0 && infoTracer > 0) {// inputs[GATE_INPUT].getVoltage(0) >= 1.0f) {
+				float tcv = outputKernels[0].getCv();
+				tracer = (int)std::round(tcv * 12.0f);
+				tracer = eucMod(tracer, 12);
+			}
 			if (editMode == MODE_PROB) {
 				for (int i = 0; i < 12; i++) {
-					setKeyLightsProb(i, probKernels[index].getNoteProb(i));
+					setKeyLightsProb(i, probKernels[index].getNoteProb(i), tracer == i);
 				}
 			}
 			else if (editMode == MODE_ANCHOR) {
 				for (int i = 0; i < 12; i++) {
-					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i), probKernels[index].isProbNonNull(i));
+					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i), probKernels[index].isProbNonNull(i), tracer == i);
 				}
 			}
 			else {
-				setKeyLightsRange(index);
+				setKeyLightsOctRange(index);
 			}
 			
 			// lock led
@@ -992,7 +1033,7 @@ struct ProbKey : Module {
 			
 			// density led
 			float cumulProb = probKernels[index].getCumulProbTotal();
-			float density = getDensity();
+			float density = getDensity(0);
 			float prod = std::min(cumulProb, 1.0f) * density;
 			if (prod >= 1.0f) {
 				lights[DENSITY_LIGHT + 0].setBrightness(1.0f);// green
@@ -1003,6 +1044,10 @@ struct ProbKey : Module {
 				lights[DENSITY_LIGHT + 1].setBrightness(1.0f);// red
 			}
 			
+			// other stuff
+			if (infoTracer > 0l) {
+				infoTracer--;
+			}
 			dispManager.process();
 		}// processLights()
 		
@@ -1015,43 +1060,45 @@ struct ProbKey : Module {
 		}
 	}
 	
-	void setKeyLightsProb(int key, float prob) {
-		for (int j = 0; j < 4; j++) {
-			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 0].setBrightness(prob * 4.0f - (float)j);
-			lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 1].setBrightness(0.0f);
+	void setKeyLightsProb(int key, float prob, bool tracer) {
+		for (int j = 0; j < 4; j++) {// 0 to 3 is bottom to top
+			lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 0].setBrightness((tracer && (j == 3)) ? 0.0f : (prob * 4.0f - (float)j));
+			lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 1].setBrightness(0.0f);
+			lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 2].setBrightness((tracer && (j == 3)) ? 1.0f : 0.0f);
 		}
 	}
-	void setKeyLightsAnchor(int key, float anch, bool active) {
+	void setKeyLightsAnchor(int key, float anch, bool active, bool tracer) {
 		if (active) {
 			anch = ProbKernel::quantizeAnchor(anch);
 			for (int j = 0; j < 4; j++) {
-				lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 0].setBrightness(0.0f);
-				lights[KEY_LIGHTS + key * 4 * 2 + j * 2 + 1].setBrightness(anch * 4.0f - (float)j);
+				lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 0].setBrightness(0.0f);
+				lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 1].setBrightness((tracer && (j == 3)) ? 0.0f : (anch * 4.0f - (float)j));
+				lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 2].setBrightness((tracer && (j == 3)) ? 1.0f : 0.0f);
 			}
 		}
 		else {
-			for (int j = 0; j < 4 * 2; j++) {
-				lights[KEY_LIGHTS + key * 4 * 2 + j].setBrightness(0.0f);
+			for (int j = 0; j < 4 * 3; j++) {
+				lights[KEY_LIGHTS + key * 4 * 3 + j].setBrightness(0.0f);
 			}
 		}
 	}
-	void setKeyLightsRange(int index) {
+	void setKeyLightsOctRange(int index) {
 		float modRanges[7] = {};
-		probKernels[index].calcOffsetAndSquash(modRanges, getOffset(), getSquash(), overlap);
+		probKernels[index].calcOffsetAndSquash(modRanges, getOffset(0), getSquash(0), overlap);
 		
 		for (int i = 0; i < 12; i++) {
 			if (i != 1 && i != 3 && i != 6 && i != 8 && i != 10) {
 				for (int j = 0; j < 4; j++) {
 					int i7 = ProbKernel::key12to7(i);
 					float normalRange = probKernels[index].getNoteRange(i);
-					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 0].setBrightness(normalRange   * 4.0f - (float)j);
-					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 1].setBrightness(modRanges[i7] * 4.0f - (float)j);
+					lights[KEY_LIGHTS + i * 4 * 3 + j * 3 + 0].setBrightness(normalRange   * 4.0f - (float)j);
+					lights[KEY_LIGHTS + i * 4 * 3 + j * 3 + 1].setBrightness(modRanges[i7] * 4.0f - (float)j);
+					lights[KEY_LIGHTS + i * 4 * 3 + j * 3 + 2].setBrightness(0.0f);				
 				}
 			}
 			else {
-				for (int j = 0; j < 4; j++) {
-					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 0].setBrightness(0.0f);
-					lights[KEY_LIGHTS + i * 4 * 2 + j * 2 + 1].setBrightness(0.0f);
+				for (int j = 0; j < 4 * 3; j++) {
+					lights[KEY_LIGHTS + i * 4 * 3 + j].setBrightness(0.0f);
 				}
 			}
 		}
@@ -1076,6 +1123,13 @@ struct ProbKeyWidget : ModuleWidget {
 		ProbKey *module;
 		void onAction(const event::Action &e) override {
 			module->indexCvCap12 ^= 0x1;
+		}
+	};
+	
+	struct ShowTracerItem : MenuItem {
+		ProbKey *module;
+		void onAction(const event::Action &e) override {
+			module->showTracer ^= 0x1;
 		}
 	};
 	
@@ -1247,6 +1301,10 @@ struct ProbKeyWidget : ModuleWidget {
 		cv12Item->module = module;
 		menu->addChild(cv12Item);
 		
+		ShowTracerItem *tracerItem = createMenuItem<ShowTracerItem>("Show generated note", CHECKMARK(module->showTracer));
+		tracerItem->module = module;
+		menu->addChild(tracerItem);
+		
 	}	
 	
 	
@@ -1282,10 +1340,10 @@ struct ProbKeyWidget : ModuleWidget {
 
 
 		#define DROP_LIGHTS(xLoc, yLoc, pNum) \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*3), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 0 * 2)); \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*2), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 1 * 2)); \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*1), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 2 * 2)); \
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*0), module, ProbKey::KEY_LIGHTS + pNum * (4 * 2) + 3 * 2));
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*3), module, ProbKey::KEY_LIGHTS + pNum * (4 * 3) + 0 * 3)); \
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*2), module, ProbKey::KEY_LIGHTS + pNum * (4 * 3) + 1 * 3)); \
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*1), module, ProbKey::KEY_LIGHTS + pNum * (4 * 3) + 2 * 3)); \
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*0), module, ProbKey::KEY_LIGHTS + pNum * (4 * 3) + 3 * 3));
 
 		// Black keys
 		addChild(createPianoKey<PianoKeyBig>(VecPx(37.5f + ex, posBlackY), 1, module ? &module->pkInfo : NULL));

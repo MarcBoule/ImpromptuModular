@@ -680,9 +680,11 @@ Other options are also available in the right-click menu:
 
 * **Index mode 12**: This option will map the index knob and its CV input (V/Oct voltages) to indexes 1 to 12. This can be used to set up different probability settings for each type of note (C, D, E, etc.) coming from another sequencer or ProbKey module. When this option is active, negative values in the CV input are also taken into account to perform the mapping; for example, notes C3 (-1V), C4 (0V) and C5 (1V) will all map to index #1, whereas C3#, C4#, C5#, will all map to index #2, and so forth.
 
+* **Show generated note**: When active, the top light in the key corresponding to the generated note will be lit white to show which note is currently playing. This visual feedback has a 3 second hold on each rising edge of the gate input and thus turns off automatically when gates are stopped.
+
 * **Portable sequence**: The portable sequence standard can also be used to copy/paste the current lock buffer, for use in sequencers or other modules (and also within ProbKey itself). For this, use the menu item labeled "_Portable sequence_". When working with polyphony, only the lock buffer of the first channel is used. As an interesting use case, different random variations of sequences can be captured and entered into Foundry or one of the Phrase Sequencers in order to make a song.
 
-The ProbKey module supports **polyphony** such that a polyphonic gate input will generate a polyphonic CV/gate output pair where each channel will generate separate random notes according to the (unique) settings of the module. To have true separate randomness across multiple channels, separate ProbKey modules must unfortunately be used and then merged.
+The ProbKey module supports **polyphony** such that a polyphonic gate input will generate a polyphonic CV/gate output pair where each channel will generate separate random notes according to the (unique) settings of the module. The *Density*, *Squash* and *Offset* CV inputs also support polyphony in order to exert a certain amount of control over the different voices, but in order to have true separate randomness across multiple channels, separate ProbKey modules must be used and then merged.
 
 ([Back to module list](#modules))
 
