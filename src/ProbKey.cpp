@@ -1191,7 +1191,12 @@ struct ProbKeyWidget : ModuleWidget {
 			char displayStr[5];
 			if (module) {
 				if (module->dispManager.getMode() == DisplayManager::DISP_NORMAL) {
-					snprintf(displayStr, 5, "%4u", module->getIndex() + 1);
+					if (module->indexCvCap12 != 0) {
+						snprintf(displayStr, 5, "*%3u", module->getIndex() + 1);
+					}
+					else {
+						snprintf(displayStr, 5, "%4u", module->getIndex() + 1);
+					}
 				}
 				else if (module->dispManager.getMode() == DisplayManager::DISP_LENGTH) {
 					snprintf(displayStr, 5, " L%2u", module->getLength0() + 1);
