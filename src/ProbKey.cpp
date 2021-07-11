@@ -344,19 +344,21 @@ class OutputKernel {
 	
 	private:
 	
-	float shiftReg[MAX_LENGTH];// holds CVs or ProbKernel::IDEM_CV
+	float buf[MAX_LENGTH];// holds CVs or ProbKernel::IDEM_CV
 	float lastCv;// sample and hold, must never hold ProbKernel::IDEM_CV
 	float minCv;
+	int step;
 	
 	
 	public:
 	
 	void reset() {
 		for (int i = 0; i < MAX_LENGTH; i++) {
-			shiftReg[i] = 0.0f;
+			buf[i] = 0.0f;
 		}
 		lastCv = 0.0f;
 		minCv = 0.0f;
+		step = 0;
 	}
 	
 	void randomize() {
@@ -364,12 +366,12 @@ class OutputKernel {
 	}
 	
 	void dataToJson(json_t *rootJ, int id) {
-		// shiftReg
-		json_t *shiftRegJ = json_array();
+		// buf
+		json_t *bufJ = json_array();
 		for (int i = 0; i < MAX_LENGTH; i++) {
-			json_array_insert_new(shiftRegJ, i, json_real(shiftReg[i]));
+			json_array_insert_new(bufJ, i, json_real(buf[i]));
 		}
-		json_object_set_new(rootJ, string::f("shiftReg%i", id).c_str(), shiftRegJ);
+		json_object_set_new(rootJ, string::f("buf%i", id).c_str(), bufJ);
 		
 		// lastCv
 		json_object_set_new(rootJ, string::f("lastCv%i", id).c_str(), json_real(lastCv));
@@ -377,16 +379,18 @@ class OutputKernel {
 		// minCv
 		json_object_set_new(rootJ, string::f("minCv%i", id).c_str(), json_real(minCv));
 
+		// step
+		json_object_set_new(rootJ, string::f("step%i", id).c_str(), json_integer(step));
 	}
 	
 	void dataFromJson(json_t *rootJ, int id) {
-		// shiftReg
-		json_t *shiftRegJ = json_object_get(rootJ, string::f("shiftReg%i", id).c_str());
-		if (shiftRegJ) {
+		// buf
+		json_t *bufJ = json_object_get(rootJ, string::f("buf%i", id).c_str());
+		if (bufJ) {
 			for (int i = 0; i < MAX_LENGTH; i++) {
-				json_t *shiftRegArrayJ = json_array_get(shiftRegJ, i);
-				if (shiftRegArrayJ) {
-					shiftReg[i] = json_number_value(shiftRegArrayJ);
+				json_t *bufArrayJ = json_array_get(bufJ, i);
+				if (bufArrayJ) {
+					buf[i] = json_number_value(bufArrayJ);
 				}
 			}
 		}
@@ -402,36 +406,53 @@ class OutputKernel {
 		if (minCvJ) {
 			minCv = json_number_value(minCvJ);
 		}
+		
+		// step
+		json_t *stepJ = json_object_get(rootJ, "step");
+		if (stepJ) {
+			step = json_integer_value(stepJ);
+		}
+
 	}
 
 
-	void calcMinCv(int length0) {
+	void calcMinCv(int length) {
 		// will leave minCv untouched if all CVs within length are IDEM_CV
-		float srMin = 100.0f;
-		for (int i = 0; i <= length0; i++) {
-			if (shiftReg[i] != ProbKernel::IDEM_CV && shiftReg[i] < srMin) {
-				srMin = shiftReg[i];
+		float bufMin = 100.0f;
+		for (int i = 0; i < length; i++) {
+			if (buf[i] != ProbKernel::IDEM_CV && buf[i] < bufMin) {
+				bufMin = buf[i];
 			}
 		}
-		if (srMin != 100.0f) {
-			minCv = srMin;
+		if (bufMin != 100.0f) {
+			minCv = bufMin;
 		}
 	}
 
 
-	void shiftWithHold(int length0) {
-		for (int i = MAX_LENGTH - 1; i > 0; i--) {
-			shiftReg[i] = shiftReg[i - 1];
+	void stepWithKeepOld(int length) {
+		// minCv unaffected
+		step = (step + 1) % length;
+		if (buf[step] != ProbKernel::IDEM_CV) {
+			lastCv = buf[step];
 		}
-		calcMinCv(length0);
+	}
+	
+	void stepWithCopy(int length) {
+		// lastCv unaffected
+		float currCv = buf[step];
+		step = (step + 1) % length;
+		buf[step] = currCv;
+		// minCv must be redone since the overwritten value could have been the minCv
+		calcMinCv(length);
 	}
 		
-	void shiftWithInsertNew(float newCv, int length0) {
-		shiftWithHold(length0);
-		shiftReg[0] = newCv;
-		if (shiftReg[0] != ProbKernel::IDEM_CV) {
-			lastCv = shiftReg[0];
-			if (length0 == 0) {
+	void stepWithInsertNew(float newCv, int length) {
+		stepWithCopy(length);
+		buf[step] = newCv;
+		if (buf[step] != ProbKernel::IDEM_CV) {
+			lastCv = buf[step];
+			if (length <= 1) {
 				minCv = lastCv;
 			}
 			else {
@@ -440,21 +461,19 @@ class OutputKernel {
 		}
 	}
 		
-	void shiftWithRecycle(int length0) {
-		shiftWithInsertNew(shiftReg[length0], length0);
-	}
 	
 	
-	bool calcManualLock(bool* manualLockLow, int length0) {
-		// shiftReg[length0] is next recycle-to-be-used, this method checks lock potential against that
+	bool calcManualLock(bool* manualLockLow, int length) {
+		int nextStep = (step + 1) % length;
+		// buf[nextStep] is next recycle-to-be-used, this method checks lock potential against that
 		
-		if (shiftReg[length0] != ProbKernel::IDEM_CV) {
+		if (buf[nextStep] != ProbKernel::IDEM_CV) {
 			float lowestCvs[4] = {100.0f, 100.0f, 100.0f, 100.0f};
 			
 			// find lowest CV
-			for (int i = 0; i <= length0; i++) {
-				if (shiftReg[i] != ProbKernel::IDEM_CV && shiftReg[i] < lowestCvs[0]) {
-					lowestCvs[0] = shiftReg[i];
+			for (int i = 0; i < length; i++) {
+				if (buf[i] != ProbKernel::IDEM_CV && buf[i] < lowestCvs[0]) {
+					lowestCvs[0] = buf[i];
 				}
 			}
 			// find 2nd, 3rd and 4th lowest CVs
@@ -462,16 +481,16 @@ class OutputKernel {
 				if (lowestCvs[j - 1] == 100.0f) {
 					break;
 				}
-				for (int i = 0; i <= length0; i++) {
-					if (shiftReg[i] != ProbKernel::IDEM_CV && shiftReg[i] < lowestCvs[j] && shiftReg[i] > lowestCvs[j - 1]) {
-						lowestCvs[j] = shiftReg[i];
+				for (int i = 0; i < length; i++) {
+					if (buf[i] != ProbKernel::IDEM_CV && buf[i] < lowestCvs[j] && buf[i] > lowestCvs[j - 1]) {
+						lowestCvs[j] = buf[i];
 					}
 				}	
 			}
 			
-			// check next recycle-to-be-used against lowest CVs if manual locks wanted
+			// check nextStep against lowest CVs if manual locks wanted
 			for (int j = 0; j < 4; j++) {
-				if (manualLockLow[j] && shiftReg[length0] == lowestCvs[j]) {
+				if (manualLockLow[j] && buf[nextStep] == lowestCvs[j]) {
 					return true;
 				}
 			}
@@ -486,14 +505,14 @@ class OutputKernel {
 	float getMinCv() {
 		return minCv;
 	}
-	float getReg(int i) {
-		return shiftReg[i];
+	float getBuf(int i) {
+		return buf[i];
 	}
-	void setReg(float cv, int i) {
-		shiftReg[i] = cv;
+	void setBuf(float cv, int i) {
+		buf[i] = cv;
 	}
 	bool getGateEnable() {
-		return shiftReg[0] != ProbKernel::IDEM_CV;
+		return buf[step] != ProbKernel::IDEM_CV;
 	}
 };
 
@@ -698,9 +717,9 @@ struct ProbKey : Module {
 		lock += inputs[LOCK_INPUT].getVoltage() * 0.1f;
 		return clamp(lock, 0.0f, 1.0f);
 	}
-	int getLength0() {// 0 indexed
-		int length = (int)std::round(params[LENGTH_PARAM].getValue() + inputs[LENGTH_INPUT].getVoltage() * 1.6f);
-		return clamp(length, 0, OutputKernel::MAX_LENGTH - 1 );
+	int getLength() {// 1 indexed
+		int length0 = (int)std::round(params[LENGTH_PARAM].getValue() + inputs[LENGTH_INPUT].getVoltage() * 1.6f);
+		return clamp(length0, 0, OutputKernel::MAX_LENGTH - 1 ) + 1;
 	}
 
 
@@ -755,7 +774,6 @@ struct ProbKey : Module {
 	void onRandomize() override {
 		// only randomize the lock buffers
 		int index = getIndex();
-		int length0 = getLength0();
 
 		for (int c = 0; c < inputs[GATE_INPUT].getChannels(); c ++) {
 			float offset = getOffset(c);
@@ -763,7 +781,7 @@ struct ProbKey : Module {
 			float density = getDensity(c);
 			for (int i = 0; i < OutputKernel::MAX_LENGTH; i++) {
 				float newCv = probKernels[index].calcRandomCv(offset, squash, density, overlap);
-				outputKernels[c].shiftWithInsertNew(newCv, length0);
+				outputKernels[c].stepWithInsertNew(newCv, OutputKernel::MAX_LENGTH - 1);
 			}
 		}
 	}
@@ -855,14 +873,13 @@ struct ProbKey : Module {
 		
 
 	IoStep* fillIoSteps(int *seqLenPtr) {// caller must delete return array
-		int seqLen = getLength0() + 1;
+		int seqLen = getLength();
 		IoStep* ioSteps = new IoStep[seqLen];
 		
 		// Populate ioSteps array
-		// must read outputKernel register backwards!, so all calls to getReg() should be mirrored
 		float lastCv = 0.0f;
 		for (int i = 0; i < seqLen; i++) {
-			float cv = outputKernels[0].getReg(seqLen - 1 - i);
+			float cv = outputKernels[0].getBuf(i);
 			if (cv == ProbKernel::IDEM_CV) {
 				ioSteps[i].pitch = lastCv;// don't care if init value of 0.0f is used when no gate encountered yet, will have no effect
 				ioSteps[i].gate = false;
@@ -887,13 +904,12 @@ struct ProbKey : Module {
 		params[LENGTH_PARAM].setValue(seqLen - 1);
 		
 		// Populate steps in the sequencer
-		// must write outputKernel register backwards!, so all calls to setReg() should be mirrored
 		for (int i = 0; i < OutputKernel::MAX_LENGTH; i++) {
-			outputKernels[0].setReg(ProbKernel::IDEM_CV, seqLen - 1 - i);
+			outputKernels[0].setBuf(ProbKernel::IDEM_CV, i);
 		}
 		for (int i = 0; i < seqLen; i++) {
 			if (ioSteps[i].gate) {
-				outputKernels[0].setReg(ioSteps[i].pitch, seqLen - 1 - i);
+				outputKernels[0].setBuf(ioSteps[i].pitch, i);
 			}
 		}
 	}
@@ -901,7 +917,7 @@ struct ProbKey : Module {
 	
 	void process(const ProcessArgs &args) override {		
 		int index = getIndex();
-		int length0 = getLength0();
+		int length = getLength();
 				
 		bool expanderPresent = rightExpander.module && (rightExpander.module->model == modelProbKeyExpander);	
 
@@ -1009,22 +1025,22 @@ struct ProbKey : Module {
 				bool isLockedStep = getLock() > random::uniform();
 				if (!isLockedStep && expanderPresent) {
 					PkxIntfFromExp *messagesFromExp = (PkxIntfFromExp*)rightExpander.consumerMessage;
-					isLockedStep = outputKernels[c].calcManualLock(messagesFromExp->manualLockLow, length0);
+					isLockedStep = outputKernels[c].calcManualLock(messagesFromExp->manualLockLow, length);
 				}
 				
 				if (isLockedStep) {
 					// recycle CV
-					outputKernels[c].shiftWithRecycle(length0);
+					outputKernels[c].stepWithKeepOld(length);
 				}
 				else {
 					// generate new random CV (taking hold into account though)
 					bool hold = inputs[HOLD_INPUT].isConnected() && inputs[HOLD_INPUT].getVoltage(std::min(c, inputs[HOLD_INPUT].getChannels())) > 1.0f;
 					if (hold) {
-						outputKernels[c].shiftWithHold(length0);
+						outputKernels[c].stepWithCopy(length);
 					}
 					else {
 						float newCv = probKernels[index].calcRandomCv(getOffset(c), getSquash(c), getDensity(c), overlap);
-						outputKernels[c].shiftWithInsertNew(newCv, length0);
+						outputKernels[c].stepWithInsertNew(newCv, length);
 					}
 				}
 				
@@ -1244,7 +1260,7 @@ struct ProbKeyWidget : ModuleWidget {
 					}
 				}
 				else if (module->dispManager.getMode() == DisplayManager::DISP_LENGTH) {
-					snprintf(displayStr, 5, " L%2u", module->getLength0() + 1);
+					snprintf(displayStr, 5, " L%2u", module->getLength());
 				}
 				else {
 					memcpy(displayStr, module->dispManager.getText(), 5);
