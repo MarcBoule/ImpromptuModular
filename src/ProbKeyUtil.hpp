@@ -12,8 +12,14 @@
 // --------
 
 // From mother to expander
-struct PkxInterface {
+struct PkxIntfFromMother {
 	int panelTheme;
 	float minCvChan0;
+};
+
+
+// From expander to mother
+struct PkxIntfFromExp {
+	bool manualLockLow[4];// index 0 is lowest
 };
 

@@ -150,7 +150,6 @@
 			"slug": "Prob-Key-Expander",
 			"name": "ProbKey expander",
 			"description": "Expander for ProbKey",
-			"disabled": true,
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#expanders",
 			"tags": ["Sequencer", "Random", "Polyphonic", "Expander"]
 		},

@@ -18,6 +18,7 @@
 struct ProbKeyExpander : Module {
 	enum ParamIds {
 		MINOCT_PARAM,
+		ENUMS(MANUAL_LOCK_LOW_PARAMS, 4),
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -27,51 +28,77 @@ struct ProbKeyExpander : Module {
 		MINCV_OUTPUT,
 		NUM_OUTPUTS
 	};
+	enum LightIds {
+		ENUMS(MANUAL_LOCK_LOW_LIGHTS, 4),
+		NUM_LIGHTS
+	};
 
 
 	// Expander
-	PkxInterface leftMessages[2] = {};// messages from mother
+	PkxIntfFromMother leftMessages[2] = {};// messages from mother
 
 
-	// No need to save
+	// No need to save, no reset
 	int panelTheme;
 	unsigned int expanderRefreshCounter = 0;	
+	RefreshCounter refresh;
 
 
 	ProbKeyExpander() {
-		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, 0);
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
 		leftExpander.producerMessage = &(leftMessages[0]);
 		leftExpander.consumerMessage = &(leftMessages[1]);
 		
 		configParam(MINOCT_PARAM, -4.0f, 4.0f, 0.0f, "Min CV out octave offset");
+		for (int i = 0; i < 4; i++) {
+			configParam(MANUAL_LOCK_LOW_PARAMS + i, 0.0f, 1.0f, 0.0f, string::f("Manual lock low %i", i + 1));
+		}
 
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
 
 
 	void process(const ProcessArgs &args) override {		
-		expanderRefreshCounter++;
-		if (expanderRefreshCounter >= expanderRefreshStepSkips) {
-			expanderRefreshCounter = 0;
 			
-			bool motherPresent = leftExpander.module && (leftExpander.module->model == modelProbKey);
-			if (motherPresent) {					
-				// From Mother
-				PkxInterface *messagesFromMother = (PkxInterface*)leftExpander.consumerMessage;
-				panelTheme = clamp(messagesFromMother->panelTheme, 0, 1);
-				
-				// Min CV out
-				if (outputs[MINCV_OUTPUT].isConnected()) {
-					float minCv = messagesFromMother->minCvChan0;
-					minCv += params[MINOCT_PARAM].getValue();
-					outputs[MINCV_OUTPUT].setVoltage(minCv);
+		bool motherPresent = leftExpander.module && (leftExpander.module->model == modelProbKey);
+		if (motherPresent) {					
+			// From Mother
+			PkxIntfFromMother *messagesFromMother = (PkxIntfFromMother*)leftExpander.consumerMessage;
+			panelTheme = clamp(messagesFromMother->panelTheme, 0, 1);
+			if (outputs[MINCV_OUTPUT].isConnected()) {
+				float minCv = messagesFromMother->minCvChan0;
+				minCv += params[MINOCT_PARAM].getValue();
+				outputs[MINCV_OUTPUT].setVoltage(minCv);
+			}
+		}	
+
+		if (refresh.processInputs()) {
+			if (motherPresent) {
+				// To Mother
+				PkxIntfFromExp *messagesFromExpander = (PkxIntfFromExp*)(leftExpander.module->rightExpander.producerMessage);
+				for (int i = 0; i < 4; i++) {
+					messagesFromExpander->manualLockLow[i] = params[MANUAL_LOCK_LOW_PARAMS + i].getValue() >= 0.5f;
 				}
-			}		
-		}// expanderRefreshCounter			
+				leftExpander.module->rightExpander.messageFlipRequested = true;
+			}
+		}// userInputs refresh
+		
+		if (refresh.processLights()) {
+			// manual lock lights
+			for (int i = 0; i < 4; i++) {
+				lights[MANUAL_LOCK_LOW_LIGHTS + i].setBrightness(params[MANUAL_LOCK_LOW_PARAMS + i].getValue());
+			}
+		}// processLights()
 	}// process()
 };
 
+
+struct LEDButtonToggle : LEDButton {
+	LEDButtonToggle() {
+		momentary = false;
+	}
+};
 
 struct ProbKeyExpanderWidget : ModuleWidget {
 	SvgPanel* darkPanel;
@@ -95,13 +122,21 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 		// Expansion module
 		static const float col0 = 10.16f;
 		static const float row0 = 26.5f;
-		static const float row1 = 46.0f;
+		static const float row1 = 48.0f;
 		
 		// minCv output
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, row0)), false, module, ProbKeyExpander::MINCV_OUTPUT, module ? &module->panelTheme : NULL));
 		
 		// minOct knob
 		addParam(createDynamicParamCentered<IMMediumKnob<true, true>>(mm2px(Vec(col0, row1)), module, ProbKeyExpander::MINOCT_PARAM, module ? &module->panelTheme : NULL));
+		
+		// manual lock low
+		static const float row2 = 107.0f;
+		static const float rowdy = 12.0f;
+		for (int i = 0; i < 4; i++) {// bottom to top
+			addParam(createParamCentered<LEDButtonToggle>(mm2px(Vec(col0, row2 - rowdy * i)), module, ProbKeyExpander::MANUAL_LOCK_LOW_PARAMS + i));
+			addChild(createLightCentered<MediumLight<GreenLight>>(mm2px(Vec(col0, row2 - rowdy * i)), module, ProbKeyExpander::MANUAL_LOCK_LOW_LIGHTS + i));
+		}
 	}
 	
 	void step() override {

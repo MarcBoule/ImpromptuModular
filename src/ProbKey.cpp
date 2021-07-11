@@ -447,6 +447,42 @@ class OutputKernel {
 		shiftWithInsertNew(shiftReg[length0], length0);
 	}
 	
+	
+	bool calcManualLock(bool* manualLockLow, int length0) {
+		// shiftReg[length0] is next recycle-to-be-used, this method checks lock potential against that
+		
+		if (shiftReg[length0] != ProbKernel::IDEM_CV) {
+			float lowestCvs[4] = {100.0f, 100.0f, 100.0f, 100.0f};
+			
+			// find lowest CV
+			for (int i = 0; i <= length0; i++) {
+				if (shiftReg[i] != ProbKernel::IDEM_CV && shiftReg[i] < lowestCvs[0]) {
+					lowestCvs[0] = shiftReg[i];
+				}
+			}
+			// find 2nd, 3rd and 4th lowest CVs
+			for (int j = 1; j < 4; j++) {
+				if (lowestCvs[j - 1] == 100.0f) {
+					break;
+				}
+				for (int i = 0; i <= length0; i++) {
+					if (shiftReg[i] != ProbKernel::IDEM_CV && shiftReg[i] < lowestCvs[j] && shiftReg[i] > lowestCvs[j - 1]) {
+						lowestCvs[j] = shiftReg[i];
+					}
+				}	
+			}
+			
+			// check next recycle-to-be-used against lowest CVs if manual locks wanted
+			for (int j = 0; j < 4; j++) {
+				if (manualLockLow[j] && shiftReg[length0] == lowestCvs[j]) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	
 	float getCv() {
 		return lastCv;
 	}
@@ -583,7 +619,8 @@ struct ProbKey : Module {
 	
 	
 	// Expander
-	// none (nothing from ProbKeyExpander)
+	PkxIntfFromExp rightMessages[2] = {};// messages from expander
+
 		
 	// Constants
 	enum ModeIds {MODE_PROB, MODE_ANCHOR, MODE_RANGE};
@@ -673,6 +710,9 @@ struct ProbKey : Module {
 	ProbKey() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
+		rightExpander.producerMessage = &(rightMessages[0]);
+		rightExpander.consumerMessage = &(rightMessages[1]);
+
 		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		configParam(LENGTH_PARAM, 0.0f, (float)(OutputKernel::MAX_LENGTH - 1), (float)(OutputKernel::MAX_LENGTH - 1), "Lock length", "", 0.0f, 1.0f, 1.0f);
 		configParam(LOCK_KNOB_PARAM, 0.0f, 1.0f, 0.0f, "Lock sequence", " %", 0.0f, 100.0f, 0.0f);
@@ -865,6 +905,9 @@ struct ProbKey : Module {
 	void process(const ProcessArgs &args) override {		
 		int index = getIndex();
 		int length0 = getLength0();
+				
+		bool expanderPresent = rightExpander.module && (rightExpander.module->model == modelProbKeyExpander);	
+
 		
 		//********** Buttons, knobs, switches and inputs **********
 		
@@ -966,8 +1009,13 @@ struct ProbKey : Module {
 			// gate input triggers
 			if (gateInTriggers[c].process(inputs[GATE_INPUT].getVoltage(c))) {
 				// got rising edge on gate input poly channel c
-
-				if (getLock() > random::uniform()) {
+				bool isLockedStep = getLock() > random::uniform();
+				if (!isLockedStep && expanderPresent) {
+					PkxIntfFromExp *messagesFromExp = (PkxIntfFromExp*)rightExpander.consumerMessage;
+					isLockedStep = outputKernels[c].calcManualLock(messagesFromExp->manualLockLow, length0);
+				}
+				
+				if (isLockedStep) {
 					// recycle CV
 					outputKernels[c].shiftWithRecycle(length0);
 				}
@@ -1052,8 +1100,8 @@ struct ProbKey : Module {
 		}// processLights()
 		
 		// To Expander
-		if (rightExpander.module && rightExpander.module->model == modelProbKeyExpander) {
-			PkxInterface *messagesToExpander = (PkxInterface*)(rightExpander.module->leftExpander.producerMessage);
+		if (expanderPresent) {
+			PkxIntfFromMother *messagesToExpander = (PkxIntfFromMother*)(rightExpander.module->leftExpander.producerMessage);
 			messagesToExpander->panelTheme = panelTheme;
 			messagesToExpander->minCvChan0 = outputKernels[0].getMinCv();
 			rightExpander.module->leftExpander.messageFlipRequested = true;

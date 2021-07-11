@@ -7,6 +7,9 @@
 //See ./res/fonts/ for font licenses
 //***********************************************************************************************
 
+// inkscape font sizes: 8 (small), 10.3 (normal) and 15.5 (title)
+
+
 #pragma once
 
 #include "rack.hpp"
