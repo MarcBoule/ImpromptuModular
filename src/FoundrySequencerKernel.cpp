@@ -292,7 +292,11 @@ void SequencerKernel::setGateType(int stepn, int gateType, int count) {
 float SequencerKernel::applyNewOctave(int stepn, int newOct0, int count) {// does not overwrite tied steps
 	// newOct0 is an octave number, 0 representing octave 4 (as in C4 for example)
 	float cvVal = cv[seqIndexEdit][stepn];
-	float newCV = cvVal - std::floor(cvVal) + (float)newOct0;
+	float fdel = cvVal - std::floor(cvVal);
+	if (fdel > 0.999f) {// mini quantize to fix notes that are float dust below integer values (see applyNewOct() in PhraseSeqUtil.hpp)
+		fdel = 0.0f;
+	}		
+	float newCV = fdel + (float)newOct0;
 	writeCV(stepn, newCV, count);// also sets dirty[] to 1
 	return newCV;
 }

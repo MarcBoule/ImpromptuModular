@@ -15,9 +15,6 @@
 #include "Interop.hpp"
 
 
-// inkscape font sizez: 8, 10.3 and 15.5
-
-
 
 class ProbKernel {
 	public: 

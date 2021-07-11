@@ -139,7 +139,34 @@ inline int indexToPps(int index) {// inverse map of ppsToIndex()
 
 inline float applyNewOct(float cvVal, int newOct0) {
 	// newOct0 is an octave number, 0 representing octave 4 (as in C4 for example)
-	return cvVal - std::floor(cvVal) + (float)newOct0;
+	// return cvVal - std::floor(cvVal) + (float)newOct0;// bug with this, shown below. this can happen when transposing a bunch of semitones, and the addition is not perfect.
+	// to reproduce: take the 7 step Cmajor scale, 
+	//               paste into another sequence slot
+	//               rotate right by 2
+	//               transpose up by 3
+	//               select the first step and then press the center octave button (4), it will stay at oct 5!!
+	
+	// [9.835 debug src/PhraseSeq16.cpp:1127] applyNewOct 5, 0, 0
+	// [9.835 debug src/PhraseSeq16.cpp:1128]   before cv = 1
+	// [9.835 debug src/PhraseSeq16.cpp:1130]   after  cv = 1 (BUG, should be 0)
+	
+	// [29.505 debug src/PhraseSeq16.cpp:1127] applyNewOct 5, 0, -1
+	// [29.505 debug src/PhraseSeq16.cpp:1128]   before cv = 1
+	// [29.505 debug src/PhraseSeq16.cpp:1130]   after  cv = -5.96046e-08 (BUG, should be -1)
+	
+	// [45.534 debug src/PhraseSeq16.cpp:1127] applyNewOct 5, 0, -1
+	// [45.535 debug src/PhraseSeq16.cpp:1128]   before cv = -5.96046e-08
+	// [45.535 debug src/PhraseSeq16.cpp:1130]   after  cv = 0 (BUG, should be -1)
+	
+	// [53.625 debug src/PhraseSeq16.cpp:1127] applyNewOct 5, 0, -2
+	// [53.625 debug src/PhraseSeq16.cpp:1128]   before cv = 0
+	// [53.625 debug src/PhraseSeq16.cpp:1130]   after  cv = -2
+
+	float fdel = cvVal - std::floor(cvVal);
+	if (fdel > 0.999f) {// mini quantize to fix notes that are float dust below integer values
+		fdel = 0.0f;
+	}	
+	return fdel + (float)newOct0;
 }
 
 inline bool calcGate(int gateCode, Trigger clockTrigger, unsigned long clockStep, float sampleRate) {
