@@ -5,7 +5,7 @@
 - ProbKey: Changed the pGain knob so that it now works like a density knob
 - ProbKey: Added poly capabilities to the offset, density and squash cv inputs (when using a poly gate in)
 - ProbKey: Added tracer lights in the probability and anchor edit modes, to show the note that is playing
-- ProbKey: Added expander (MANUAL TODO !!!!!!)
+- ProbKey: Added expander (MANUAL TODO !!!!!! min cv out and lock lowest are for 1st chan only when poly)
 - PhraseSeq16/32, SMS16, Foundry: fixed obscur bug with octave changes after transpositions (float dust)
 
 

@@ -1023,7 +1023,7 @@ struct ProbKey : Module {
 			if (gateInTriggers[c].process(inputs[GATE_INPUT].getVoltage(c))) {
 				// got rising edge on gate input poly channel c
 				bool isLockedStep = getLock() > random::uniform();
-				if (!isLockedStep && expanderPresent) {
+				if (c == 0 && !isLockedStep && expanderPresent) {
 					PkxIntfFromExp *messagesFromExp = (PkxIntfFromExp*)rightExpander.consumerMessage;
 					isLockedStep = outputKernels[c].calcManualLock(messagesFromExp->manualLockLow, length);
 				}
