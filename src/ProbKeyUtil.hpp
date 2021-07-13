@@ -20,6 +20,13 @@ struct PkxIntfFromMother {
 
 // From expander to mother
 struct PkxIntfFromExp {
-	bool manualLockLow[4];// index 0 is lowest
+	uint8_t manualLockLow;// index 0 is lowest note locked
+	
+	bool getLowLock(uint8_t i) {
+		return (manualLockLow & (0x1 << i)) != 0;
+	}
+	void setLowLock(uint8_t i) {
+		manualLockLow |= (0x1 << i);
+	}
 };
 

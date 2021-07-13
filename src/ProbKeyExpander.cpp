@@ -77,8 +77,11 @@ struct ProbKeyExpander : Module {
 			if (motherPresent) {
 				// To Mother
 				PkxIntfFromExp *messagesFromExpander = (PkxIntfFromExp*)(leftExpander.module->rightExpander.producerMessage);
+				messagesFromExpander->manualLockLow = 0;
 				for (int i = 0; i < 4; i++) {
-					messagesFromExpander->manualLockLow[i] = params[MANUAL_LOCK_LOW_PARAMS + i].getValue() >= 0.5f;
+					if (params[MANUAL_LOCK_LOW_PARAMS + i].getValue() >= 0.5f) {
+						messagesFromExpander->setLowLock(i);
+					}
 				}
 				leftExpander.module->rightExpander.messageFlipRequested = true;
 			}

@@ -462,8 +462,7 @@ class OutputKernel {
 	}
 		
 	
-	
-	bool calcManualLock(bool* manualLockLow, int length) {
+	bool calcLowLock(uint8_t manualLockLow, int length) {
 		int nextStep = (step + 1) % length;
 		// buf[nextStep] is next recycle-to-be-used, this method checks lock potential against that
 		
@@ -490,7 +489,7 @@ class OutputKernel {
 			
 			// check nextStep against lowest CVs if manual locks wanted
 			for (int j = 0; j < 4; j++) {
-				if (manualLockLow[j] && buf[nextStep] == lowestCvs[j]) {
+				if (((manualLockLow & (0x1 << j)) != 0) && buf[nextStep] == lowestCvs[j]) {
 					return true;
 				}
 			}
@@ -513,6 +512,9 @@ class OutputKernel {
 	}
 	bool getGateEnable() {
 		return buf[step] != ProbKernel::IDEM_CV;
+	}
+	int getStep() {
+		return step;
 	}
 };
 
@@ -651,6 +653,7 @@ struct ProbKey : Module {
 	float overlap;
 	int indexCvCap12;
 	int showTracer;
+	uint32_t stepLock;// bit 0 is step 0 in output kernel, etc. (applies to poly chan 0 only)
 	ProbKernel probKernels[NUM_INDEXES];
 	OutputKernel outputKernels[PORT_MAX_CHANNELS];
 	
@@ -721,6 +724,15 @@ struct ProbKey : Module {
 		int length0 = (int)std::round(params[LENGTH_PARAM].getValue() + inputs[LENGTH_INPUT].getVoltage() * 1.6f);
 		return clamp(length0, 0, OutputKernel::MAX_LENGTH - 1 ) + 1;
 	}
+	bool getStepLock(uint32_t s) {
+		return (stepLock & (0x1ul << s)) != 0ul;
+	}
+	void toggleStepLock(uint32_t s) {
+		stepLock ^= (0x1ul << s);
+	}
+	void clearStepLock() {
+		stepLock = 0ul;
+	}
 
 
 	ProbKey() {
@@ -757,6 +769,7 @@ struct ProbKey : Module {
 		overlap = 0.5f;// must be 0 to 1
 		indexCvCap12 = 0;
 		showTracer = 1;
+		clearStepLock(); // this is stepLock;
 		for (int i = 0; i < NUM_INDEXES; i++) {
 			probKernels[i].reset();
 		}
@@ -805,6 +818,9 @@ struct ProbKey : Module {
 		// showTracer
 		json_object_set_new(rootJ, "showTracer", json_integer(showTracer));
 
+		// stepLock
+		json_object_set_new(rootJ, "stepLock", json_integer(stepLock));
+
 		// probKernels
 		json_t* probsJ = json_array();
 		for (size_t i = 0; i < NUM_INDEXES; i++) {
@@ -852,6 +868,12 @@ struct ProbKey : Module {
 		json_t *showTracerJ = json_object_get(rootJ, "showTracer");
 		if (showTracerJ) {
 			showTracer = json_integer_value(showTracerJ);
+		}
+
+		// stepLock
+		json_t *stepLockJ = json_object_get(rootJ, "stepLock");
+		if (stepLockJ) {
+			stepLock = json_integer_value(stepLockJ);
 		}
 
 		// probKernels
@@ -919,7 +941,7 @@ struct ProbKey : Module {
 		int index = getIndex();
 		int length = getLength();
 				
-		bool expanderPresent = rightExpander.module && (rightExpander.module->model == modelProbKeyExpander);	
+		bool expanderPresent = rightExpander.module && (rightExpander.module->model == modelProbKeyExpander);
 
 		
 		//********** Buttons, knobs, switches and inputs **********
@@ -1023,9 +1045,14 @@ struct ProbKey : Module {
 			if (gateInTriggers[c].process(inputs[GATE_INPUT].getVoltage(c))) {
 				// got rising edge on gate input poly channel c
 				bool isLockedStep = getLock() > random::uniform();
-				if (c == 0 && !isLockedStep && expanderPresent) {
-					PkxIntfFromExp *messagesFromExp = (PkxIntfFromExp*)rightExpander.consumerMessage;
-					isLockedStep = outputKernels[c].calcManualLock(messagesFromExp->manualLockLow, length);
+				if (c == 0 && !isLockedStep) {
+					if (expanderPresent && ((PkxIntfFromExp*)rightExpander.consumerMessage)->manualLockLow != 0) {
+						// lock low from expander has higher priority than step lock in menu
+						isLockedStep = outputKernels[c].calcLowLock(((PkxIntfFromExp*)rightExpander.consumerMessage)->manualLockLow, length);
+					}
+					else {
+						isLockedStep = getStepLock(outputKernels[c].getStep());
+					}						
 				}
 				
 				if (isLockedStep) {
@@ -1324,6 +1351,35 @@ struct ProbKeyWidget : ModuleWidget {
 	};	
 	
 	
+	struct StepLockItem : MenuItem {
+		struct StepLockSubItem : MenuItem {
+			ProbKey *module;
+			int stepNum;
+			void onAction(const event::Action &e) override {
+				module->toggleStepLock(stepNum);
+			}
+		};
+		ProbKey *module;
+		Menu *createChildMenu() override {
+			Menu *menu = new Menu;
+			char buf[8];
+
+			for (int s = 0; s < module->getLength(); s++) {
+				float cv = module->outputKernels[0].getBuf(s);
+				printNote(cv, buf, true);
+				if (buf[2] == '\"') {
+					buf[2] = '#';
+				}
+				StepLockSubItem *slockItem = createMenuItem<StepLockSubItem>(string::f("Step %i (%s): ", s + 1, buf), CHECKMARK(module->getStepLock(s)));
+				slockItem->module = module;
+				slockItem->stepNum = s;
+				menu->addChild(slockItem);
+			}
+			
+			return menu;
+		}	
+	};
+	
 	void appendContextMenu(Menu *menu) override {
 		ProbKey *module = dynamic_cast<ProbKey*>(this->module);
 		assert(module);
@@ -1371,9 +1427,21 @@ struct ProbKeyWidget : ModuleWidget {
 		tracerItem->module = module;
 		menu->addChild(tracerItem);
 		
-	}	
-	
-	
+		bool expanderPresent = module->rightExpander.module && (module->rightExpander.module->model == modelProbKeyExpander);
+		bool stepLockDisabled = expanderPresent && ((PkxIntfFromExp*)module->rightExpander.consumerMessage)->manualLockLow != 0;
+		if (stepLockDisabled) {
+			MenuLabel *sldisLabel = new MenuLabel();
+			sldisLabel->text = "Manual step lock [inactive when low lock]";
+			menu->addChild(sldisLabel);
+		}
+		else {
+			StepLockItem *stepLockItem = createMenuItem<StepLockItem>("Manual step lock", RIGHT_ARROW);
+			stepLockItem->module = module;
+			menu->addChild(stepLockItem);
+		}
+	}
+
+
 	ProbKeyWidget(ProbKey *module) {
 		setModule(module);
 		
