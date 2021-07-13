@@ -1051,7 +1051,8 @@ struct ProbKey : Module {
 						isLockedStep = outputKernels[c].calcLowLock(((PkxIntfFromExp*)rightExpander.consumerMessage)->manualLockLow, length);
 					}
 					else {
-						isLockedStep = getStepLock(outputKernels[c].getStep());
+						int nextStep = (outputKernels[c].getStep() + 1) % length;
+						isLockedStep = getStepLock(nextStep);
 					}						
 				}
 				
