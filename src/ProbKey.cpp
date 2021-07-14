@@ -660,6 +660,7 @@ struct ProbKey : Module {
 	// No need to save, with reset
 	DisplayManager dispManager;
 	long infoTracer;
+	bool infoTracerLockedStep;// only valid when infoTracer != 0
 
 	// No need to save, no reset
 	RefreshCounter refresh;
@@ -781,6 +782,7 @@ struct ProbKey : Module {
 	void resetNonJson() {
 		dispManager.reset();
 		infoTracer = 0;
+		infoTracerLockedStep = false;
 	}
 
 
@@ -1073,6 +1075,7 @@ struct ProbKey : Module {
 				
 				if (c == 0) {
 					infoTracer = (long) (infoTracerTime * args.sampleRate / RefreshCounter::displayRefreshStepSkips);
+					infoTracerLockedStep = isLockedStep;
 				}					
 			}
 			
@@ -1095,21 +1098,21 @@ struct ProbKey : Module {
 			lights[MODE_LIGHTS + MODE_RANGE * 2 + 0].setBrightness(editMode == MODE_RANGE ? 1.0f : 0.0f);
 			lights[MODE_LIGHTS + MODE_RANGE * 2 + 1].setBrightness(editMode == MODE_RANGE ? 1.0f : 0.0f);
 			
-			// keyboard lights (green, red)
-			int tracer = -1;
-			if (showTracer != 0 && infoTracer > 0) {// inputs[GATE_INPUT].getVoltage(0) >= 1.0f) {
-				float tcv = outputKernels[0].getCv();
-				tracer = (int)std::round(tcv * 12.0f);
-				tracer = eucMod(tracer, 12);
-			}
+			// keyboard lights (green, red, white)
 			if (editMode == MODE_PROB) {
+				int tracer = -1;
+				if (showTracer != 0 && infoTracer > 0) {// inputs[GATE_INPUT].getVoltage(0) >= 1.0f) {
+					float tcv = outputKernels[0].getCv();
+					tracer = (int)std::round(tcv * 12.0f);
+					tracer = eucMod(tracer, 12);
+				}
 				for (int i = 0; i < 12; i++) {
-					setKeyLightsProb(i, probKernels[index].getNoteProb(i), tracer == i);
+					setKeyLightsProb(i, probKernels[index].getNoteProb(i), tracer == i, infoTracerLockedStep);
 				}
 			}
 			else if (editMode == MODE_ANCHOR) {
 				for (int i = 0; i < 12; i++) {
-					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i), probKernels[index].isProbNonNull(i), tracer == i);
+					setKeyLightsAnchor(i, probKernels[index].getNoteAnchor(i), probKernels[index].isProbNonNull(i));
 				}
 			}
 			else {
@@ -1148,20 +1151,20 @@ struct ProbKey : Module {
 		}
 	}
 	
-	void setKeyLightsProb(int key, float prob, bool tracer) {
+	void setKeyLightsProb(int key, float prob, bool tracer, bool tracerLockedStep) {
 		for (int j = 0; j < 4; j++) {// 0 to 3 is bottom to top
 			lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 0].setBrightness((tracer && (j == 3)) ? 0.0f : (prob * 4.0f - (float)j));
-			lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 1].setBrightness(0.0f);
-			lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 2].setBrightness((tracer && (j == 3)) ? 1.0f : 0.0f);
+			lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 1].setBrightness((tracer && (j == 3) && tracerLockedStep) ? 1.0f : 0.0f);
+			lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 2].setBrightness((tracer && (j == 3) && !tracerLockedStep) ? 1.0f : 0.0f);
 		}
 	}
-	void setKeyLightsAnchor(int key, float anch, bool active, bool tracer) {
+	void setKeyLightsAnchor(int key, float anch, bool active) {
 		if (active) {
 			anch = ProbKernel::quantizeAnchor(anch);
 			for (int j = 0; j < 4; j++) {
 				lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 0].setBrightness(0.0f);
-				lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 1].setBrightness((tracer && (j == 3)) ? 0.0f : (anch * 4.0f - (float)j));
-				lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 2].setBrightness((tracer && (j == 3)) ? 1.0f : 0.0f);
+				lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 1].setBrightness(anch * 4.0f - (float)j);
+				lights[KEY_LIGHTS + key * 4 * 3 + j * 3 + 2].setBrightness(0.0f);
 			}
 		}
 		else {
@@ -1371,6 +1374,15 @@ struct ProbKeyWidget : ModuleWidget {
 			ProbKey *module;
 			void onAction(const event::Action &e) override {
 				module->clearStepLock();
+				// unconsume event:
+				e.context->propagating = false;
+				e.context->consumed = false;
+				e.context->target = NULL;
+			}
+		};
+		struct StepLockDoneItem : MenuItem {
+			ProbKey *module;
+			void onAction(const event::Action &e) override {
 			}
 		};
 		
@@ -1382,6 +1394,10 @@ struct ProbKeyWidget : ModuleWidget {
 			StepLockClearAllItem *clearItem = createMenuItem<StepLockClearAllItem>("Clear all", "");
 			clearItem->module = module;
 			menu->addChild(clearItem);
+			
+			StepLockDoneItem *doneItem = createMenuItem<StepLockDoneItem>("Done", "");
+			doneItem->module = module;
+			menu->addChild(doneItem);
 			
 			menu->addChild(new MenuSeparator());
 			
@@ -1606,7 +1622,7 @@ struct ProbKeyWidget : ModuleWidget {
 
 		// Lock knob, led, button and input
 		addParam(createDynamicParamCentered<IMBigKnob<false, false>>(mm2px(Vec(col4, row0 + 2.0f)), module, ProbKey::LOCK_KNOB_PARAM, module ? &module->panelTheme : NULL));
-		addChild(createLightCentered<SmallLight<GreenLight>>(mm2px(Vec(col4 - 5.0f, row1 + 4.0f - 6.8f)), module, ProbKey::LOCK_LIGHT));	
+		addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(col4 - 5.0f, row1 + 4.0f - 6.8f)), module, ProbKey::LOCK_LIGHT));	
 		addParam(createDynamicParamCentered<IMBigPushButton>(mm2px(Vec(col4, row1 + 4.0f)), module, ProbKey::LOCK_BUTTON_PARAM, module ? &module->panelTheme : NULL));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col4, row2)), true, module, ProbKey::LOCK_INPUT, module ? &module->panelTheme : NULL));
 

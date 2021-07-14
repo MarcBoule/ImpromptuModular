@@ -6,14 +6,22 @@
 //See ./LICENSE.md for all licenses
 //See ./res/fonts/ for font licenses
 //
-//Module concept and design by Marc Boulé, Nigel Sixsmith
+//Module concept and design by Marc Boulé
 //
 //***********************************************************************************************
 
 
 #include "ProbKeyUtil.hpp"
 
-
+/*
+		{
+			"slug": "Prob-Key-Expander",
+			"name": "ProbKey expander",
+			"description": "Expander for ProbKey",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#expanders",
+			"tags": ["Sequencer", "Random", "Polyphonic", "Expander"]
+		},
+*/
 
 struct ProbKeyExpander : Module {
 	enum ParamIds {
