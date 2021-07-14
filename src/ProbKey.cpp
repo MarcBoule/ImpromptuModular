@@ -1358,20 +1358,47 @@ struct ProbKeyWidget : ModuleWidget {
 			int stepNum;
 			void onAction(const event::Action &e) override {
 				module->toggleStepLock(stepNum);
+				// unconsume event:
+				e.context->propagating = false;
+				e.context->consumed = false;
+				e.context->target = NULL;
+			}
+			void step() override {
+				rightText = CHECKMARK(module->getStepLock(stepNum));
+				MenuItem::step();
 			}
 		};
+		struct StepLockClearAllItem : MenuItem {
+			ProbKey *module;
+			void onAction(const event::Action &e) override {
+				module->clearStepLock();
+			}
+		};
+		
 		ProbKey *module;
 		Menu *createChildMenu() override {
 			Menu *menu = new Menu;
 			char buf[8];
 
+			StepLockClearAllItem *clearItem = createMenuItem<StepLockClearAllItem>("Clear all", "");
+			clearItem->module = module;
+			menu->addChild(clearItem);
+			
+			menu->addChild(new MenuSeparator());
+			
 			for (int s = 0; s < module->getLength(); s++) {
 				float cv = module->outputKernels[0].getBuf(s);
 				printNote(cv, buf, true);
-				if (buf[2] == '\"') {
-					buf[2] = '#';
-				}
-				StepLockSubItem *slockItem = createMenuItem<StepLockSubItem>(string::f("Step %i (%s): ", s + 1, buf), CHECKMARK(module->getStepLock(s)));
+				std::string noteStr(buf);
+				std::replace(noteStr.begin(), noteStr.end(), '\"', '#');
+				
+				int oct = eucDiv((int)std::round(cv * 12.0f), 12);
+				oct = clamp(oct + 4, 0, 9);
+				noteStr.insert(0, std::string(oct, ' '));
+				noteStr.insert(0, std::string(oct, ' '));
+				noteStr.insert(0, std::string("-"));
+				
+				StepLockSubItem *slockItem = createMenuItem<StepLockSubItem>(noteStr, CHECKMARK(module->getStepLock(s)));
 				slockItem->module = module;
 				slockItem->stepNum = s;
 				menu->addChild(slockItem);
@@ -1380,6 +1407,7 @@ struct ProbKeyWidget : ModuleWidget {
 			return menu;
 		}	
 	};
+
 	
 	void appendContextMenu(Menu *menu) override {
 		ProbKey *module = dynamic_cast<ProbKey*>(this->module);
