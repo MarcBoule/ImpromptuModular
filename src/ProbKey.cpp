@@ -463,7 +463,7 @@ class OutputKernel {
 		
 	
 	bool calcLowLock(uint8_t manualLockLow, int length) {
-		int nextStep = (step + 1) % length;
+		int nextStep = getNextStep(length);
 		// buf[nextStep] is next recycle-to-be-used, this method checks lock potential against that
 		
 		if (buf[nextStep] != ProbKernel::IDEM_CV) {
@@ -513,8 +513,8 @@ class OutputKernel {
 	bool getGateEnable() {
 		return buf[step] != ProbKernel::IDEM_CV;
 	}
-	int getStep() {
-		return step;
+	int getNextStep(int length) {
+		return (step + 1) % length;
 	}
 };
 
@@ -1051,8 +1051,7 @@ struct ProbKey : Module {
 						isLockedStep = outputKernels[c].calcLowLock(((PkxIntfFromExp*)rightExpander.consumerMessage)->manualLockLow, length);
 					}
 					else {
-						int nextStep = (outputKernels[c].getStep() + 1) % length;
-						isLockedStep = getStepLock(nextStep);
+						isLockedStep = getStepLock(outputKernels[c].getNextStep(length));
 					}						
 				}
 				
@@ -1388,7 +1387,12 @@ struct ProbKeyWidget : ModuleWidget {
 			
 			for (int s = 0; s < module->getLength(); s++) {
 				float cv = module->outputKernels[0].getBuf(s);
-				printNote(cv, buf, true);
+				if (cv == ProbKernel::IDEM_CV) {
+					buf[0] = 0;
+				}
+				else {
+					printNote(cv, buf, true);
+				}
 				std::string noteStr(buf);
 				std::replace(noteStr.begin(), noteStr.end(), '\"', '#');
 				
