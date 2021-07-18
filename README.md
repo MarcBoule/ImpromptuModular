@@ -1,5 +1,5 @@
 Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://vcvrack.com/plugins.html).
-Version 1.1.11
+Version 1.1.12
 
 Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -680,9 +680,11 @@ Other options are also available in the right-click menu:
 
 * **Index mode 12**: This option will map the index knob and its CV input (V/Oct voltages) to indexes 1 to 12. This can be used to set up different probability settings for each type of note (C, D, E, etc.) coming from another sequencer or ProbKey module. When this option is active, negative values in the CV input are also taken into account to perform the mapping; for example, notes C3 (-1V), C4 (0V) and C5 (1V) will all map to index #1, whereas C3#, C4#, C5#, will all map to index #2, and so forth.
 
-* **Show generated note**: When active, the top light in the key corresponding to the generated note will be lit white to show which note is currently playing. This visual feedback has a 3 second hold on each rising edge of the gate input and thus turns off automatically when gates are stopped.
+* **Show generated note**: When active, the top light in the key corresponding to the generated note will be lit white or red to show which note is currently playing (visible in the _p_ edit mode only). This visual feedback has a 3 second hold on each rising edge of the gate input and thus turns off automatically when gates are stopped. Top light will be red when the step is locked (because of the Lock knob or the Manual step lock menu), or white when a new note was generated.
 
 * **Portable sequence**: The portable sequence standard can also be used to copy/paste the current lock buffer, for use in sequencers or other modules (and also within ProbKey itself). For this, use the menu item labeled "_Portable sequence_". When working with polyphony, only the lock buffer of the first channel is used. As an interesting use case, different random variations of sequences can be captured and entered into Foundry or one of the Phrase Sequencers in order to make a song.
+
+* **Manual step lock**: This menu allows individual steps to be locked manually. The menu is not automatically closed when clicking steps or the *Clear all* option; to close the menu, the Done item can be clicked (which does nothing internally except close the menu), or by clicking elsewhere on the module. Manually locking steps is only advised when the Lock knob is at 100% (full right) or if Prob-Key is not receiving any gates; if not, the *Manual step lock* menu will quickly get out of sync with the notes stored in the lock buffer since the menu is not dynamically updated when held open.
 
 The ProbKey module supports **polyphony** such that a polyphonic gate input will generate a polyphonic CV/gate output pair where each channel will generate separate random notes according to the (unique) settings of the module. The *Density*, *Squash* and *Offset* CV inputs also support polyphony in order to exert a certain amount of control over the different voices, but in order to have true separate randomness across multiple channels, separate ProbKey modules must be used and then merged.
 
