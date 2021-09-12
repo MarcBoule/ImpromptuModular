@@ -84,15 +84,15 @@ struct ClockedExpanderWidget : ModuleWidget {
 		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
 
 		// Expansion module
-		static const int rowRulerExpTop = 60;
+		static const int rowRulerExpTop = 72;
 		static const int rowSpacingExp = 50;
-		static const int colRulerExp = 497 - 30 -150 - 300;// Clocked is (2+10)HP less than PS32
-		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 0), true, module, ClockedExpander::PW_INPUTS + 0, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 1), true, module, ClockedExpander::PW_INPUTS + 1, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 2), true, module, ClockedExpander::PW_INPUTS + 2, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 3), true, module, ClockedExpander::SWING_INPUTS + 0, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 4), true, module, ClockedExpander::SWING_INPUTS + 1, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 5), true, module, ClockedExpander::SWING_INPUTS + 2, module ? &module->panelTheme : NULL));
+		static const int colRulerExp = 30;// Clocked is (2+10)HP less than PS32
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 0), true, module, ClockedExpander::PW_INPUTS + 0, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 1), true, module, ClockedExpander::PW_INPUTS + 1, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 2), true, module, ClockedExpander::PW_INPUTS + 2, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 3), true, module, ClockedExpander::SWING_INPUTS + 0, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 4), true, module, ClockedExpander::SWING_INPUTS + 1, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 5), true, module, ClockedExpander::SWING_INPUTS + 2, module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {
