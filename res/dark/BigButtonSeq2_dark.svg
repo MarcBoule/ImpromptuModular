@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="101.6mm"
    height="128.5mm"
    viewBox="0 0 101.6 128.50044"
    version="1.1"
    id="svg192"
    sodipodi:docname="BigButtonSeq2_dark.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata196">
     <rdf:RDF>
@@ -36,19 +36,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1366"
-     inkscape:window-height="705"
+     inkscape:window-width="1920"
+     inkscape:window-height="1057"
      id="namedview194"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
      inkscape:zoom="1.6616245"
-     inkscape:cx="89.390233"
-     inkscape:cy="435.41727"
-     inkscape:window-x="251"
+     inkscape:cx="89.370372"
+     inkscape:cy="194.68899"
+     inkscape:window-x="-8"
      inkscape:window-y="1072"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg192" />
+     inkscape:current-layer="svg192"
+     inkscape:pagecheckerboard="0" />
   <defs
      id="defs36">
     <linearGradient
@@ -138,15 +139,6 @@
      id="path38"
      inkscape:connector-curvature="0"
      style="fill:#1e1e1e;stroke-width:1;fill-opacity:1" />
-  <rect
-     rx="2.3399999"
-     ry="2.3399999"
-     y="55.176273"
-     x="2.7097695"
-     height="29.511782"
-     width="13.871408"
-     id="rect46"
-     style="fill:#3e3e3e;stroke:#8c8c8c;stroke-width:0.26499999;paint-order:stroke markers fill;stroke-opacity:1" />
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -400,15 +392,6 @@
        id="path112"
        inkscape:connector-curvature="0" />
   </g>
-  <rect
-     rx="2.3399999"
-     ry="2.3399999"
-     y="40.33334"
-     x="18.282303"
-     height="29.511782"
-     width="13.871408"
-     id="rect116"
-     style="fill:#3e3e3e;stroke:#8c8c8c;stroke-width:0.26499999;paint-order:stroke markers fill;stroke-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78124732"
      id="g120"
