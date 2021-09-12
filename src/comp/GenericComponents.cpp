@@ -54,6 +54,7 @@ LEDBezelBig::LEDBezelBig() {
 	tw->box.size = sw->box.size; 
 	fb->addChild(tw);
 	box.size = sw->box.size; 
+	shadow->box.size = sw->box.size; 
 }
 
 
