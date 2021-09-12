@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="101.6mm"
    height="128.5mm"
    viewBox="0 0 101.6 128.50044"
    version="1.1"
    id="svg191"
    sodipodi:docname="Clocked_dark.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata195">
     <rdf:RDF>
@@ -36,19 +36,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1366"
-     inkscape:window-height="705"
+     inkscape:window-width="1271"
+     inkscape:window-height="1080"
      id="namedview193"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="1.0192121"
-     inkscape:cx="24.714577"
-     inkscape:cy="242.83465"
-     inkscape:window-x="251"
-     inkscape:window-y="1072"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg191" />
+     inkscape:zoom="3.4583334"
+     inkscape:cx="202.69879"
+     inkscape:cy="313.15662"
+     inkscape:window-x="633"
+     inkscape:window-y="1080"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg191"
+     inkscape:pagecheckerboard="0" />
   <defs
      id="defs23">
     <linearGradient
@@ -114,7 +115,7 @@
        x2="100.251"
        y2="182.42"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.3242286,0,0,1.3700271,-38.053251,-222.68005)" />
+       gradientTransform="matrix(1.3242286,0,0,1.3700271,-38.053251,-222.93118)" />
     <linearGradient
        xlink:href="#linearGradient913"
        id="g"
@@ -123,7 +124,7 @@
        x2="100.251"
        y2="182.42"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.3242286,0,0,1.3700271,-86.839339,-185.43448)" />
+       gradientTransform="matrix(1.3242286,0,0,1.3700271,-86.839339,-185.58749)" />
     <linearGradient
        xlink:href="#linearGradient913"
        id="h"
@@ -132,7 +133,7 @@
        x2="100.251"
        y2="182.42"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.3242286,0,0,1.3700271,-86.872619,-168.42578)" />
+       gradientTransform="matrix(1.3242286,0,0,1.3700271,-86.872619,-168.68499)" />
     <linearGradient
        xlink:href="#linearGradient913"
        id="i"
@@ -141,7 +142,7 @@
        x2="100.251"
        y2="182.42"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.3242286,0,0,1.3700271,-86.872619,-151.53228)" />
+       gradientTransform="matrix(1.3242286,0,0,1.3700271,-86.872619,-151.71498)" />
   </defs>
   <path
      d="M 0,0 H 101.60035 V 128.50044 H 0 Z m 0,0"
@@ -652,7 +653,7 @@
      style="fill:none;stroke:#c8c8c8;stroke-width:0.132" />
   <rect
      rx="1.4279999"
-     y="15.471174"
+     y="15.220053"
      x="74.562813"
      height="11.42404"
      width="19.883589"
@@ -661,31 +662,31 @@
      style="fill:url(#f);stroke-width:1" />
   <rect
      rx="1.4279999"
-     y="52.716747"
+     y="52.563736"
      x="25.778009"
      height="11.42404"
      width="19.883589"
      ry="1.4279999"
      id="rect171"
-     style="fill:url(#g);stroke-width:1;fill-opacity:1.0" />
+     style="fill:url(#g);fill-opacity:1;stroke-width:1" />
   <rect
      rx="1.4279999"
-     y="69.725449"
+     y="69.46624"
      x="25.743448"
      height="11.42404"
      width="19.883589"
      ry="1.4279999"
      id="rect173"
-     style="fill:url(#h);stroke-width:1;fill-opacity:1.0" />
+     style="fill:url(#h);fill-opacity:1;stroke-width:1" />
   <rect
      rx="1.4279999"
-     y="86.618942"
+     y="86.436241"
      x="25.743448"
      height="11.42404"
      width="19.883589"
      ry="1.4279999"
      id="rect175"
-     style="fill:url(#i);stroke-width:1;fill-opacity:1.0" />
+     style="fill:url(#i);fill-opacity:1;stroke-width:1" />
   <g
      style="line-height:1.25;stroke-width:0.78124732"
      id="g179"
