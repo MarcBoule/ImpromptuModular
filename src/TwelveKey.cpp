@@ -573,7 +573,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		// Octave display
 		OctaveNumDisplayWidget *octaveNumDisplay = new OctaveNumDisplayWidget();
 		octaveNumDisplay->box.size = VecPx(24, 30);// 1 character
-		octaveNumDisplay->box.pos = VecPx(columnRulerR2 - octaveNumDisplay->box.size.x / 2, rowRuler0 - octaveNumDisplay->box.size.y / 2);
+		octaveNumDisplay->box.pos = VecPx(columnRulerR2, rowRuler0).minus(octaveNumDisplay->box.size.div(2));
 		octaveNumDisplay->module = module;
 		addChild(octaveNumDisplay);
 		

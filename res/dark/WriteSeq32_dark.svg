@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="137.16mm"
    height="128.5mm"
    viewBox="0 0 137.15968 128.50044"
    version="1.1"
    id="svg269"
    sodipodi:docname="WriteSeq32_dark.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata273">
     <rdf:RDF>
@@ -36,19 +36,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1366"
-     inkscape:window-height="705"
+     inkscape:window-width="1536"
+     inkscape:window-height="801"
      id="namedview271"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="1.06"
-     inkscape:cx="-14.880237"
-     inkscape:cy="377.61536"
-     inkscape:window-x="251"
-     inkscape:window-y="1072"
+     inkscape:zoom="4.24"
+     inkscape:cx="245.87264"
+     inkscape:cy="247.52359"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg269" />
+     inkscape:current-layer="svg269"
+     inkscape:pagecheckerboard="0" />
   <defs
      id="defs49">
     <linearGradient
@@ -69,7 +70,7 @@
        x2="64.911003"
        y2="53.429001"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.2799955,0,0,1.2799955,0,-0.09579266)" />
+       gradientTransform="matrix(1.2799955,0,0,1.2799955,-0.3120097,-0.34540042)" />
     <linearGradient
        xlink:href="#a"
        id="i"
@@ -721,12 +722,12 @@
      inkscape:connector-curvature="0" />
   <rect
      ry="1.6140001"
-     y="56.738571"
-     x="75.410934"
+     y="56.488968"
+     x="75.09893"
      height="11.55452"
      width="15.065548"
      id="rect203"
-     style="fill:url(#h);stroke-width:1.00000012"
+     style="fill:url(#h);stroke-width:1"
      rx="1.6140001" />
   <rect
      ry="0.58200002"

@@ -240,6 +240,14 @@ struct IMFivePosSmallKnob : IMSmallKnob<false, true> {
 	}
 };
 
+struct IMFivePosMediumKnob : IMMediumKnob<false, true> {
+	IMFivePosMediumKnob() {
+		speed = 1.6f;
+		minAngle = -0.5*float(M_PI);
+		maxAngle = 0.5*float(M_PI);
+	}
+};
+
 struct IMSixPosBigKnob : IMBigKnob<false, true> {
 	IMSixPosBigKnob() {
 		speed = 1.3f;
