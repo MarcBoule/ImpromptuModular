@@ -36,6 +36,8 @@ struct CKSSNoRandom : CKSS {
 
 struct CKSSH : CKSS {
 	CKSSH();
+	
+	// void draw(const DrawArgs& args) override;
 };
 struct CKSSHNoRandom : CKSSH {
 	void randomize() override {}

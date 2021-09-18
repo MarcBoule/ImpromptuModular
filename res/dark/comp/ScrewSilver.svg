@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="5.0799999mm"
    height="5.0799999mm"
    viewBox="0 0 5.0803199 5.0793786"
    version="1.1"
    id="svg20"
    sodipodi:docname="ScrewSilver.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata24">
     <rdf:RDF>
@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -37,20 +37,21 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-height="1057"
      id="namedview22"
      showgrid="false"
      inkscape:zoom="23.115608"
-     inkscape:cx="6.7617514"
-     inkscape:cy="10.702352"
+     inkscape:cx="6.7703173"
+     inkscape:cy="10.707051"
      inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-y="1072"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg20"
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:document-units="mm"
-     units="mm" />
+     units="mm"
+     inkscape:pagecheckerboard="0" />
   <defs
      id="defs8">
     <linearGradient
@@ -59,7 +60,7 @@
          offset="0"
          stop-color="#272727"
          id="stop2"
-         style="stop-color:#3c3c3c;stop-opacity:1" />
+         style="stop-color:#8c8c8c;stop-opacity:1" />
       <stop
          offset="1"
          stop-color="#eaeaea"
@@ -80,7 +81,7 @@
   <path
      d="M 2.5408092,4.6014859 A 2.0637446,2.0637446 0 0 1 0.47836341,2.5403389 2.0650433,2.0650433 0 0 1 2.5408092,0.47789305 2.0650433,2.0650433 0 0 1 4.6019563,2.5403389 c 0,1.1364232 -0.9247239,2.061147 -2.0611471,2.061147"
      id="path10"
-     style="fill:url(#b);stroke:#acacac;stroke-width:0.21168001;stroke-miterlimit:4;stroke-dasharray:none"
+     style="fill:url(#b);stroke:#acacac;stroke-width:0.21168001;stroke-miterlimit:4;stroke-dasharray:none;opacity:1"
      inkscape:connector-curvature="0" />
   <path
      d="M 3.6637932,3.3057767 3.3056106,3.6639592 1.416526,1.7748746 1.7747085,1.416692 Z"
