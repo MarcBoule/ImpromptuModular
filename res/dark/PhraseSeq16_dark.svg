@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="152.39999mm"
    height="128.5mm"
    viewBox="0 0 152.40063 128.50044"
    version="1.1"
    id="svg285"
    sodipodi:docname="PhraseSeq16_dark.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata289">
     <rdf:RDF>
@@ -36,19 +36,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1366"
-     inkscape:window-height="705"
+     inkscape:window-width="1271"
+     inkscape:window-height="1080"
      id="namedview287"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="1.019212"
-     inkscape:cx="120.7139"
-     inkscape:cy="242.83464"
-     inkscape:window-x="251"
-     inkscape:window-y="1072"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg285" />
+     inkscape:zoom="4.076848"
+     inkscape:cx="424.34744"
+     inkscape:cy="156.24816"
+     inkscape:window-x="370"
+     inkscape:window-y="30"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg285"
+     inkscape:pagecheckerboard="0" />
   <defs
      id="defs43">
     <linearGradient
@@ -94,7 +95,7 @@
        x2="92.063004"
        y2="35.48"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.2799995,0,0,1.2799995,0.33919987,-0.09596823)" />
+       gradientTransform="matrix(1.2799995,0,0,1.2799995,0.20940139,-0.09596823)" />
     <linearGradient
        xlink:href="#b"
        id="k"
@@ -368,10 +369,10 @@
      id="path95"
      inkscape:connector-curvature="0" />
   <path
-     d="m 117.84955,46.572812 v 2.891519"
+     d="m 118.04425,46.572812 v 2.891519"
      id="path97"
      inkscape:connector-curvature="0"
-     style="fill:none;stroke:#c8c8c8;stroke-width:0.12100001" />
+     style="fill:none;stroke:#c8c8c8;stroke-width:0.121" />
   <g
      style="line-height:1.25;stroke-width:0.7812503"
      id="g101"
@@ -782,7 +783,7 @@
   <rect
      ry="1.508"
      y="33.644817"
-     x="107.97692"
+     x="107.84714"
      height="11.673595"
      width="20.130552"
      rx="1.508"

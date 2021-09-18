@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="284.48001mm"
    height="128.5mm"
    viewBox="0 0 284.48001 128.50044"
    version="1.1"
    id="svg583"
    sodipodi:docname="SemiModular_dark.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata587">
     <rdf:RDF>
@@ -36,19 +36,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1366"
-     inkscape:window-height="705"
+     inkscape:window-width="1271"
+     inkscape:window-height="1080"
      id="namedview585"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
      inkscape:zoom="3.47"
-     inkscape:cx="47.840657"
-     inkscape:cy="428.59705"
-     inkscape:window-x="251"
-     inkscape:window-y="1072"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg583" />
+     inkscape:cx="393.94813"
+     inkscape:cy="221.32565"
+     inkscape:window-x="389"
+     inkscape:window-y="76"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg583"
+     inkscape:pagecheckerboard="0" />
   <defs
      id="defs43">
     <linearGradient
@@ -114,7 +115,7 @@
          id="stop17" />
     </linearGradient>
     <linearGradient
-       gradientTransform="matrix(1.2800044,0,0,1.2800044,1.3273646,1.2068058)"
+       gradientTransform="matrix(1.2800044,0,0,1.2800044,1.5561119,1.2068058)"
        xlink:href="#c"
        id="h"
        x1="92.069"
@@ -130,7 +131,7 @@
        x2="92.774002"
        y2="232.729"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(-1.2800044,0,0,-1.2800044,217.55979,341.34496)" />
+       gradientTransform="matrix(-1.2800044,0,0,-1.2800044,217.86479,341.34496)" />
     <linearGradient
        xlink:href="#c"
        id="j"
@@ -347,29 +348,25 @@
      font-weight="700"
      y="55.731159"
      x="276.16095"
-     style="font-weight:700;font-size:4.51585579px;line-height:125%;font-family:Sniglet;-inkscape-font-specification:'Sniglet Bold';text-align:center;text-anchor:middle;fill:#c8c8c8;stroke-width:0.26499999;stroke-linecap:round;stroke-linejoin:round"
-     id="text105">
-    <tspan
+     style="font-weight:700;font-size:4.51586px;line-height:125%;font-family:Sniglet;-inkscape-font-specification:'Sniglet Bold';text-align:center;text-anchor:middle;fill:#c8c8c8;stroke-width:0.265;stroke-linecap:round;stroke-linejoin:round"
+     id="text105"><tspan
        font-size="2.117"
        y="55.731159"
        x="276.16095"
        id="tspan103"
-       style="font-size:2.70976949px;stroke-width:0.26499999">+</tspan>
-  </text>
+       style="font-size:2.70977px;stroke-width:0.265">+</tspan></text>
   <text
      font-size="3.528"
      font-weight="700"
      y="55.604431"
      x="267.07166"
-     style="font-weight:700;font-size:4.51585579px;line-height:125%;font-family:Sniglet;-inkscape-font-specification:'Sniglet Bold';text-align:center;text-anchor:middle;fill:#c8c8c8;stroke-width:0.26499999;stroke-linecap:round;stroke-linejoin:round"
-     id="text109">
-    <tspan
+     style="font-weight:700;font-size:4.51586px;line-height:125%;font-family:Sniglet;-inkscape-font-specification:'Sniglet Bold';text-align:center;text-anchor:middle;fill:#c8c8c8;stroke-width:0.265;stroke-linecap:round;stroke-linejoin:round"
+     id="text109"><tspan
        font-size="2.117"
        y="55.604431"
        x="267.07166"
        id="tspan107"
-       style="font-size:2.70976949px;stroke-width:0.26499999">-</tspan>
-  </text>
+       style="font-size:2.70977px;stroke-width:0.265">-</tspan></text>
   <path
      d="m 274.82974,74.071054 c 0,0 1.35425,0 1.35425,-1.354244 v -5.418259 c 0,0 0,-4.403215 -4.40322,-4.403215 -4.40193,0 -4.40193,4.403215 -4.40193,4.403215 v 5.418259 c 0,0 0,1.354244 1.35424,1.354244 z"
      id="path111"
@@ -1141,7 +1138,7 @@
      id="path343"
      inkscape:connector-curvature="0" />
   <path
-     d="m 119.20425,47.363763 v 3.456012"
+     d="m 119.433,47.363763 v 3.456012"
      id="path345"
      inkscape:connector-curvature="0"
      style="fill:none;stroke:#c8c8c8;stroke-width:0.132" />
@@ -1706,14 +1703,14 @@
   <rect
      ry="1.508"
      y="34.94772"
-     x="108.96549"
+     x="109.19424"
      height="11.67364"
      width="20.130629"
      id="rect505"
      style="fill:url(#h);stroke-width:1"
      rx="1.508" />
   <path
-     d="M 101.14979,43.449509 H 96.549452 A 0.43904151,0.43904151 0 0 1 96.10913,43.009188 v -6.794264 c 0,-0.243201 0.195841,-0.440321 0.440322,-0.440321 h 4.600338 c 0.2432,0 0.44032,0.19584 0.44032,0.440321 v 6.794264 c 0,0.243201 -0.19712,0.440321 -0.44032,0.440321 z"
+     d="m 101.45479,43.449509 h -4.600342 a 0.43904151,0.43904151 0 0 1 -0.440322,-0.440321 v -6.794264 c 0,-0.243201 0.195841,-0.440321 0.440322,-0.440321 h 4.600342 c 0.2432,0 0.44032,0.19584 0.44032,0.440321 v 6.794264 c 0,0.243201 -0.19712,0.440321 -0.44032,0.440321 z"
      id="path507"
      inkscape:connector-curvature="0"
      style="fill:url(#i);stroke-width:1" />

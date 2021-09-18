@@ -2055,9 +2055,9 @@ struct PhraseSeq16Widget : ModuleWidget {
 		// Key mode LED buttons	
 		static const float rowKM = 78.6f;
 		addParam(createParamCentered<LEDButton>(VecPx(252, rowKM), module, PhraseSeq16::KEYNOTE_PARAM));
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(243 + 9, rowKM), module, PhraseSeq16::KEYNOTE_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(252, rowKM), module, PhraseSeq16::KEYNOTE_LIGHT));
 		addParam(createParamCentered<LEDButton>(VecPx(140, rowKM), module, PhraseSeq16::KEYGATE_PARAM));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(131 + 9, rowKM), module, PhraseSeq16::KEYGATE_LIGHT));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(140, rowKM), module, PhraseSeq16::KEYGATE_LIGHT));
 
 		
 		
