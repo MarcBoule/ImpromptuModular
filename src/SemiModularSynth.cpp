@@ -2255,8 +2255,8 @@ struct SemiModularSynthWidget : ModuleWidget {
 		// Octave LED buttons
 		static const float octLightsIntY = 20.0f;
 		for (int i = 0; i < 7; i++) {
-			addParam(createParam<LEDButton>(VecPx(19 + 3, 86 + 24 + i * octLightsIntY- 4.4f), module, SemiModularSynth::OCTAVE_PARAM + i));
-			addChild(createLight<MediumLight<RedLight>>(VecPx(19 + 3 + 4.4f, 86 + 24 + i * octLightsIntY), module, SemiModularSynth::OCTAVE_LIGHTS + i));
+			addParam(createParamCentered<LEDButton>(VecPx(27 + 4, 110.6f + 4 + i * octLightsIntY), module, SemiModularSynth::OCTAVE_PARAM + i));
+			addChild(createLightCentered<MediumLight<RedLight>>(VecPx(27 + 4, 110.6f + 4 + i * octLightsIntY), module, SemiModularSynth::OCTAVE_LIGHTS + i));
 		}
 		// Keys and Key lights
 		static const int keyNudgeX = 7 + 4;

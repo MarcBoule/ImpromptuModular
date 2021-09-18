@@ -86,7 +86,7 @@ struct ClockedExpanderWidget : ModuleWidget {
 		// Expansion module
 		static const int rowRulerExpTop = 72;
 		static const int rowSpacingExp = 50;
-		static const int colRulerExp = 30;// Clocked is (2+10)HP less than PS32
+		static const int colRulerExp = 30;
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 0), true, module, ClockedExpander::PW_INPUTS + 0, module ? &module->panelTheme : NULL));
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 1), true, module, ClockedExpander::PW_INPUTS + 1, module ? &module->panelTheme : NULL));
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 2), true, module, ClockedExpander::PW_INPUTS + 2, module ? &module->panelTheme : NULL));

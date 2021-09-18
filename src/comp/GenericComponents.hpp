@@ -13,26 +13,6 @@ using namespace rack;
 extern Plugin *pluginInstance;
 
 
-// Component offset constants
-
-static const int hOffsetCKSS = 5;
-static const int vOffsetCKSS = 2;
-static const int vOffsetCKSSThree = -2;
-static const int hOffsetCKSSH = 2;
-static const int vOffsetCKSSH = 5;
-static const int offsetCKD6b = 0;//does both h and v
-static const int vOffsetDisplay = -2;
-static const int offsetIMBigKnob = -6;//does both h and v
-static const int offsetIMSmallKnob = 0;//does both h and v
-static const int offsetMediumLight = 9;
-static const float offsetLEDbutton = 3.0f;//does both h and v
-static const float offsetLEDbuttonLight = 4.4f;//does both h and v
-static const int offsetTL1105 = 4;//does both h and v
-static const int offsetLEDbezel = 1;//does both h and v
-static const float offsetLEDbezelLight = 2.2f;//does both h and v
-static const float offsetLEDbezelBig = -11;//does both h and v
-
-
 
 // Variations on existing knobs, lights, etc
 

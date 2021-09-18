@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="162.56mm"
    height="128.5mm"
    viewBox="0 0 162.56 128.50044"
    version="1.1"
    id="svg325"
    sodipodi:docname="PhraseSeq32_dark.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata329">
     <rdf:RDF>
@@ -42,14 +42,15 @@
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="1.14893"
-     inkscape:cx="307.20104"
-     inkscape:cy="242.83465"
+     inkscape:zoom="3.2496648"
+     inkscape:cx="435.42953"
+     inkscape:cy="199.09746"
      inkscape:window-x="70"
      inkscape:window-y="62"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg325"
-     showguides="false" />
+     showguides="false"
+     inkscape:pagecheckerboard="0" />
   <defs
      id="defs49">
     <linearGradient
@@ -100,7 +101,7 @@
        y2="213.24899"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
-       gradientTransform="matrix(1.2800044,0,0,1.2800044,10.570276,-0.10647878)"
+       gradientTransform="matrix(1.2800044,0,0,1.2800044,10.407438,-0.10647878)"
        xlink:href="#b"
        id="i"
        x1="92.069"
@@ -940,7 +941,7 @@
   <rect
      ry="1.508"
      y="33.634434"
-     x="118.2084"
+     x="118.04556"
      height="11.67364"
      width="20.130629"
      rx="1.508"

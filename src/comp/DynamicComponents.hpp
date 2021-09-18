@@ -49,18 +49,12 @@ struct IMScrew : DynamicSVGScrew {
 
 // ******** Dynamic Ports ********
 
-// General Dynamic Port creation
 template <class TDynamicPort>
-TDynamicPort* createDynamicPort(Vec pos, bool isInput, Module *module, int portId, int* mode) {
+TDynamicPort* createDynamicPortCentered(Vec pos, bool isInput, Module *module, int portId, int* mode) {
 	TDynamicPort *dynPort = isInput ? 
 		createInput<TDynamicPort>(pos, module, portId) :
 		createOutput<TDynamicPort>(pos, module, portId);
 	dynPort->mode = mode;
-	return dynPort;
-}
-template <class TDynamicPort>
-TDynamicPort* createDynamicPortCentered(Vec pos, bool isInput, Module *module, int portId, int* mode) {
-	TDynamicPort *dynPort = createDynamicPort<TDynamicPort>(pos, isInput, module, portId, mode);
 	dynPort->box.pos = dynPort->box.pos.minus(dynPort->box.size.div(2));// centering
 	return dynPort;
 }
@@ -91,14 +85,9 @@ struct IMPort : DynamicSVGPort {
 // ******** Dynamic Params ********
 
 template <class TDynamicParam>
-TDynamicParam* createDynamicParam(Vec pos, Module *module, int paramId, int* mode) {
+TDynamicParam* createDynamicParamCentered(Vec pos, Module *module, int paramId, int* mode) {
 	TDynamicParam *dynParam = createParam<TDynamicParam>(pos, module, paramId);
 	dynParam->mode = mode;
-	return dynParam;
-}
-template <class TDynamicParam>
-TDynamicParam* createDynamicParamCentered(Vec pos, Module *module, int paramId, int* mode) {
-	TDynamicParam *dynParam = createDynamicParam<TDynamicParam>(pos, module, paramId, mode);
 	dynParam->box.pos = dynParam->box.pos.minus(dynParam->box.size.div(2));// centering
 	return dynParam;
 }
