@@ -2030,35 +2030,34 @@ struct PhraseSeq16Widget : ModuleWidget {
 		
 		// ****** Top row ******
 		
-		static const int rowRulerT0 = 48;
-		static const int columnRulerT0 = 18;// Step LED buttons
-		static const int columnRulerT3 = 400;// Attach (also used to align rest of right side of module)
+		static const float rowT0 = 48.6f;
+		static const int colT0 = 27;// Step LED buttons
+		static const int colT3 = 404;// Attach (also used to align rest of right side of module)
 
 		// Step/Phrase LED buttons
-		int posX = columnRulerT0;
+		int posX = colT0;
 		static int spacingSteps = 20;
 		static int spacingSteps4 = 4;
 		for (int x = 0; x < 16; x++) {
 			// First row
-			addParam(createParam<LEDButton>(VecPx(posX, rowRulerT0 - 7 + 3 - 4.4f), module, PhraseSeq16::STEP_PHRASE_PARAMS + x));
-			addChild(createLight<MediumLight<GreenRedWhiteLight>>(VecPx(posX + 4.4f, rowRulerT0 - 7 + 3), module, PhraseSeq16::STEP_PHRASE_LIGHTS + (x * 3)));
+			addParam(createParamCentered<LEDButton>(VecPx(posX, rowT0), module, PhraseSeq16::STEP_PHRASE_PARAMS + x));
+			addChild(createLightCentered<MediumLight<GreenRedWhiteLight>>(VecPx(posX, rowT0), module, PhraseSeq16::STEP_PHRASE_LIGHTS + (x * 3)));
 			// step position to next location and handle groups of four
 			posX += spacingSteps;
 			if ((x + 1) % 4 == 0)
 				posX += spacingSteps4;
 		}
 		// Attach button and light
-		addParam(createDynamicParam<IMPushButton>(VecPx(columnRulerT3 - 4, rowRulerT0 - 6 + 2 + offsetTL1105), module, PhraseSeq16::ATTACH_PARAM, module ? &module->panelTheme : NULL));
-		addChild(createLight<MediumLight<RedLight>>(VecPx(columnRulerT3 + 12 + offsetMediumLight, rowRulerT0 - 6 + offsetMediumLight), module, PhraseSeq16::ATTACH_LIGHT));		
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colT3, rowT0 + 7.4f), module, PhraseSeq16::ATTACH_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colT3 + 22, rowT0 + 7.4f), module, PhraseSeq16::ATTACH_LIGHT));		
 
 		
 		// Key mode LED buttons	
-		static const int rowRulerKM = rowRulerT0 + 26;
-		static const int colRulerKM = columnRulerT0 + 113;
-		addParam(createParam<LEDButton>(VecPx(colRulerKM + 112, rowRulerKM - 4.4f), module, PhraseSeq16::KEYNOTE_PARAM));
-		addChild(createLight<MediumLight<RedLight>>(VecPx(colRulerKM + 112 + 4.4f,  rowRulerKM), module, PhraseSeq16::KEYNOTE_LIGHT));
-		addParam(createParam<LEDButton>(VecPx(colRulerKM, rowRulerKM - 4.4f), module, PhraseSeq16::KEYGATE_PARAM));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(colRulerKM + 4.4f, rowRulerKM), module, PhraseSeq16::KEYGATE_LIGHT));
+		static const float rowKM = 78.6f;
+		addParam(createParamCentered<LEDButton>(VecPx(252, rowKM), module, PhraseSeq16::KEYNOTE_PARAM));
+		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(243 + 9, rowKM), module, PhraseSeq16::KEYNOTE_LIGHT));
+		addParam(createParamCentered<LEDButton>(VecPx(140, rowKM), module, PhraseSeq16::KEYGATE_PARAM));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(131 + 9, rowKM), module, PhraseSeq16::KEYGATE_LIGHT));
 
 		
 		
@@ -2067,8 +2066,8 @@ struct PhraseSeq16Widget : ModuleWidget {
 		// Octave LED buttons
 		static const float octLightsIntY = 20.0f;
 		for (int i = 0; i < 7; i++) {
-			addParam(createParam<LEDButton>(VecPx(15 + 3, 82 + 24 + i * octLightsIntY- 4.4f), module, PhraseSeq16::OCTAVE_PARAM + i));
-			addChild(createLight<MediumLight<RedLight>>(VecPx(15 + 3 + 4.4f, 82 + 24 + i * octLightsIntY), module, PhraseSeq16::OCTAVE_LIGHTS + i));
+			addParam(createParamCentered<LEDButton>(VecPx(27, 110.6f + i * octLightsIntY), module, PhraseSeq16::OCTAVE_PARAM + i));
+			addChild(createLightCentered<MediumLight<RedLight>>(VecPx(27, 110.6f + i * octLightsIntY), module, PhraseSeq16::OCTAVE_LIGHTS + i));
 		}
 		// Keys and Key lights
 		static const int keyNudgeX = 7;
@@ -2107,97 +2106,99 @@ struct PhraseSeq16Widget : ModuleWidget {
 		
 		// ****** Right side control area ******
 
-		static const int rowRulerMK0 = 101;// Edit mode row
-		static const int rowRulerMK1 = rowRulerMK0 + 56; // Run row
-		static const int rowRulerMK2 = rowRulerMK1 + 54; // Reset row
-		static const int columnRulerMK0 = 277;// Edit mode column
-		static const int columnRulerMK1 = columnRulerMK0 + 59;// Display column
-		static const int columnRulerMK2 = columnRulerT3;// Run mode column
+		static const int rowMK0 = 113;// Edit mode row
+		static const int rowMK1 = rowMK0 + 56; // Run row
+		static const int rowMK2 = rowMK1 + 54; // Reset row
+		static const int colMK0 = 289;// Edit mode column
+		static const int colMK1 = colMK0 + 59;// Display column
+		static const int colMK2 = colT3 + 8;// Run mode column
+		
 		
 		// Edit mode switch
-		addParam(createParam<CKSSNoRandom>(VecPx(columnRulerMK0 + hOffsetCKSS, rowRulerMK0 + vOffsetCKSS), module, PhraseSeq16::EDIT_PARAM));
+		addParam(createParamCentered<CKSSNoRandom>(VecPx(colMK0, rowMK0), module, PhraseSeq16::EDIT_PARAM));
 		// Sequence display
 		SequenceDisplayWidget *displaySequence = new SequenceDisplayWidget();
-		displaySequence->box.pos = VecPx(columnRulerMK1-15, rowRulerMK0 + 3 + vOffsetDisplay);
 		displaySequence->box.size = VecPx(55, 30);// 3 characters
+		displaySequence->box.pos = VecPx(colMK1, rowMK0 + 4).minus(displaySequence->box.size.div(2));
 		displaySequence->module = module;
 		addChild(displaySequence);
 		// Len/mode button
-		addParam(createDynamicParam<IMBigPushButton>(VecPx(columnRulerMK2 + offsetCKD6b, rowRulerMK0 + 0 + offsetCKD6b), module, PhraseSeq16::RUNMODE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colMK2, rowMK0), module, PhraseSeq16::RUNMODE_PARAM, module ? &module->panelTheme : NULL));
 		
 		// Run LED bezel and light
-		addParam(createParam<LEDBezel>(VecPx(columnRulerMK0 + offsetLEDbezel, rowRulerMK1 + 7 + offsetLEDbezel), module, PhraseSeq16::RUN_PARAM));
-		addChild(createLight<MuteLight<GreenLight>>(VecPx(columnRulerMK0 + offsetLEDbezel + offsetLEDbezelLight, rowRulerMK1 + 7 + offsetLEDbezel + offsetLEDbezelLight), module, PhraseSeq16::RUN_LIGHT));
+		addParam(createParamCentered<LEDBezel>(VecPx(colMK0, rowMK1 + 7), module, PhraseSeq16::RUN_PARAM));
+		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colMK0, rowMK1 + 7), module, PhraseSeq16::RUN_LIGHT));
 		// Sequence knob
-		addParam(createDynamicParam<SequenceKnob>(VecPx(columnRulerMK1 + 1 + offsetIMBigKnob, rowRulerMK0 + 55 + offsetIMBigKnob), module, PhraseSeq16::SEQUENCE_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(colMK1 + 1, rowMK0 + 55), module, PhraseSeq16::SEQUENCE_PARAM, module ? &module->panelTheme : NULL));		
 		// Transpose/rotate button
-		addParam(createDynamicParam<IMBigPushButton>(VecPx(columnRulerMK2 + offsetCKD6b, rowRulerMK1 + 4 + offsetCKD6b), module, PhraseSeq16::TRAN_ROT_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colMK2, rowMK1 + 4), module, PhraseSeq16::TRAN_ROT_PARAM, module ? &module->panelTheme : NULL));
 		
 		// Reset LED bezel and light
-		addParam(createParam<LEDBezel>(VecPx(columnRulerMK0 + offsetLEDbezel, rowRulerMK2 + 5 + offsetLEDbezel), module, PhraseSeq16::RESET_PARAM));
-		addChild(createLight<MuteLight<GreenLight>>(VecPx(columnRulerMK0 + offsetLEDbezel + offsetLEDbezelLight, rowRulerMK2 + 5 + offsetLEDbezel + offsetLEDbezelLight), module, PhraseSeq16::RESET_LIGHT));
+		addParam(createParamCentered<LEDBezel>(VecPx(colMK0, rowMK2 + 5), module, PhraseSeq16::RESET_PARAM));
+		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colMK0, rowMK2 + 5), module, PhraseSeq16::RESET_LIGHT));
 		// Copy/paste buttons
-		addParam(createDynamicParam<IMPushButton>(VecPx(columnRulerMK1 - 10, rowRulerMK2 + 5 + offsetTL1105), module, PhraseSeq16::COPY_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParam<IMPushButton>(VecPx(columnRulerMK1 + 20, rowRulerMK2 + 5 + offsetTL1105), module, PhraseSeq16::PASTE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 - 15, rowMK2 + 5), module, PhraseSeq16::COPY_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 + 15, rowMK2 + 5), module, PhraseSeq16::PASTE_PARAM, module ? &module->panelTheme : NULL));
 		// Copy-paste mode switch (3 position)
-		addParam(createParam<CKSSThreeInvNoRandom>(VecPx(columnRulerMK2 + hOffsetCKSS + 1, rowRulerMK2 - 3 + vOffsetCKSSThree), module, PhraseSeq16::CPMODE_PARAM));	// 0.0f is top position
+		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(colMK2 + 1, rowMK2 - 3), module, PhraseSeq16::CPMODE_PARAM));	// 0.0f is top position
 
 		
 		
 		// ****** Gate and slide section ******
 		
-		static const int rowRulerMB0 = 214;
+		static const int rowMB0 = 230;
 		static const int columnRulerMBspacing = 70;
-		static const int columnRulerMB2 = 130;// Gate2
-		static const int columnRulerMB1 = columnRulerMB2 - columnRulerMBspacing;// Gate1 
-		static const int columnRulerMB3 = columnRulerMB2 + columnRulerMBspacing;// Tie
-		static const int posLEDvsButton = + 25;
+		static const int colMB2 = 142;// Gate2
+		static const int colMB1 = colMB2 - columnRulerMBspacing;// Gate1 
+		static const int colMB3 = colMB2 + columnRulerMBspacing;// Tie
+		static const int ledVsButtonDX = 27;
 		
 		// Gate 1 light and button
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(columnRulerMB1 + posLEDvsButton + offsetMediumLight, rowRulerMB0 + 4 + offsetMediumLight), module, PhraseSeq16::GATE1_LIGHT));		
-		addParam(createDynamicParam<IMBigPushButton>(VecPx(columnRulerMB1 + offsetCKD6b, rowRulerMB0 + 4 + offsetCKD6b), module, PhraseSeq16::GATE1_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colMB1 + ledVsButtonDX, rowMB0), module, PhraseSeq16::GATE1_LIGHT));		
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colMB1, rowMB0), module, PhraseSeq16::GATE1_PARAM, module ? &module->panelTheme : NULL));
 		// Gate 2 light and button
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(columnRulerMB2 + posLEDvsButton + offsetMediumLight, rowRulerMB0 + 4 + offsetMediumLight), module, PhraseSeq16::GATE2_LIGHT));		
-		addParam(createDynamicParam<IMBigPushButton>(VecPx(columnRulerMB2 + offsetCKD6b, rowRulerMB0 + 4 + offsetCKD6b), module, PhraseSeq16::GATE2_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colMB2 + ledVsButtonDX, rowMB0), module, PhraseSeq16::GATE2_LIGHT));		
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colMB2, rowMB0), module, PhraseSeq16::GATE2_PARAM, module ? &module->panelTheme : NULL));
 		// Tie light and button
-		addChild(createLight<MediumLight<RedLight>>(VecPx(columnRulerMB3 + posLEDvsButton + offsetMediumLight, rowRulerMB0 + 4 + offsetMediumLight), module, PhraseSeq16::TIE_LIGHT));		
-		addParam(createDynamicParam<IMBigPushButton>(VecPx(columnRulerMB3 + offsetCKD6b, rowRulerMB0 + 4 + offsetCKD6b), module, PhraseSeq16::TIE_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colMB3 + ledVsButtonDX, rowMB0), module, PhraseSeq16::TIE_LIGHT));		
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colMB3, rowMB0), module, PhraseSeq16::TIE_PARAM, module ? &module->panelTheme : NULL));
 
 						
 		
 		// ****** Bottom two rows ******
 		
 		static const int outputJackSpacingX = 54;
-		static const int rowRulerB0 = 323;
-		static const int rowRulerB1 = 269;
-		static const int columnRulerB0 = 22;
-		static const int columnRulerB1 = columnRulerB0 + outputJackSpacingX;
-		static const int columnRulerB2 = columnRulerB1 + outputJackSpacingX;
-		static const int columnRulerB3 = columnRulerB2 + outputJackSpacingX;
-		static const int columnRulerB4 = columnRulerB3 + outputJackSpacingX;
-		static const int columnRulerB7 = columnRulerMK2 + 1;
-		static const int columnRulerB6 = columnRulerB7 - outputJackSpacingX;
-		static const int columnRulerB5 = columnRulerB6 - outputJackSpacingX;
+		static const int rowB0 = 335;
+		static const int rowB1 = 281;
+		static const int colB0 = 34;
+		static const int colB1 = colB0 + outputJackSpacingX;
+		static const int colB2 = colB1 + outputJackSpacingX;
+		static const int colB3 = colB2 + outputJackSpacingX;
+		static const int colB4 = colB3 + outputJackSpacingX;
+		static const int colB7 = colMK2 + 1;
+		static const int colB6 = colB7 - outputJackSpacingX;
+		static const int colB5 = colB6 - outputJackSpacingX;
+		
 
 		
 		// Gate 1 probability light and button
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(columnRulerB0 + posLEDvsButton + offsetMediumLight, rowRulerB1 + offsetMediumLight), module, PhraseSeq16::GATE1_PROB_LIGHT));		
-		addParam(createDynamicParam<IMBigPushButton>(VecPx(columnRulerB0 + offsetCKD6b, rowRulerB1 + offsetCKD6b), module, PhraseSeq16::GATE1_PROB_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colB0 + ledVsButtonDX, rowB1), module, PhraseSeq16::GATE1_PROB_LIGHT));		
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colB0, rowB1), module, PhraseSeq16::GATE1_PROB_PARAM, module ? &module->panelTheme : NULL));
 		// Gate 1 probability knob
-		addParam(createDynamicParam<IMSmallKnob<true, false>>(VecPx(columnRulerB1 + offsetIMSmallKnob, rowRulerB1 + offsetIMSmallKnob), module, PhraseSeq16::GATE1_KNOB_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colB1, rowB1), module, PhraseSeq16::GATE1_KNOB_PARAM, module ? &module->panelTheme : NULL));
 		// Slide light and button
-		addChild(createLight<MediumLight<RedLight>>(VecPx(columnRulerB2 + posLEDvsButton + offsetMediumLight, rowRulerB1 + offsetMediumLight), module, PhraseSeq16::SLIDE_LIGHT));		
-		addParam(createDynamicParam<IMBigPushButton>(VecPx(columnRulerB2 + offsetCKD6b, rowRulerB1 + offsetCKD6b), module, PhraseSeq16::SLIDE_BTN_PARAM, module ? &module->panelTheme : NULL));
+		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colB2 + ledVsButtonDX, rowB1), module, PhraseSeq16::SLIDE_LIGHT));		
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colB2, rowB1), module, PhraseSeq16::SLIDE_BTN_PARAM, module ? &module->panelTheme : NULL));
 		// Slide knob
-		addParam(createDynamicParam<IMSmallKnob<true, false>>(VecPx(columnRulerB3 + offsetIMSmallKnob, rowRulerB1 + offsetIMSmallKnob), module, PhraseSeq16::SLIDE_KNOB_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colB3, rowB1), module, PhraseSeq16::SLIDE_KNOB_PARAM, module ? &module->panelTheme : NULL));
 		// Autostep
-		addParam(createParam<CKSSNoRandom>(VecPx(columnRulerB4 + hOffsetCKSS, rowRulerB1 + vOffsetCKSS), module, PhraseSeq16::AUTOSTEP_PARAM));		
+		addParam(createParamCentered<CKSSNoRandom>(VecPx(colB4, rowB1), module, PhraseSeq16::AUTOSTEP_PARAM));		
 		// CV in
-		addInput(createDynamicPort<IMPort>(VecPx(columnRulerB5, rowRulerB1), true, module, PhraseSeq16::CV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colB5, rowB1), true, module, PhraseSeq16::CV_INPUT, module ? &module->panelTheme : NULL));
 		// Clock
-		addInput(createDynamicPort<IMPort>(VecPx(columnRulerB6, rowRulerB1), true, module, PhraseSeq16::CLOCK_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colB6, rowB1), true, module, PhraseSeq16::CLOCK_INPUT, module ? &module->panelTheme : NULL));
 		// Reset
-		addInput(createDynamicPort<IMPort>(VecPx(columnRulerB7, rowRulerB1), true, module, PhraseSeq16::RESET_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colB7, rowB1), true, module, PhraseSeq16::RESET_INPUT, module ? &module->panelTheme : NULL));
 
 		
 
@@ -2205,15 +2206,15 @@ struct PhraseSeq16Widget : ModuleWidget {
 
 	
 		// CV control Inputs 
-		addInput(createDynamicPort<IMPort>(VecPx(columnRulerB0, rowRulerB0), true, module, PhraseSeq16::LEFTCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(VecPx(columnRulerB1, rowRulerB0), true, module, PhraseSeq16::RIGHTCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(VecPx(columnRulerB2, rowRulerB0), true, module, PhraseSeq16::SEQCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(VecPx(columnRulerB3, rowRulerB0), true, module, PhraseSeq16::RUNCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPort<IMPort>(VecPx(columnRulerB4, rowRulerB0), true, module, PhraseSeq16::WRITE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colB0, rowB0), true, module, PhraseSeq16::LEFTCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colB1, rowB0), true, module, PhraseSeq16::RIGHTCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colB2, rowB0), true, module, PhraseSeq16::SEQCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colB3, rowB0), true, module, PhraseSeq16::RUNCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colB4, rowB0), true, module, PhraseSeq16::WRITE_INPUT, module ? &module->panelTheme : NULL));
 		// Outputs
-		addOutput(createDynamicPort<IMPort>(VecPx(columnRulerB5, rowRulerB0), false, module, PhraseSeq16::CV_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPort<IMPort>(VecPx(columnRulerB6, rowRulerB0), false, module, PhraseSeq16::GATE1_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPort<IMPort>(VecPx(columnRulerB7, rowRulerB0), false, module, PhraseSeq16::GATE2_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colB5, rowB0), false, module, PhraseSeq16::CV_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colB6, rowB0), false, module, PhraseSeq16::GATE1_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colB7, rowB0), false, module, PhraseSeq16::GATE2_OUTPUT, module ? &module->panelTheme : NULL));
 	}
 	
 	void step() override {
