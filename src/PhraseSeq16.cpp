@@ -2127,7 +2127,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colMK0, rowMK1 + 7), module, PhraseSeq16::RUN_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colMK0, rowMK1 + 7), module, PhraseSeq16::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colMK0, rowMK1 + 7), module, PhraseSeq16::RUN_LIGHT));
 		// Sequence knob
 		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(colMK1 + 1, rowMK0 + 55), module, PhraseSeq16::SEQUENCE_PARAM, module ? &module->panelTheme : NULL));		
 		// Transpose/rotate button
@@ -2135,7 +2135,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colMK0, rowMK2 + 5), module, PhraseSeq16::RESET_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colMK0, rowMK2 + 5), module, PhraseSeq16::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colMK0, rowMK2 + 5), module, PhraseSeq16::RESET_LIGHT));
 		// Copy/paste buttons
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 - 15, rowMK2 + 5), module, PhraseSeq16::COPY_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 + 15, rowMK2 + 5), module, PhraseSeq16::PASTE_PARAM, module ? &module->panelTheme : NULL));

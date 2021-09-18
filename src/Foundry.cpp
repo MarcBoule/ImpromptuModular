@@ -2337,10 +2337,10 @@ struct FoundryWidget : ModuleWidget {
 		static const int colRulerResetRun = columnRulerT5;
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colRulerResetRun, rowRulerSmallButtons - 6), module, Foundry::RUN_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colRulerResetRun, rowRulerSmallButtons - 6), module, Foundry::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colRulerResetRun, rowRulerSmallButtons - 6), module, Foundry::RUN_LIGHT));
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colRulerResetRun, rowRulerMB0), module, Foundry::RESET_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colRulerResetRun, rowRulerMB0), module, Foundry::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colRulerResetRun, rowRulerMB0), module, Foundry::RESET_LIGHT));
 		
 
 

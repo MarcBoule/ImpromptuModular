@@ -907,7 +907,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addParam(createParamCentered<CKSSNoRandom>(VecPx(colT2 + 110, rowT1 + 6), module, WriteSeq64::QUANTIZE_PARAM));
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_LIGHT));
 		// Steps knob
 		addParam(createDynamicParamCentered<IMBigKnobInf>(VecPx(colT4, rowT1), module, WriteSeq64::STEPS_PARAM, module ? &module->panelTheme : NULL));		
 	
@@ -949,7 +949,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col1, row0), module, WriteSeq64::STEPL_PARAM, module ? &module->panelTheme : NULL));
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(col1, row1), module, WriteSeq64::RUN_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(col1, row1), module, WriteSeq64::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col1, row1), module, WriteSeq64::RUN_LIGHT));
 		// CV input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row2), true, module, WriteSeq64::CV_INPUT, module ? &module->panelTheme : NULL));
 		// Step L input

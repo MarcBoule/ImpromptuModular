@@ -1614,7 +1614,7 @@ struct GateSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colC1, rowC0), module, GateSeq64::PROB_PARAM, module ? &module->panelTheme : NULL));
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colC1, rowC1), module, GateSeq64::RESET_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colC1, rowC1), module, GateSeq64::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colC1, rowC1), module, GateSeq64::RESET_LIGHT));
 		// Seq CV
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colC1, rowC2), true, module, GateSeq64::SEQCV_INPUT, module ? &module->panelTheme : NULL));
 		
@@ -1622,7 +1622,7 @@ struct GateSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(colC2 + 1, rowC0), module, GateSeq64::SEQUENCE_PARAM, module ? &module->panelTheme : NULL));		
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colC2, rowC1), module, GateSeq64::RUN_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colC2, rowC1), module, GateSeq64::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colC2, rowC1), module, GateSeq64::RUN_LIGHT));
 		// Run CV
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colC2, rowC2), true, module, GateSeq64::RUNCV_INPUT, module ? &module->panelTheme : NULL));
 

@@ -2237,10 +2237,10 @@ struct PhraseSeq32Widget : ModuleWidget {
 		
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(columnMK0 - 43, rowMK2 + 5), module, PhraseSeq32::RESET_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(columnMK0 - 43, rowMK2 + 5), module, PhraseSeq32::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(columnMK0 - 43, rowMK2 + 5), module, PhraseSeq32::RESET_LIGHT));
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(columnMK0 + 3, rowMK2 + 5), module, PhraseSeq32::RUN_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(columnMK0 + 3, rowMK2 + 5), module, PhraseSeq32::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(columnMK0 + 3, rowMK2 + 5), module, PhraseSeq32::RUN_LIGHT));
 		// Copy/paste buttons
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnMK1 - 15, rowMK2 + 5), module, PhraseSeq32::COPY_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnMK1 + 15, rowMK2 + 5), module, PhraseSeq32::PASTE_PARAM, module ? &module->panelTheme : NULL));

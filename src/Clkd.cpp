@@ -940,10 +940,10 @@ struct ClkdWidget : ModuleWidget {
 		// Row 1
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colL, row1), module, Clkd::RESET_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colL, row1), module, Clkd::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colL, row1), module, Clkd::RESET_LIGHT));
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colC, row1), module, Clkd::RUN_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(colC, row1), module, Clkd::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colC, row1), module, Clkd::RUN_LIGHT));
 		// Master BPM knob
 		BpmKnob *bpmKnob;
 		addParam(bpmKnob = createDynamicParamCentered<BpmKnob>(VecPx(colR, row1), module, Clkd::BPM_PARAM, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)

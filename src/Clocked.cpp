@@ -1114,10 +1114,10 @@ struct ClockedWidget : ModuleWidget {
 		// Row 1
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(col0, row1), module, Clocked::RESET_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(col0, row1), module, Clocked::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col0, row1), module, Clocked::RESET_LIGHT));
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(col1, row1), module, Clocked::RUN_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(col1, row1), module, Clocked::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col1, row1), module, Clocked::RUN_LIGHT));
 		// BPM mode buttons
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col2 - 12, row1), module, Clocked::BPMMODE_DOWN_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col2 + 12, row1), module, Clocked::BPMMODE_UP_PARAM, module ? &module->panelTheme : NULL));

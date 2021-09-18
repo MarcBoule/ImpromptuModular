@@ -892,7 +892,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col1, row0), module, WriteSeq32::STEPL_PARAM, module ? &module->panelTheme : NULL));
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(col1, row1), module, WriteSeq32::RUN_PARAM));
-		addChild(createLightCentered<MuteLight<GreenLight>>(VecPx(col1, row1), module, WriteSeq32::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col1, row1), module, WriteSeq32::RUN_LIGHT));
 		// Gate input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row2), true, module, WriteSeq32::GATE_INPUT, module ? &module->panelTheme : NULL));		
 		// Step L input
