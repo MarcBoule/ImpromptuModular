@@ -67,6 +67,18 @@ void DynamicSVGSwitch::addFrameAll(std::shared_ptr<Svg> svg) {
 	}
 }
 
+void DynamicSVGSwitch::setSizeRatio(float ratio) {
+	sw->box.size = sw->box.size.mult(ratio);
+	fb->removeChild(sw);
+	tw = new TransformWidget();
+	tw->addChild(sw);
+	tw->scale(Vec(ratio, ratio));
+	tw->box.size = sw->box.size; 
+	fb->addChild(tw);
+	box.size = sw->box.size; 
+	shadow->box.size = sw->box.size; 
+}
+
 void DynamicSVGSwitch::step() {
     if(mode != NULL && *mode != oldMode) {
         if (*mode > 0 && !frameAltName0.empty() && !frameAltName1.empty()) {// JIT loading of alternate skin

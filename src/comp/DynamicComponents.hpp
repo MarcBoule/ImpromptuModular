@@ -98,10 +98,12 @@ struct DynamicSVGSwitch : SvgSwitch {
 	std::vector<std::shared_ptr<Svg>> framesAll;
 	std::string frameAltName0;
 	std::string frameAltName1;
+	TransformWidget *tw;
 	
 	void addFrameAll(std::shared_ptr<Svg> svg);
     void addFrameAlt0(std::string filename) {frameAltName0 = filename;}
     void addFrameAlt1(std::string filename) {frameAltName1 = filename;}
+	void setSizeRatio(float ratio);
     void step() override;
 };
 
@@ -126,7 +128,8 @@ struct IMBigPushButton : DynamicSVGSwitch {
 		addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKD6_0.svg")));
 		addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKD6_1.svg")));
 		addFrameAlt0(asset::plugin(pluginInstance, "res/dark/comp/CKD6_0.svg"));
-		addFrameAlt1(asset::plugin(pluginInstance, "res/dark/comp/CKD6_1.svg"));	
+		addFrameAlt1(asset::plugin(pluginInstance, "res/dark/comp/CKD6_1.svg"));
+		setSizeRatio(0.9f);		
 		shadow->blurRadius = 1.0f;
 	}
 };
