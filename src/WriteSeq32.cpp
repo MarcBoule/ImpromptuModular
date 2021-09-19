@@ -779,12 +779,39 @@ struct WriteSeq32Widget : ModuleWidget {
 		menu->addChild(rorItem);
 	}	
 	
+		
+	// struct SvgInvertablePanel : SvgPanel {
+		// int* invert;
+		
+		// SvgInvertablePanel(std::string path, int* _invert) {
+			// setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq32.svg")));
+			// invert = _invert;
+		// }
+		
+		// void draw(const DrawArgs& args) override {
+			// SvgPanel::draw(args);
+			// if (invert && *invert != 0) {
+				// // https://gamedev.stackexchange.com/questions/28640/how-to-invert-background-pixels-color
+				// nvgBeginPath(args.vg);
+				// nvgFillColor(args.vg, SCHEME_WHITE);	
+				// nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+				// nvgGlobalCompositeBlendFunc(args.vg, NVG_ONE_MINUS_DST_COLOR, NVG_ZERO);// src, dest
+				// nvgFill(args.vg);
+				// nvgClosePath(args.vg);	
+			// }
+		// }
+	// };	
 	
 	WriteSeq32Widget(WriteSeq32 *module) {
 		setModule(module);
 		
+		// Main panel from Inkscape
+		// panel = new SvgInvertablePanel("res/light/WriteSeq32.svg", module ? &((((WriteSeq32*)module)->panelTheme)) : NULL);
+		// addChildBottom(panel);
+		// box.size.x = std::round(panel->box.size.x / RACK_GRID_WIDTH) * RACK_GRID_WIDTH;// from ModuleWidget::setPanel()
+		
 		// Main panels from Inkscape
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq32.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq32.svg")));
         if (module) {
 			darkPanel = new SvgPanel();
 			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/WriteSeq32_dark.svg")));

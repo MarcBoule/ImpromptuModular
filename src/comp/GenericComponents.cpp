@@ -41,32 +41,6 @@ CKSSH::CKSSH() {
 	box.size = tw->box.size;
 }
 
-// void CKSSH::draw(const DrawArgs& args) {
-	// nvgSave(args.vg);
-
-	// NVGstate* state = nvg__getState(args);
-	// state->tint.a *= 1.0f;
-	
-	// nvgBeginPath(args.vg);
-	// nvgFillColor(args.vg, SCHEME_WHITE);	
-	// nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
-	// nvgGlobalCompositeOperation(args.vg, NVG_XOR);
-	// nvgFill(args.vg);
-	// nvgClosePath(args.vg);
-	
-	// nvgGlobalCompositeBlendFunc(args.vg, NVG_ONE_MINUS_SRC_COLOR, NVG_DST_COLOR );// src, dest
-	// nvgGlobalCompositeBlendFuncSeparate(args.vg, NVG_SRC_COLOR, NVG_DST_COLOR, NVG_SRC_ALPHA, NVG_DST_ALPHA);
-	
-	// nvgBeginPath(args.vg);
-	// nvgFillColor(args.vg, SCHEME_RED);	
-	// nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
-	// nvgFill(args.vg);
-	// nvgClosePath(args.vg);
-	
-	// CKSS::draw(args);
-	
-	// nvgRestore(args.vg);
-// }
 
 
 LEDBezelBig::LEDBezelBig() {
