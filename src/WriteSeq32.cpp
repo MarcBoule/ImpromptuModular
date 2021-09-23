@@ -594,7 +594,13 @@ struct WriteSeq32 : Module {
 
 
 struct WriteSeq32Widget : ModuleWidget {
+	// new:
+	// int lastPanelTheme = -1;// TODO integrate this into a new ImpromptuModuleWidget which does all the management in one struct instead of in all modules! Then declare "WriteSeq32Widget : ImpromptuModuleWidget" above
+	// old:
 	SvgPanel* darkPanel;
+	
+
+
 	int notesPos[8]; // used for rendering notes in LCD_24, 8 gate and 8 step LEDs 
 
 	struct NotesDisplayWidget : LightWidget {//TransparentWidget {
@@ -804,17 +810,21 @@ struct WriteSeq32Widget : ModuleWidget {
 	
 	
 	struct InverterWidget : TransparentWidget {
-		InverterWidget(Vec _size) {
+		int* panelThemeSrc = NULL;
+		InverterWidget(Vec _size, int* _panelThemeSrc) {
 			box.size = _size;
+			panelThemeSrc = _panelThemeSrc;
 		}
 		void draw(const DrawArgs& args) override {
 			TransparentWidget::draw(args);
-			nvgBeginPath(args.vg);
-			nvgFillColor(args.vg, SCHEME_WHITE);	
-			nvgRect(args.vg, 0, 0, box.size.x * 0.5f, box.size.y * 0.5f);
-			nvgGlobalCompositeBlendFunc(args.vg, NVG_ONE_MINUS_DST_COLOR, NVG_ZERO);// src, dest
-			nvgFill(args.vg);
-			nvgClosePath(args.vg);		
+			if (panelThemeSrc != NULL && *panelThemeSrc != 0) {
+				nvgBeginPath(args.vg);
+				nvgFillColor(args.vg, SCHEME_WHITE);	
+				nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+				nvgGlobalCompositeBlendFuncSeparate(args.vg, NVG_ONE_MINUS_DST_COLOR, NVG_ZERO, NVG_ONE_MINUS_DST_COLOR, NVG_ONE);// src, dest
+				nvgFill(args.vg);
+				nvgClosePath(args.vg);	
+			}			
 		}
 	};
 	
@@ -823,42 +833,19 @@ struct WriteSeq32Widget : ModuleWidget {
 	WriteSeq32Widget(WriteSeq32 *module) {
 		setModule(module);
 		
-		// Main panel from Inkscape
-		// panel = new SvgInvertablePanel("res/light/WriteSeq32.svg", module ? &((((WriteSeq32*)module)->panelTheme)) : NULL);
-		// addChildBottom(panel);
-		// box.size.x = std::round(panel->box.size.x / RACK_GRID_WIDTH) * RACK_GRID_WIDTH;// from ModuleWidget::setPanel()
-
 		// Main panels from Inkscape
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq32.svg")));
-        if (module) {
+		// new:
+		// panel->addChild(new InverterWidget(panel->box.size, module ? &module->panelTheme : NULL));
+		// old:
+		if (module) {
 			darkPanel = new SvgPanel();
 			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/WriteSeq32_dark.svg")));
 			darkPanel->visible = false;
 			addChild(darkPanel);
-		
-			// Widget* panelWidget = darkPanel->children.front();
-
-			// v2
-			// Widget* panelInvWidget = new InverterWidget(darkPanel->box.size);
-			// darkPanel->addChild(panelInvWidget);
-			
-			//v1
-			// darkPanel->removeChild(panelWidget);
-			// Widget* panelInvWidget = new InverterWidget(darkPanel->box.size);
-			// panelInvWidget->addChild(panelWidget);
-			// darkPanel->addChildBottom(panelInvWidget);
 		}
 
-	
-		// Main panels from Inkscape
-		// setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq32.svg")));
-        // if (module) {
-			// darkPanel = new SvgPanel();
-			// darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/WriteSeq32_dark.svg")));
-			// darkPanel->visible = false;
-			// addChild(darkPanel);
-		// }
-		
+			
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
 		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
@@ -1013,6 +1000,13 @@ struct WriteSeq32Widget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
+			// new:
+			// int panelTheme = (((WriteSeq32*)module)->panelTheme);
+			// if (panelTheme != lastPanelTheme) {
+				// ((FramebufferWidget*)panel)->dirty = true;
+				// lastPanelTheme = panelTheme;
+			// }
+			// old:
 			panel->visible = ((((WriteSeq32*)module)->panelTheme) == 0);
 			darkPanel->visible  = ((((WriteSeq32*)module)->panelTheme) == 1);
 		}
