@@ -2195,7 +2195,7 @@ struct FoundryWidget : ModuleWidget {
 		// see under Track display
 		
 		// Main switch
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM));// 1.0f is top position
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM));// 1.0f is top position
 
 		
 		
@@ -2311,7 +2311,7 @@ struct FoundryWidget : ModuleWidget {
 		
 		// Key mode LED buttons	
 		static const int colRulerKM = 61;
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM));
 		
 		// Gate 1 light and button
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnRulerMB1 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_LIGHT));		
@@ -2367,7 +2367,7 @@ struct FoundryWidget : ModuleWidget {
 		
 
 		// Autostep and write
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(columnRulerB0, rowRulerBHigh), module, Foundry::AUTOSTEP_PARAM));		
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(columnRulerB0, rowRulerBHigh), module, Foundry::AUTOSTEP_PARAM));		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB0, rowRulerBLow), true, module, Foundry::WRITE_INPUT, module ? &module->panelTheme : NULL));
 	
 		// CV IN inputs

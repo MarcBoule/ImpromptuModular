@@ -902,9 +902,9 @@ struct WriteSeq64Widget : ModuleWidget {
 		// Gate button
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colT2, rowT1), module, WriteSeq64::GATE_PARAM, module ? &module->panelTheme : NULL));
 		// Autostep	
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(colT2 + 53, rowT1 + 6), module, WriteSeq64::AUTOSTEP_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colT2 + 53, rowT1 + 6), module, WriteSeq64::AUTOSTEP_PARAM));
 		// Quantize switch
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(colT2 + 110, rowT1 + 6), module, WriteSeq64::QUANTIZE_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colT2 + 110, rowT1 + 6), module, WriteSeq64::QUANTIZE_PARAM));
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_LIGHT));

@@ -64,6 +64,28 @@ static const unsigned int expanderRefreshStepSkips = 4;
 
 // General objects
 
+
+struct InverterWidget : TransparentWidget {
+	int* panelThemeSrc = NULL;
+	InverterWidget(Vec _size, int* _panelThemeSrc) {
+		box.size = _size;
+		panelThemeSrc = _panelThemeSrc;
+	}
+	void draw(const DrawArgs& args) override {
+		TransparentWidget::draw(args);
+		if (panelThemeSrc != NULL && *panelThemeSrc != 0) {
+			nvgBeginPath(args.vg);
+			nvgFillColor(args.vg, SCHEME_WHITE);	
+			nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+			nvgGlobalCompositeBlendFuncSeparate(args.vg, NVG_ONE_MINUS_DST_COLOR, NVG_ZERO, NVG_ONE_MINUS_DST_COLOR, NVG_ONE);// src, dest
+			nvgFill(args.vg);
+			nvgClosePath(args.vg);	
+		}			
+	}
+};
+
+
+
 struct ClockMaster {// should not need to have mutex since only menu driven
 	int id = -1;
 	bool resetClockOutputsHigh;

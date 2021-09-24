@@ -595,9 +595,9 @@ struct WriteSeq32 : Module {
 
 struct WriteSeq32Widget : ModuleWidget {
 	// new:
-	// int lastPanelTheme = -1;// TODO integrate this into a new ImpromptuModuleWidget which does all the management in one struct instead of in all modules! Then declare "WriteSeq32Widget : ImpromptuModuleWidget" above
+	int lastPanelTheme = -1;// TODO integrate this into a new ImpromptuModuleWidget which does all the management in one struct instead of in all modules! Then declare "WriteSeq32Widget : ImpromptuModuleWidget" above
 	// old:
-	SvgPanel* darkPanel;
+	// SvgPanel* darkPanel;
 	
 
 
@@ -786,35 +786,6 @@ struct WriteSeq32Widget : ModuleWidget {
 	}	
 	
 	
-	
-	struct InverterWidget : TransparentWidget {
-		int* panelThemeSrc = NULL;
-		InverterWidget(Vec _size, int* _panelThemeSrc) {
-			box.size = _size;
-			panelThemeSrc = _panelThemeSrc;
-		}
-		void draw(const DrawArgs& args) override {
-			TransparentWidget::draw(args);
-			if (panelThemeSrc != NULL && *panelThemeSrc != 0) {
-				nvgBeginPath(args.vg);
-				nvgFillColor(args.vg, SCHEME_WHITE);	
-				nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
-				nvgGlobalCompositeBlendFuncSeparate(args.vg, NVG_ONE_MINUS_DST_COLOR, NVG_ZERO, NVG_ONE_MINUS_DST_COLOR, NVG_ONE);// src, dest
-				nvgFill(args.vg);
-				nvgClosePath(args.vg);	
-
-				// undo inversion test for keys, tacts and cv-pads
-				// nvgBeginPath(args.vg);
-				// nvgFillColor(args.vg, SCHEME_WHITE);	
-				// nvgRect(args.vg, 40, 40, 20, 20);
-				// nvgGlobalCompositeBlendFuncSeparate(args.vg, NVG_ONE_MINUS_DST_COLOR, NVG_ZERO, NVG_ONE_MINUS_DST_COLOR, NVG_ONE);// src, dest
-				// nvgFill(args.vg);
-				// nvgClosePath(args.vg);	
-
-			}			
-		}
-	};
-	
 
 	
 	WriteSeq32Widget(WriteSeq32 *module) {
@@ -823,14 +794,14 @@ struct WriteSeq32Widget : ModuleWidget {
 		// Main panels from Inkscape
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq32.svg")));
 		// new:
-		// panel->addChild(new InverterWidget(panel->box.size, module ? &module->panelTheme : NULL));
+		panel->addChild(new InverterWidget(panel->box.size, module ? &module->panelTheme : NULL));
 		// old:
-		if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/WriteSeq32_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		// if (module) {
+			// darkPanel = new SvgPanel();
+			// darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/WriteSeq32_dark.svg")));
+			// darkPanel->visible = false;
+			// addChild(darkPanel);
+		// }
 
 			
 		// Screws
@@ -864,11 +835,11 @@ struct WriteSeq32Widget : ModuleWidget {
 		
 		// Autostep, sharp/flat and quantize switches
 		// Autostep	
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(col0 + 3, yTopSwitches), module, WriteSeq32::AUTOSTEP_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(col0 + 3, yTopSwitches), module, WriteSeq32::AUTOSTEP_PARAM));
 		// Sharp/flat
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(col4, yTopSwitches), module, WriteSeq32::SHARP_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(col4, yTopSwitches), module, WriteSeq32::SHARP_PARAM));
 		// Quantize
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(col5, yTopSwitches), module, WriteSeq32::QUANTIZE_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(col5, yTopSwitches), module, WriteSeq32::QUANTIZE_PARAM));
 
 		// Window LED buttons
 		static const float wLightsPosX = 149.0f;
@@ -925,7 +896,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(col0, row2), module, WriteSeq32::PASTESYNC_PARAM));	
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(col0 + 32, row2 + 5), module, WriteSeq32::PENDING_LIGHT));		
 		// Run CV input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row3), true, module, WriteSeq32::RUNCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createInputCentered<IMPort2>(VecPx(col0, row3), module, WriteSeq32::RUNCV_INPUT));
 		
 		
 		// Column 1
@@ -935,9 +906,9 @@ struct WriteSeq32Widget : ModuleWidget {
 		addParam(createParamCentered<LEDBezel>(VecPx(col1, row1), module, WriteSeq32::RUN_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col1, row1), module, WriteSeq32::RUN_LIGHT));
 		// Gate input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row2), true, module, WriteSeq32::GATE_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createInputCentered<IMPort2>(VecPx(col1, row2), module, WriteSeq32::GATE_INPUT));		
 		// Step L input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row3), true, module, WriteSeq32::STEPL_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createInputCentered<IMPort2>(VecPx(col1, row3), module, WriteSeq32::STEPL_INPUT));
 		
 		
 		// Column 2
@@ -947,9 +918,9 @@ struct WriteSeq32Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row1), module, WriteSeq32::WRITE_PARAM, module ? &module->panelTheme : NULL));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(col2 - 21, row1 - 21), module, WriteSeq32::WRITE_LIGHT));
 		// CV input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col2, row2), true, module, WriteSeq32::CV_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createInputCentered<IMPort2>(VecPx(col2, row2), module, WriteSeq32::CV_INPUT));		
 		// Step R input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col2, row3), true, module, WriteSeq32::STEPR_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createInputCentered<IMPort2>(VecPx(col2, row3), module, WriteSeq32::STEPR_INPUT));
 		
 		
 		// Column 3
@@ -964,38 +935,38 @@ struct WriteSeq32Widget : ModuleWidget {
 		// Monitor
 		addParam(createParamCentered<CKSSHNoRandom>(VecPx(col3, row2), module, WriteSeq32::MONITOR_PARAM));		
 		// Write input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row3), true, module, WriteSeq32::WRITE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createInputCentered<IMPort2>(VecPx(col3, row3), module, WriteSeq32::WRITE_INPUT));
 		
 		
 		// Column 4
 		// Outputs
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row0), false, module, WriteSeq32::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row1), false, module, WriteSeq32::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row2), false, module, WriteSeq32::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createOutputCentered<IMPort2>(VecPx(col4, row0), module, WriteSeq32::CV_OUTPUTS + 0));
+		addOutput(createOutputCentered<IMPort2>(VecPx(col4, row1), module, WriteSeq32::CV_OUTPUTS + 1));
+		addOutput(createOutputCentered<IMPort2>(VecPx(col4, row2), module, WriteSeq32::CV_OUTPUTS + 2));
 		// Reset
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col4, row3), true, module, WriteSeq32::RESET_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createInputCentered<IMPort2>(VecPx(col4, row3), module, WriteSeq32::RESET_INPUT));		
 
 		
 		// Column 5
 		// Gates
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row0), false, module, WriteSeq32::GATE_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row1), false, module, WriteSeq32::GATE_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row2), false, module, WriteSeq32::GATE_OUTPUTS + 2, module ? &module->panelTheme : NULL));
+		addOutput(createOutputCentered<IMPort2>(VecPx(col5, row0), module, WriteSeq32::GATE_OUTPUTS + 0));
+		addOutput(createOutputCentered<IMPort2>(VecPx(col5, row1), module, WriteSeq32::GATE_OUTPUTS + 1));
+		addOutput(createOutputCentered<IMPort2>(VecPx(col5, row2), module, WriteSeq32::GATE_OUTPUTS + 2));
 		// Clock
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col5, row3), true, module, WriteSeq32::CLOCK_INPUT, module ? &module->panelTheme : NULL));			
+		addInput(createInputCentered<IMPort2>(VecPx(col5, row3), module, WriteSeq32::CLOCK_INPUT));			
 	}
 	
 	void step() override {
 		if (module) {
 			// new:
-			// int panelTheme = (((WriteSeq32*)module)->panelTheme);
-			// if (panelTheme != lastPanelTheme) {
-				// ((FramebufferWidget*)panel)->dirty = true;
-				// lastPanelTheme = panelTheme;
-			// }
+			int panelTheme = (((WriteSeq32*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 			// old:
-			panel->visible = ((((WriteSeq32*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((WriteSeq32*)module)->panelTheme) == 1);
+			// panel->visible = ((((WriteSeq32*)module)->panelTheme) == 0);
+			// darkPanel->visible  = ((((WriteSeq32*)module)->panelTheme) == 1);
 		}
 		Widget::step();
 	}

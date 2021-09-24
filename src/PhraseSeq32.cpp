@@ -2154,7 +2154,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnT3 - 8, rowT0 - 1), module, PhraseSeq32::ATTACH_PARAM, module ? &module->panelTheme : NULL));
 		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnT3 - 8 + 22, rowT0 - 1), module, PhraseSeq32::ATTACH_LIGHT));		
 		// Config switch
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(columnT4 + 1, rowT0 - 3), module, PhraseSeq32::CONFIG_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(columnT4 + 1, rowT0 - 3), module, PhraseSeq32::CONFIG_PARAM));
 
 		
 		
@@ -2218,7 +2218,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		static const int columnMK1 = 378;// Display column 
 		
 		// Edit mode switch
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(columnMK0 + 2, rowMK0), module, PhraseSeq32::EDIT_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(columnMK0 + 2, rowMK0), module, PhraseSeq32::EDIT_PARAM));
 		// Sequence display
 		SequenceDisplayWidget *displaySequence = new SequenceDisplayWidget();
 		displaySequence->box.size = VecPx(55, 30);// 3 characters
@@ -2229,7 +2229,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMK2, rowMK0), module, PhraseSeq32::RUNMODE_PARAM, module ? &module->panelTheme : NULL));
 
 		// Autostep
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(columnMK0 + 2, rowMK1 + 7), module, PhraseSeq32::AUTOSTEP_PARAM));		
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(columnMK0 + 2, rowMK1 + 7), module, PhraseSeq32::AUTOSTEP_PARAM));		
 		// Sequence knob
 		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(columnMK1 + 1, rowMK0 + 55), module, PhraseSeq32::SEQUENCE_PARAM, module ? &module->panelTheme : NULL));		
 		// Transpose/rotate button

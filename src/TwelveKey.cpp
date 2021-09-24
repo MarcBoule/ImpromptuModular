@@ -378,7 +378,10 @@ struct TwelveKey : Module {
 
 
 struct TwelveKeyWidget : ModuleWidget {
-	SvgPanel* darkPanel;
+	// new:
+	int lastPanelTheme = -1;// TODO integrate this into a new ImpromptuModuleWidget which does all the management in one struct instead of in all modules! Then declare "WriteSeq32Widget : ImpromptuModuleWidget" above
+	// old:
+	// SvgPanel* darkPanel;
 
 	struct OctaveNumDisplayWidget : LightWidget {//TransparentWidget {
 		TwelveKey *module;
@@ -493,14 +496,17 @@ struct TwelveKeyWidget : ModuleWidget {
 		
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/TwelveKey.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/TwelveKey_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+        // new:
+		panel->addChild(new InverterWidget(panel->box.size, module ? &module->panelTheme : NULL));
+		// old:
+		// if (module) {
+			// darkPanel = new SvgPanel();
+			// darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/TwelveKey_dark.svg")));
+			// darkPanel->visible = false;
+			// addChild(darkPanel);
+		// }
 		
-		// panel->addChild(new KeyboardBig(mm2px(Vec(1.354f,11.757f))));
+		panel->addChild(new KeyboardBig(mm2px(Vec(1.354f,11.757f))));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
@@ -563,10 +569,10 @@ struct TwelveKeyWidget : ModuleWidget {
 		static const int rowRuler2 = rowRuler1 + rowRulerStep;
 		
 		// Left side inputs
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL1, rowRuler0), true, module, TwelveKey::OCT_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL1, rowRuler1), true, module, TwelveKey::CV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL1, rowRuler2), true, module, TwelveKey::GATE_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL2, rowRuler2), true, module, TwelveKey::VEL_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createInputCentered<IMPort2>(VecPx(columnRulerL1, rowRuler0), module, TwelveKey::OCT_INPUT));
+		addInput(createInputCentered<IMPort2>(VecPx(columnRulerL1, rowRuler1), module, TwelveKey::CV_INPUT));
+		addInput(createInputCentered<IMPort2>(VecPx(columnRulerL1, rowRuler2), module, TwelveKey::GATE_INPUT));
+		addInput(createInputCentered<IMPort2>(VecPx(columnRulerL2, rowRuler2), module, TwelveKey::VEL_INPUT));
 
 		// Octave buttons
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerL2, rowRuler0), module, TwelveKey::OCTDEC_PARAM, module ? &module->panelTheme : NULL));
@@ -587,19 +593,26 @@ struct TwelveKeyWidget : ModuleWidget {
 
 
 		// Velocity polarity
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(colRulerCenter, rowRuler2), module, TwelveKey::VELPOL_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colRulerCenter, rowRuler2), module, TwelveKey::VELPOL_PARAM));
 		
 		// Right side outputs
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler0), false, module, TwelveKey::OCT_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler1), false, module, TwelveKey::CV_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler2), false, module, TwelveKey::GATE_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR2, rowRuler2), false, module, TwelveKey::VEL_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createOutputCentered<IMPort2>(VecPx(columnRulerR1, rowRuler0), module, TwelveKey::OCT_OUTPUT));
+		addOutput(createOutputCentered<IMPort2>(VecPx(columnRulerR1, rowRuler1), module, TwelveKey::CV_OUTPUT));
+		addOutput(createOutputCentered<IMPort2>(VecPx(columnRulerR1, rowRuler2), module, TwelveKey::GATE_OUTPUT));
+		addOutput(createOutputCentered<IMPort2>(VecPx(columnRulerR2, rowRuler2), module, TwelveKey::VEL_OUTPUT));
 	}
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((TwelveKey*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((TwelveKey*)module)->panelTheme) == 1);
+			// new:
+			int panelTheme = (((TwelveKey*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
+			// old:
+			// panel->visible = ((((TweleveKey*)module)->panelTheme) == 0);
+			// darkPanel->visible  = ((((TweleveKey*)module)->panelTheme) == 1);
 		}
 		Widget::step();
 	}

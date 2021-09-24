@@ -1641,7 +1641,7 @@ struct GateSeq64Widget : ModuleWidget {
 		
 
 		// Seq/Song selector
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(colC4, rowC0), module, GateSeq64::EDIT_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colC4, rowC0), module, GateSeq64::EDIT_PARAM));
 		// Config switch (3 position)
 		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(colC4, rowC1), module, GateSeq64::CONFIG_PARAM));// 0.0f is top position
 		// Copy paste mode

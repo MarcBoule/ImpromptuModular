@@ -936,11 +936,11 @@ struct CvPadWidget : ModuleWidget {
 		static const int topY = 60;
 		static constexpr float leftYd = 53.6f;
 		// quantize
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(leftX, topY), module, CvPad::QUANTIZE_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(leftX, topY), module, CvPad::QUANTIZE_PARAM));
 		// attach
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(leftX, topY + leftYd), module, CvPad::ATTACH_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(leftX, topY + leftYd), module, CvPad::ATTACH_PARAM));
 		// autostep
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(leftX, topY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(leftX, topY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM));
 		// write button
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(leftX, topY + leftYd * 3), module, CvPad::WRITE_PARAM, module ? &module->panelTheme : NULL));	
 		// write input

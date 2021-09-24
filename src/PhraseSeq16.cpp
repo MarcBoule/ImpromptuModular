@@ -2115,7 +2115,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		
 		
 		// Edit mode switch
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(colMK0, rowMK0), module, PhraseSeq16::EDIT_PARAM));
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colMK0, rowMK0), module, PhraseSeq16::EDIT_PARAM));
 		// Sequence display
 		SequenceDisplayWidget *displaySequence = new SequenceDisplayWidget();
 		displaySequence->box.size = VecPx(55, 30);// 3 characters
@@ -2192,7 +2192,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		// Slide knob
 		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colB3, rowB1), module, PhraseSeq16::SLIDE_KNOB_PARAM, module ? &module->panelTheme : NULL));
 		// Autostep
-		addParam(createParamCentered<CKSSNoRandom>(VecPx(colB4, rowB1), module, PhraseSeq16::AUTOSTEP_PARAM));		
+		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colB4, rowB1), module, PhraseSeq16::AUTOSTEP_PARAM));		
 		// CV in
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colB5, rowB1), true, module, PhraseSeq16::CV_INPUT, module ? &module->panelTheme : NULL));
 		// Clock
