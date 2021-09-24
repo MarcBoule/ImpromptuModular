@@ -500,6 +500,8 @@ struct TwelveKeyWidget : ModuleWidget {
 			addChild(darkPanel);
 		}
 		
+		// panel->addChild(new KeyboardBig(mm2px(Vec(1.354f,11.757f))));
+		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
 		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));

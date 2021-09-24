@@ -61,6 +61,14 @@ struct LEDBezelBig : SvgSwitch {
 };
 
 
+struct KeyboardBig : SvgWidget {
+	KeyboardBig(Vec(_pos)) {
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/KeyboardBig.svg")));
+		box.pos = _pos; 
+	}
+};
+
+
 
 // Knobs
 
