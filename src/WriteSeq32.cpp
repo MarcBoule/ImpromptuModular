@@ -785,28 +785,6 @@ struct WriteSeq32Widget : ModuleWidget {
 		menu->addChild(rorItem);
 	}	
 	
-		
-	// struct SvgInvertablePanel : SvgPanel {
-		// int* invert;
-		
-		// SvgInvertablePanel(std::string path, int* _invert) {
-			// setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq32.svg")));
-			// invert = _invert;
-		// }
-		
-		// void draw(const DrawArgs& args) override {
-			// SvgPanel::draw(args);
-			// if (invert && *invert != 0) {
-				// // https://gamedev.stackexchange.com/questions/28640/how-to-invert-background-pixels-color
-				// nvgBeginPath(args.vg);
-				// nvgFillColor(args.vg, SCHEME_WHITE);	
-				// nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
-				// nvgGlobalCompositeBlendFunc(args.vg, NVG_ONE_MINUS_DST_COLOR, NVG_ZERO);// src, dest
-				// nvgFill(args.vg);
-				// nvgClosePath(args.vg);	
-			// }
-		// }
-	// };	
 	
 	
 	struct InverterWidget : TransparentWidget {
@@ -824,6 +802,15 @@ struct WriteSeq32Widget : ModuleWidget {
 				nvgGlobalCompositeBlendFuncSeparate(args.vg, NVG_ONE_MINUS_DST_COLOR, NVG_ZERO, NVG_ONE_MINUS_DST_COLOR, NVG_ONE);// src, dest
 				nvgFill(args.vg);
 				nvgClosePath(args.vg);	
+
+				// undo inversion test for keys, tacts and cv-pads
+				// nvgBeginPath(args.vg);
+				// nvgFillColor(args.vg, SCHEME_WHITE);	
+				// nvgRect(args.vg, 40, 40, 20, 20);
+				// nvgGlobalCompositeBlendFuncSeparate(args.vg, NVG_ONE_MINUS_DST_COLOR, NVG_ZERO, NVG_ONE_MINUS_DST_COLOR, NVG_ONE);// src, dest
+				// nvgFill(args.vg);
+				// nvgClosePath(args.vg);	
+
 			}			
 		}
 	};

@@ -7,7 +7,9 @@
 
 #include "GenericComponents.hpp"
 
-
+int colDelta = 50;
+NVGcolor colTop = nvgRGB(128 - colDelta, 128 - colDelta, 128 - colDelta);
+NVGcolor colBot = nvgRGB(128 + colDelta, 128 + colDelta, 128 + colDelta);
 
 // Screws
 
@@ -40,6 +42,23 @@ CKSSH::CKSSH() {
 	tw->box.size = sw->box.size.flip();
 	box.size = tw->box.size;
 }
+
+// void CKSSH::draw(const DrawArgs& args) {
+	// nvgBeginPath(args.vg);
+	// nvgFillColor(args.vg, SCHEME_WHITE);	
+	// nvgRoundedRect(args.vg, -0.7f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 0.5f);
+	// nvgFill(args.vg);
+	// nvgClosePath(args.vg);	
+	
+	// nvgBeginPath(args.vg);
+	// NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
+	// nvgRoundedRect(args.vg, -0.6f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
+	// nvgFillPaint(args.vg, grad);
+	// nvgFill(args.vg);
+	// nvgClosePath(args.vg);	
+	
+	// CKSS::draw(args);
+// }
 
 
 
