@@ -442,10 +442,10 @@ struct TactWidget : ModuleWidget {
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 		
 		
 		static const int rowRuler0 = 34;
@@ -792,10 +792,10 @@ struct Tact1Widget : ModuleWidget {
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 		
 		
 		static const int rowRuler0 = 42;
@@ -1081,10 +1081,10 @@ struct TactGWidget : ModuleWidget {
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 		
 		
 		static constexpr float padY = 12.8f;

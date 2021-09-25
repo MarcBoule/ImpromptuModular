@@ -2209,14 +2209,14 @@ struct SemiModularSynthWidget : ModuleWidget {
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 1 / 3 + 30 , 0), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 1 / 3 + 30 , 365), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 2 / 3 + 45 , 0), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 2 / 3 + 45 , 365), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 1 / 3 + 30 , 0), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 1 / 3 + 30 , 365), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 2 / 3 + 45 , 0), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 2 / 3 + 45 , 365), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 
 		// SEQUENCER 

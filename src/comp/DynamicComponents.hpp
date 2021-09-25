@@ -27,22 +27,23 @@ TWidget* createDynamicWidget(Vec pos, int* mode) {
 	return dynWidget;
 }
 
-struct DynamicSVGScrew : SvgScrew {
+struct DynamicSVGScrew : SvgWidget {
     int* mode = NULL;
-    int oldMode = -1;
+    // int oldMode = -1;
     std::vector<std::shared_ptr<Svg>> frames;
 	std::string frameAltName;
 
     void addFrame(std::shared_ptr<Svg> svg);
-    void addFrameAlt(std::string filename) {frameAltName = filename;}
+    // void addFrameAlt(std::string filename) {frameAltName = filename;}
     void step() override;
 };
 
 
 struct IMScrew : DynamicSVGScrew {
 	IMScrew() {
-		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/ScrewSilver.svg")));
-		addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/ScrewSilver.svg"));
+		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/ScrewSilver.svg")));
+		// addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/ScrewSilver.svg")));
+		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/ScrewSilver.svg"));
 	}
 };
 

@@ -76,8 +76,8 @@ struct ClockedExpanderWidget : ModuleWidget {
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		// Expansion module
 		static const int rowRulerExpTop = 72;
