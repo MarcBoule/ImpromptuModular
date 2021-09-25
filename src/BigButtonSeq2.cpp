@@ -143,6 +143,10 @@ struct BigButtonSeq2 : Module {
 		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "Clear");	
 		configParam(SAMPLEHOLD_PARAM, 0.0f, 1.0f, 0.0f, "Sample & hold");
 		
+		#ifdef RACK_V2_PREP
+		getParamQuantity(DISPMODE_PARAM)->resetEnabled = false;		
+		#endif
+
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -866,7 +870,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		// Length jack
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler1), true, module, BigButtonSeq2::LEN_INPUT, module ? &module->panelTheme : NULL));
 		// Display switch
-		addParam(createParamCentered<CKSSHNoRandom>(VecPx(colRulerT5 + lengthDisplayOffsetX, rowRuler1 - 12), module, BigButtonSeq2::DISPMODE_PARAM));		
+		addParam(createParamCentered<IMSwitch2H>(VecPx(colRulerT5 + lengthDisplayOffsetX, rowRuler1 - 12), module, BigButtonSeq2::DISPMODE_PARAM));		
 
 
 		// Metronome light

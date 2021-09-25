@@ -315,7 +315,7 @@ struct PartWidget : ModuleWidget {
 		
 
 		// Display mode switch
-		addParam(createParamCentered<CKSSH>(VecPx(colM, row0), module, Part::MODE_PARAM));		
+		addParam(createParamCentered<IMSwitch2H>(VecPx(colM, row0), module, Part::MODE_PARAM));		
 		
 		// Display
 		addChild(new SplitDisplayWidget(VecPx(colM, row1), VecPx(65, 24), module));// 4 characters + decimal point

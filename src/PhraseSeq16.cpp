@@ -230,6 +230,12 @@ struct PhraseSeq16 : Module {
 		configParam(SLIDE_KNOB_PARAM, 0.0f, 2.0f, 0.2f, "Slide rate");
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");						
 		
+		#ifdef RACK_V2_PREP
+		getParamQuantity(CPMODE_PARAM)->resetEnabled = false;		
+		getParamQuantity(EDIT_PARAM)->resetEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
+		#endif
+
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -2115,7 +2121,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		
 		
 		// Edit mode switch
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colMK0, rowMK0), module, PhraseSeq16::EDIT_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(colMK0, rowMK0), module, PhraseSeq16::EDIT_PARAM));
 		// Sequence display
 		SequenceDisplayWidget *displaySequence = new SequenceDisplayWidget();
 		displaySequence->box.size = VecPx(55, 30);// 3 characters
@@ -2140,7 +2146,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 - 15, rowMK2 + 5), module, PhraseSeq16::COPY_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 + 15, rowMK2 + 5), module, PhraseSeq16::PASTE_PARAM, module ? &module->panelTheme : NULL));
 		// Copy-paste mode switch (3 position)
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(colMK2 + 1, rowMK2 - 3), module, PhraseSeq16::CPMODE_PARAM));	// 0.0f is top position
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colMK2 + 1, rowMK2 - 3), module, PhraseSeq16::CPMODE_PARAM, module ? &module->panelTheme : NULL));	// 0.0f is top position
 
 		
 		
@@ -2192,7 +2198,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		// Slide knob
 		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colB3, rowB1), module, PhraseSeq16::SLIDE_KNOB_PARAM, module ? &module->panelTheme : NULL));
 		// Autostep
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colB4, rowB1), module, PhraseSeq16::AUTOSTEP_PARAM));		
+		addParam(createParamCentered<IMSwitch2V>(VecPx(colB4, rowB1), module, PhraseSeq16::AUTOSTEP_PARAM));		
 		// CV in
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colB5, rowB1), true, module, PhraseSeq16::CV_INPUT, module ? &module->panelTheme : NULL));
 		// Clock

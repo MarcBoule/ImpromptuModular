@@ -125,6 +125,14 @@ struct WriteSeq32 : Module {
 		configParam(STEPS_PARAM, 1.0f, 32.0f, 32.0f, "Number of steps");		
 		configParam(MONITOR_PARAM, 0.0f, 1.0f, 1.0f, "Monitor");		
 		
+		#ifdef RACK_V2_PREP
+		getParamQuantity(PASTESYNC_PARAM)->resetEnabled = false;		
+		getParamQuantity(MONITOR_PARAM)->resetEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
+		getParamQuantity(SHARP_PARAM)->resetEnabled = false;		
+		getParamQuantity(QUANTIZE_PARAM)->resetEnabled = false;		
+		#endif
+
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -835,11 +843,11 @@ struct WriteSeq32Widget : ModuleWidget {
 		
 		// Autostep, sharp/flat and quantize switches
 		// Autostep	
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(col0 + 3, yTopSwitches), module, WriteSeq32::AUTOSTEP_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(col0 + 3, yTopSwitches), module, WriteSeq32::AUTOSTEP_PARAM));
 		// Sharp/flat
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(col4, yTopSwitches), module, WriteSeq32::SHARP_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(col4, yTopSwitches), module, WriteSeq32::SHARP_PARAM));
 		// Quantize
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(col5, yTopSwitches), module, WriteSeq32::QUANTIZE_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(col5, yTopSwitches), module, WriteSeq32::QUANTIZE_PARAM));
 
 		// Window LED buttons
 		static const float wLightsPosX = 149.0f;
@@ -893,7 +901,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 - 15, row1), module, WriteSeq32::COPY_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 + 15, row1), module, WriteSeq32::PASTE_PARAM, module ? &module->panelTheme : NULL));
 		// Paste sync (and light)
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(col0, row2), module, WriteSeq32::PASTESYNC_PARAM));	
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(col0, row2), module, WriteSeq32::PASTESYNC_PARAM, module ? &module->panelTheme : NULL));	
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(col0 + 32, row2 + 5), module, WriteSeq32::PENDING_LIGHT));		
 		// Run CV input
 		addInput(createInputCentered<IMPort2>(VecPx(col0, row3), module, WriteSeq32::RUNCV_INPUT));
@@ -933,7 +941,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		// Steps knob
 		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(VecPx(col3, row1), module, WriteSeq32::STEPS_PARAM, module ? &module->panelTheme : NULL));		
 		// Monitor
-		addParam(createParamCentered<CKSSHNoRandom>(VecPx(col3, row2), module, WriteSeq32::MONITOR_PARAM));		
+		addParam(createParamCentered<IMSwitch2H>(VecPx(col3, row2), module, WriteSeq32::MONITOR_PARAM));		
 		// Write input
 		addInput(createInputCentered<IMPort2>(VecPx(col3, row3), module, WriteSeq32::WRITE_INPUT));
 		

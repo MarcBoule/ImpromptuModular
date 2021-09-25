@@ -356,6 +356,12 @@ struct SemiModularSynth : Module {
 		configParam(LFO_GAIN_PARAM, 0.0f, 1.0f, 0.5f, "LFO gain");
 		configParam(LFO_OFFSET_PARAM, -1.0f, 1.0f, 0.0f, "LFO offset");
 
+		#ifdef RACK_V2_PREP
+		getParamQuantity(CPMODE_PARAM)->resetEnabled = false;		
+		getParamQuantity(EDIT_PARAM)->resetEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
+		getParamQuantity(VCO_MODE_PARAM)->resetEnabled = false;		
+		#endif
 		
 		onReset();
 		
@@ -2304,7 +2310,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		
 		
 		// Edit mode switch
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colMK0, rowMK0), module, SemiModularSynth::EDIT_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(colMK0, rowMK0), module, SemiModularSynth::EDIT_PARAM));
 		// Sequence display
 		SequenceDisplayWidget *displaySequence = new SequenceDisplayWidget();
 		displaySequence->box.size = VecPx(55, 30);// 3 characters
@@ -2329,7 +2335,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 - 15, rowMK2 + 5), module, SemiModularSynth::COPY_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 + 15, rowMK2 + 5), module, SemiModularSynth::PASTE_PARAM, module ? &module->panelTheme : NULL));
 		// Copy-paste mode switch (3 position)
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(colMK2 + 1, rowMK2 - 3), module, SemiModularSynth::CPMODE_PARAM));	// 0.0f is top position
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colMK2 + 1, rowMK2 - 3), module, SemiModularSynth::CPMODE_PARAM, module ? &module->panelTheme : NULL));	// 0.0f is top position
 
 		
 		
@@ -2381,7 +2387,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		// Slide knob
 		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colB3, rowB1), module, SemiModularSynth::SLIDE_KNOB_PARAM, module ? &module->panelTheme : NULL));
 		// Autostep
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colB4, rowB1), module, SemiModularSynth::AUTOSTEP_PARAM));		
+		addParam(createParamCentered<IMSwitch2V>(VecPx(colB4, rowB1), module, SemiModularSynth::AUTOSTEP_PARAM));		
 		// CV in
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colB5, rowB1), true, module, SemiModularSynth::CV_INPUT, module ? &module->panelTheme : NULL));
 		// Clock
@@ -2430,7 +2436,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVCO0, rowVCO2), module, SemiModularSynth::VCO_FM_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVCO1, rowVCO2), module, SemiModularSynth::VCO_PWM_PARAM, module ? &module->panelTheme : NULL));
 
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colVCO0, rowVCO3), module, SemiModularSynth::VCO_MODE_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(colVCO0, rowVCO3), module, SemiModularSynth::VCO_MODE_PARAM));
 		addParam(createDynamicParamCentered<IMFivePosSmallKnob>(VecPx(colVCO1, rowVCO3), module, SemiModularSynth::VCO_OCT_PARAM, module ? &module->panelTheme : NULL));
 
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colVCO0, rowVCO4), false, module, SemiModularSynth::VCO_SIN_OUTPUT, module ? &module->panelTheme : NULL));

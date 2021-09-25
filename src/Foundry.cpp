@@ -232,6 +232,14 @@ struct Foundry : Module {
 		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");		
 		
+		#ifdef RACK_V2_PREP
+		getParamQuantity(CPMODE_PARAM)->resetEnabled = false;		
+		getParamQuantity(EDIT_PARAM)->resetEnabled = false;		
+		getParamQuantity(KEY_GATE_PARAM)->resetEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
+		#endif
+		
+		
 		seq.construct(&holdTiedNotes, &velocityMode, &stopAtEndOfSong);
 		onReset();
 		
@@ -2189,13 +2197,13 @@ struct FoundryWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnRulerT1, rowRulerT0), module, Foundry::SEL_PARAM, module ? &module->panelTheme : NULL));
 		
 		// Copy-paste and select mode switch (3 position)
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(columnRulerT2, rowRulerT0), module, Foundry::CPMODE_PARAM));	// 0.0f is top position
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(columnRulerT2, rowRulerT0), module, Foundry::CPMODE_PARAM, module ? &module->panelTheme : NULL));	// 0.0f is top position
 		
 		// Copy/paste buttons
 		// see under Track display
 		
 		// Main switch
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM));// 1.0f is top position
+		addParam(createParamCentered<IMSwitch2V>(VecPx(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM));// 1.0f is top position
 
 		
 		
@@ -2311,7 +2319,7 @@ struct FoundryWidget : ModuleWidget {
 		
 		// Key mode LED buttons	
 		static const int colRulerKM = 61;
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM));
 		
 		// Gate 1 light and button
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnRulerMB1 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_LIGHT));		
@@ -2367,7 +2375,7 @@ struct FoundryWidget : ModuleWidget {
 		
 
 		// Autostep and write
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(columnRulerB0, rowRulerBHigh), module, Foundry::AUTOSTEP_PARAM));		
+		addParam(createParamCentered<IMSwitch2V>(VecPx(columnRulerB0, rowRulerBHigh), module, Foundry::AUTOSTEP_PARAM));		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB0, rowRulerBLow), true, module, Foundry::WRITE_INPUT, module ? &module->panelTheme : NULL));
 	
 		// CV IN inputs

@@ -24,7 +24,19 @@
 // Buttons and switches
 
 
-CKSSH::CKSSH() {
+void IMSwitch2V::draw(const DrawArgs& args) {
+	if (mode && *mode != 0) {
+		nvgBeginPath(args.vg);
+		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
+		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
+		nvgFillPaint(args.vg, grad);
+		nvgFill(args.vg);
+	}	
+	CKSS::draw(args);
+}
+
+
+IMSwitch2H::IMSwitch2H() {
 	shadow->opacity = 0.0;
 	fb->removeChild(sw);
 	
@@ -41,33 +53,27 @@ CKSSH::CKSSH() {
 	box.size = tw->box.size;
 }
 
-void CKSSV::draw(const DrawArgs& args) {
-	nvgBeginPath(args.vg);
-	NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
-	nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
-	nvgFillPaint(args.vg, grad);
-	nvgFill(args.vg);
-	
+
+void IMSwitch2H::draw(const DrawArgs& args) {
+	if (mode && *mode != 0) {
+		nvgBeginPath(args.vg);
+		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
+		nvgRoundedRect(args.vg, -0.6f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
+		nvgFillPaint(args.vg, grad);
+		nvgFill(args.vg);
+	}
 	CKSS::draw(args);
 }
 
-void CKSSH::draw(const DrawArgs& args) {
-	nvgBeginPath(args.vg);
-	NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
-	nvgRoundedRect(args.vg, -0.6f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
-	nvgFillPaint(args.vg, grad);
-	nvgFill(args.vg);
-	
-	CKSS::draw(args);
-}
 
-void CKSSThreeInv::draw(const DrawArgs& args) {
-	nvgBeginPath(args.vg);
-	NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
-	nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
-	nvgFillPaint(args.vg, grad);
-	nvgFill(args.vg);
-	
+void IMSwitch3VInv::draw(const DrawArgs& args) {
+	if (mode && *mode != 0) {
+		nvgBeginPath(args.vg);
+		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
+		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
+		nvgFillPaint(args.vg, grad);
+		nvgFill(args.vg);
+	}
 	SvgSwitch::draw(args);
 }
 
@@ -89,12 +95,13 @@ LEDBezelBig::LEDBezelBig() {
 }
 
 void KeyboardBig::draw(const DrawArgs& args) {
-	nvgBeginPath(args.vg);
-	NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
-	nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
-	nvgFillPaint(args.vg, grad);
-	nvgFill(args.vg);
-	
+	if (mode && *mode != 0) {
+		nvgBeginPath(args.vg);
+		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
+		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
+		nvgFillPaint(args.vg, grad);
+		nvgFill(args.vg);
+	}
 	SvgWidget::draw(args);
 }
 

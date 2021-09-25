@@ -659,7 +659,7 @@ struct FourViewWidget : ModuleWidget {
 
 
 		// Display mode switch
-		addParam(createParamCentered<CKSSH>(VecPx(centerX, 234), module, FourView::MODE_PARAM));		
+		addParam(createParamCentered<IMSwitch2H>(VecPx(centerX, 234), module, FourView::MODE_PARAM));		
 
 
 		static const int spacingY2 = 46;

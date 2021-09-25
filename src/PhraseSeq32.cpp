@@ -259,8 +259,16 @@ struct PhraseSeq32 : Module {
 		configParam(SLIDE_KNOB_PARAM, 0.0f, 2.0f, 0.2f, "Slide rate");
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");
 		
-		for (int i = 0; i < 32; i++)
+		#ifdef RACK_V2_PREP
+		getParamQuantity(CPMODE_PARAM)->resetEnabled = false;		
+		getParamQuantity(CONFIG_PARAM)->resetEnabled = false;		
+		getParamQuantity(EDIT_PARAM)->resetEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
+		#endif
+
+		for (int i = 0; i < 32; i++) {
 			seqAttribBuffer[i].init(16, MODE_FWD);
+		}
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -2154,7 +2162,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnT3 - 8, rowT0 - 1), module, PhraseSeq32::ATTACH_PARAM, module ? &module->panelTheme : NULL));
 		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnT3 - 8 + 22, rowT0 - 1), module, PhraseSeq32::ATTACH_LIGHT));		
 		// Config switch
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(columnT4 + 1, rowT0 - 3), module, PhraseSeq32::CONFIG_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(columnT4 + 1, rowT0 - 3), module, PhraseSeq32::CONFIG_PARAM));
 
 		
 		
@@ -2218,7 +2226,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		static const int columnMK1 = 378;// Display column 
 		
 		// Edit mode switch
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(columnMK0 + 2, rowMK0), module, PhraseSeq32::EDIT_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(columnMK0 + 2, rowMK0), module, PhraseSeq32::EDIT_PARAM));
 		// Sequence display
 		SequenceDisplayWidget *displaySequence = new SequenceDisplayWidget();
 		displaySequence->box.size = VecPx(55, 30);// 3 characters
@@ -2229,7 +2237,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMK2, rowMK0), module, PhraseSeq32::RUNMODE_PARAM, module ? &module->panelTheme : NULL));
 
 		// Autostep
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(columnMK0 + 2, rowMK1 + 7), module, PhraseSeq32::AUTOSTEP_PARAM));		
+		addParam(createParamCentered<IMSwitch2V>(VecPx(columnMK0 + 2, rowMK1 + 7), module, PhraseSeq32::AUTOSTEP_PARAM));		
 		// Sequence knob
 		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(columnMK1 + 1, rowMK0 + 55), module, PhraseSeq32::SEQUENCE_PARAM, module ? &module->panelTheme : NULL));		
 		// Transpose/rotate button
@@ -2245,7 +2253,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnMK1 - 15, rowMK2 + 5), module, PhraseSeq32::COPY_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnMK1 + 15, rowMK2 + 5), module, PhraseSeq32::PASTE_PARAM, module ? &module->panelTheme : NULL));
 		// Copy-paste mode switch (3 position)
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(columnMK2 + 1, rowMK2 - 3), module, PhraseSeq32::CPMODE_PARAM));	// 0.0f is top position
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(columnMK2 + 1, rowMK2 - 3), module, PhraseSeq32::CPMODE_PARAM, module ? &module->panelTheme : NULL));	// 0.0f is top position
 
 		
 		

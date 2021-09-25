@@ -90,6 +90,10 @@ struct TwelveKey : Module {
 		configParam(MAXVEL_PARAM, 0.0, 1.0, 0.0, "Max velocity");
 		configParam(VELPOL_PARAM, 0.0, 1.0, 0.0, "Velocity polarity");
 		
+		#ifdef RACK_V2_PREP
+		getParamQuantity(VELPOL_PARAM)->resetEnabled = false;		
+		#endif
+
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -593,7 +597,7 @@ struct TwelveKeyWidget : ModuleWidget {
 
 
 		// Velocity polarity
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colRulerCenter, rowRuler2), module, TwelveKey::VELPOL_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(colRulerCenter, rowRuler2), module, TwelveKey::VELPOL_PARAM));
 		
 		// Right side outputs
 		addOutput(createOutputCentered<IMPort2>(VecPx(columnRulerR1, rowRuler0), module, TwelveKey::OCT_OUTPUT));

@@ -110,6 +110,14 @@ struct CvPad : Module {
 		configParam(ATTACH_PARAM, 0.0f, 1.0f, 1.0f, "Attach");
 		configParam(CONFIG_PARAM, 0.0f, 2.0f, 0.0f, "Configuration");// 0 is top position (4x4), 1 is middle (2x8), 2 is bot (1x16)
 		
+		#ifdef RACK_V2_PREP
+		getParamQuantity(SHARP_PARAM)->resetEnabled = false;		
+		getParamQuantity(CONFIG_PARAM)->resetEnabled = false;		
+		getParamQuantity(QUANTIZE_PARAM)->resetEnabled = false;		
+		getParamQuantity(ATTACH_PARAM)->resetEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
+		#endif
+
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -936,11 +944,11 @@ struct CvPadWidget : ModuleWidget {
 		static const int topY = 60;
 		static constexpr float leftYd = 53.6f;
 		// quantize
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(leftX, topY), module, CvPad::QUANTIZE_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(leftX, topY), module, CvPad::QUANTIZE_PARAM));
 		// attach
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(leftX, topY + leftYd), module, CvPad::ATTACH_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(leftX, topY + leftYd), module, CvPad::ATTACH_PARAM));
 		// autostep
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(leftX, topY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(leftX, topY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM));
 		// write button
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(leftX, topY + leftYd * 3), module, CvPad::WRITE_PARAM, module ? &module->panelTheme : NULL));	
 		// write input
@@ -966,9 +974,9 @@ struct CvPadWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(VecPx(rightX + rightO, topY), true, module, CvPad::BANK_INPUT, module ? &module->panelTheme : NULL));
 		// Volt/sharp/flat switch
 		static const int triSwitchY = 119;
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(rightX - 32, triSwitchY - 6), module, CvPad::SHARP_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(rightX - 32, triSwitchY - 6), module, CvPad::SHARP_PARAM, module ? &module->panelTheme : NULL));
 		// config
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(rightX + 8, triSwitchY - 6), module, CvPad::CONFIG_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(rightX + 8, triSwitchY - 6), module, CvPad::CONFIG_PARAM, module ? &module->panelTheme : NULL));
 		// outputs
 		static const int outY = triSwitchY + 68 * 3;
 		static const int outYd = 45;

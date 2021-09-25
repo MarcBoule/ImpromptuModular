@@ -55,6 +55,10 @@ struct FoundryExpander : Module {
 		configParam(SYNC_SEQCV_PARAM, 0.0f, 1.0f, 0.0f, "Sync Seq#");// 1.0f is top position
 		configParam(WRITEMODE_PARAM, 0.0f, 1.0f, 0.0f, "Write mode");
 	
+		#ifdef RACK_V2_PREP
+		getParamQuantity(SYNC_SEQCV_PARAM)->resetEnabled = false;		
+		#endif
+
 		leftExpander.producerMessage = leftMessages[0];
 		leftExpander.consumerMessage = leftMessages[1];
 		
@@ -143,7 +147,7 @@ struct FoundryExpanderWidget : ModuleWidget {
 
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh - rowSpacingExp * 3 + 2*se), true, module, FoundryExpander::SEQCV_INPUTS + 3, module ? &module->panelTheme : NULL));
 
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh - rowSpacingExp * 3 + 2*se), module, FoundryExpander::SYNC_SEQCV_PARAM));// 1.0f is top position
+		addParam(createParamCentered<IMSwitch2V>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh - rowSpacingExp * 3 + 2*se), module, FoundryExpander::SYNC_SEQCV_PARAM));// 1.0f is top position
 
 		
 		// Gate, tied, slide

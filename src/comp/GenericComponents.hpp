@@ -39,33 +39,27 @@ typedef PJ301MPort IMPort2;
 
 // Buttons and switches
 
-struct CKSSV : CKSS {
+struct IMSwitch2V : CKSS {
+	int* mode = NULL;
 	void draw(const DrawArgs& args) override;
 };
-struct CKSSVNoRandom : CKSSV {
-	void randomize() override {}
-};
 
 
-struct CKSSH : CKSS {
-	CKSSH();
+struct IMSwitch2H : CKSS {
+	int* mode = NULL;
+	IMSwitch2H();
 	void draw(const DrawArgs& args) override;
 };
-struct CKSSHNoRandom : CKSSH {
-	void randomize() override {}
-};
 
 
-struct CKSSThreeInv : SvgSwitch {
-	CKSSThreeInv() {
+struct IMSwitch3VInv : SvgSwitch {
+	int* mode = NULL;
+	IMSwitch3VInv() {
 		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_2.svg")));
 		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_1.svg")));
 		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_0.svg")));
 	}
 	void draw(const DrawArgs& args) override;
-};
-struct CKSSThreeInvNoRandom : CKSSThreeInv {
-	void randomize() override {}
 };
 
 
@@ -76,6 +70,7 @@ struct LEDBezelBig : SvgSwitch {
 
 
 struct KeyboardBig : SvgWidget {
+	int* mode = NULL;
 	KeyboardBig(Vec(_pos)) {
 		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/KeyboardBig.svg")));
 		box.pos = _pos; 

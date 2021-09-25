@@ -195,8 +195,15 @@ struct GateSeq64 : Module {
 		configParam(CONFIG_PARAM, 0.0f, 2.0f, 0.0f, "Configuration (1, 2, 4 chan)");// 0.0f is top position
 		configParam(CPMODE_PARAM, 0.0f, 2.0f, 2.0f, "Copy-paste mode");		
 		
-		for (int i = 0; i < MAX_SEQS; i++)
+		#ifdef RACK_V2_PREP
+		getParamQuantity(CPMODE_PARAM)->resetEnabled = false;		
+		getParamQuantity(CONFIG_PARAM)->resetEnabled = false;		
+		getParamQuantity(EDIT_PARAM)->resetEnabled = false;		
+		#endif
+		
+		for (int i = 0; i < MAX_SEQS; i++) {
 			seqAttribBuffer[i].init(16, MODE_FWD);
+		}
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -1641,11 +1648,11 @@ struct GateSeq64Widget : ModuleWidget {
 		
 
 		// Seq/Song selector
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colC4, rowC0), module, GateSeq64::EDIT_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(colC4, rowC0), module, GateSeq64::EDIT_PARAM));
 		// Config switch (3 position)
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(colC4, rowC1), module, GateSeq64::CONFIG_PARAM));// 0.0f is top position
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colC4, rowC1), module, GateSeq64::CONFIG_PARAM, module ? &module->panelTheme : NULL));// 0.0f is top position
 		// Copy paste mode
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(colC4, rowC2), module, GateSeq64::CPMODE_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colC4, rowC2), module, GateSeq64::CPMODE_PARAM, module ? &module->panelTheme : NULL));
 
 		// Outputs
 		for (int iSides = 0; iSides < 4; iSides++)

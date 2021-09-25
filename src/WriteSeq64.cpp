@@ -125,6 +125,14 @@ struct WriteSeq64 : Module {
 		configParam(WRITE_PARAM, 0.0f, 1.0f, 0.0f, "Write");
 		configParam(MONITOR_PARAM, 0.0f, 1.0f, 1.0f, "Monitor");	
 		
+		#ifdef RACK_V2_PREP
+		getParamQuantity(SHARP_PARAM)->resetEnabled = false;		
+		getParamQuantity(PASTESYNC_PARAM)->resetEnabled = false;		
+		getParamQuantity(MONITOR_PARAM)->resetEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
+		getParamQuantity(QUANTIZE_PARAM)->resetEnabled = false;		
+		#endif
+
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -885,7 +893,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		displayNote->module = module;
 		addChild(displayNote);
 		// Volt/sharp/flat switch
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(colT3 + 114, rowT0), module, WriteSeq64::SHARP_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colT3 + 114, rowT0), module, WriteSeq64::SHARP_PARAM, module ? &module->panelTheme : NULL));
 		// Steps display
 		StepsDisplayWidget *displaySteps = new StepsDisplayWidget();
 		displaySteps->box.size = VecPx(40, 30);// 2 characters
@@ -902,9 +910,9 @@ struct WriteSeq64Widget : ModuleWidget {
 		// Gate button
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colT2, rowT1), module, WriteSeq64::GATE_PARAM, module ? &module->panelTheme : NULL));
 		// Autostep	
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colT2 + 53, rowT1 + 6), module, WriteSeq64::AUTOSTEP_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(colT2 + 53, rowT1 + 6), module, WriteSeq64::AUTOSTEP_PARAM));
 		// Quantize switch
-		addParam(createParamCentered<CKSSVNoRandom>(VecPx(colT2 + 110, rowT1 + 6), module, WriteSeq64::QUANTIZE_PARAM));
+		addParam(createParamCentered<IMSwitch2V>(VecPx(colT2 + 110, rowT1 + 6), module, WriteSeq64::QUANTIZE_PARAM));
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_LIGHT));
@@ -936,7 +944,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 - 15, row0), module, WriteSeq64::COPY_PARAM, module ? &module->panelTheme : NULL));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 + 15, row0), module, WriteSeq64::PASTE_PARAM, module ? &module->panelTheme : NULL));
 		// Paste sync (and light)
-		addParam(createParamCentered<CKSSThreeInvNoRandom>(VecPx(col0, row1), module, WriteSeq64::PASTESYNC_PARAM));	
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(col0, row1), module, WriteSeq64::PASTESYNC_PARAM, module ? &module->panelTheme : NULL));	
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(col0 + 32, row1 + 5), module, WriteSeq64::PENDING_LIGHT));
 		// Gate input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row2), true, module, WriteSeq64::GATE_INPUT, module ? &module->panelTheme : NULL));				
@@ -963,7 +971,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row1), module, WriteSeq64::WRITE_PARAM, module ? &module->panelTheme : NULL));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(col2 - 21, row1 - 21), module, WriteSeq64::WRITE_LIGHT));
 		// Monitor
-		addParam(createParamCentered<CKSSHNoRandom>(VecPx(col2, row2), module, WriteSeq64::MONITOR_PARAM));
+		addParam(createParamCentered<IMSwitch2H>(VecPx(col2, row2), module, WriteSeq64::MONITOR_PARAM));
 		// Step R input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col2, row3), true, module, WriteSeq64::STEPR_INPUT, module ? &module->panelTheme : NULL));
 		
