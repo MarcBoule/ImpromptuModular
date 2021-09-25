@@ -107,6 +107,7 @@ struct FoundryExpanderWidget : ModuleWidget {
 	
 	FoundryExpanderWidget(FoundryExpander *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 	
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/FoundryExpander.svg")));
@@ -118,10 +119,10 @@ struct FoundryExpanderWidget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		// Expansion module
 		static const int rowSpacingExp = 49;
@@ -136,50 +137,50 @@ struct FoundryExpanderWidget : ModuleWidget {
 
 		
 		// Seq A,B and track row
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBHigh - rowSpacingExp * 4 + 2*se), true, module, FoundryExpander::SEQCV_INPUTS + 0, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBHigh - rowSpacingExp * 4 + 2*se), true, module, FoundryExpander::SEQCV_INPUTS + 0, mode));
 
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh - rowSpacingExp * 4 + 2*se), true, module, FoundryExpander::SEQCV_INPUTS + 2, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh - rowSpacingExp * 4 + 2*se), true, module, FoundryExpander::SEQCV_INPUTS + 2, mode));
 		
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh - rowSpacingExp * 4 + 2*se), true, module, FoundryExpander::TRKCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh - rowSpacingExp * 4 + 2*se), true, module, FoundryExpander::TRKCV_INPUT, mode));
 		
 		// Seq C,D and write source cv 
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBHigh - rowSpacingExp * 3 + 2*se), true, module, FoundryExpander::SEQCV_INPUTS + 1, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBHigh - rowSpacingExp * 3 + 2*se), true, module, FoundryExpander::SEQCV_INPUTS + 1, mode));
 
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh - rowSpacingExp * 3 + 2*se), true, module, FoundryExpander::SEQCV_INPUTS + 3, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh - rowSpacingExp * 3 + 2*se), true, module, FoundryExpander::SEQCV_INPUTS + 3, mode));
 
 		addParam(createParamCentered<IMSwitch2V>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh - rowSpacingExp * 3 + 2*se), module, FoundryExpander::SYNC_SEQCV_PARAM));// 1.0f is top position
 
 		
 		// Gate, tied, slide
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBHigh - rowSpacingExp * 2 + se), true, module, FoundryExpander::GATECV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh - rowSpacingExp * 2 + se), true, module, FoundryExpander::TIEDCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh - rowSpacingExp * 2 + se), true, module, FoundryExpander::SLIDECV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBHigh - rowSpacingExp * 2 + se), true, module, FoundryExpander::GATECV_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh - rowSpacingExp * 2 + se), true, module, FoundryExpander::TIEDCV_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh - rowSpacingExp * 2 + se), true, module, FoundryExpander::SLIDECV_INPUT, mode));
 
 		// GateP, left, right
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBHigh - rowSpacingExp * 1 + se), true, module, FoundryExpander::GATEPCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh - rowSpacingExp * 1 + se), true, module, FoundryExpander::LEFTCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh - rowSpacingExp * 1 + se), true, module, FoundryExpander::RIGHTCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBHigh - rowSpacingExp * 1 + se), true, module, FoundryExpander::GATEPCV_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh - rowSpacingExp * 1 + se), true, module, FoundryExpander::LEFTCV_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh - rowSpacingExp * 1 + se), true, module, FoundryExpander::RIGHTCV_INPUT, mode));
 	
 		
 		// before-last row
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBHigh), true, module, FoundryExpander::VEL_INPUTS + 0, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBHigh), true, module, FoundryExpander::VEL_INPUTS + 0, mode));
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp - colOffsetX + writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 0));
 		
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh), true, module, FoundryExpander::VEL_INPUTS + 2, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh), true, module, FoundryExpander::VEL_INPUTS + 2, mode));
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp - writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 2));
 
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh + 18), module, FoundryExpander::WRITEMODE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh + 18), module, FoundryExpander::WRITEMODE_PARAM, mode));
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp + colOffsetX - 12, rowRulerBHigh + 3), module, FoundryExpander::WRITE_SEL_LIGHTS + 0));
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp + colOffsetX + 12, rowRulerBHigh + 3), module, FoundryExpander::WRITE_SEL_LIGHTS + 1));
 		
 		// last row
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBLow), true, module, FoundryExpander::VEL_INPUTS + 1, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBLow), true, module, FoundryExpander::VEL_INPUTS + 1, mode));
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp - colOffsetX + writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 1));
 
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBLow), true, module, FoundryExpander::VEL_INPUTS + 3, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBLow), true, module, FoundryExpander::VEL_INPUTS + 3, mode));
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp - writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 3));
 		
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp + colOffsetX, rowRulerBLow), true, module, FoundryExpander::WRITE_SRC_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp + colOffsetX, rowRulerBLow), true, module, FoundryExpander::WRITE_SRC_INPUT, mode));
 	}
 	
 	void step() override {

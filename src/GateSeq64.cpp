@@ -1535,7 +1535,8 @@ struct GateSeq64Widget : ModuleWidget {
 	};
 
 	GateSeq64Widget(GateSeq64 *module) {
-		setModule(module);		
+		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/GateSeq64.svg")));
@@ -1547,10 +1548,10 @@ struct GateSeq64Widget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 		
 		
 		// ****** Top portion (LED button array and gate type LED buttons) ******
@@ -1612,26 +1613,26 @@ struct GateSeq64Widget : ModuleWidget {
 		static const int rowC2 = rowC1 + rowRulerSpacing;
 				
 		// Clock input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colC0, rowC1), true, module, GateSeq64::CLOCK_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colC0, rowC1), true, module, GateSeq64::CLOCK_INPUT, mode));
 		// Reset CV
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colC0, rowC2), true, module, GateSeq64::RESET_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colC0, rowC2), true, module, GateSeq64::RESET_INPUT, mode));
 		
 				
 		// Prob button
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colC1, rowC0), module, GateSeq64::PROB_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colC1, rowC0), module, GateSeq64::PROB_PARAM, mode));
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colC1, rowC1), module, GateSeq64::RESET_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colC1, rowC1), module, GateSeq64::RESET_LIGHT));
 		// Seq CV
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colC1, rowC2), true, module, GateSeq64::SEQCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colC1, rowC2), true, module, GateSeq64::SEQCV_INPUT, mode));
 		
 		// Sequence knob
-		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(colC2 + 1, rowC0), module, GateSeq64::SEQUENCE_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(colC2 + 1, rowC0), module, GateSeq64::SEQUENCE_PARAM, mode));		
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colC2, rowC1), module, GateSeq64::RUN_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colC2, rowC1), module, GateSeq64::RUN_LIGHT));
 		// Run CV
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colC2, rowC2), true, module, GateSeq64::RUNCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colC2, rowC2), true, module, GateSeq64::RUNCV_INPUT, mode));
 
 		
 		// Sequence display
@@ -1641,22 +1642,22 @@ struct GateSeq64Widget : ModuleWidget {
 		displaySequence->module = module;
 		addChild(displaySequence);
 		// Modes button
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colC3, rowC1), module, GateSeq64::MODES_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colC3, rowC1), module, GateSeq64::MODES_PARAM, mode));
 		// Copy/paste buttons
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colC3 - 15, rowC2), module, GateSeq64::COPY_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colC3 + 15, rowC2), module, GateSeq64::PASTE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colC3 - 15, rowC2), module, GateSeq64::COPY_PARAM, mode));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colC3 + 15, rowC2), module, GateSeq64::PASTE_PARAM, mode));
 		
 
 		// Seq/Song selector
 		addParam(createParamCentered<IMSwitch2V>(VecPx(colC4, rowC0), module, GateSeq64::EDIT_PARAM));
 		// Config switch (3 position)
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colC4, rowC1), module, GateSeq64::CONFIG_PARAM, module ? &module->panelTheme : NULL));// 0.0f is top position
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colC4, rowC1), module, GateSeq64::CONFIG_PARAM, mode));// 0.0f is top position
 		// Copy paste mode
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colC4, rowC2), module, GateSeq64::CPMODE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colC4, rowC2), module, GateSeq64::CPMODE_PARAM, mode));
 
 		// Outputs
 		for (int iSides = 0; iSides < 4; iSides++)
-			addOutput(createDynamicPortCentered<IMPort>(VecPx(323, 218 + iSides * 40), false, module, GateSeq64::GATE_OUTPUTS + iSides, module ? &module->panelTheme : NULL));
+			addOutput(createDynamicPortCentered<IMPort>(VecPx(323, 218 + iSides * 40), false, module, GateSeq64::GATE_OUTPUTS + iSides, mode));
 	}
 	
 	void step() override {

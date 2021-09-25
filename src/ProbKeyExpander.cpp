@@ -116,6 +116,7 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 	
 	ProbKeyExpanderWidget(ProbKeyExpander *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 	
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ProbKeyExpander.svg")));
@@ -127,8 +128,8 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		// Expansion module
 		static const float col0 = 10.16f;
@@ -136,10 +137,10 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 		static const float row1 = 48.0f;
 		
 		// minCv output
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, row0)), false, module, ProbKeyExpander::MINCV_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, row0)), false, module, ProbKeyExpander::MINCV_OUTPUT, mode));
 		
 		// minOct knob
-		addParam(createDynamicParamCentered<IMMediumKnob<true, true>>(mm2px(Vec(col0, row1)), module, ProbKeyExpander::MINOCT_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMMediumKnob<true, true>>(mm2px(Vec(col0, row1)), module, ProbKeyExpander::MINOCT_PARAM, mode));
 		
 		// manual lock low
 		static const float row2 = 107.0f;

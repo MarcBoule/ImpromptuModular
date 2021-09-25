@@ -497,11 +497,12 @@ struct TwelveKeyWidget : ModuleWidget {
 	
 	TwelveKeyWidget(TwelveKey *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 		
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/TwelveKey.svg")));
         // new:
-		panel->addChild(new InverterWidget(panel->box.size, module ? &module->panelTheme : NULL));
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		// old:
 		// if (module) {
 			// darkPanel = new SvgPanel();
@@ -513,10 +514,10 @@ struct TwelveKeyWidget : ModuleWidget {
 		panel->addChild(new KeyboardBig(mm2px(Vec(1.354f,11.757f))));
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 
 
@@ -579,8 +580,8 @@ struct TwelveKeyWidget : ModuleWidget {
 		addInput(createInputCentered<IMPort2>(VecPx(columnRulerL2, rowRuler2), module, TwelveKey::VEL_INPUT));
 
 		// Octave buttons
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerL2, rowRuler0), module, TwelveKey::OCTDEC_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerCenter, rowRuler0), module, TwelveKey::OCTINC_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerL2, rowRuler0), module, TwelveKey::OCTDEC_PARAM, mode));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerCenter, rowRuler0), module, TwelveKey::OCTINC_PARAM, mode));
 		
 		// Octave display
 		OctaveNumDisplayWidget *octaveNumDisplay = new OctaveNumDisplayWidget();
@@ -590,7 +591,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		addChild(octaveNumDisplay);
 		
 		// Max velocity button and lights
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerL2, rowRuler1), module, TwelveKey::MAXVEL_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerL2, rowRuler1), module, TwelveKey::MAXVEL_PARAM, mode));
 		for (int i = 0; i < 5; i++) {
 			addChild(createLightCentered<MediumLight<GreenLight>>(VecPx(colRulerCenter - 15 + 19 * i, rowRuler1), module, TwelveKey::MAXVEL_LIGHTS + i));	
 		}		

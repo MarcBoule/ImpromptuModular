@@ -2117,6 +2117,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 	
 	PhraseSeq32Widget(PhraseSeq32 *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 		
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/PhraseSeq32.svg")));
@@ -2128,10 +2129,10 @@ struct PhraseSeq32Widget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		
 		
@@ -2159,7 +2160,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 				posX += spacingSteps4;
 		}
 		// Attach button and light
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnT3 - 8, rowT0 - 1), module, PhraseSeq32::ATTACH_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnT3 - 8, rowT0 - 1), module, PhraseSeq32::ATTACH_PARAM, mode));
 		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnT3 - 8 + 22, rowT0 - 1), module, PhraseSeq32::ATTACH_LIGHT));		
 		// Config switch
 		addParam(createParamCentered<IMSwitch2V>(VecPx(columnT4 + 1, rowT0 - 3), module, PhraseSeq32::CONFIG_PARAM));
@@ -2234,14 +2235,14 @@ struct PhraseSeq32Widget : ModuleWidget {
 		displaySequence->module = module;
 		addChild(displaySequence);
 		// Len/mode button
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMK2, rowMK0), module, PhraseSeq32::RUNMODE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMK2, rowMK0), module, PhraseSeq32::RUNMODE_PARAM, mode));
 
 		// Autostep
 		addParam(createParamCentered<IMSwitch2V>(VecPx(columnMK0 + 2, rowMK1 + 7), module, PhraseSeq32::AUTOSTEP_PARAM));		
 		// Sequence knob
-		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(columnMK1 + 1, rowMK0 + 55), module, PhraseSeq32::SEQUENCE_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(columnMK1 + 1, rowMK0 + 55), module, PhraseSeq32::SEQUENCE_PARAM, mode));		
 		// Transpose/rotate button
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMK2, rowMK1 + 4), module, PhraseSeq32::TRAN_ROT_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMK2, rowMK1 + 4), module, PhraseSeq32::TRAN_ROT_PARAM, mode));
 		
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(columnMK0 - 43, rowMK2 + 5), module, PhraseSeq32::RESET_PARAM));
@@ -2250,10 +2251,10 @@ struct PhraseSeq32Widget : ModuleWidget {
 		addParam(createParamCentered<LEDBezel>(VecPx(columnMK0 + 3, rowMK2 + 5), module, PhraseSeq32::RUN_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(columnMK0 + 3, rowMK2 + 5), module, PhraseSeq32::RUN_LIGHT));
 		// Copy/paste buttons
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnMK1 - 15, rowMK2 + 5), module, PhraseSeq32::COPY_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnMK1 + 15, rowMK2 + 5), module, PhraseSeq32::PASTE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnMK1 - 15, rowMK2 + 5), module, PhraseSeq32::COPY_PARAM, mode));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnMK1 + 15, rowMK2 + 5), module, PhraseSeq32::PASTE_PARAM, mode));
 		// Copy-paste mode switch (3 position)
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(columnMK2 + 1, rowMK2 - 3), module, PhraseSeq32::CPMODE_PARAM, module ? &module->panelTheme : NULL));	// 0.0f is top position
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(columnMK2 + 1, rowMK2 - 3), module, PhraseSeq32::CPMODE_PARAM, mode));	// 0.0f is top position
 
 		
 		
@@ -2270,13 +2271,13 @@ struct PhraseSeq32Widget : ModuleWidget {
 		
 		// Gate 1 light and button
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnMB1 + ledVsButtonDX, rowMB0), module, PhraseSeq32::GATE1_LIGHT));		
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMB1, rowMB0), module, PhraseSeq32::GATE1_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMB1, rowMB0), module, PhraseSeq32::GATE1_PARAM, mode));
 		// Gate 2 light and button
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnMB2 + ledVsButtonDX, rowMB0), module, PhraseSeq32::GATE2_LIGHT));		
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMB2, rowMB0), module, PhraseSeq32::GATE2_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMB2, rowMB0), module, PhraseSeq32::GATE2_PARAM, mode));
 		// Tie light and button
 		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnMB3 + ledVsButtonDX, rowMB0), module, PhraseSeq32::TIE_LIGHT));		
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMB3, rowMB0), module, PhraseSeq32::TIE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMB3, rowMB0), module, PhraseSeq32::TIE_PARAM, mode));
 
 						
 		
@@ -2299,36 +2300,36 @@ struct PhraseSeq32Widget : ModuleWidget {
 		
 		// Gate 1 probability light and button
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnB0 + ledVsButtonDX, rowB1), module, PhraseSeq32::GATE1_PROB_LIGHT));		
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnB0, rowB1), module, PhraseSeq32::GATE1_PROB_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnB0, rowB1), module, PhraseSeq32::GATE1_PROB_PARAM, mode));
 		// Gate 1 probability knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(columnB1, rowB1), module, PhraseSeq32::GATE1_KNOB_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(columnB1, rowB1), module, PhraseSeq32::GATE1_KNOB_PARAM, mode));
 		// Slide light and button
 		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnB2 + ledVsButtonDX, rowB1), module, PhraseSeq32::SLIDE_LIGHT));		
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnB2, rowB1), module, PhraseSeq32::SLIDE_BTN_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnB2, rowB1), module, PhraseSeq32::SLIDE_BTN_PARAM, mode));
 		// Slide knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(columnB3, rowB1), module, PhraseSeq32::SLIDE_KNOB_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(columnB3, rowB1), module, PhraseSeq32::SLIDE_KNOB_PARAM, mode));
 		// CV in
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB4, rowB1), true, module, PhraseSeq32::CV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB4, rowB1), true, module, PhraseSeq32::CV_INPUT, mode));
 		// Clock input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB5, rowB1), true, module, PhraseSeq32::CLOCK_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB5, rowB1), true, module, PhraseSeq32::CLOCK_INPUT, mode));
 		// Channel A outputs
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB6, rowB1), false, module, PhraseSeq32::CVA_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB7, rowB1), false, module, PhraseSeq32::GATE1A_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB8, rowB1), false, module, PhraseSeq32::GATE2A_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB6, rowB1), false, module, PhraseSeq32::CVA_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB7, rowB1), false, module, PhraseSeq32::GATE1A_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB8, rowB1), false, module, PhraseSeq32::GATE2A_OUTPUT, mode));
 
 
 		// CV control Inputs 
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB0, rowB0), true, module, PhraseSeq32::LEFTCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB1, rowB0), true, module, PhraseSeq32::RIGHTCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB2, rowB0), true, module, PhraseSeq32::SEQCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB3, rowB0), true, module, PhraseSeq32::RUNCV_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB4, rowB0), true, module, PhraseSeq32::WRITE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB0, rowB0), true, module, PhraseSeq32::LEFTCV_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB1, rowB0), true, module, PhraseSeq32::RIGHTCV_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB2, rowB0), true, module, PhraseSeq32::SEQCV_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB3, rowB0), true, module, PhraseSeq32::RUNCV_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB4, rowB0), true, module, PhraseSeq32::WRITE_INPUT, mode));
 		// Reset input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB5, rowB0), true, module, PhraseSeq32::RESET_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB5, rowB0), true, module, PhraseSeq32::RESET_INPUT, mode));
 		// Channel B outputs
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB6, rowB0), false, module, PhraseSeq32::CVB_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB7, rowB0), false, module, PhraseSeq32::GATE1B_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB8, rowB0), false, module, PhraseSeq32::GATE2B_OUTPUT, module ? &module->panelTheme : NULL)); 
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB6, rowB0), false, module, PhraseSeq32::CVB_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB7, rowB0), false, module, PhraseSeq32::GATE1B_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnB8, rowB0), false, module, PhraseSeq32::GATE2B_OUTPUT, mode)); 
 	}
 	
 	void step() override {

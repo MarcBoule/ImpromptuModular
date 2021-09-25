@@ -73,6 +73,7 @@ struct GateSeq64ExpanderWidget : ModuleWidget {
 	
 	GateSeq64ExpanderWidget(GateSeq64Expander *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 	
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/GateSeq64Expander.svg")));
@@ -84,19 +85,19 @@ struct GateSeq64ExpanderWidget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		// Expansion module
 		static const int rowExpTop = 72;
 		static const int rowSpacingExp = 50;
 		static const int colExp = 30;
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 0), true, module, GateSeq64Expander::WRITE_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 1), true, module, GateSeq64Expander::GATE_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 2), true, module, GateSeq64Expander::PROB_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 3), true, module, GateSeq64Expander::WRITE0_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 4), true, module, GateSeq64Expander::WRITE1_INPUT, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 5), true, module, GateSeq64Expander::STEPL_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 0), true, module, GateSeq64Expander::WRITE_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 1), true, module, GateSeq64Expander::GATE_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 2), true, module, GateSeq64Expander::PROB_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 3), true, module, GateSeq64Expander::WRITE0_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 4), true, module, GateSeq64Expander::WRITE1_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colExp, rowExpTop + rowSpacingExp * 5), true, module, GateSeq64Expander::STEPL_INPUT, mode));
 	}
 	
 	void step() override {

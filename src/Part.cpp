@@ -285,6 +285,7 @@ struct PartWidget : ModuleWidget {
 	
 	PartWidget(Part *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Part.svg")));
@@ -296,10 +297,10 @@ struct PartWidget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 		
 		
 		const float colM = box.size.x / 2;
@@ -321,23 +322,23 @@ struct PartWidget : ModuleWidget {
 		addChild(new SplitDisplayWidget(VecPx(colM, row1), VecPx(65, 24), module));// 4 characters + decimal point
 		
 		// Split knob 
-		addParam(createDynamicParamCentered<IMBigKnob<true, false>>(VecPx(colM, row2), module, Part::SPLIT_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigKnob<true, false>>(VecPx(colM, row2), module, Part::SPLIT_PARAM, mode));
 
 
 		// CV input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colL, row3), true, module, Part::CV_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colL, row3), true, module, Part::CV_INPUT, mode));		
 		// Thru output
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row3), false, module, Part::CVTHRU_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row3), false, module, Part::CVTHRU_OUTPUT, mode));
 		
 		// Gate input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colL, row4), true, module, Part::GATE_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colL, row4), true, module, Part::GATE_INPUT, mode));		
 		// Gate high output
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row4), false, module, Part::HIGH_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row4), false, module, Part::HIGH_OUTPUT, mode));
 		
 		// Split CV
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colL, row5), true, module, Part::SPLIT_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colL, row5), true, module, Part::SPLIT_INPUT, mode));		
 		// Gate low output
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row5), false, module, Part::LOW_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row5), false, module, Part::LOW_OUTPUT, mode));
 	}
 	
 	void step() override {

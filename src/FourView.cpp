@@ -626,6 +626,7 @@ struct FourViewWidget : ModuleWidget {
 	
 	FourViewWidget(FourView *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 		
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/FourView.svg")));
@@ -637,10 +638,10 @@ struct FourViewWidget : ModuleWidget {
 		}
 
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		const float centerX = box.size.x / 2;
 		static const int rowRulerTop = 66;
@@ -654,7 +655,7 @@ struct FourViewWidget : ModuleWidget {
 			displayNotes[i] = new NotesDisplayWidget(VecPx(centerX + offsetXR, rowRulerTop + i * spacingY), VecPx(52, 29), module, i);
 			addChild(displayNotes[i]);
 
-			addInput(createDynamicPortCentered<IMPort>(VecPx(centerX - offsetXL, rowRulerTop + i * spacingY), true, module, FourView::CV_INPUTS + i, module ? &module->panelTheme : NULL));	
+			addInput(createDynamicPortCentered<IMPort>(VecPx(centerX - offsetXL, rowRulerTop + i * spacingY), true, module, FourView::CV_INPUTS + i, mode));	
 		}
 
 
@@ -667,10 +668,10 @@ struct FourViewWidget : ModuleWidget {
 		static const int posY2 = 285;
 
 		// Thru outputs
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX - offsetX, posY2), false, module, FourView::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX + offsetX, posY2), false, module, FourView::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX - offsetX, posY2 + spacingY2), false, module, FourView::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX + offsetX, posY2 + spacingY2), false, module, FourView::CV_OUTPUTS + 3, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX - offsetX, posY2), false, module, FourView::CV_OUTPUTS + 0, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX + offsetX, posY2), false, module, FourView::CV_OUTPUTS + 1, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX - offsetX, posY2 + spacingY2), false, module, FourView::CV_OUTPUTS + 2, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX + offsetX, posY2 + spacingY2), false, module, FourView::CV_OUTPUTS + 3, mode));
 	}
 	
 	void step() override {

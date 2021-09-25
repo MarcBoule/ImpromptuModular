@@ -1493,6 +1493,7 @@ struct ProbKeyWidget : ModuleWidget {
 
 	ProbKeyWidget(ProbKey *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 		
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ProbKey.svg")));
@@ -1504,10 +1505,10 @@ struct ProbKeyWidget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 
 
@@ -1579,29 +1580,29 @@ struct ProbKeyWidget : ModuleWidget {
 		// **** col0 ****
 		
 		// Index knob and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(mm2px(Vec(col0, row0)), module, ProbKey::INDEX_PARAM, module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, row1)), true, module, ProbKey::INDEX_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(mm2px(Vec(col0, row0)), module, ProbKey::INDEX_PARAM, mode));	
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, row1)), true, module, ProbKey::INDEX_INPUT, mode));
 
 		// Gate input
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, row2)), true, module, ProbKey::GATE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, row2)), true, module, ProbKey::GATE_INPUT, mode));
 	
 
 		// **** col1 ****
 
 		// density knob, led and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col1, row0)), module, ProbKey::DENSITY_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col1, row0)), module, ProbKey::DENSITY_PARAM, mode));	
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(mm2px(Vec(col1 - 4.5f, row1 - 6.3f)), module, ProbKey::DENSITY_LIGHT));			
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row1)), true, module, ProbKey::DENSITY_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row1)), true, module, ProbKey::DENSITY_INPUT, mode));
 
 		// Hold input
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row2)), true, module, ProbKey::HOLD_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row2)), true, module, ProbKey::HOLD_INPUT, mode));
 
 
 		// **** col2 ****
 
 		// Squash knob and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col2, row0)), module, ProbKey::SQUASH_PARAM, module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row1)), true, module, ProbKey::SQUASH_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col2, row0)), module, ProbKey::SQUASH_PARAM, mode));	
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row1)), true, module, ProbKey::SQUASH_INPUT, mode));
 
 		// Main display
 		MainDisplayWidget *displayMain = new MainDisplayWidget();
@@ -1614,17 +1615,17 @@ struct ProbKeyWidget : ModuleWidget {
 		// **** col3 ****
 
 		// Offset knob and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col3, row0)), module, ProbKey::OFFSET_PARAM, module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row1)), true, module, ProbKey::OFFSET_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col3, row0)), module, ProbKey::OFFSET_PARAM, mode));	
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row1)), true, module, ProbKey::OFFSET_INPUT, mode));
 
 
 		// **** col4 ****
 
 		// Lock knob, led, button and input
-		addParam(createDynamicParamCentered<IMBigKnob<false, false>>(mm2px(Vec(col4, row0 + 2.0f)), module, ProbKey::LOCK_KNOB_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigKnob<false, false>>(mm2px(Vec(col4, row0 + 2.0f)), module, ProbKey::LOCK_KNOB_PARAM, mode));
 		addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(col4 - 5.0f, row1 + 4.0f - 6.8f)), module, ProbKey::LOCK_LIGHT));	
-		addParam(createDynamicParamCentered<IMBigPushButton>(mm2px(Vec(col4, row1 + 4.0f)), module, ProbKey::LOCK_BUTTON_PARAM, module ? &module->panelTheme : NULL));
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col4, row2)), true, module, ProbKey::LOCK_INPUT, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(mm2px(Vec(col4, row1 + 4.0f)), module, ProbKey::LOCK_BUTTON_PARAM, mode));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col4, row2)), true, module, ProbKey::LOCK_INPUT, mode));
 
 
 		// **** col5 ****
@@ -1635,10 +1636,10 @@ struct ProbKeyWidget : ModuleWidget {
 		if (module) {
 			lengthKnob->dispManagerSrc = &(module->dispManager);
 		}
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col5, row1)), true, module, ProbKey::LENGTH_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col5, row1)), true, module, ProbKey::LENGTH_INPUT, mode));
 
 		// CV output
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col5, row2)), false, module, ProbKey::CV_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col5, row2)), false, module, ProbKey::CV_OUTPUT, mode));
 
 
 		// **** col6 ****
@@ -1646,8 +1647,8 @@ struct ProbKeyWidget : ModuleWidget {
 		static const float rowm1 = 67.2f;
 		
 		// Transpose buttons
-		addParam(createDynamicParamCentered<IMPushButton>(mm2px(Vec(col6, rowm1 - 4.0f * r6dy)), module, ProbKey::TR_UP_PARAM, module ? &module->panelTheme : NULL));		
-		addParam(createDynamicParamCentered<IMPushButton>(mm2px(Vec(col6, rowm1 - 3.0f * r6dy - 1.0f)), module, ProbKey::TR_DOWN_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMPushButton>(mm2px(Vec(col6, rowm1 - 4.0f * r6dy)), module, ProbKey::TR_UP_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMPushButton>(mm2px(Vec(col6, rowm1 - 3.0f * r6dy - 1.0f)), module, ProbKey::TR_DOWN_PARAM, mode));		
 
 		// Mode led-button - MODE_PROB
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col6, rowm1 - 2.0f * r6dy)), module, ProbKey::MODE_PARAMS + ProbKey::MODE_PROB));
@@ -1662,11 +1663,11 @@ struct ProbKeyWidget : ModuleWidget {
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(mm2px(Vec(col6, rowm1)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_RANGE * 2));
 
 		// Copy-paste buttons
-		addParam(createDynamicParamCentered<IMPushButton>(mm2px(Vec(col6, row0)), module, ProbKey::COPY_PARAM, module ? &module->panelTheme : NULL));		
-		addParam(createDynamicParamCentered<IMPushButton>(mm2px(Vec(col6, row1)), module, ProbKey::PASTE_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMPushButton>(mm2px(Vec(col6, row0)), module, ProbKey::COPY_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMPushButton>(mm2px(Vec(col6, row1)), module, ProbKey::PASTE_PARAM, mode));		
 
 		// Gate output
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col6, row2)), false, module, ProbKey::GATE_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col6, row2)), false, module, ProbKey::GATE_OUTPUT, mode));
 	}
 	
 	

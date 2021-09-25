@@ -1055,6 +1055,7 @@ struct ClockedWidget : ModuleWidget {
 	
 	ClockedWidget(Clocked *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 		
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Clocked.svg")));
@@ -1066,10 +1067,10 @@ struct ClockedWidget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 
 		static const int col0 = 30;// reset input and button, ratio knobs
@@ -1096,13 +1097,13 @@ struct ClockedWidget : ModuleWidget {
 		
 		// Row 0
 		// Reset input
-		addInput(slaveResetRunBpmInputs[0] = createDynamicPortCentered<IMPort>(VecPx(col0, row0), true, module, Clocked::RESET_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[0] = createDynamicPortCentered<IMPort>(VecPx(col0, row0), true, module, Clocked::RESET_INPUT, mode));
 		// Run input
-		addInput(slaveResetRunBpmInputs[1] = createDynamicPortCentered<IMPort>(VecPx(col1, row0), true, module, Clocked::RUN_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[1] = createDynamicPortCentered<IMPort>(VecPx(col1, row0), true, module, Clocked::RUN_INPUT, mode));
 		// In input
-		addInput(slaveResetRunBpmInputs[2] = createDynamicPortCentered<IMPort>(VecPx(col2, row0), true, module, Clocked::BPM_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[2] = createDynamicPortCentered<IMPort>(VecPx(col2, row0), true, module, Clocked::BPM_INPUT, mode));
 		// Master BPM knob
-		addParam(createDynamicParamCentered<IMBigKnob<true, true>>(VecPx(col3 + 1, row0), module, Clocked::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		addParam(createDynamicParamCentered<IMBigKnob<true, true>>(VecPx(col3 + 1, row0), module, Clocked::RATIO_PARAMS + 0, mode));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		// BPM display
 		displayRatios[0] = new RatioDisplayWidget();
 		displayRatios[0]->box.size = VecPx(55, 30);// 3 characters
@@ -1119,22 +1120,22 @@ struct ClockedWidget : ModuleWidget {
 		addParam(createParamCentered<LEDBezel>(VecPx(col1, row1), module, Clocked::RUN_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col1, row1), module, Clocked::RUN_LIGHT));
 		// BPM mode buttons
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col2 - 12, row1), module, Clocked::BPMMODE_DOWN_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col2 + 12, row1), module, Clocked::BPMMODE_UP_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col2 - 12, row1), module, Clocked::BPMMODE_DOWN_PARAM, mode));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col2 + 12, row1), module, Clocked::BPMMODE_UP_PARAM, mode));
 		// BPM mode light
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(col2, row1 + 15), module, Clocked::BPMSYNC_LIGHT));		
 		// Swing master knob
-		addParam(createDynamicParamCentered<IMSmallKnobNotify>(VecPx(col3, row1), module, Clocked::SWING_PARAMS + 0, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnobNotify>(VecPx(col3, row1), module, Clocked::SWING_PARAMS + 0, mode));
 		// PW master knob
-		addParam(createDynamicParamCentered<IMSmallKnobNotify>(VecPx(col4, row1), module, Clocked::PW_PARAMS + 0, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnobNotify>(VecPx(col4, row1), module, Clocked::PW_PARAMS + 0, mode));
 		// Clock master out
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row1), false, module, Clocked::CLK_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row1), false, module, Clocked::CLK_OUTPUTS + 0, mode));
 		
 		
 		// Row 2-4 (sub clocks)		
 		for (int i = 0; i < 3; i++) {
 			// Ratio1 knob
-			addParam(createDynamicParamCentered<IMBigKnob<true, true>>(VecPx(colM0, row2 + i * rowSpacingClks), module, Clocked::RATIO_PARAMS + 1 + i, module ? &module->panelTheme : NULL));		
+			addParam(createDynamicParamCentered<IMBigKnob<true, true>>(VecPx(colM0, row2 + i * rowSpacingClks), module, Clocked::RATIO_PARAMS + 1 + i, mode));		
 			// Ratio display
 			displayRatios[i + 1] = new RatioDisplayWidget();
 			displayRatios[i + 1]->box.size = VecPx(55, 30);// 3 characters
@@ -1145,24 +1146,24 @@ struct ClockedWidget : ModuleWidget {
 			// Sync light
 			addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colM1 + 54, row2 + i * rowSpacingClks), module, Clocked::CLK_LIGHTS + i + 1));		
 			// Swing knobs
-			addParam(createDynamicParamCentered<IMSmallKnobNotify>(VecPx(colM2, row2 + i * rowSpacingClks), module, Clocked::SWING_PARAMS + 1 + i, module ? &module->panelTheme : NULL));
+			addParam(createDynamicParamCentered<IMSmallKnobNotify>(VecPx(colM2, row2 + i * rowSpacingClks), module, Clocked::SWING_PARAMS + 1 + i, mode));
 			// PW knobs
-			addParam(createDynamicParamCentered<IMSmallKnobNotify>(VecPx(colM3, row2 + i * rowSpacingClks), module, Clocked::PW_PARAMS + 1 + i, module ? &module->panelTheme : NULL));
+			addParam(createDynamicParamCentered<IMSmallKnobNotify>(VecPx(colM3, row2 + i * rowSpacingClks), module, Clocked::PW_PARAMS + 1 + i, mode));
 			// Delay knobs
-			addParam(createDynamicParamCentered<IMSmallSnapKnobNotify>(VecPx(colM4, row2 + i * rowSpacingClks), module, Clocked::DELAY_PARAMS + 1 + i, module ? &module->panelTheme : NULL));
+			addParam(createDynamicParamCentered<IMSmallSnapKnobNotify>(VecPx(colM4, row2 + i * rowSpacingClks), module, Clocked::DELAY_PARAMS + 1 + i, mode));
 		}
 
 		// Last row
 		// Reset out
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col0, row5), false, module, Clocked::RESET_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col0, row5), false, module, Clocked::RESET_OUTPUT, mode));
 		// Run out
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col1, row5), false, module, Clocked::RUN_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col1, row5), false, module, Clocked::RUN_OUTPUT, mode));
 		// Out out
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col2, row5), false, module, Clocked::BPM_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col2, row5), false, module, Clocked::BPM_OUTPUT, mode));
 		// Sub-clock outputs
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col3, row5), false, module, Clocked::CLK_OUTPUTS + 1, module ? &module->panelTheme : NULL));	
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row5), false, module, Clocked::CLK_OUTPUTS + 2, module ? &module->panelTheme : NULL));	
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row5), false, module, Clocked::CLK_OUTPUTS + 3, module ? &module->panelTheme : NULL));	
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col3, row5), false, module, Clocked::CLK_OUTPUTS + 1, mode));	
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row5), false, module, Clocked::CLK_OUTPUTS + 2, mode));	
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row5), false, module, Clocked::CLK_OUTPUTS + 3, mode));	
 	}
 	
 	void step() override {

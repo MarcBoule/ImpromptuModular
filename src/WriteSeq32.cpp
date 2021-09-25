@@ -798,11 +798,12 @@ struct WriteSeq32Widget : ModuleWidget {
 	
 	WriteSeq32Widget(WriteSeq32 *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 		
 		// Main panels from Inkscape
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq32.svg")));
 		// new:
-		panel->addChild(new InverterWidget(panel->box.size, module ? &module->panelTheme : NULL));
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		// old:
 		// if (module) {
 			// darkPanel = new SvgPanel();
@@ -813,10 +814,10 @@ struct WriteSeq32Widget : ModuleWidget {
 
 			
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		// Column rulers (horizontal positions)
 		static const int col0 = 37;
@@ -889,7 +890,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		
 		// Column 0
 		// Channel button
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col0, row0), module, WriteSeq32::CHANNEL_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col0, row0), module, WriteSeq32::CHANNEL_PARAM, mode));
 		// Channel LEDS
 		static const float chanLEDoffsetX = 25 - 12 + 4.6f + 9;
 		static const int chanLEDoffsetY[4] = {-20, -8, 4, 16};
@@ -898,10 +899,10 @@ struct WriteSeq32Widget : ModuleWidget {
 		addChild(createLightCentered<MediumLight<OrangeLight>>(VecPx(col0 + chanLEDoffsetX, row0 - 2.4f + chanLEDoffsetY[2]), module, WriteSeq32::CHANNEL_LIGHTS + 2));
 		addChild(createLightCentered<MediumLight<BlueLight>>(VecPx(col0 + chanLEDoffsetX, row0 - 2.4f + chanLEDoffsetY[3]), module, WriteSeq32::CHANNEL_LIGHTS + 3));
 		// Copy/paste switches
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 - 15, row1), module, WriteSeq32::COPY_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 + 15, row1), module, WriteSeq32::PASTE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 - 15, row1), module, WriteSeq32::COPY_PARAM, mode));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 + 15, row1), module, WriteSeq32::PASTE_PARAM, mode));
 		// Paste sync (and light)
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(col0, row2), module, WriteSeq32::PASTESYNC_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(col0, row2), module, WriteSeq32::PASTESYNC_PARAM, mode));	
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(col0 + 32, row2 + 5), module, WriteSeq32::PENDING_LIGHT));		
 		// Run CV input
 		addInput(createInputCentered<IMPort2>(VecPx(col0, row3), module, WriteSeq32::RUNCV_INPUT));
@@ -909,7 +910,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		
 		// Column 1
 		// Step L button
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col1, row0), module, WriteSeq32::STEPL_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col1, row0), module, WriteSeq32::STEPL_PARAM, mode));
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(col1, row1), module, WriteSeq32::RUN_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col1, row1), module, WriteSeq32::RUN_LIGHT));
@@ -921,9 +922,9 @@ struct WriteSeq32Widget : ModuleWidget {
 		
 		// Column 2
 		// Step R button
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row0), module, WriteSeq32::STEPR_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row0), module, WriteSeq32::STEPR_PARAM, mode));	
 		// Write button and light
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row1), module, WriteSeq32::WRITE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row1), module, WriteSeq32::WRITE_PARAM, mode));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(col2 - 21, row1 - 21), module, WriteSeq32::WRITE_LIGHT));
 		// CV input
 		addInput(createInputCentered<IMPort2>(VecPx(col2, row2), module, WriteSeq32::CV_INPUT));		
@@ -939,7 +940,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		displaySteps->module = module;
 		addChild(displaySteps);
 		// Steps knob
-		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(VecPx(col3, row1), module, WriteSeq32::STEPS_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(VecPx(col3, row1), module, WriteSeq32::STEPS_PARAM, mode));		
 		// Monitor
 		addParam(createParamCentered<IMSwitch2H>(VecPx(col3, row2), module, WriteSeq32::MONITOR_PARAM));		
 		// Write input

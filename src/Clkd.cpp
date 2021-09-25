@@ -898,6 +898,7 @@ struct ClkdWidget : ModuleWidget {
 
 	ClkdWidget(Clkd *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 		
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Clkd.svg")));
@@ -909,10 +910,10 @@ struct ClkdWidget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 
 		static const int colL = 30;
@@ -930,11 +931,11 @@ struct ClkdWidget : ModuleWidget {
 
 		// Row 0
 		// Reset input
-		addInput(slaveResetRunBpmInputs[0] = createDynamicPortCentered<IMPort>(VecPx(colL, row0), true, module, Clkd::RESET_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[0] = createDynamicPortCentered<IMPort>(VecPx(colL, row0), true, module, Clkd::RESET_INPUT, mode));
 		// Run input
-		addInput(slaveResetRunBpmInputs[1] = createDynamicPortCentered<IMPort>(VecPx(colC, row0), true, module, Clkd::RUN_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[1] = createDynamicPortCentered<IMPort>(VecPx(colC, row0), true, module, Clkd::RUN_INPUT, mode));
 		// Bpm input
-		addInput(slaveResetRunBpmInputs[2] = createDynamicPortCentered<IMPort>(VecPx(colR, row0), true, module, Clkd::BPM_INPUT, module ? &module->panelTheme : NULL));
+		addInput(slaveResetRunBpmInputs[2] = createDynamicPortCentered<IMPort>(VecPx(colR, row0), true, module, Clkd::BPM_INPUT, mode));
 		
 
 		// Row 1
@@ -946,7 +947,7 @@ struct ClkdWidget : ModuleWidget {
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colC, row1), module, Clkd::RUN_LIGHT));
 		// Master BPM knob
 		BpmKnob *bpmKnob;
-		addParam(bpmKnob = createDynamicParamCentered<BpmKnob>(VecPx(colR, row1), module, Clkd::BPM_PARAM, module ? &module->panelTheme : NULL));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		addParam(bpmKnob = createDynamicParamCentered<BpmKnob>(VecPx(colR, row1), module, Clkd::BPM_PARAM, mode));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		// bpmKnob->displayIndexPtr = (done below with ratio knobs)
 
 		// Row 2
@@ -963,27 +964,27 @@ struct ClkdWidget : ModuleWidget {
 			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(colC + 11, row2 + delY * (y - 2) ), module, Clkd::CLK_LIGHTS + y * 2));		
 		}
 		// Clock master out
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row2), false, module, Clkd::CLK_OUTPUTS + 0, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row2), false, module, Clkd::CLK_OUTPUTS + 0, mode));
 		
 
 		// Row 3
 		static const int bspaceX = 24;
 		// Display mode buttons
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colL - 4, row3), module, Clkd::DISPLAY_DOWN_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colL + bspaceX - 4, row3), module, Clkd::DISPLAY_UP_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colL - 4, row3), module, Clkd::DISPLAY_DOWN_PARAM, mode));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colL + bspaceX - 4, row3), module, Clkd::DISPLAY_UP_PARAM, mode));
 		// BPM mode light
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(colC, row3), module, Clkd::BPMSYNC_LIGHT));		
 		// BPM mode buttons
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colR - bspaceX + 4, row3), module, Clkd::BPMMODE_DOWN_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colR + 4, row3), module, Clkd::BPMMODE_UP_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colR - bspaceX + 4, row3), module, Clkd::BPMMODE_DOWN_PARAM, mode));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colR + 4, row3), module, Clkd::BPMMODE_UP_PARAM, mode));
 
 		
 		// Row 4 		
 		// Ratio knobs
 		RatioKnob *ratioKnobs[3];
-		addParam(ratioKnobs[0] = createDynamicParamCentered<RatioKnob>(VecPx(colL, row4), module, Clkd::RATIO_PARAMS + 0, module ? &module->panelTheme : NULL));	
-		addParam(ratioKnobs[1] = createDynamicParamCentered<RatioKnob>(VecPx(colC, row4), module, Clkd::RATIO_PARAMS + 1, module ? &module->panelTheme : NULL));		
-		addParam(ratioKnobs[2] = createDynamicParamCentered<RatioKnob>(VecPx(colR, row4), module, Clkd::RATIO_PARAMS + 2, module ? &module->panelTheme : NULL));	
+		addParam(ratioKnobs[0] = createDynamicParamCentered<RatioKnob>(VecPx(colL, row4), module, Clkd::RATIO_PARAMS + 0, mode));	
+		addParam(ratioKnobs[1] = createDynamicParamCentered<RatioKnob>(VecPx(colC, row4), module, Clkd::RATIO_PARAMS + 1, mode));		
+		addParam(ratioKnobs[2] = createDynamicParamCentered<RatioKnob>(VecPx(colR, row4), module, Clkd::RATIO_PARAMS + 2, mode));	
 		if (module) {
 			for (int i = 0; i < 3; i++) {
 				ratioKnobs[i]->displayIndexPtr = &(module->displayIndex);
@@ -994,18 +995,18 @@ struct ClkdWidget : ModuleWidget {
 
 		// Row 5
 		// Sub-clock outputs
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colL, row5), false, module, Clkd::CLK_OUTPUTS + 1, module ? &module->panelTheme : NULL));	
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC, row5), false, module, Clkd::CLK_OUTPUTS + 2, module ? &module->panelTheme : NULL));	
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row5), false, module, Clkd::CLK_OUTPUTS + 3, module ? &module->panelTheme : NULL));	
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colL, row5), false, module, Clkd::CLK_OUTPUTS + 1, mode));	
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC, row5), false, module, Clkd::CLK_OUTPUTS + 2, mode));	
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row5), false, module, Clkd::CLK_OUTPUTS + 3, mode));	
 
 
 		// Row 6 (last row)
 		// Reset out
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colL, row6), false, module, Clkd::RESET_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colL, row6), false, module, Clkd::RESET_OUTPUT, mode));
 		// Run out
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC, row6), false, module, Clkd::RUN_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC, row6), false, module, Clkd::RUN_OUTPUT, mode));
 		// Out out
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row6), false, module, Clkd::BPM_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row6), false, module, Clkd::BPM_OUTPUT, mode));
 
 	}
 	

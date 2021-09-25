@@ -845,6 +845,7 @@ struct WriteSeq64Widget : ModuleWidget {
 	
 	WriteSeq64Widget(WriteSeq64 *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq64.svg")));
@@ -856,10 +857,10 @@ struct WriteSeq64Widget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		
 		// ****** Top portion ******
@@ -893,7 +894,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		displayNote->module = module;
 		addChild(displayNote);
 		// Volt/sharp/flat switch
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colT3 + 114, rowT0), module, WriteSeq64::SHARP_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colT3 + 114, rowT0), module, WriteSeq64::SHARP_PARAM, mode));
 		// Steps display
 		StepsDisplayWidget *displaySteps = new StepsDisplayWidget();
 		displaySteps->box.size = VecPx(40, 30);// 2 characters
@@ -904,20 +905,20 @@ struct WriteSeq64Widget : ModuleWidget {
 		static const int rowT1 = 117;
 		
 		// Channel knob
-		addParam(createDynamicParamCentered<IMFivePosMediumKnob>(VecPx(colT0, rowT1), module, WriteSeq64::CHANNEL_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMFivePosMediumKnob>(VecPx(colT0, rowT1), module, WriteSeq64::CHANNEL_PARAM, mode));
 		// Step knob
-		addParam(createDynamicParamCentered<IMBigKnobInf>(VecPx(colT1, rowT1), module, WriteSeq64::STEP_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMBigKnobInf>(VecPx(colT1, rowT1), module, WriteSeq64::STEP_PARAM, mode));		
 		// Gate button
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colT2, rowT1), module, WriteSeq64::GATE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colT2, rowT1), module, WriteSeq64::GATE_PARAM, mode));
 		// Autostep	
-		addParam(createParamCentered<IMSwitch2V>(VecPx(colT2 + 53, rowT1 + 6), module, WriteSeq64::AUTOSTEP_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colT2 + 53, rowT1 + 6), module, WriteSeq64::AUTOSTEP_PARAM, mode));
 		// Quantize switch
-		addParam(createParamCentered<IMSwitch2V>(VecPx(colT2 + 110, rowT1 + 6), module, WriteSeq64::QUANTIZE_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colT2 + 110, rowT1 + 6), module, WriteSeq64::QUANTIZE_PARAM, mode));
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_LIGHT));
 		// Steps knob
-		addParam(createDynamicParamCentered<IMBigKnobInf>(VecPx(colT4, rowT1), module, WriteSeq64::STEPS_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMBigKnobInf>(VecPx(colT4, rowT1), module, WriteSeq64::STEPS_PARAM, mode));		
 	
 		
 		// ****** Bottom portion ******
@@ -941,65 +942,65 @@ struct WriteSeq64Widget : ModuleWidget {
 		
 		// Column 0 
 		// Copy/paste switches
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 - 15, row0), module, WriteSeq64::COPY_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 + 15, row0), module, WriteSeq64::PASTE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 - 15, row0), module, WriteSeq64::COPY_PARAM, mode));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 + 15, row0), module, WriteSeq64::PASTE_PARAM, mode));
 		// Paste sync (and light)
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(col0, row1), module, WriteSeq64::PASTESYNC_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(col0, row1), module, WriteSeq64::PASTESYNC_PARAM, mode));	
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(col0 + 32, row1 + 5), module, WriteSeq64::PENDING_LIGHT));
 		// Gate input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row2), true, module, WriteSeq64::GATE_INPUT, module ? &module->panelTheme : NULL));				
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row2), true, module, WriteSeq64::GATE_INPUT, mode));				
 		// Run CV input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row3), true, module, WriteSeq64::RUNCV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row3), true, module, WriteSeq64::RUNCV_INPUT, mode));
 		
 		
 		// Column 1
 		// Step L button
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col1, row0), module, WriteSeq64::STEPL_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col1, row0), module, WriteSeq64::STEPL_PARAM, mode));
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(col1, row1), module, WriteSeq64::RUN_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col1, row1), module, WriteSeq64::RUN_LIGHT));
 		// CV input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row2), true, module, WriteSeq64::CV_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row2), true, module, WriteSeq64::CV_INPUT, mode));
 		// Step L input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row3), true, module, WriteSeq64::STEPL_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row3), true, module, WriteSeq64::STEPL_INPUT, mode));
 		
 		
 		// Column 2
 		// Step R button
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row0), module, WriteSeq64::STEPR_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row0), module, WriteSeq64::STEPR_PARAM, mode));	
 		// Write button and light
-		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row1), module, WriteSeq64::WRITE_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row1), module, WriteSeq64::WRITE_PARAM, mode));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(col2 - 21, row1 - 21), module, WriteSeq64::WRITE_LIGHT));
 		// Monitor
 		addParam(createParamCentered<IMSwitch2H>(VecPx(col2, row2), module, WriteSeq64::MONITOR_PARAM));
 		// Step R input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col2, row3), true, module, WriteSeq64::STEPR_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col2, row3), true, module, WriteSeq64::STEPR_INPUT, mode));
 		
 		
 		// Column 3
 		// Clocks
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row0), true, module, WriteSeq64::CLOCK12_INPUT, module ? &module->panelTheme : NULL));		
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row1), true, module, WriteSeq64::CLOCK34_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row0), true, module, WriteSeq64::CLOCK12_INPUT, mode));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row1), true, module, WriteSeq64::CLOCK34_INPUT, mode));		
 		// Reset
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row2), true, module, WriteSeq64::RESET_INPUT, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row2), true, module, WriteSeq64::RESET_INPUT, mode));		
 		// Write input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row3), true, module, WriteSeq64::WRITE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row3), true, module, WriteSeq64::WRITE_INPUT, mode));
 		
 					
 		// Column 4 (CVs)
 		// Outputs
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row0), false, module, WriteSeq64::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row1), false, module, WriteSeq64::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row2), false, module, WriteSeq64::CV_OUTPUTS + 2, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row3), false, module, WriteSeq64::CV_OUTPUTS + 3, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row0), false, module, WriteSeq64::CV_OUTPUTS + 0, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row1), false, module, WriteSeq64::CV_OUTPUTS + 1, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row2), false, module, WriteSeq64::CV_OUTPUTS + 2, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row3), false, module, WriteSeq64::CV_OUTPUTS + 3, mode));
 		
 		
 		// Column 5 (Gates)
 		// Gates
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row0), false, module, WriteSeq64::GATE_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row1), false, module, WriteSeq64::GATE_OUTPUTS + 1, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row2), false, module, WriteSeq64::GATE_OUTPUTS + 2, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row3), false, module, WriteSeq64::GATE_OUTPUTS + 3, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row0), false, module, WriteSeq64::GATE_OUTPUTS + 0, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row1), false, module, WriteSeq64::GATE_OUTPUTS + 1, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row2), false, module, WriteSeq64::GATE_OUTPUTS + 2, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row3), false, module, WriteSeq64::GATE_OUTPUTS + 3, mode));
 	}
 	
 	void step() override {

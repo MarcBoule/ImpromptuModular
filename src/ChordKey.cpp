@@ -845,6 +845,7 @@ struct ChordKeyWidget : ModuleWidget {
 	
 	ChordKeyWidget(ChordKey *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 		
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ChordKey.svg")));
@@ -856,10 +857,10 @@ struct ChordKeyWidget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 
 
@@ -928,36 +929,36 @@ struct ChordKeyWidget : ModuleWidget {
 		static const int displayHeights = 24; // 22 for 14pt, 24 for 15pt
 			
 		// Transpose buttons
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0, rowY - 16), module, ChordKey::TRANSPOSEDOWN_PARAM, module ? &module->panelTheme : NULL));		
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col1, rowY - 16), module, ChordKey::TRANSPOSEUP_PARAM, module ? &module->panelTheme : NULL));		
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0, rowY - 16), module, ChordKey::TRANSPOSEDOWN_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col1, rowY - 16), module, ChordKey::TRANSPOSEUP_PARAM, mode));		
 			
 		// Index display
 		addChild(new IndexDisplayWidget(VecPx((col0 + col1) / 2, rowY + rowYd / 2 - 4), VecPx(36, displayHeights), module));// 2 characters
 		
 		// Index input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 2 - 8), true, module, ChordKey::INDEX_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 2 - 8), true, module, ChordKey::INDEX_INPUT, mode));
 		// Index knob
-		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(VecPx(col1, rowY + rowYd * 2 - 8), module, ChordKey::INDEX_PARAM, module ? &module->panelTheme : NULL));	
+		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(VecPx(col1, rowY + rowYd * 2 - 8), module, ChordKey::INDEX_PARAM, mode));	
 	
 		// Gate input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 3 + 8), true, module, ChordKey::GATE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 3 + 8), true, module, ChordKey::GATE_INPUT, mode));
 		// Gate force switch
 		addParam(createParamCentered<CKSS>(VecPx(col1, rowY + rowYd * 3 + 8), module, ChordKey::FORCE_PARAM));
 	
 		// oct buttons, oct displays, gate and cv outputs
 		for (int cni = 0; cni < 4; cni++) {
 			// Octave buttons
-			addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, rowY + rowYd * cni), module, ChordKey::OCTDEC_PARAMS + cni, module ? &module->panelTheme : NULL));
-			addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col3, rowY + rowYd * cni), module, ChordKey::OCTINC_PARAMS + cni, module ? &module->panelTheme : NULL));
+			addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, rowY + rowYd * cni), module, ChordKey::OCTDEC_PARAMS + cni, mode));
+			addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col3, rowY + rowYd * cni), module, ChordKey::OCTINC_PARAMS + cni, mode));
 
 			// oct displays
 			addChild(new OctDisplayWidget(VecPx(col4, rowY + rowYd * cni), VecPx(23, displayHeights), module, cni));// 1 character
 
 			// cv outputs
-			addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, rowY + rowYd * cni), false, module, ChordKey::CV_OUTPUTS + cni, module ? &module->panelTheme : NULL));
+			addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, rowY + rowYd * cni), false, module, ChordKey::CV_OUTPUTS + cni, mode));
 			
 			// gate outputs
-			addOutput(createDynamicPortCentered<IMPort>(VecPx(col6, rowY + rowYd * cni), false, module, ChordKey::GATE_OUTPUTS + cni, module ? &module->panelTheme : NULL));
+			addOutput(createDynamicPortCentered<IMPort>(VecPx(col6, rowY + rowYd * cni), false, module, ChordKey::GATE_OUTPUTS + cni, mode));
 		}
 
 	}

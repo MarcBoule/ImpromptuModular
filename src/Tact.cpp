@@ -435,6 +435,7 @@ struct TactWidget : ModuleWidget {
 	
 	TactWidget(Tact *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Tact.svg")));
@@ -446,10 +447,10 @@ struct TactWidget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 		
 		
 		static const int rowRuler0 = 34;
@@ -487,8 +488,8 @@ struct TactWidget : ModuleWidget {
 		static const int row2 = 277;// outputs and link
 		
 		// Recall CV inputs
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colC3L, row2), true, module, Tact::RECALL_INPUTS + 0, module ? &module->panelTheme : NULL));		
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colC3R, row2), true, module, Tact::RECALL_INPUTS + 1, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colC3L, row2), true, module, Tact::RECALL_INPUTS + 0, mode));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colC3R, row2), true, module, Tact::RECALL_INPUTS + 1, mode));		
 		
 
 		static const int row1d = row2 - 54;
@@ -501,22 +502,22 @@ struct TactWidget : ModuleWidget {
 		static const int row1c = row1d - 46;
 
 		// Store buttons
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colC3L, row1c), module, Tact::STORE_PARAMS + 0, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colC3R, row1c), module, Tact::STORE_PARAMS + 1, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colC3L, row1c), module, Tact::STORE_PARAMS + 0, mode));
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colC3R, row1c), module, Tact::STORE_PARAMS + 1, mode));
 		
 		
 		static const int row1b = row1c - 59;
 		
 		// Attv knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3L, row1b), module, Tact::ATTV_PARAMS + 0, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3R, row1b), module, Tact::ATTV_PARAMS + 1, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3L, row1b), module, Tact::ATTV_PARAMS + 0, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3R, row1b), module, Tact::ATTV_PARAMS + 1, mode));
 
 		
 		static const int row1a = row1b - 59;
 		
 		// Rate knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3L, row1a), module, Tact::RATE_PARAMS + 0, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3R, row1a), module, Tact::RATE_PARAMS + 1, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3L, row1a), module, Tact::RATE_PARAMS + 0, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3R, row1a), module, Tact::RATE_PARAMS + 1, mode));
 		
 
 		static const int colRulerC1L = colC - 30 - 1;
@@ -529,10 +530,10 @@ struct TactWidget : ModuleWidget {
 		addParam(createParamCentered<CKSS>(VecPx(colC, row2), module, Tact::EXP_PARAM));		
 
 		// Top/bot CV Inputs
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerC2L, row2), true, module, Tact::TOP_INPUTS + 0, module ? &module->panelTheme : NULL));		
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerC1L, row2), true, module, Tact::BOT_INPUTS + 0, module ? &module->panelTheme : NULL));		
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerC1R, row2), true, module, Tact::BOT_INPUTS + 1, module ? &module->panelTheme : NULL));	
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerC2R, row2), true, module, Tact::TOP_INPUTS + 1, module ? &module->panelTheme : NULL));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerC2L, row2), true, module, Tact::TOP_INPUTS + 0, mode));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerC1L, row2), true, module, Tact::BOT_INPUTS + 0, mode));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerC1R, row2), true, module, Tact::BOT_INPUTS + 1, mode));	
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerC2R, row2), true, module, Tact::TOP_INPUTS + 1, mode));		
 
 		
 		static const int row3 = row2 + 54;
@@ -541,12 +542,12 @@ struct TactWidget : ModuleWidget {
 		addParam(createParamCentered<CKSS>(VecPx(colC, row3), module, Tact::LINK_PARAM));		
 
 		// Outputs
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC - 49 - 1, row3), false, module, Tact::CV_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC + 49, row3), false, module, Tact::CV_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC - 49 - 1, row3), false, module, Tact::CV_OUTPUTS + 0, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC + 49, row3), false, module, Tact::CV_OUTPUTS + 1, mode));
 		
 		// EOC
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC - 89 - 1, row3), false, module, Tact::EOC_OUTPUTS + 0, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC + 89, row3), false, module, Tact::EOC_OUTPUTS + 1, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC - 89 - 1, row3), false, module, Tact::EOC_OUTPUTS + 0, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC + 89, row3), false, module, Tact::EOC_OUTPUTS + 1, mode));
 
 		
 		// Lights
@@ -786,6 +787,7 @@ struct Tact1Widget : ModuleWidget {
 	
 	Tact1Widget(Tact1 *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Tact1.svg")));
@@ -797,10 +799,10 @@ struct Tact1Widget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 		
 		
 		static const int rowRuler0 = 42;
@@ -825,13 +827,13 @@ struct Tact1Widget : ModuleWidget {
 		static const int rowRuler2 = 275;// rate and exp
 		static const int offsetFromSide2 = 25;
 		// Rate and attenuverter knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(offsetFromSide2, rowRuler2), module, Tact1::RATE_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(box.size.x - offsetFromSide2, rowRuler2), module, Tact1::ATTV_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(offsetFromSide2, rowRuler2), module, Tact1::RATE_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(box.size.x - offsetFromSide2, rowRuler2), module, Tact1::ATTV_PARAM, mode));
 		
 		static const int rowRuler3 = 332;
 		
 		// Output
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(30, rowRuler3), false, module, Tact1::CV_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(30, rowRuler3), false, module, Tact1::CV_OUTPUT, mode));
 		// Exp switch
 		addParam(createParamCentered<CKSS>(VecPx(69, rowRuler3), module, Tact1::EXP_PARAM));		
 	}
@@ -1076,6 +1078,7 @@ struct TactGWidget : ModuleWidget {
 	
 	TactGWidget(TactG *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/TactG.svg")));
@@ -1087,10 +1090,10 @@ struct TactGWidget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 		
 		
 		static constexpr float padY = 12.8f;
@@ -1118,9 +1121,9 @@ struct TactGWidget : ModuleWidget {
 		static constexpr float knobOffsetY = 20.5f;
 		
 		// Rate, Attv, Ofst Knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY)), module, TactG::RATE_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY)), module, TactG::ATTV_PARAM, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 2.0f)), module, TactG::OFFSET_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY)), module, TactG::RATE_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY)), module, TactG::ATTV_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 2.0f)), module, TactG::OFFSET_PARAM, mode));
 		
 		
 		static constexpr float rowRulerB1 = 94.8f;
@@ -1129,19 +1132,19 @@ struct TactGWidget : ModuleWidget {
 		static constexpr float colRulerR = 35.1f;
 	
 		// Offset 2 input and cv knob
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 3.0f - 1.6f)), true, module, TactG::OFFSET2_INPUT, module ? &module->panelTheme : NULL));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, rowRulerB1)), module, TactG::OFFSET2_CV_PARAM, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 3.0f - 1.6f)), true, module, TactG::OFFSET2_INPUT, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, rowRulerB1)), module, TactG::OFFSET2_CV_PARAM, mode));
 		
 		// x3 and Exp switches
 		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerR, rowRulerB1)), module, TactG::RATE_MULT_PARAM));	
 		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerR, rowRulerB2)), module, TactG::EXP_PARAM));	
 
 		// Gate in port (chain)
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, rowRulerB2)), true, module, TactG::GATE_INPUT, module ? &module->panelTheme : NULL));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, rowRulerB2)), true, module, TactG::GATE_INPUT, mode));
 
 		// Gate and CV outputs
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB1)), false, module, TactG::CV_OUTPUT, module ? &module->panelTheme : NULL));
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB2)), false, module, TactG::GATE_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB1)), false, module, TactG::CV_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB2)), false, module, TactG::GATE_OUTPUT, mode));
 	}
 	
 	void step() override {

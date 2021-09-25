@@ -387,6 +387,7 @@ struct HotkeyWidget : ModuleWidget {
 	
 	HotkeyWidget(Hotkey *module) {
 		setModule(module);
+		int* mode = module ? &module->panelTheme : NULL;
 		
 		// Main panels from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Hotkey.svg")));
@@ -398,8 +399,8 @@ struct HotkeyWidget : ModuleWidget {
 		}
 		
 		// Screws
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), module ? &module->panelTheme : NULL));
-		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), module ? &module->panelTheme : NULL));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
 
 
 		static const float centerX = 22.5f;
@@ -412,10 +413,10 @@ struct HotkeyWidget : ModuleWidget {
 		addChild(createLightCentered<LEDBezelLight<GreenRedLight>>(VecPx(centerX, buttonY), module, Hotkey::RECORD_KEY_LIGHT));
 		
 		// Delay knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(centerX, 220.0f), module, Hotkey::DELAY_PARAM, module ? &module->panelTheme : NULL));
+		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(centerX, 220.0f), module, Hotkey::DELAY_PARAM, mode));
 
 		// trig out
-		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX, 288.0f), false, module, Hotkey::TRIG_OUTPUT, module ? &module->panelTheme : NULL));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX, 288.0f), false, module, Hotkey::TRIG_OUTPUT, mode));
 	}
 	
 	void step() override {
