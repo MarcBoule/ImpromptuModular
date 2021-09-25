@@ -21,6 +21,13 @@ static const int colDeltaD = 30;
 static const NVGcolor colTopD = nvgRGB(128 - colDeltaD, 128 - colDeltaD, 128 - colDeltaD);
 static const NVGcolor colBotD = nvgRGB(128 + colDeltaD, 128 + colDeltaD, 128 + colDeltaD);
 
+struct Margins {
+	float l;
+	float r;
+	float t;
+	float b;
+};
+
 
 // Variations on existing knobs, lights, etc
 
@@ -44,6 +51,7 @@ struct IMSwitch2V : CKSS {
 
 struct IMSwitch2H : CKSS {
 	int* mode = NULL;
+	Margins margins;
 	IMSwitch2H();
 	void draw(const DrawArgs& args) override;
 };

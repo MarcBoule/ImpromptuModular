@@ -37,20 +37,34 @@ void IMSwitch2V::draw(const DrawArgs& args) {
 
 
 IMSwitch2H::IMSwitch2H() {
+	margins.l = 0.6f;
+	margins.r = 1.4f;
+	margins.t = 1.0f;
+	margins.b = 1.0f;
+
 	shadow->opacity = 0.0;
 	fb->removeChild(sw);
 	
 	TransformWidget *tw = new TransformWidget();
 	tw->addChild(sw);
 	fb->addChild(tw);
+	// tw->box.size = sw.box.size;
 
 	Vec center = sw->box.getCenter();
 	tw->translate(center);
 	tw->rotate(float(M_PI_2));
+	// tw->translate(center.flip().neg());
 	tw->translate(Vec(center.y, sw->box.size.x).neg());
 	
 	tw->box.size = sw->box.size.flip();
+	// fb->box.size = fb->box.size.flip();
 	box.size = tw->box.size;
+	
+	// add margins:
+	// fb->box.size = fb->box.size.plus(Vec(margins.l + margins.r, margins.t + margins.b));
+	// fb->box.pos = fb->box.pos.minus(Vec(margins.l, margins.t));
+	// sw->box.pos = sw->box.pos.plus(Vec(margins.l, -margins.t));
+
 }
 
 
@@ -58,7 +72,7 @@ void IMSwitch2H::draw(const DrawArgs& args) {
 	if (mode && *mode != 0) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
-		nvgRoundedRect(args.vg, -0.6f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
+		nvgRoundedRect(args.vg, -margins.l, -margins.t, box.size.x + margins.l + margins.r, box.size.y + margins.t + margins.b, 1.5f);
 		nvgFillPaint(args.vg, grad);
 		nvgFill(args.vg);
 	}
