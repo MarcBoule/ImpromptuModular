@@ -1200,7 +1200,7 @@ struct ProbKey : Module {
 
 
 struct ProbKeyWidget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 
 	
 	struct PanelThemeItem : MenuItem {
@@ -1495,14 +1495,9 @@ struct ProbKeyWidget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 		
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ProbKey.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/ProbKey_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -1522,7 +1517,8 @@ struct ProbKeyWidget : ModuleWidget {
 		static const float posWhiteY = 115;
 		static const float posBlackY = 40.0f;
 
-
+		panel->addChild(new KeyboardBig(mm2px(Vec(6.474f, 11.757f)), mode));
+		
 		#define DROP_LIGHTS(xLoc, yLoc, pNum) \
 			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*3), module, ProbKey::KEY_LIGHTS + pNum * (4 * 3) + 0 * 3)); \
 			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(VecPx(xLoc+ex+olx, yLoc+dlyd2+dly*2), module, ProbKey::KEY_LIGHTS + pNum * (4 * 3) + 1 * 3)); \
@@ -1673,8 +1669,11 @@ struct ProbKeyWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((ProbKey*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((ProbKey*)module)->panelTheme) == 1);
+			int panelTheme = (((ProbKey*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}

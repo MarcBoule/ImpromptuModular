@@ -71,9 +71,21 @@ struct LEDBezelBig : SvgSwitch {
 
 struct KeyboardBig : SvgWidget {
 	int* mode = NULL;
-	KeyboardBig(Vec(_pos)) {
+	KeyboardBig(Vec(_pos), int* _mode) {
 		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/KeyboardBig.svg")));
 		box.pos = _pos; 
+		mode = _mode;
+	}
+	void draw(const DrawArgs& args) override;
+};
+
+
+struct KeyboardMed : SvgWidget {
+	int* mode = NULL;
+	KeyboardMed(Vec(_pos), int* _mode) {
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/KeyboardMed.svg")));
+		box.pos = _pos; 
+		mode = _mode;
 	}
 	void draw(const DrawArgs& args) override;
 };

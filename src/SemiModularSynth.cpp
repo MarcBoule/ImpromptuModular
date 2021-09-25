@@ -1832,7 +1832,7 @@ struct SemiModularSynth : Module {
 
 
 struct SemiModularSynthWidget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 
 	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
 		SemiModularSynth *module;
@@ -2204,14 +2204,9 @@ struct SemiModularSynthWidget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 		
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/SemiModular.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/SemiModular_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -2271,6 +2266,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		static const int KeyWhiteY = 141 + 4;
 		static const int offsetKeyLEDx = 6;
 		static const int offsetKeyLEDy = 16;
+		panel->addChild(new KeyboardMed(mm2px(Vec(19.577f, 34.657f)), mode));
 		// Black keys and lights
 		addChild(createPianoKey<PianoKeySmall>(VecPx(65+keyNudgeX, KeyBlackY), 1, module ? &module->pkInfo : NULL));
 		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(65+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, SemiModularSynth::KEY_LIGHTS + 1 * 2));
@@ -2512,8 +2508,11 @@ struct SemiModularSynthWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((SemiModularSynth*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((SemiModularSynth*)module)->panelTheme) == 1);
+			int panelTheme = (((SemiModularSynth*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}

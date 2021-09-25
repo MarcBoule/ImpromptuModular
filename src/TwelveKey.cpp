@@ -385,7 +385,7 @@ struct TwelveKeyWidget : ModuleWidget {
 	// new:
 	int lastPanelTheme = -1;// TODO integrate this into a new ImpromptuModuleWidget which does all the management in one struct instead of in all modules! Then declare "WriteSeq32Widget : ImpromptuModuleWidget" above
 	// old:
-	// SvgPanel* darkPanel;
+	// int lastPanelTheme = -1;
 
 	struct OctaveNumDisplayWidget : LightWidget {//TransparentWidget {
 		TwelveKey *module;
@@ -499,19 +499,10 @@ struct TwelveKeyWidget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 		
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/TwelveKey.svg")));
-        // new:
 		panel->addChild(new InverterWidget(panel->box.size, mode));
-		// old:
-		// if (module) {
-			// darkPanel = new SvgPanel();
-			// darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/TwelveKey_dark.svg")));
-			// darkPanel->visible = false;
-			// addChild(darkPanel);
-		// }
 		
-		panel->addChild(new KeyboardBig(mm2px(Vec(1.354f,11.757f))));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -528,6 +519,8 @@ struct TwelveKeyWidget : ModuleWidget {
 		
 		static const int posWhiteY = 115;
 		static const int posBlackY = 40;
+		
+		panel->addChild(new KeyboardBig(mm2px(Vec(1.354f, 11.757f)), mode));
 
 		// Black keys
 		addChild(createPianoKey<PianoKeyBig>(VecPx(30, posBlackY), 1, module ? &module->pkInfo : NULL));
@@ -609,15 +602,11 @@ struct TwelveKeyWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			// new:
 			int panelTheme = (((TwelveKey*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}
-			// old:
-			// panel->visible = ((((TweleveKey*)module)->panelTheme) == 0);
-			// darkPanel->visible  = ((((TweleveKey*)module)->panelTheme) == 1);
 		}
 		Widget::step();
 	}

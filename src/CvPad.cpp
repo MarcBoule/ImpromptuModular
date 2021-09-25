@@ -428,7 +428,7 @@ struct CvPad : Module {
 
 
 struct CvPadWidget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 	
 	// Widgets
 	// --------------------------------
@@ -904,14 +904,9 @@ struct CvPadWidget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/CvPad.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/CvPad_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -1008,8 +1003,11 @@ struct CvPadWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((CvPad*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((CvPad*)module)->panelTheme) == 1);
+			int panelTheme = (((CvPad*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}

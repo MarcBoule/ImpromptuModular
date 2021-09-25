@@ -1631,7 +1631,7 @@ struct PhraseSeq16 : Module {
 
 
 struct PhraseSeq16Widget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 
 	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
 		PhraseSeq16 *module;
@@ -2018,14 +2018,9 @@ struct PhraseSeq16Widget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/PhraseSeq16.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/PhraseSeq16_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -2082,6 +2077,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		static const int KeyWhiteY = 141;
 		static const int offsetKeyLEDx = 6;
 		static const int offsetKeyLEDy = 16;
+		panel->addChild(new KeyboardMed(mm2px(Vec(18.222f, 33.303f)), mode));
 		// Black keys and lights
 		addChild(createPianoKey<PianoKeySmall>(VecPx(65+keyNudgeX, KeyBlackY), 1, module ? &module->pkInfo : NULL));
 		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(65+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, PhraseSeq16::KEY_LIGHTS + 1 * 2));
@@ -2226,8 +2222,11 @@ struct PhraseSeq16Widget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((PhraseSeq16*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((PhraseSeq16*)module)->panelTheme) == 1);
+			int panelTheme = (((PhraseSeq16*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}

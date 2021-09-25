@@ -531,7 +531,7 @@ struct ChordKey : Module {
 
 
 struct ChordKeyWidget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 
 	struct OctDisplayWidget : LightWidget {//TransparentWidget {
 		ChordKey *module;
@@ -847,14 +847,9 @@ struct ChordKeyWidget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 		
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ChordKey.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/ChordKey_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -873,6 +868,7 @@ struct ChordKeyWidget : ModuleWidget {
 		static const int posWhiteY = 115;
 		static const float posBlackY = 40.0f;
 
+		panel->addChild(new KeyboardBig(mm2px(Vec(3.894f, 11.757f)), mode));
 
 		#define DROP_LIGHTS(xLoc, yLoc, pNum) \
 			addChild(createLightCentered<SmallLight<RedLight>>(VecPx(xLoc+olx, yLoc+dlyd2+dly*0), module, ChordKey::KEY_LIGHTS + pNum * 4 + 0)); \
@@ -965,8 +961,11 @@ struct ChordKeyWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((ChordKey*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((ChordKey*)module)->panelTheme) == 1);
+			int panelTheme = (((ChordKey*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}

@@ -843,7 +843,7 @@ struct Clocked : Module {
 
 
 struct ClockedWidget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 	PortWidget* slaveResetRunBpmInputs[3];
 
 	struct RatioDisplayWidget : LightWidget {//TransparentWidget {
@@ -1057,14 +1057,9 @@ struct ClockedWidget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 		
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Clocked.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/Clocked_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -1168,8 +1163,11 @@ struct ClockedWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((Clocked*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((Clocked*)module)->panelTheme) == 1);
+			int panelTheme = (((Clocked*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}

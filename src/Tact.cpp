@@ -349,7 +349,7 @@ struct Tact : Module {
 
 
 struct TactWidget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 
 	struct PanelThemeItem : MenuItem {
 		Tact *module;
@@ -437,14 +437,9 @@ struct TactWidget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Tact.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/Tact_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -557,8 +552,11 @@ struct TactWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((Tact*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((Tact*)module)->panelTheme) == 1);
+			int panelTheme = (((Tact*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}
@@ -734,7 +732,7 @@ struct Tact1 : Module {
 };
 
 struct Tact1Widget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 
 	struct PanelThemeItem : MenuItem {
 		Tact1 *module;
@@ -789,14 +787,9 @@ struct Tact1Widget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Tact1.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/Tact1_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -840,8 +833,11 @@ struct Tact1Widget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((Tact1*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((Tact1*)module)->panelTheme) == 1);
+			int panelTheme = (((Tact1*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}
@@ -1025,7 +1021,7 @@ struct TactG : Module {
 };
 
 struct TactGWidget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 
 	struct PanelThemeItem : MenuItem {
 		TactG *module;
@@ -1080,14 +1076,9 @@ struct TactGWidget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/TactG.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/TactG_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -1149,8 +1140,11 @@ struct TactGWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((TactG*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((TactG*)module)->panelTheme) == 1);
+			int panelTheme = (((TactG*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}

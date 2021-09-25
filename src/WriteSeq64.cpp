@@ -604,7 +604,7 @@ struct WriteSeq64 : Module {
 
 
 struct WriteSeq64Widget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 
 	struct NoteDisplayWidget : LightWidget {//TransparentWidget {
 		WriteSeq64 *module;
@@ -847,14 +847,9 @@ struct WriteSeq64Widget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq64.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/WriteSeq64_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -1005,8 +1000,11 @@ struct WriteSeq64Widget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((WriteSeq64*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((WriteSeq64*)module)->panelTheme) == 1);
+			int panelTheme = (((WriteSeq64*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}

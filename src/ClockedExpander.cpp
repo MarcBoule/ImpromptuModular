@@ -65,20 +65,15 @@ struct ClockedExpander : Module {
 
 
 struct ClockedExpanderWidget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 	
 	ClockedExpanderWidget(ClockedExpander *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 	
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ClockedExpander.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/ClockedExpander_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
@@ -98,8 +93,11 @@ struct ClockedExpanderWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((ClockedExpander*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((ClockedExpander*)module)->panelTheme) == 1);
+			int panelTheme = (((ClockedExpander*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}

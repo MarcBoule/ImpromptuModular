@@ -343,7 +343,7 @@ struct Hotkey : Module {
 
 
 struct HotkeyWidget : ModuleWidget {
-	SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
 	char strBuf[512];
 	
 	struct PanelThemeItem : MenuItem {
@@ -389,14 +389,9 @@ struct HotkeyWidget : ModuleWidget {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 		
-		// Main panels from Inkscape
+		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Hotkey.svg")));
-        if (module) {
-			darkPanel = new SvgPanel();
-			darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/dark/Hotkey_dark.svg")));
-			darkPanel->visible = false;
-			addChild(darkPanel);
-		}
+		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
 		addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
@@ -421,8 +416,11 @@ struct HotkeyWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			panel->visible = ((((Hotkey*)module)->panelTheme) == 0);
-			darkPanel->visible  = ((((Hotkey*)module)->panelTheme) == 1);
+			int panelTheme = (((Hotkey*)module)->panelTheme);
+			if (panelTheme != lastPanelTheme) {
+				((FramebufferWidget*)panel)->dirty = true;
+				lastPanelTheme = panelTheme;
+			}
 		}
 		Widget::step();
 	}
