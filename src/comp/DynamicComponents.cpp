@@ -43,15 +43,15 @@ void DynamicSVGPort::addFrame(std::shared_ptr<Svg> svg) {
 }
 
 void DynamicSVGPort::step() {
-    if(mode != NULL && *mode != oldMode) {
-        if (*mode > 0 && !frameAltName.empty()) {// JIT loading of alternate skin
-			frames.push_back(APP->window->loadSvg(frameAltName));
-			frameAltName.clear();// don't reload!
-		}
-        sw->setSvg(frames[*mode]);
-        oldMode = *mode;
-        fb->dirty = true;
-    }
+    // if(mode != NULL && *mode != oldMode) {
+        // if (*mode > 0 && !frameAltName.empty()) {// JIT loading of alternate skin
+			// frames.push_back(APP->window->loadSvg(frameAltName));
+			// frameAltName.clear();// don't reload!
+		// }
+        // sw->setSvg(frames[*mode]);
+        // oldMode = *mode;
+        // fb->dirty = true;
+    // }
 	SvgPort::step();
 }
 

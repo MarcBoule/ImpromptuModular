@@ -61,21 +61,21 @@ TDynamicPort* createDynamicPortCentered(Vec pos, bool isInput, Module *module, i
 
 struct DynamicSVGPort : SvgPort {
     int* mode = NULL;
-    int oldMode = -1;
+    // int oldMode = -1;
     std::vector<std::shared_ptr<Svg>> frames;
-	std::string frameAltName;
+	// std::string frameAltName;
 
     void addFrame(std::shared_ptr<Svg> svg);
-    void addFrameAlt(std::string filename) {frameAltName = filename;}
+    // void addFrameAlt(std::string filename) {frameAltName = filename;}
     void step() override;
 };
 
 
 struct IMPort : DynamicSVGPort {
 	IMPort() {
-		//addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/PJ301M.svg")));
-		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/PJ301M.svg")));
-		addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/PJ301M.svg"));
+		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/PJ301M.svg")));
+		// addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/PJ301M.svg")));
+		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/PJ301M.svg"));
 		shadow->blurRadius = 1.0f;
 		// shadow->opacity = 0.8;
 	}

@@ -567,10 +567,10 @@ struct TwelveKeyWidget : ModuleWidget {
 		static const int rowRuler2 = rowRuler1 + rowRulerStep;
 		
 		// Left side inputs
-		addInput(createInputCentered<IMPort2>(VecPx(columnRulerL1, rowRuler0), module, TwelveKey::OCT_INPUT));
-		addInput(createInputCentered<IMPort2>(VecPx(columnRulerL1, rowRuler1), module, TwelveKey::CV_INPUT));
-		addInput(createInputCentered<IMPort2>(VecPx(columnRulerL1, rowRuler2), module, TwelveKey::GATE_INPUT));
-		addInput(createInputCentered<IMPort2>(VecPx(columnRulerL2, rowRuler2), module, TwelveKey::VEL_INPUT));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL1, rowRuler0), true, module, TwelveKey::OCT_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL1, rowRuler1), true, module, TwelveKey::CV_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL1, rowRuler2), true, module, TwelveKey::GATE_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerL2, rowRuler2), true, module, TwelveKey::VEL_INPUT, mode));
 
 		// Octave buttons
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerL2, rowRuler0), module, TwelveKey::OCTDEC_PARAM, mode));
@@ -594,10 +594,10 @@ struct TwelveKeyWidget : ModuleWidget {
 		addParam(createParamCentered<IMSwitch2V>(VecPx(colRulerCenter, rowRuler2), module, TwelveKey::VELPOL_PARAM));
 		
 		// Right side outputs
-		addOutput(createOutputCentered<IMPort2>(VecPx(columnRulerR1, rowRuler0), module, TwelveKey::OCT_OUTPUT));
-		addOutput(createOutputCentered<IMPort2>(VecPx(columnRulerR1, rowRuler1), module, TwelveKey::CV_OUTPUT));
-		addOutput(createOutputCentered<IMPort2>(VecPx(columnRulerR1, rowRuler2), module, TwelveKey::GATE_OUTPUT));
-		addOutput(createOutputCentered<IMPort2>(VecPx(columnRulerR2, rowRuler2), module, TwelveKey::VEL_OUTPUT));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler0), false, module, TwelveKey::OCT_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler1), false, module, TwelveKey::CV_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler2), false, module, TwelveKey::GATE_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR2, rowRuler2), false, module, TwelveKey::VEL_OUTPUT, mode));
 	}
 	
 	void step() override {

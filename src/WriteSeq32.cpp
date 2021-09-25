@@ -890,7 +890,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(col0, row2), module, WriteSeq32::PASTESYNC_PARAM, mode));	
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(col0 + 32, row2 + 5), module, WriteSeq32::PENDING_LIGHT));		
 		// Run CV input
-		addInput(createInputCentered<IMPort2>(VecPx(col0, row3), module, WriteSeq32::RUNCV_INPUT));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row3), true, module, WriteSeq32::RUNCV_INPUT, mode));
 		
 		
 		// Column 1
@@ -900,9 +900,9 @@ struct WriteSeq32Widget : ModuleWidget {
 		addParam(createParamCentered<LEDBezel>(VecPx(col1, row1), module, WriteSeq32::RUN_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col1, row1), module, WriteSeq32::RUN_LIGHT));
 		// Gate input
-		addInput(createInputCentered<IMPort2>(VecPx(col1, row2), module, WriteSeq32::GATE_INPUT));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row2), true, module, WriteSeq32::GATE_INPUT, mode));		
 		// Step L input
-		addInput(createInputCentered<IMPort2>(VecPx(col1, row3), module, WriteSeq32::STEPL_INPUT));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row3), true, module, WriteSeq32::STEPL_INPUT, mode));
 		
 		
 		// Column 2
@@ -912,9 +912,9 @@ struct WriteSeq32Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row1), module, WriteSeq32::WRITE_PARAM, mode));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(col2 - 21, row1 - 21), module, WriteSeq32::WRITE_LIGHT));
 		// CV input
-		addInput(createInputCentered<IMPort2>(VecPx(col2, row2), module, WriteSeq32::CV_INPUT));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col2, row2), true, module, WriteSeq32::CV_INPUT, mode));		
 		// Step R input
-		addInput(createInputCentered<IMPort2>(VecPx(col2, row3), module, WriteSeq32::STEPR_INPUT));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col2, row3), true, module, WriteSeq32::STEPR_INPUT, mode));
 		
 		
 		// Column 3
@@ -929,25 +929,25 @@ struct WriteSeq32Widget : ModuleWidget {
 		// Monitor
 		addParam(createParamCentered<IMSwitch2H>(VecPx(col3, row2), module, WriteSeq32::MONITOR_PARAM));		
 		// Write input
-		addInput(createInputCentered<IMPort2>(VecPx(col3, row3), module, WriteSeq32::WRITE_INPUT));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row3), true, module, WriteSeq32::WRITE_INPUT, mode));
 		
 		
 		// Column 4
 		// Outputs
-		addOutput(createOutputCentered<IMPort2>(VecPx(col4, row0), module, WriteSeq32::CV_OUTPUTS + 0));
-		addOutput(createOutputCentered<IMPort2>(VecPx(col4, row1), module, WriteSeq32::CV_OUTPUTS + 1));
-		addOutput(createOutputCentered<IMPort2>(VecPx(col4, row2), module, WriteSeq32::CV_OUTPUTS + 2));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row0), false, module, WriteSeq32::CV_OUTPUTS + 0, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row1), false, module, WriteSeq32::CV_OUTPUTS + 1, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row2), false, module, WriteSeq32::CV_OUTPUTS + 2, mode));
 		// Reset
-		addInput(createInputCentered<IMPort2>(VecPx(col4, row3), module, WriteSeq32::RESET_INPUT));		
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col4, row3), true, module, WriteSeq32::RESET_INPUT, mode));		
 
 		
 		// Column 5
 		// Gates
-		addOutput(createOutputCentered<IMPort2>(VecPx(col5, row0), module, WriteSeq32::GATE_OUTPUTS + 0));
-		addOutput(createOutputCentered<IMPort2>(VecPx(col5, row1), module, WriteSeq32::GATE_OUTPUTS + 1));
-		addOutput(createOutputCentered<IMPort2>(VecPx(col5, row2), module, WriteSeq32::GATE_OUTPUTS + 2));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row0), false, module, WriteSeq32::GATE_OUTPUTS + 0, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row1), false, module, WriteSeq32::GATE_OUTPUTS + 1, mode));
+		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row2), false, module, WriteSeq32::GATE_OUTPUTS + 2, mode));
 		// Clock
-		addInput(createInputCentered<IMPort2>(VecPx(col5, row3), module, WriteSeq32::CLOCK_INPUT));			
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col5, row3), true, module, WriteSeq32::CLOCK_INPUT, mode));		
 	}
 	
 	void step() override {

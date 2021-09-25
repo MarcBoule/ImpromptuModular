@@ -32,9 +32,6 @@ static const NVGcolor colBotD = nvgRGB(128 + colDeltaD, 128 + colDeltaD, 128 + c
 
 // Ports
 
-typedef PJ301MPort IMPort2;
-
-
 
 
 // Buttons and switches
