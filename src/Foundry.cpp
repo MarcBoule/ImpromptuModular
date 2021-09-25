@@ -2199,7 +2199,7 @@ struct FoundryWidget : ModuleWidget {
 		// see under Track display
 		
 		// Main switch
-		addParam(createParamCentered<IMSwitch2V>(VecPx(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM));// 1.0f is top position
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM, mode));// 1.0f is top position
 
 		
 		
@@ -2316,7 +2316,7 @@ struct FoundryWidget : ModuleWidget {
 		
 		// Key mode LED buttons	
 		static const int colRulerKM = 61;
-		addParam(createParamCentered<IMSwitch2V>(VecPx(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM, mode));
 		
 		// Gate 1 light and button
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnRulerMB1 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_LIGHT));		
@@ -2372,7 +2372,7 @@ struct FoundryWidget : ModuleWidget {
 		
 
 		// Autostep and write
-		addParam(createParamCentered<IMSwitch2V>(VecPx(columnRulerB0, rowRulerBHigh), module, Foundry::AUTOSTEP_PARAM));		
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(columnRulerB0, rowRulerBHigh), module, Foundry::AUTOSTEP_PARAM, mode));		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB0, rowRulerBLow), true, module, Foundry::WRITE_INPUT, mode));
 	
 		// CV IN inputs

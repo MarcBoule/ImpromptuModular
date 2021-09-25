@@ -1644,7 +1644,7 @@ struct GateSeq64Widget : ModuleWidget {
 		
 
 		// Seq/Song selector
-		addParam(createParamCentered<IMSwitch2V>(VecPx(colC4, rowC0), module, GateSeq64::EDIT_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colC4, rowC0), module, GateSeq64::EDIT_PARAM, mode));
 		// Config switch (3 position)
 		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colC4, rowC1), module, GateSeq64::CONFIG_PARAM, mode));// 0.0f is top position
 		// Copy paste mode

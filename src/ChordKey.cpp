@@ -939,7 +939,7 @@ struct ChordKeyWidget : ModuleWidget {
 		// Gate input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 3 + 8), true, module, ChordKey::GATE_INPUT, mode));
 		// Gate force switch
-		addParam(createParamCentered<CKSS>(VecPx(col1, rowY + rowYd * 3 + 8), module, ChordKey::FORCE_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(col1, rowY + rowYd * 3 + 8), module, ChordKey::FORCE_PARAM, mode));
 	
 		// oct buttons, oct displays, gate and cv outputs
 		for (int cni = 0; cni < 4; cni++) {

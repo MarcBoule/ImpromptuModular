@@ -967,7 +967,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row1), module, WriteSeq64::WRITE_PARAM, mode));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(col2 - 21, row1 - 21), module, WriteSeq64::WRITE_LIGHT));
 		// Monitor
-		addParam(createParamCentered<IMSwitch2H>(VecPx(col2, row2), module, WriteSeq64::MONITOR_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2H>(VecPx(col2, row2), module, WriteSeq64::MONITOR_PARAM, mode));
 		// Step R input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col2, row3), true, module, WriteSeq64::STEPR_INPUT, mode));
 		

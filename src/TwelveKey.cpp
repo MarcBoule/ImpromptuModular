@@ -591,7 +591,7 @@ struct TwelveKeyWidget : ModuleWidget {
 
 
 		// Velocity polarity
-		addParam(createParamCentered<IMSwitch2V>(VecPx(colRulerCenter, rowRuler2), module, TwelveKey::VELPOL_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colRulerCenter, rowRuler2), module, TwelveKey::VELPOL_PARAM, mode));
 		
 		// Right side outputs
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler0), false, module, TwelveKey::OCT_OUTPUT, mode));

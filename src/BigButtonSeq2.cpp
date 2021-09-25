@@ -866,7 +866,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		// Length jack
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler1), true, module, BigButtonSeq2::LEN_INPUT, mode));
 		// Display switch
-		addParam(createParamCentered<IMSwitch2H>(VecPx(colRulerT5 + lengthDisplayOffsetX, rowRuler1 - 12), module, BigButtonSeq2::DISPMODE_PARAM));		
+		addParam(createDynamicParamCentered<IMSwitch2H>(VecPx(colRulerT5 + lengthDisplayOffsetX, rowRuler1 - 12), module, BigButtonSeq2::DISPMODE_PARAM, mode));		
 
 
 		// Metronome light

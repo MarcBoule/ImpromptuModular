@@ -940,11 +940,11 @@ struct CvPadWidget : ModuleWidget {
 		static const int topY = 60;
 		static constexpr float leftYd = 53.6f;
 		// quantize
-		addParam(createParamCentered<IMSwitch2V>(VecPx(leftX, topY), module, CvPad::QUANTIZE_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(leftX, topY), module, CvPad::QUANTIZE_PARAM, mode));
 		// attach
-		addParam(createParamCentered<IMSwitch2V>(VecPx(leftX, topY + leftYd), module, CvPad::ATTACH_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(leftX, topY + leftYd), module, CvPad::ATTACH_PARAM, mode));
 		// autostep
-		addParam(createParamCentered<IMSwitch2V>(VecPx(leftX, topY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(leftX, topY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM, mode));
 		// write button
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(leftX, topY + leftYd * 3), module, CvPad::WRITE_PARAM, mode));	
 		// write input

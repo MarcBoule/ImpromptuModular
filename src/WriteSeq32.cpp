@@ -829,11 +829,11 @@ struct WriteSeq32Widget : ModuleWidget {
 		
 		// Autostep, sharp/flat and quantize switches
 		// Autostep	
-		addParam(createParamCentered<IMSwitch2V>(VecPx(col0 + 3, yTopSwitches), module, WriteSeq32::AUTOSTEP_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(col0 + 3, yTopSwitches), module, WriteSeq32::AUTOSTEP_PARAM, mode));
 		// Sharp/flat
-		addParam(createParamCentered<IMSwitch2V>(VecPx(col4, yTopSwitches), module, WriteSeq32::SHARP_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(col4, yTopSwitches), module, WriteSeq32::SHARP_PARAM, mode));
 		// Quantize
-		addParam(createParamCentered<IMSwitch2V>(VecPx(col5, yTopSwitches), module, WriteSeq32::QUANTIZE_PARAM));
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(col5, yTopSwitches), module, WriteSeq32::QUANTIZE_PARAM, mode));
 
 		// Window LED buttons
 		static const float wLightsPosX = 149.0f;
@@ -927,7 +927,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		// Steps knob
 		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(VecPx(col3, row1), module, WriteSeq32::STEPS_PARAM, mode));		
 		// Monitor
-		addParam(createParamCentered<IMSwitch2H>(VecPx(col3, row2), module, WriteSeq32::MONITOR_PARAM));		
+		addParam(createDynamicParamCentered<IMSwitch2H>(VecPx(col3, row2), module, WriteSeq32::MONITOR_PARAM, mode));		
 		// Write input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row3), true, module, WriteSeq32::WRITE_INPUT, mode));
 		

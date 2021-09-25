@@ -490,8 +490,8 @@ struct TactWidget : ModuleWidget {
 		static const int row1d = row2 - 54;
 		
 		// Slide switches
-		addParam(createParamCentered<CKSS>(VecPx(colC3L, row1d), module, Tact::SLIDE_PARAMS + 0));		
-		addParam(createParamCentered<CKSS>(VecPx(colC3R, row1d), module, Tact::SLIDE_PARAMS + 1));		
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colC3L, row1d), module, Tact::SLIDE_PARAMS + 0, mode));		
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colC3R, row1d), module, Tact::SLIDE_PARAMS + 1, mode));		
 
 
 		static const int row1c = row1d - 46;
@@ -522,7 +522,7 @@ struct TactWidget : ModuleWidget {
 
 
 		// Exp switch
-		addParam(createParamCentered<CKSS>(VecPx(colC, row2), module, Tact::EXP_PARAM));		
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colC, row2), module, Tact::EXP_PARAM, mode));		
 
 		// Top/bot CV Inputs
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerC2L, row2), true, module, Tact::TOP_INPUTS + 0, mode));		
@@ -534,7 +534,7 @@ struct TactWidget : ModuleWidget {
 		static const int row3 = row2 + 54;
 
 		// Link switch
-		addParam(createParamCentered<CKSS>(VecPx(colC, row3), module, Tact::LINK_PARAM));		
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colC, row3), module, Tact::LINK_PARAM, mode));		
 
 		// Outputs
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colC - 49 - 1, row3), false, module, Tact::CV_OUTPUTS + 0, mode));
@@ -828,7 +828,7 @@ struct Tact1Widget : ModuleWidget {
 		// Output
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(30, rowRuler3), false, module, Tact1::CV_OUTPUT, mode));
 		// Exp switch
-		addParam(createParamCentered<CKSS>(VecPx(69, rowRuler3), module, Tact1::EXP_PARAM));		
+		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(69, rowRuler3), module, Tact1::EXP_PARAM, mode));		
 	}
 	
 	void step() override {
@@ -1127,8 +1127,8 @@ struct TactGWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, rowRulerB1)), module, TactG::OFFSET2_CV_PARAM, mode));
 		
 		// x3 and Exp switches
-		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerR, rowRulerB1)), module, TactG::RATE_MULT_PARAM));	
-		addParam(createParamCentered<CKSS>(mm2px(Vec(colRulerR, rowRulerB2)), module, TactG::EXP_PARAM));	
+		addParam(createDynamicParamCentered<IMSwitch2V>(mm2px(Vec(colRulerR, rowRulerB1)), module, TactG::RATE_MULT_PARAM, mode));	
+		addParam(createDynamicParamCentered<IMSwitch2V>(mm2px(Vec(colRulerR, rowRulerB2)), module, TactG::EXP_PARAM, mode));	
 
 		// Gate in port (chain)
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, rowRulerB2)), true, module, TactG::GATE_INPUT, mode));
