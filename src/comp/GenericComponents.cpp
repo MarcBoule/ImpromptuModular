@@ -36,35 +36,63 @@ void IMSwitch2V::draw(const DrawArgs& args) {
 }
 
 
+struct SwitchOutlineWidget : Widget {
+	int** mode = NULL;
+	Margins* margins;
+	
+	SwitchOutlineWidget(int** _mode, Margins* _margins, Vec _size) {
+		mode = _mode;
+		margins = _margins;
+		box.size = _size;
+	}
+	void draw(const DrawArgs& args) override {
+		if (mode && *mode && **mode != 0) {
+			DEBUG("dbx: %g, %g, %g, %g", box.size.x, box.size.y, box.pos.x, box.pos.y);
+			nvgBeginPath(args.vg);
+			NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
+			nvgRoundedRect(args.vg, -margins->l, -margins->t, box.size.x + margins->l + margins->r, box.size.y + margins->t + margins->b, 1.5f);
+			nvgFillPaint(args.vg, grad);
+			nvgFill(args.vg);
+		}
+		Widget::draw(args);
+	}
+};
+
+
+
 IMSwitch2H::IMSwitch2H() {
-	margins.l = 0.6f;
-	margins.r = 1.4f;
-	margins.t = 1.0f;
-	margins.b = 1.0f;
+	margins.l = 0.5f;
+	margins.r = 0.5f;
+	margins.t = 0.5f;
+	margins.b = 0.5f;
 
 	shadow->opacity = 0.0;
-	fb->removeChild(sw);
+	// DEBUG("i  : %f, %f", sw->box.size.x, sw->box.size.y);
 	
 	TransformWidget *tw = new TransformWidget();
+	tw->box.size = sw->box.size;
+	fb->removeChild(sw);
 	tw->addChild(sw);
 	fb->addChild(tw);
-	// tw->box.size = sw.box.size;
 
-	Vec center = sw->box.getCenter();
-	tw->translate(center);
 	tw->rotate(float(M_PI_2));
-	// tw->translate(center.flip().neg());
-	tw->translate(Vec(center.y, sw->box.size.x).neg());
+	tw->translate(Vec(0, -sw->box.size.y));
 	
-	tw->box.size = sw->box.size.flip();
-	// fb->box.size = fb->box.size.flip();
-	box.size = tw->box.size;
+	sw->box.size = sw->box.size.flip();
+	tw->box.size = sw->box.size;
+	fb->box.size = sw->box.size;
+	box.size = sw->box.size;
 	
 	// add margins:
-	// fb->box.size = fb->box.size.plus(Vec(margins.l + margins.r, margins.t + margins.b));
-	// fb->box.pos = fb->box.pos.minus(Vec(margins.l, margins.t));
-	// sw->box.pos = sw->box.pos.plus(Vec(margins.l, -margins.t));
+	fb->box.size = fb->box.size.plus(Vec(margins.l + margins.r, margins.t + margins.b));
+	box.size = fb->box.size;
+	tw->box.pos = tw->box.pos.plus(Vec(margins.l, margins.t));
 
+	// switch outline (BUG!! use draw() code version for now, but not framebuffered):
+	// DEBUG("  f: %f, %f", box.size.x, box.size.y);
+	// SwitchOutlineWidget* sow = new SwitchOutlineWidget(&mode, &margins, box.size.mult(0.5f));
+	// sow->box.pos = Vec(0, 0);
+	// fb->addChildBottom(sow);
 }
 
 
