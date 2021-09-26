@@ -1,11 +1,11 @@
 #### FUNDAMENTAL ####
 
-All source code is copyright © 2019 Andrew Belt and is licensed under the GNU General Public License v3.0 (see [LICENSE](LICENSE)).
+All source code is copyright © 2016-2021 Andrew Belt and is licensed under the GNU General Public License v3.0 (see [LICENSE](LICENSE)).
 
 
 #### AUDIBLE INSTRUMENTS ####
 
-All source code in src/ is copyright © 2019 Andrew Belt and Audible Instruments contributers and is licensed under the GNU General Public License v3.0 (see [LICENSE](LICENSE)).
+All source code in the src/ folder is copyright © 2016-2020 Andrew Belt and Audible Instruments contributers and is licensed under the GNU General Public License v3.0 (see [LICENSE](LICENSE)).
 
 
 #### BLANK PANEL ####
