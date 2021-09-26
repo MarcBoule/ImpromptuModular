@@ -29,12 +29,12 @@ TWidget* createDynamicWidget(Vec pos, int* mode) {
 
 struct DynamicSVGScrew : SvgWidget {
     int* mode = NULL;
-    // int oldMode = -1;
+    int oldMode = -1;
     std::vector<std::shared_ptr<Svg>> frames;
 	std::string frameAltName;
 
     void addFrame(std::shared_ptr<Svg> svg);
-    // void addFrameAlt(std::string filename) {frameAltName = filename;}
+    void addFrameAlt(std::string filename) {frameAltName = filename;}
     void step() override;
 };
 
@@ -43,7 +43,7 @@ struct IMScrew : DynamicSVGScrew {
 	IMScrew() {
 		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/ScrewSilver.svg")));
 		// addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/ScrewSilver.svg")));
-		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/ScrewSilver.svg"));
+		addFrameAlt(asset::system("res/ComponentLibrary/ScrewBlack.svg"));
 	}
 };
 
@@ -60,24 +60,25 @@ TDynamicPort* createDynamicPortCentered(Vec pos, bool isInput, Module *module, i
 	return dynPort;
 }
 
-struct DynamicSVGPort : SvgPort {
-    int* mode = NULL;
+// struct DynamicSVGPort : SvgPort {
+    // int* mode = NULL;
     // int oldMode = -1;
-    std::vector<std::shared_ptr<Svg>> frames;
+    // std::vector<std::shared_ptr<Svg>> frames;
 	// std::string frameAltName;
 
-    void addFrame(std::shared_ptr<Svg> svg);
+    // void addFrame(std::shared_ptr<Svg> svg);
     // void addFrameAlt(std::string filename) {frameAltName = filename;}
-    void step() override;
-};
+    // void step() override;
+// };
 
 
-struct IMPort : DynamicSVGPort {
+struct IMPort : PJ301MPort  {
+	int* mode = NULL;
 	IMPort() {
-		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/PJ301M.svg")));
+		// addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/PJ301M.svg")));
 		// addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/PJ301M.svg")));
 		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/PJ301M.svg"));
-		shadow->blurRadius = 1.0f;
+		// shadow->blurRadius = 1.0f;
 		// shadow->opacity = 0.8;
 	}
 };
@@ -93,20 +94,20 @@ TDynamicParam* createDynamicParamCentered(Vec pos, Module *module, int paramId, 
 	return dynParam;
 }
 
-struct DynamicSVGSwitch : SvgSwitch {
-    int* mode = NULL;
-    int oldMode = -1;
-	std::vector<std::shared_ptr<Svg>> framesAll;
-	std::string frameAltName0;
-	std::string frameAltName1;
-	TransformWidget *tw;
+// struct DynamicSVGSwitch : SvgSwitch {
+    // int* mode = NULL;
+    // int oldMode = -1;
+	// std::vector<std::shared_ptr<Svg>> framesAll;
+	// std::string frameAltName0;
+	// std::string frameAltName1;
+	// TransformWidget *tw;
 	
-	void addFrameAll(std::shared_ptr<Svg> svg);
+	// void addFrameAll(std::shared_ptr<Svg> svg);
     // void addFrameAlt0(std::string filename) {frameAltName0 = filename;}
     // void addFrameAlt1(std::string filename) {frameAltName1 = filename;}
-	void setSizeRatio(float ratio);
+	// void setSizeRatio(float ratio);
     // void step() override;
-};
+// };
 
 // struct DynamicSVGKnob : SvgKnob {
     // int* mode = NULL;
@@ -123,23 +124,37 @@ struct DynamicSVGSwitch : SvgSwitch {
 // };
 
 
-struct IMBigPushButton : DynamicSVGSwitch {
+struct IMBigPushButton : CKD6 {
+	int* mode = NULL;
+	TransformWidget *tw;
 	IMBigPushButton() {
-		momentary = true;
-		addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKD6_0.svg")));
-		addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKD6_1.svg")));
+		// momentary = true;
+		// addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKD6_0.svg")));
+		// addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKD6_1.svg")));
 		// addFrameAlt0(asset::plugin(pluginInstance, "res/dark/comp/CKD6_0.svg"));
 		// addFrameAlt1(asset::plugin(pluginInstance, "res/dark/comp/CKD6_1.svg"));
 		setSizeRatio(0.9f);		
-		shadow->blurRadius = 1.0f;
+		// shadow->blurRadius = 1.0f;
+	}
+	void setSizeRatio(float ratio) {
+		sw->box.size = sw->box.size.mult(ratio);
+		fb->removeChild(sw);
+		tw = new TransformWidget();
+		tw->addChild(sw);
+		tw->scale(Vec(ratio, ratio));
+		tw->box.size = sw->box.size; 
+		fb->addChild(tw);
+		box.size = sw->box.size; 
+		shadow->box.size = sw->box.size; 
 	}
 };
 
-struct IMPushButton : DynamicSVGSwitch {
+struct IMPushButton : TL1105 {
+	int* mode = NULL;
 	IMPushButton() {
-		momentary = true;
-		addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/TL1105_0.svg")));
-		addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/TL1105_1.svg")));
+		// momentary = true;
+		// addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/TL1105_0.svg")));
+		// addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/TL1105_1.svg")));
 		// addFrameAlt0(asset::plugin(pluginInstance, "res/dark/comp/TL1105_0.svg"));
 		// addFrameAlt1(asset::plugin(pluginInstance, "res/dark/comp/TL1105_1.svg"));	
 	}

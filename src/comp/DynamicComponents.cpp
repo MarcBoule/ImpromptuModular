@@ -19,14 +19,14 @@ void DynamicSVGScrew::addFrame(std::shared_ptr<Svg> svg) {
 }
 
 void DynamicSVGScrew::step() {
-    // if(mode != NULL && *mode != oldMode) {
-        // if (*mode > 0 && !frameAltName.empty()) {// JIT loading of alternate skin
-			// frames.push_back(APP->window->loadSvg(frameAltName));
-			// frameAltName.clear();// don't reload!
-		// }
-        // setSvg(frames[*mode]);
-        // oldMode = *mode;
-    // }
+    if(mode != NULL && *mode != oldMode) {
+        if (*mode > 0 && !frameAltName.empty()) {// JIT loading of alternate skin
+			frames.push_back(APP->window->loadSvg(frameAltName));
+			frameAltName.clear();// don't reload!
+		}
+        setSvg(frames[*mode]);
+        oldMode = *mode;
+    }
 	SvgWidget::step();
 }
 
@@ -34,14 +34,14 @@ void DynamicSVGScrew::step() {
 
 // Dynamic SVGPort
 
-void DynamicSVGPort::addFrame(std::shared_ptr<Svg> svg) {
-    frames.push_back(svg);
-    if(frames.size() == 1) {
-        SvgPort::setSvg(svg);
-	}
-}
+// void DynamicSVGPort::addFrame(std::shared_ptr<Svg> svg) {
+    // frames.push_back(svg);
+    // if(frames.size() == 1) {
+        // SvgPort::setSvg(svg);
+	// }
+// }
 
-void DynamicSVGPort::step() {
+// void DynamicSVGPort::step() {
     // if(mode != NULL && *mode != oldMode) {
         // if (*mode > 0 && !frameAltName.empty()) {// JIT loading of alternate skin
 			// frames.push_back(APP->window->loadSvg(frameAltName));
@@ -51,32 +51,32 @@ void DynamicSVGPort::step() {
         // oldMode = *mode;
         // fb->dirty = true;
     // }
-	SvgPort::step();
-}
+	// SvgPort::step();
+// }
 
 
 
 // Dynamic SVGSwitch
 
-void DynamicSVGSwitch::addFrameAll(std::shared_ptr<Svg> svg) {
-    framesAll.push_back(svg);
-	if (framesAll.size() == 2) {
-		addFrame(framesAll[0]);
-		addFrame(framesAll[1]);
-	}
-}
+// void DynamicSVGSwitch::addFrameAll(std::shared_ptr<Svg> svg) {
+    // framesAll.push_back(svg);
+	// if (framesAll.size() == 2) {
+		// addFrame(framesAll[0]);
+		// addFrame(framesAll[1]);
+	// }
+// }
 
-void DynamicSVGSwitch::setSizeRatio(float ratio) {
-	sw->box.size = sw->box.size.mult(ratio);
-	fb->removeChild(sw);
-	tw = new TransformWidget();
-	tw->addChild(sw);
-	tw->scale(Vec(ratio, ratio));
-	tw->box.size = sw->box.size; 
-	fb->addChild(tw);
-	box.size = sw->box.size; 
-	shadow->box.size = sw->box.size; 
-}
+// void DynamicSVGSwitch::setSizeRatio(float ratio) {
+	// sw->box.size = sw->box.size.mult(ratio);
+	// fb->removeChild(sw);
+	// tw = new TransformWidget();
+	// tw->addChild(sw);
+	// tw->scale(Vec(ratio, ratio));
+	// tw->box.size = sw->box.size; 
+	// fb->addChild(tw);
+	// box.size = sw->box.size; 
+	// shadow->box.size = sw->box.size; 
+// }
 
 /*void DynamicSVGSwitch::step() {
     if(mode != NULL && *mode != oldMode) {
