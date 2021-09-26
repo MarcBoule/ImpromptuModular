@@ -58,7 +58,7 @@ void PianoKeyWithVel::draw(const DrawArgs &args) {
 }
 
 void PianoKeyWithVel::onButton(const event::Button &e) {
-	onButtonMouseY = APP->scene->rack->mousePos.y;
+	onButtonMouseY = APP->scene->rack->getMousePos().y;
 	onButtonPosY = e.pos.y;
 	if ( (e.button == GLFW_MOUSE_BUTTON_LEFT || e.button == GLFW_MOUSE_BUTTON_RIGHT) && pkInfo) {
 		if (e.action == GLFW_PRESS) {
@@ -71,7 +71,7 @@ void PianoKeyWithVel::onButton(const event::Button &e) {
 
 void PianoKeyWithVel::onDragMove(const event::DragMove &e) {
 	if ( (e.button == GLFW_MOUSE_BUTTON_LEFT || e.button == GLFW_MOUSE_BUTTON_RIGHT) && pkInfo) {
-		float dragMouseY = APP->scene->rack->mousePos.y;
+		float dragMouseY = APP->scene->rack->getMousePos().y;
 		float newVel = rescale(onButtonPosY + dragMouseY - onButtonMouseY, box.size.y, 0.0f, 1.0f, 0.0f);
 		pkInfo->vel = clamp(newVel, 0.0f, 1.0f);
 	}

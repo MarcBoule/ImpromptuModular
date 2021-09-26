@@ -143,9 +143,9 @@ struct BigButtonSeq2 : Module {
 		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "Clear");	
 		configParam(SAMPLEHOLD_PARAM, 0.0f, 1.0f, 0.0f, "Sample & hold");
 		
-		#ifdef RACK_V2_PREP
 		getParamQuantity(DISPMODE_PARAM)->resetEnabled = false;		
-		#endif
+		getParamQuantity(LEN_PARAM)->resetEnabled = false;		
+		getParamQuantity(CHAN_PARAM)->resetEnabled = false;	
 
 		onReset();
 		
@@ -809,6 +809,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/BigButtonSeq2.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -841,7 +842,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		
 		
 		// Rnd knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, true>>(VecPx(colRulerT0, rowRuler0), module, BigButtonSeq2::RND_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<true>>(VecPx(colRulerT0, rowRuler0), module, BigButtonSeq2::RND_PARAM, mode));
 		// Channel knob
 		addParam(createDynamicParamCentered<IMSixPosBigKnob>(VecPx(colRulerCenter - clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::CHAN_PARAM, mode));	
 		// Channel display
@@ -851,7 +852,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		displayChan->module = module;
 		addChild(displayChan);	
 		// Len knob
-		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::LEN_PARAM, mode));
+		addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::LEN_PARAM, mode));
 		// Length display
 		StepsDisplayWidget *displaySteps = new StepsDisplayWidget();
 		displaySteps->box.pos = VecPx(colRulerT5 - 27 + lengthDisplayOffsetX, rowRuler0 - 15);
@@ -943,6 +944,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((BigButtonSeq2*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

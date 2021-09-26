@@ -89,7 +89,7 @@ struct InverterWidget : TransparentWidget {
 
 
 struct ClockMaster {// should not need to have mutex since only menu driven
-	int id = -1;
+	int64_t id = -1;
 	bool resetClockOutputsHigh;
 	
 	void setAsMaster(int _id, bool _resetClockOutputsHigh) {
@@ -111,7 +111,7 @@ struct ClockMaster {// should not need to have mutex since only menu driven
 	}
 	
 	bool validateClockModule() {
-		for (Widget* widget : APP->scene->rack->moduleContainer->children) {
+		for (Widget* widget : APP->scene->rack->getModuleContainer()->children) {
 			ModuleWidget* moduleWidget = dynamic_cast<ModuleWidget *>(widget);
 			if (moduleWidget && moduleWidget->module->id == id) {
 				if (moduleWidget->model->slug.substr(0, 7) == std::string("Clocked")) {
@@ -267,7 +267,8 @@ struct DarkDefaultItem : MenuItem {
 };	
 
 struct InstantiateExpanderItem : MenuItem {
-	Model *model;
+	Module* module;
+	Model* model;
 	Vec posit;
 	void onAction(const event::Action &e) override;
 };

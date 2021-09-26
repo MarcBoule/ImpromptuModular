@@ -230,11 +230,9 @@ struct PhraseSeq16 : Module {
 		configParam(SLIDE_KNOB_PARAM, 0.0f, 2.0f, 0.2f, "Slide rate");
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");						
 		
-		#ifdef RACK_V2_PREP
 		getParamQuantity(CPMODE_PARAM)->resetEnabled = false;		
 		getParamQuantity(EDIT_PARAM)->resetEnabled = false;		
 		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
-		#endif
 
 		onReset();
 		
@@ -1957,6 +1955,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		menu->addChild(expLabel);
 		
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (4HP right side)", "");
+		expItem->module = module;
 		expItem->model = modelPhraseSeqExpander;
 		expItem->posit = box.pos.plus(math::Vec(box.size.x,0));
 		menu->addChild(expItem);	
@@ -1965,6 +1964,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 	struct SequenceKnob : IMBigKnobInf {
 		SequenceKnob() {};		
 		void onDoubleClick(const event::DoubleClick &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				PhraseSeq16* module = dynamic_cast<PhraseSeq16*>(paramQuantity->module);
 				// same code structure below as in sequence knob in main step()
@@ -2020,6 +2020,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/PhraseSeq16.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -2188,12 +2189,12 @@ struct PhraseSeq16Widget : ModuleWidget {
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colB0 + ledVsButtonDX, rowB1), module, PhraseSeq16::GATE1_PROB_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colB0, rowB1), module, PhraseSeq16::GATE1_PROB_PARAM, mode));
 		// Gate 1 probability knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colB1, rowB1), module, PhraseSeq16::GATE1_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colB1, rowB1), module, PhraseSeq16::GATE1_KNOB_PARAM, mode));
 		// Slide light and button
 		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colB2 + ledVsButtonDX, rowB1), module, PhraseSeq16::SLIDE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colB2, rowB1), module, PhraseSeq16::SLIDE_BTN_PARAM, mode));
 		// Slide knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colB3, rowB1), module, PhraseSeq16::SLIDE_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colB3, rowB1), module, PhraseSeq16::SLIDE_KNOB_PARAM, mode));
 		// Autostep
 		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colB4, rowB1), module, PhraseSeq16::AUTOSTEP_PARAM, mode));		
 		// CV in
@@ -2224,6 +2225,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((PhraseSeq16*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

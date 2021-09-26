@@ -73,6 +73,7 @@ struct ClockedExpanderWidget : ModuleWidget {
 	
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ClockedExpander.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -95,6 +96,7 @@ struct ClockedExpanderWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((ClockedExpander*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

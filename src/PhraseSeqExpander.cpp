@@ -78,6 +78,7 @@ struct PhraseSeqExpanderWidget : ModuleWidget {
 	
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/PhraseSeqExpander.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -99,6 +100,7 @@ struct PhraseSeqExpanderWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((PhraseSeqExpander*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

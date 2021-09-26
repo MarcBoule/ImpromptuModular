@@ -125,13 +125,12 @@ struct WriteSeq32 : Module {
 		configParam(STEPS_PARAM, 1.0f, 32.0f, 32.0f, "Number of steps");		
 		configParam(MONITOR_PARAM, 0.0f, 1.0f, 1.0f, "Monitor");		
 		
-		#ifdef RACK_V2_PREP
 		getParamQuantity(PASTESYNC_PARAM)->resetEnabled = false;		
 		getParamQuantity(MONITOR_PARAM)->resetEnabled = false;		
 		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
 		getParamQuantity(SHARP_PARAM)->resetEnabled = false;		
 		getParamQuantity(QUANTIZE_PARAM)->resetEnabled = false;		
-		#endif
+		getParamQuantity(STEPS_PARAM)->resetEnabled = false;		
 
 		onReset();
 		
@@ -796,6 +795,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		
 		// Main panel from Inkscape
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq32.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 			
 		// Screws
@@ -925,7 +925,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		displaySteps->module = module;
 		addChild(displaySteps);
 		// Steps knob
-		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(VecPx(col3, row1), module, WriteSeq32::STEPS_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(col3, row1), module, WriteSeq32::STEPS_PARAM, mode));		
 		// Monitor
 		addParam(createDynamicParamCentered<IMSwitch2H>(VecPx(col3, row2), module, WriteSeq32::MONITOR_PARAM, mode));		
 		// Write input
@@ -954,6 +954,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((WriteSeq32*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

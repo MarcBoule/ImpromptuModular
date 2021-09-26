@@ -163,10 +163,10 @@ struct OnStopItem : MenuItem {
 };	
 
 
-
+/*
 // must have done validateClockModule() before calling this
 static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveResetClockOutputsHighPtr) {
-	for (Widget* widget : APP->scene->rack->moduleContainer->children) {
+	for (Widget* widget : APP->scene->rack->getModuleContainer()->children) {
 		ModuleWidget* moduleWidget = dynamic_cast<ModuleWidget *>(widget);
 		if (moduleWidget) {
 			int otherId = moduleWidget->module->id;
@@ -197,15 +197,15 @@ static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveResetClock
 	}
 	// assert(false);
 	// here the clock master was not found; this should never happen, since AutopatchToMasterItem is never invoked when a valid master does not exist
-}
+}*/
 
 struct AutopatchItem : MenuItem {
-	int *idPtr;
+	int64_t *idPtr;
 	bool *resetClockOutputsHighPtr;
 	PortWidget **slaveResetRunBpmInputs;
 		
 	struct AutopatchMakeMasterItem : MenuItem {
-		int *idPtr;
+		int64_t *idPtr;
 		bool *resetClockOutputsHighPtr;
 		void onAction(const event::Action &e) override {
 			clockMaster.setAsMaster(*idPtr, *resetClockOutputsHighPtr);
@@ -216,7 +216,8 @@ struct AutopatchItem : MenuItem {
 		PortWidget **slaveResetRunBpmInputs;
 		bool *resetClockOutputsHighPtr;
 		void onAction(const event::Action &e) override {
-			autopatch(slaveResetRunBpmInputs, resetClockOutputsHighPtr);
+			// autopatch(slaveResetRunBpmInputs, resetClockOutputsHighPtr);
+			WARN("Autopatch is currently disabled");
 		}
 	};
 

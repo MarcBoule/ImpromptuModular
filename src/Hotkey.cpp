@@ -391,6 +391,7 @@ struct HotkeyWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Hotkey.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -408,7 +409,7 @@ struct HotkeyWidget : ModuleWidget {
 		addChild(createLightCentered<LEDBezelLight<GreenRedLight>>(VecPx(centerX, buttonY), module, Hotkey::RECORD_KEY_LIGHT));
 		
 		// Delay knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(centerX, 220.0f), module, Hotkey::DELAY_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(centerX, 220.0f), module, Hotkey::DELAY_PARAM, mode));
 
 		// trig out
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX, 288.0f), false, module, Hotkey::TRIG_OUTPUT, mode));
@@ -418,6 +419,7 @@ struct HotkeyWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((Hotkey*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

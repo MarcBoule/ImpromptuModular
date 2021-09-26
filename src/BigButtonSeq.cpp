@@ -120,6 +120,10 @@ struct BigButtonSeq : Module {
 		configParam(QUANTIZEBIG_PARAM, 0.0f, 1.0f, 0.0f, "Quantize big button");
 		configParam(WRITEFILL_PARAM, 0.0f, 1.0f, 0.0f, "Write fill");		
 		
+		getParamQuantity(LEN_PARAM)->resetEnabled = false;		
+		getParamQuantity(RND_PARAM)->resetEnabled = false;		
+		getParamQuantity(CHAN_PARAM)->resetEnabled = false;		
+		
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -583,6 +587,7 @@ struct BigButtonSeqWidget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/BigButtonSeq.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));	
 		
 		// Screws
@@ -645,10 +650,10 @@ struct BigButtonSeqWidget : ModuleWidget {
 		static const int row3 = 183;// len and rnd
 		
 		// Len knob and jack
-		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(VecPx(218, row3), module, BigButtonSeq::LEN_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(218, row3), module, BigButtonSeq::LEN_PARAM, mode));		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(218 - 53, row3), true, module, BigButtonSeq::LEN_INPUT, mode));
 		// Rnd knob and jack
-		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(VecPx(37, row3), module, BigButtonSeq::RND_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(37, row3), module, BigButtonSeq::RND_PARAM, mode));		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(37 + 53, row3), true, module, BigButtonSeq::RND_INPUT, mode));
 
 
@@ -700,6 +705,7 @@ struct BigButtonSeqWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((BigButtonSeq*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

@@ -874,18 +874,20 @@ struct ClkdWidget : ModuleWidget {
 		menu->addChild(apItem);
 	}
 	
-	struct BpmKnob : IMMediumKnob<true, true> {
+	struct BpmKnob : IMMediumKnob<true> {
 		int *displayIndexPtr = NULL;
 		void onButton(const event::Button& e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity && displayIndexPtr) {
 				*displayIndexPtr = 0;
 			}
 			IMMediumKnob::onButton(e);
 		}
 	};
-	struct RatioKnob : IMSmallKnob<true, true> {
+	struct RatioKnob : IMSmallKnob<true> {
 		int *displayIndexPtr = NULL;
 		void onButton(const event::Button& e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity && displayIndexPtr) {
 				int ratioNum = paramQuantity->paramId - Clkd::RATIO_PARAMS;
 				if (ratioNum >= 0 && ratioNum < 3) {
@@ -902,6 +904,7 @@ struct ClkdWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Clkd.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -1009,6 +1012,7 @@ struct ClkdWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((Clkd*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}
@@ -1027,7 +1031,8 @@ struct ClkdWidget : ModuleWidget {
 			else if ( e.key == GLFW_KEY_M && ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) ) {
 				Clkd *module = dynamic_cast<Clkd*>(this->module);
 				if (clockMaster.id != module->id && clockMaster.validateClockModule()) {
-					autopatch(slaveResetRunBpmInputs, &module->resetClockOutputsHigh);
+					// autopatch(slaveResetRunBpmInputs, &module->resetClockOutputsHigh);
+					WARN("Autopatch is currently disabled");
 				}
 				e.consume(this);
 				return;

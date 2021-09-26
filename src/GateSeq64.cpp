@@ -1452,6 +1452,7 @@ struct GateSeq64Widget : ModuleWidget {
 		
 
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (4HP right side)", "");
+		expItem->module = module;
 		expItem->model = modelGateSeq64Expander;
 		expItem->posit = box.pos.plus(math::Vec(box.size.x,0));
 		menu->addChild(expItem);	
@@ -1461,6 +1462,7 @@ struct GateSeq64Widget : ModuleWidget {
 	struct SequenceKnob : IMBigKnobInf {
 		SequenceKnob() {};		
 		void onDoubleClick(const event::DoubleClick &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				GateSeq64* module = dynamic_cast<GateSeq64*>(paramQuantity->module);
 				// same code structure below as in sequence knob in main step()
@@ -1507,6 +1509,7 @@ struct GateSeq64Widget : ModuleWidget {
 	struct LEDButtonGS : LEDButton {
 		LEDButtonGS() {};
 		void onDragStart(const event::DragStart &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				GateSeq64 *module = dynamic_cast<GateSeq64*>(paramQuantity->module);
 				if (module->isEditingSequence() && module->displayState != GateSeq64::DISP_LENGTH && module->displayState != GateSeq64::DISP_MODES && !module->lock) {
@@ -1520,6 +1523,7 @@ struct GateSeq64Widget : ModuleWidget {
 			LEDButton::onDragStart(e);
 		}
 		void onDragEnter(const event::DragEnter &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			LEDButtonGS *orig = dynamic_cast<LEDButtonGS*>(e.origin);
 			if (orig && paramQuantity) {
 				GateSeq64 *module = dynamic_cast<GateSeq64*>(paramQuantity->module);
@@ -1540,6 +1544,7 @@ struct GateSeq64Widget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/GateSeq64.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -1659,6 +1664,7 @@ struct GateSeq64Widget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((GateSeq64*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

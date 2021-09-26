@@ -2037,6 +2037,7 @@ struct FoundryWidget : ModuleWidget {
 		menu->addChild(expLabel);
 		
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (10HP right side)", "");
+		expItem->module = module;
 		expItem->model = modelFoundryExpander;
 		expItem->posit = box.pos.plus(math::Vec(box.size.x,0));
 		menu->addChild(expItem);	
@@ -2046,6 +2047,7 @@ struct FoundryWidget : ModuleWidget {
 	struct VelocityKnob : IMMediumKnobInf {
 		VelocityKnob() {};		
 		void onDoubleClick(const event::DoubleClick &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				Foundry* module = dynamic_cast<Foundry*>(paramQuantity->module);
 				// same code structure below as in velocity knob in main step()
@@ -2070,6 +2072,7 @@ struct FoundryWidget : ModuleWidget {
 	struct SequenceKnob : IMMediumKnobInf {
 		SequenceKnob() {};		
 		void onDoubleClick(const event::DoubleClick &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				Foundry* module = dynamic_cast<Foundry*>(paramQuantity->module);
 				// same code structure below as in sequence knob in main step()
@@ -2112,6 +2115,7 @@ struct FoundryWidget : ModuleWidget {
 	struct PhraseKnob : IMMediumKnobInf {
 		PhraseKnob() {};		
 		void onDoubleClick(const event::DoubleClick &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				Foundry* module = dynamic_cast<Foundry*>(paramQuantity->module);
 				// same code structure below as in phrase knob in main step()
@@ -2151,6 +2155,7 @@ struct FoundryWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Foundry.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -2422,6 +2427,7 @@ struct FoundryWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((Foundry*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

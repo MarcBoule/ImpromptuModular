@@ -120,6 +120,7 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 	
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ProbKeyExpander.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -135,7 +136,7 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, row0)), false, module, ProbKeyExpander::MINCV_OUTPUT, mode));
 		
 		// minOct knob
-		addParam(createDynamicParamCentered<IMMediumKnob<true, true>>(mm2px(Vec(col0, row1)), module, ProbKeyExpander::MINOCT_PARAM, mode));
+		addParam(createDynamicParamCentered<IMMediumKnob<true>>(mm2px(Vec(col0, row1)), module, ProbKeyExpander::MINOCT_PARAM, mode));
 		
 		// manual lock low
 		static const float row2 = 107.0f;
@@ -150,6 +151,7 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((ProbKeyExpander*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

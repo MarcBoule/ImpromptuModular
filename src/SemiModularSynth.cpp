@@ -356,12 +356,30 @@ struct SemiModularSynth : Module {
 		configParam(LFO_GAIN_PARAM, 0.0f, 1.0f, 0.5f, "LFO gain");
 		configParam(LFO_OFFSET_PARAM, -1.0f, 1.0f, 0.0f, "LFO offset");
 
-		#ifdef RACK_V2_PREP
 		getParamQuantity(CPMODE_PARAM)->resetEnabled = false;		
 		getParamQuantity(EDIT_PARAM)->resetEnabled = false;		
 		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
 		getParamQuantity(VCO_MODE_PARAM)->resetEnabled = false;		
-		#endif
+		getParamQuantity(VCO_FREQ_PARAM)->resetEnabled = false;		
+		getParamQuantity(VCF_FREQ_PARAM)->resetEnabled = false;		
+		getParamQuantity(VCO_OCT_PARAM)->resetEnabled = false;		
+		getParamQuantity(VCO_FINE_PARAM)->resetEnabled = false;		
+		getParamQuantity(VCO_PW_PARAM)->resetEnabled = false;		
+		getParamQuantity(VCO_FM_PARAM)->resetEnabled = false;		
+		getParamQuantity(VCO_PWM_PARAM)->resetEnabled = false;		
+		getParamQuantity(CLK_FREQ_PARAM)->resetEnabled = false;		
+		getParamQuantity(CLK_PW_PARAM)->resetEnabled = false;		
+		getParamQuantity(VCA_LEVEL1_PARAM)->resetEnabled = false;		
+		getParamQuantity(ADSR_ATTACK_PARAM)->resetEnabled = false;		
+		getParamQuantity(ADSR_DECAY_PARAM)->resetEnabled = false;		
+		getParamQuantity(ADSR_SUSTAIN_PARAM)->resetEnabled = false;		
+		getParamQuantity(ADSR_RELEASE_PARAM)->resetEnabled = false;		
+		getParamQuantity(VCF_RES_PARAM)->resetEnabled = false;		
+		getParamQuantity(VCF_FREQ_CV_PARAM)->resetEnabled = false;		
+		getParamQuantity(VCF_DRIVE_PARAM)->resetEnabled = false;		
+		getParamQuantity(LFO_FREQ_PARAM)->resetEnabled = false;		
+		getParamQuantity(LFO_GAIN_PARAM)->resetEnabled = false;		
+		getParamQuantity(LFO_OFFSET_PARAM)->resetEnabled = false;		
 		
 		onReset();
 		
@@ -2155,6 +2173,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 	struct SequenceKnob : IMBigKnobInf {
 		SequenceKnob() {};		
 		void onDoubleClick(const event::DoubleClick &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				SemiModularSynth* module = dynamic_cast<SemiModularSynth*>(paramQuantity->module);
 				// same code structure below as in sequence knob in main step()
@@ -2206,6 +2225,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/SemiModular.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -2377,12 +2397,12 @@ struct SemiModularSynthWidget : ModuleWidget {
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colB0 + ledVsButtonDX, rowB1), module, SemiModularSynth::GATE1_PROB_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colB0, rowB1), module, SemiModularSynth::GATE1_PROB_PARAM, mode));
 		// Gate 1 probability knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colB1, rowB1), module, SemiModularSynth::GATE1_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colB1, rowB1), module, SemiModularSynth::GATE1_KNOB_PARAM, mode));
 		// Slide light and button
 		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colB2 + ledVsButtonDX, rowB1), module, SemiModularSynth::SLIDE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colB2, rowB1), module, SemiModularSynth::SLIDE_BTN_PARAM, mode));
 		// Slide knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colB3, rowB1), module, SemiModularSynth::SLIDE_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colB3, rowB1), module, SemiModularSynth::SLIDE_KNOB_PARAM, mode));
 		// Autostep
 		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colB4, rowB1), module, SemiModularSynth::AUTOSTEP_PARAM, mode));		
 		// CV in
@@ -2426,12 +2446,12 @@ struct SemiModularSynthWidget : ModuleWidget {
 		static const int colVCO1 = colVCO0 + 55;// exact value from svg
 
 
-		addParam(createDynamicParamCentered<IMBigKnob<false, false>>(VecPx(colVCO0 + 55 / 2, rowVCO0), module, SemiModularSynth::VCO_FREQ_PARAM, mode));
+		addParam(createDynamicParamCentered<IMBigKnob<false>>(VecPx(colVCO0 + 55 / 2, rowVCO0), module, SemiModularSynth::VCO_FREQ_PARAM, mode));
 		
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVCO0, rowVCO1), module, SemiModularSynth::VCO_FINE_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVCO1, rowVCO1), module, SemiModularSynth::VCO_PW_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVCO0, rowVCO2), module, SemiModularSynth::VCO_FM_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVCO1, rowVCO2), module, SemiModularSynth::VCO_PWM_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colVCO0, rowVCO1), module, SemiModularSynth::VCO_FINE_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colVCO1, rowVCO1), module, SemiModularSynth::VCO_PW_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colVCO0, rowVCO2), module, SemiModularSynth::VCO_FM_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colVCO1, rowVCO2), module, SemiModularSynth::VCO_PWM_PARAM, mode));
 
 		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colVCO0, rowVCO3), module, SemiModularSynth::VCO_MODE_PARAM, mode));
 		addParam(createDynamicParamCentered<IMFivePosSmallKnob>(VecPx(colVCO1, rowVCO3), module, SemiModularSynth::VCO_OCT_PARAM, mode));
@@ -2452,14 +2472,14 @@ struct SemiModularSynthWidget : ModuleWidget {
 		static const int rowClk1 = rowClk0 + 45;// exact value from svg
 		static const int rowClk2 = rowClk1 + 38;
 		static const int colClk0 = colVCO1 + 55;// exact value from svg
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colClk0, rowClk0), module, SemiModularSynth::CLK_FREQ_PARAM, mode));// 120 BMP when default value
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colClk0, rowClk1), module, SemiModularSynth::CLK_PW_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colClk0, rowClk0), module, SemiModularSynth::CLK_FREQ_PARAM, mode));// 120 BMP when default value
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colClk0, rowClk1), module, SemiModularSynth::CLK_PW_PARAM, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colClk0, rowClk2), false, module, SemiModularSynth::CLK_OUT_OUTPUT, mode));
 		
 		
 		// VCA
 		static const int colVca1 = colClk0 + 55;// exact value from svg
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colClk0, rowVCO3), module, SemiModularSynth::VCA_LEVEL1_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colClk0, rowVCO3), module, SemiModularSynth::VCA_LEVEL1_PARAM, mode));
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colClk0, rowVCO4), true, module, SemiModularSynth::VCA_LIN1_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colClk0, rowVCO5), true, module, SemiModularSynth::VCA_IN1_INPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colVca1, rowVCO5), false, module, SemiModularSynth::VCA_OUT1_OUTPUT, mode));
@@ -2470,10 +2490,10 @@ struct SemiModularSynthWidget : ModuleWidget {
 		static const int rowAdsr3 = rowVCO2 + 6;
 		static const int rowAdsr1 = rowAdsr0 + (rowAdsr3 - rowAdsr0) * 1 / 3;
 		static const int rowAdsr2 = rowAdsr0 + (rowAdsr3 - rowAdsr0) * 2 / 3;
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVca1, rowAdsr0), module, SemiModularSynth::ADSR_ATTACK_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVca1, rowAdsr1), module, SemiModularSynth::ADSR_DECAY_PARAM,  mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVca1, rowAdsr2), module, SemiModularSynth::ADSR_SUSTAIN_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVca1, rowAdsr3), module, SemiModularSynth::ADSR_RELEASE_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colVca1, rowAdsr0), module, SemiModularSynth::ADSR_ATTACK_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colVca1, rowAdsr1), module, SemiModularSynth::ADSR_DECAY_PARAM,  mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colVca1, rowAdsr2), module, SemiModularSynth::ADSR_SUSTAIN_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colVca1, rowAdsr3), module, SemiModularSynth::ADSR_RELEASE_PARAM, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colVca1, rowVCO3), false, module, SemiModularSynth::ADSR_ENVELOPE_OUTPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colVca1, rowVCO4), true, module, SemiModularSynth::ADSR_GATE_INPUT, mode));
 
@@ -2481,10 +2501,10 @@ struct SemiModularSynthWidget : ModuleWidget {
 		// VCF
 		static const int colVCF0 = colVca1 + 55;// exact value from svg
 		static const int colVCF1 = colVCF0 + 55;// exact value from svg
-		addParam(createDynamicParamCentered<IMBigKnob<false, false>>(VecPx(colVCF0 + 55 / 2, rowVCO0), module, SemiModularSynth::VCF_FREQ_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVCF0 + 55 / 2, rowVCO1), module, SemiModularSynth::VCF_RES_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVCF0 , rowVCO2), module, SemiModularSynth::VCF_FREQ_CV_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colVCF1 , rowVCO2 ), module, SemiModularSynth::VCF_DRIVE_PARAM, mode));
+		addParam(createDynamicParamCentered<IMBigKnob<false>>(VecPx(colVCF0 + 55 / 2, rowVCO0), module, SemiModularSynth::VCF_FREQ_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colVCF0 + 55 / 2, rowVCO1), module, SemiModularSynth::VCF_RES_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colVCF0 , rowVCO2), module, SemiModularSynth::VCF_FREQ_CV_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colVCF1 , rowVCO2 ), module, SemiModularSynth::VCF_DRIVE_PARAM, mode));
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colVCF0, rowVCO3), true, module, SemiModularSynth::VCF_FREQ_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colVCF1, rowVCO3), true, module, SemiModularSynth::VCF_RES_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colVCF0, rowVCO4), true, module, SemiModularSynth::VCF_DRIVE_INPUT, mode));
@@ -2498,9 +2518,9 @@ struct SemiModularSynthWidget : ModuleWidget {
 		static const int rowLfo0 = rowAdsr0;
 		static const int rowLfo2 = rowVCO2;
 		static const int rowLfo1 = rowLfo0 + (rowLfo2 - rowLfo0) / 2;
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colLfo, rowLfo0), module, SemiModularSynth::LFO_FREQ_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colLfo, rowLfo1), module, SemiModularSynth::LFO_GAIN_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false, false>>(VecPx(colLfo, rowLfo2), module, SemiModularSynth::LFO_OFFSET_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colLfo, rowLfo0), module, SemiModularSynth::LFO_FREQ_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colLfo, rowLfo1), module, SemiModularSynth::LFO_GAIN_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colLfo, rowLfo2), module, SemiModularSynth::LFO_OFFSET_PARAM, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colLfo, rowVCO3), false, module, SemiModularSynth::LFO_TRI_OUTPUT, mode));		
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colLfo, rowVCO4), false, module, SemiModularSynth::LFO_SIN_OUTPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colLfo, rowVCO5), true, module, SemiModularSynth::LFO_RESET_INPUT, mode));
@@ -2510,6 +2530,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((SemiModularSynth*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

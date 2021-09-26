@@ -110,13 +110,12 @@ struct CvPad : Module {
 		configParam(ATTACH_PARAM, 0.0f, 1.0f, 1.0f, "Attach");
 		configParam(CONFIG_PARAM, 0.0f, 2.0f, 0.0f, "Configuration");// 0 is top position (4x4), 1 is middle (2x8), 2 is bot (1x16)
 		
-		#ifdef RACK_V2_PREP
 		getParamQuantity(SHARP_PARAM)->resetEnabled = false;		
 		getParamQuantity(CONFIG_PARAM)->resetEnabled = false;		
 		getParamQuantity(QUANTIZE_PARAM)->resetEnabled = false;		
 		getParamQuantity(ATTACH_PARAM)->resetEnabled = false;		
 		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
-		#endif
+		getParamQuantity(BANK_PARAM)->resetEnabled = false;		
 
 		onReset();
 		
@@ -444,6 +443,7 @@ struct CvPadWidget : ModuleWidget {
 	struct CvKnob : IMBigKnobInf {
 		CvKnob() {};		
 		void onDoubleClick(const event::DoubleClick &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				CvPad* module = dynamic_cast<CvPad*>(paramQuantity->module);
 				module->cvs[module->bank][module->writeHead] = 0.0f;
@@ -487,7 +487,7 @@ struct CvPadWidget : ModuleWidget {
 
 		void step() override {
 			// Keep selected
-			APP->event->setSelected(this);
+			APP->event->setSelectedWidget(this);
 			TextField::step();
 		}
 
@@ -906,6 +906,7 @@ struct CvPadWidget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/CvPad.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -995,7 +996,7 @@ struct CvPadWidget : ModuleWidget {
 		// cv knob
 		addParam(createDynamicParamCentered<CvKnob>(VecPx(padX + padXd * 2, topY), module, CvPad::CV_PARAM, mode));
 		// bank knob
-		addParam(createDynamicParamCentered<IMBigKnob<false, true>>(VecPx(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, mode));
+		addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, mode));
 
 		
 	}
@@ -1005,6 +1006,7 @@ struct CvPadWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((CvPad*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

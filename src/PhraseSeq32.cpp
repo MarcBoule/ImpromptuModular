@@ -2057,6 +2057,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		menu->addChild(expLabel);
 
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (4HP right side)", "");
+		expItem->module = module;
 		expItem->model = modelPhraseSeqExpander;
 		expItem->posit = box.pos.plus(math::Vec(box.size.x,0));
 		menu->addChild(expItem);	
@@ -2066,6 +2067,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 	struct SequenceKnob : IMBigKnobInf {
 		SequenceKnob() {};		
 		void onDoubleClick(const event::DoubleClick &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				PhraseSeq32* module = dynamic_cast<PhraseSeq32*>(paramQuantity->module);
 				// same code structure below as in sequence knob in main step()
@@ -2121,6 +2123,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/PhraseSeq32.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -2298,12 +2301,12 @@ struct PhraseSeq32Widget : ModuleWidget {
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnB0 + ledVsButtonDX, rowB1), module, PhraseSeq32::GATE1_PROB_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnB0, rowB1), module, PhraseSeq32::GATE1_PROB_PARAM, mode));
 		// Gate 1 probability knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(columnB1, rowB1), module, PhraseSeq32::GATE1_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(columnB1, rowB1), module, PhraseSeq32::GATE1_KNOB_PARAM, mode));
 		// Slide light and button
 		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnB2 + ledVsButtonDX, rowB1), module, PhraseSeq32::SLIDE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnB2, rowB1), module, PhraseSeq32::SLIDE_BTN_PARAM, mode));
 		// Slide knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(columnB3, rowB1), module, PhraseSeq32::SLIDE_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(columnB3, rowB1), module, PhraseSeq32::SLIDE_KNOB_PARAM, mode));
 		// CV in
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB4, rowB1), true, module, PhraseSeq32::CV_INPUT, mode));
 		// Clock input
@@ -2332,6 +2335,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((PhraseSeq32*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

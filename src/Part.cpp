@@ -289,6 +289,7 @@ struct PartWidget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Part.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -317,7 +318,7 @@ struct PartWidget : ModuleWidget {
 		addChild(new SplitDisplayWidget(VecPx(colM, row1), VecPx(65, 24), module));// 4 characters + decimal point
 		
 		// Split knob 
-		addParam(createDynamicParamCentered<IMBigKnob<true, false>>(VecPx(colM, row2), module, Part::SPLIT_PARAM, mode));
+		addParam(createDynamicParamCentered<IMBigKnob<false>>(VecPx(colM, row2), module, Part::SPLIT_PARAM, mode));
 
 
 		// CV input
@@ -340,6 +341,7 @@ struct PartWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((Part*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

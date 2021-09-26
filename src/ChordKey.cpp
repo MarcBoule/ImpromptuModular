@@ -113,6 +113,8 @@ struct ChordKey : Module {
 		configParam(TRANSPOSEUP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up");
 		configParam(TRANSPOSEDOWN_PARAM, 0.0f, 1.0f, 0.0f, "Transpose down");
 		
+		getParamQuantity(INDEX_PARAM)->resetEnabled = false;		
+		
 		pkInfo.showMarks = 4;
 		
 		onReset();
@@ -849,6 +851,7 @@ struct ChordKeyWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ChordKey.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -934,7 +937,7 @@ struct ChordKeyWidget : ModuleWidget {
 		// Index input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 2 - 8), true, module, ChordKey::INDEX_INPUT, mode));
 		// Index knob
-		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(VecPx(col1, rowY + rowYd * 2 - 8), module, ChordKey::INDEX_PARAM, mode));	
+		addParam(createDynamicParamCentered<IMMediumKnob<true>>(VecPx(col1, rowY + rowYd * 2 - 8), module, ChordKey::INDEX_PARAM, mode));	
 	
 		// Gate input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 3 + 8), true, module, ChordKey::GATE_INPUT, mode));
@@ -963,6 +966,7 @@ struct ChordKeyWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((ChordKey*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

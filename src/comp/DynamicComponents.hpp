@@ -153,7 +153,7 @@ struct IMKnob : DynamicSVGKnob {
 	}
 };
 
-template<bool allowRandom, bool makeSnap>
+template<bool makeSnap>
 struct IMBigKnob : IMKnob {
 	IMBigKnob() {
 		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/BlackKnobLargeWithMark.svg")));
@@ -162,10 +162,6 @@ struct IMBigKnob : IMKnob {
 		shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
 		snap = makeSnap;
-	}
-	void randomize() override {
-		if (allowRandom) 
-			IMKnob::randomize();
 	}
 };
 
@@ -180,7 +176,7 @@ struct IMBigKnobInf : IMKnob {// implicitly no random and no snap
 	}
 };
 
-template<bool allowRandom, bool makeSnap>
+template<bool makeSnap>
 struct IMSmallKnob : IMKnob {
 	IMSmallKnob() {
 		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundSmallBlackKnob.svg")));
@@ -190,10 +186,6 @@ struct IMSmallKnob : IMKnob {
 		// shadow->opacity = 0.1;
 		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
 		snap = makeSnap;
-	}
-	void randomize() override {
-		if (allowRandom) 
-			IMKnob::randomize();
 	}
 };
 
@@ -208,7 +200,7 @@ struct IMMediumKnobInf : IMKnob {// implicitly no random and no snap
 		speed = 0.9f;				
 	}
 };
-template<bool allowRandom, bool makeSnap>
+template<bool makeSnap>
 struct IMMediumKnob : IMKnob {
 	IMMediumKnob() {
 		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundMediumBlackKnob.svg")));
@@ -219,13 +211,9 @@ struct IMMediumKnob : IMKnob {
 		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
 		snap = makeSnap;			
 	}
-	void randomize() override {
-		if (allowRandom) 
-			IMKnob::randomize();
-	}
 };
 
-struct IMFivePosSmallKnob : IMSmallKnob<false, true> {
+struct IMFivePosSmallKnob : IMSmallKnob<true> {
 	IMFivePosSmallKnob() {
 		speed = 1.6f;
 		minAngle = -0.5*float(M_PI);
@@ -233,7 +221,7 @@ struct IMFivePosSmallKnob : IMSmallKnob<false, true> {
 	}
 };
 
-struct IMFivePosMediumKnob : IMMediumKnob<false, true> {
+struct IMFivePosMediumKnob : IMMediumKnob<true> {
 	IMFivePosMediumKnob() {
 		speed = 1.6f;
 		minAngle = -0.5*float(M_PI);
@@ -241,7 +229,7 @@ struct IMFivePosMediumKnob : IMMediumKnob<false, true> {
 	}
 };
 
-struct IMSixPosBigKnob : IMBigKnob<false, true> {
+struct IMSixPosBigKnob : IMBigKnob<true> {
 	IMSixPosBigKnob() {
 		speed = 1.3f;
 		minAngle = -0.4*float(M_PI);

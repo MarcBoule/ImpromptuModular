@@ -1016,13 +1016,15 @@ struct ClockedWidget : ModuleWidget {
 		menu->addChild(apItem);
 		
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (4HP right side)", "");
+		expItem->module = module;
 		expItem->model = modelClockedExpander;
 		expItem->posit = box.pos.plus(math::Vec(box.size.x,0));
 		menu->addChild(expItem);	
 	}	
 	
-	struct IMSmallKnobNotify : IMSmallKnob<true, false> {// for Swing and PW
+	struct IMSmallKnobNotify : IMSmallKnob<false> {// for Swing and PW
 		void onDragMove(const event::DragMove &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				Clocked *module = dynamic_cast<Clocked*>(paramQuantity->module);
 				int dispIndex = 0;
@@ -1037,8 +1039,9 @@ struct ClockedWidget : ModuleWidget {
 			Knob::onDragMove(e);
 		}
 	};
-	struct IMSmallSnapKnobNotify : IMSmallKnob<true, true> {// used for Delay
+	struct IMSmallSnapKnobNotify : IMSmallKnob<true> {// used for Delay
 		void onDragMove(const event::DragMove &e) override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				Clocked *module = dynamic_cast<Clocked*>(paramQuantity->module);
 				int dispIndex = 0;
@@ -1059,6 +1062,7 @@ struct ClockedWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Clocked.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -1098,7 +1102,7 @@ struct ClockedWidget : ModuleWidget {
 		// In input
 		addInput(slaveResetRunBpmInputs[2] = createDynamicPortCentered<IMPort>(VecPx(col2, row0), true, module, Clocked::BPM_INPUT, mode));
 		// Master BPM knob
-		addParam(createDynamicParamCentered<IMBigKnob<true, true>>(VecPx(col3 + 1, row0), module, Clocked::RATIO_PARAMS + 0, mode));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(col3 + 1, row0), module, Clocked::RATIO_PARAMS + 0, mode));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		// BPM display
 		displayRatios[0] = new RatioDisplayWidget();
 		displayRatios[0]->box.size = VecPx(55, 30);// 3 characters
@@ -1130,7 +1134,7 @@ struct ClockedWidget : ModuleWidget {
 		// Row 2-4 (sub clocks)		
 		for (int i = 0; i < 3; i++) {
 			// Ratio1 knob
-			addParam(createDynamicParamCentered<IMBigKnob<true, true>>(VecPx(colM0, row2 + i * rowSpacingClks), module, Clocked::RATIO_PARAMS + 1 + i, mode));		
+			addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(colM0, row2 + i * rowSpacingClks), module, Clocked::RATIO_PARAMS + 1 + i, mode));		
 			// Ratio display
 			displayRatios[i + 1] = new RatioDisplayWidget();
 			displayRatios[i + 1]->box.size = VecPx(55, 30);// 3 characters
@@ -1165,6 +1169,7 @@ struct ClockedWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((Clocked*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}
@@ -1183,7 +1188,8 @@ struct ClockedWidget : ModuleWidget {
 			if ( e.key == GLFW_KEY_M && ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) ) {
 				Clocked *module = dynamic_cast<Clocked*>(this->module);
 				if (clockMaster.id != module->id && clockMaster.validateClockModule()) {
-					autopatch(slaveResetRunBpmInputs, &module->resetClockOutputsHigh);
+					// autopatch(slaveResetRunBpmInputs, &module->resetClockOutputsHigh);
+					WARN("Autopatch is currently disabled");
 				}
 				e.consume(this);
 				return;

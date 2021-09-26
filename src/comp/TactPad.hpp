@@ -30,8 +30,8 @@ struct TactPad : ParamWidget {
 	void onDragEnd(const event::DragEnd &e) override;
 	void onButton(const event::Button &e) override;
 	void setTactParam(float posY);
-	void reset() override;
-	void randomize() override;
+	// void reset() override;
+	// void randomize() override;
 };
 
 

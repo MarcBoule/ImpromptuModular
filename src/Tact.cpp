@@ -420,6 +420,7 @@ struct TactWidget : ModuleWidget {
 		static const int padWidthWide = padWidth * 2 + padInterSpace;
 
 		void step() override {
+			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
 				Tact* module = dynamic_cast<Tact*>(paramQuantity->module);
 				if ((module->params[Tact::LINK_PARAM].getValue()) > 0.5f) {
@@ -439,6 +440,7 @@ struct TactWidget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Tact.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -504,15 +506,15 @@ struct TactWidget : ModuleWidget {
 		static const int row1b = row1c - 59;
 		
 		// Attv knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3L, row1b), module, Tact::ATTV_PARAMS + 0, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3R, row1b), module, Tact::ATTV_PARAMS + 1, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colC3L, row1b), module, Tact::ATTV_PARAMS + 0, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colC3R, row1b), module, Tact::ATTV_PARAMS + 1, mode));
 
 		
 		static const int row1a = row1b - 59;
 		
 		// Rate knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3L, row1a), module, Tact::RATE_PARAMS + 0, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(colC3R, row1a), module, Tact::RATE_PARAMS + 1, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colC3L, row1a), module, Tact::RATE_PARAMS + 0, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colC3R, row1a), module, Tact::RATE_PARAMS + 1, mode));
 		
 
 		static const int colRulerC1L = colC - 30 - 1;
@@ -554,6 +556,7 @@ struct TactWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((Tact*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}
@@ -789,6 +792,7 @@ struct Tact1Widget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Tact1.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -820,8 +824,8 @@ struct Tact1Widget : ModuleWidget {
 		static const int rowRuler2 = 275;// rate and exp
 		static const int offsetFromSide2 = 25;
 		// Rate and attenuverter knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(offsetFromSide2, rowRuler2), module, Tact1::RATE_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(VecPx(box.size.x - offsetFromSide2, rowRuler2), module, Tact1::ATTV_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(offsetFromSide2, rowRuler2), module, Tact1::RATE_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(box.size.x - offsetFromSide2, rowRuler2), module, Tact1::ATTV_PARAM, mode));
 		
 		static const int rowRuler3 = 332;
 		
@@ -835,6 +839,7 @@ struct Tact1Widget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((Tact1*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}
@@ -1078,6 +1083,7 @@ struct TactGWidget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/TactG.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -1112,9 +1118,9 @@ struct TactGWidget : ModuleWidget {
 		static constexpr float knobOffsetY = 20.5f;
 		
 		// Rate, Attv, Ofst Knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY)), module, TactG::RATE_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY)), module, TactG::ATTV_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 2.0f)), module, TactG::OFFSET_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(mm2px(Vec(knobX, knobTopY)), module, TactG::RATE_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY)), module, TactG::ATTV_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 2.0f)), module, TactG::OFFSET_PARAM, mode));
 		
 		
 		static constexpr float rowRulerB1 = 94.8f;
@@ -1124,7 +1130,7 @@ struct TactGWidget : ModuleWidget {
 	
 		// Offset 2 input and cv knob
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 3.0f - 1.6f)), true, module, TactG::OFFSET2_INPUT, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<true, false>>(mm2px(Vec(knobX, rowRulerB1)), module, TactG::OFFSET2_CV_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob<false>>(mm2px(Vec(knobX, rowRulerB1)), module, TactG::OFFSET2_CV_PARAM, mode));
 		
 		// x3 and Exp switches
 		addParam(createDynamicParamCentered<IMSwitch2V>(mm2px(Vec(colRulerR, rowRulerB1)), module, TactG::RATE_MULT_PARAM, mode));	
@@ -1142,6 +1148,7 @@ struct TactGWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((TactG*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

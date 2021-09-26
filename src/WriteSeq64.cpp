@@ -125,13 +125,12 @@ struct WriteSeq64 : Module {
 		configParam(WRITE_PARAM, 0.0f, 1.0f, 0.0f, "Write");
 		configParam(MONITOR_PARAM, 0.0f, 1.0f, 1.0f, "Monitor");	
 		
-		#ifdef RACK_V2_PREP
 		getParamQuantity(SHARP_PARAM)->resetEnabled = false;		
 		getParamQuantity(PASTESYNC_PARAM)->resetEnabled = false;		
 		getParamQuantity(MONITOR_PARAM)->resetEnabled = false;		
 		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
 		getParamQuantity(QUANTIZE_PARAM)->resetEnabled = false;		
-		#endif
+		getParamQuantity(CHANNEL_PARAM)->resetEnabled = false;		
 
 		onReset();
 		
@@ -849,6 +848,7 @@ struct WriteSeq64Widget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/WriteSeq64.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -1002,6 +1002,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((WriteSeq64*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}

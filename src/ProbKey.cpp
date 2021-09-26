@@ -757,6 +757,13 @@ struct ProbKey : Module {
 		configParam(TR_UP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up 1 semitone");
 		configParam(TR_DOWN_PARAM, 0.0f, 1.0f, 0.0f, "Transpose down 1 semitone");
 		
+		getParamQuantity(LOCK_KNOB_PARAM)->resetEnabled = false;		
+		getParamQuantity(LENGTH_PARAM)->resetEnabled = false;		
+		getParamQuantity(INDEX_PARAM)->resetEnabled = false;		
+		getParamQuantity(DENSITY_PARAM)->resetEnabled = false;		
+		getParamQuantity(SQUASH_PARAM)->resetEnabled = false;		
+		getParamQuantity(OFFSET_PARAM)->resetEnabled = false;		
+		
 		pkInfo.showMarks = 1;
 		
 		onReset();
@@ -1304,7 +1311,7 @@ struct ProbKeyWidget : ModuleWidget {
 	};
 	
 	
-	struct LengthKnob : IMMediumKnob<false, true> {
+	struct LengthKnob : IMMediumKnob<true> {
 		DisplayManager* dispManagerSrc = NULL;
 		
 		void onDragMove(const event::DragMove& e) override {
@@ -1497,6 +1504,7 @@ struct ProbKeyWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ProbKey.svg")));
+		Widget* panel = getPanel();
 		panel->addChild(new InverterWidget(panel->box.size, mode));
 		
 		// Screws
@@ -1576,7 +1584,7 @@ struct ProbKeyWidget : ModuleWidget {
 		// **** col0 ****
 		
 		// Index knob and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, true>>(mm2px(Vec(col0, row0)), module, ProbKey::INDEX_PARAM, mode));	
+		addParam(createDynamicParamCentered<IMMediumKnob<true>>(mm2px(Vec(col0, row0)), module, ProbKey::INDEX_PARAM, mode));	
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, row1)), true, module, ProbKey::INDEX_INPUT, mode));
 
 		// Gate input
@@ -1586,7 +1594,7 @@ struct ProbKeyWidget : ModuleWidget {
 		// **** col1 ****
 
 		// density knob, led and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col1, row0)), module, ProbKey::DENSITY_PARAM, mode));	
+		addParam(createDynamicParamCentered<IMMediumKnob<false>>(mm2px(Vec(col1, row0)), module, ProbKey::DENSITY_PARAM, mode));	
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(mm2px(Vec(col1 - 4.5f, row1 - 6.3f)), module, ProbKey::DENSITY_LIGHT));			
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row1)), true, module, ProbKey::DENSITY_INPUT, mode));
 
@@ -1597,7 +1605,7 @@ struct ProbKeyWidget : ModuleWidget {
 		// **** col2 ****
 
 		// Squash knob and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col2, row0)), module, ProbKey::SQUASH_PARAM, mode));	
+		addParam(createDynamicParamCentered<IMMediumKnob<false>>(mm2px(Vec(col2, row0)), module, ProbKey::SQUASH_PARAM, mode));	
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row1)), true, module, ProbKey::SQUASH_INPUT, mode));
 
 		// Main display
@@ -1611,14 +1619,14 @@ struct ProbKeyWidget : ModuleWidget {
 		// **** col3 ****
 
 		// Offset knob and input
-		addParam(createDynamicParamCentered<IMMediumKnob<false, false>>(mm2px(Vec(col3, row0)), module, ProbKey::OFFSET_PARAM, mode));	
+		addParam(createDynamicParamCentered<IMMediumKnob<false>>(mm2px(Vec(col3, row0)), module, ProbKey::OFFSET_PARAM, mode));	
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row1)), true, module, ProbKey::OFFSET_INPUT, mode));
 
 
 		// **** col4 ****
 
 		// Lock knob, led, button and input
-		addParam(createDynamicParamCentered<IMBigKnob<false, false>>(mm2px(Vec(col4, row0 + 2.0f)), module, ProbKey::LOCK_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMBigKnob<false>>(mm2px(Vec(col4, row0 + 2.0f)), module, ProbKey::LOCK_KNOB_PARAM, mode));
 		addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(col4 - 5.0f, row1 + 4.0f - 6.8f)), module, ProbKey::LOCK_LIGHT));	
 		addParam(createDynamicParamCentered<IMBigPushButton>(mm2px(Vec(col4, row1 + 4.0f)), module, ProbKey::LOCK_BUTTON_PARAM, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col4, row2)), true, module, ProbKey::LOCK_INPUT, mode));
@@ -1671,6 +1679,7 @@ struct ProbKeyWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((ProbKey*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
+				Widget* panel = getPanel();
 				((FramebufferWidget*)panel)->dirty = true;
 				lastPanelTheme = panelTheme;
 			}
