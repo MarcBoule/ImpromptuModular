@@ -108,19 +108,19 @@ struct DynamicSVGSwitch : SvgSwitch {
     // void step() override;
 };
 
-struct DynamicSVGKnob : SvgKnob {
-    int* mode = NULL;
-    int oldMode = -1;
-	std::vector<std::shared_ptr<Svg>> framesAll;
-	SvgWidget* effect = NULL;
-	std::string frameAltName;
-	std::string frameEffectName;
+// struct DynamicSVGKnob : SvgKnob {
+    // int* mode = NULL;
+    // int oldMode = -1;
+	// std::vector<std::shared_ptr<Svg>> framesAll;
+	// SvgWidget* effect = NULL;
+	// std::string frameAltName;
+	// std::string frameEffectName;
 
-	void addFrameAll(std::shared_ptr<Svg> svg);
-    void addFrameAlt(std::string filename) {frameAltName = filename;}	
-	void addFrameEffect(std::string filename) {frameEffectName = filename;}	
-    void step() override;
-};
+	// void addFrameAll(std::shared_ptr<Svg> svg);
+    // void addFrameAlt(std::string filename) {frameAltName = filename;}	
+	// void addFrameEffect(std::string filename) {frameEffectName = filename;}	
+    // void step() override;
+// };
 
 
 struct IMBigPushButton : DynamicSVGSwitch {
@@ -146,67 +146,72 @@ struct IMPushButton : DynamicSVGSwitch {
 };
 
 
-struct IMKnob : DynamicSVGKnob {
-	IMKnob() {
-		minAngle = -0.83*float(M_PI);
-		maxAngle = 0.83*float(M_PI);
-	}
-};
+// struct IMKnob : DynamicSVGKnob {
+	// IMKnob() {
+		// minAngle = -0.83*float(M_PI);
+		// maxAngle = 0.83*float(M_PI);
+	// }
+// };
 
 template<bool makeSnap>
-struct IMBigKnob : IMKnob {
+struct IMBigKnob : Rogan1PSWhite  {
+	int* mode = NULL;
 	IMBigKnob() {
-		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/BlackKnobLargeWithMark.svg")));
-		addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeWithMark.svg"));
-		addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeEffects.svg"));
-		shadow->blurRadius = box.size.y * blurRadiusRatio;
+		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/BlackKnobLargeWithMark.svg")));
+		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeWithMark.svg"));
+		// addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeEffects.svg"));
+		// shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
 		snap = makeSnap;
 	}
 };
 
-struct IMBigKnobInf : IMKnob {// implicitly no random and no snap
+struct IMBigKnobInf : Rogan1PSWhite {
+	int* mode = NULL;
 	IMBigKnobInf() {
-		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/BlackKnobLarge.svg")));
-		addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLarge.svg"));
-		addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeEffects.svg"));
-		shadow->blurRadius = box.size.y * blurRadiusRatio;
+		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/BlackKnobLarge.svg")));
+		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLarge.svg"));
+		// addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeEffects.svg"));
+		// shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
 		speed = 0.9f;				
 	}
 };
 
 template<bool makeSnap>
-struct IMSmallKnob : IMKnob {
+struct IMSmallKnob : RoundSmallBlackKnob {
+	int* mode = NULL;
 	IMSmallKnob() {
-		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundSmallBlackKnob.svg")));
-		addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/RoundSmallBlackKnob.svg"));
-		addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundSmallBlackKnobEffects.svg"));		
-		shadow->blurRadius = box.size.y * blurRadiusRatio;
+		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundSmallBlackKnob.svg")));
+		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/RoundSmallBlackKnob.svg"));
+		// addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundSmallBlackKnobEffects.svg"));		
+		// shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
 		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
 		snap = makeSnap;
 	}
 };
 
-struct IMMediumKnobInf : IMKnob {// implicitly no random and no snap
+struct IMMediumKnobInf : RoundBlackKnob {
+	int* mode = NULL;
 	IMMediumKnobInf() {
-		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundMediumBlackKnobNoMark.svg")));
-		addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobNoMark.svg"));
-		addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobEffects.svg"));
-		shadow->blurRadius = box.size.y * blurRadiusRatio;
+		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundMediumBlackKnobNoMark.svg")));
+		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobNoMark.svg"));
+		// addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobEffects.svg"));
+		// shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
 		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
 		speed = 0.9f;				
 	}
 };
 template<bool makeSnap>
-struct IMMediumKnob : IMKnob {
+struct IMMediumKnob : RoundBlackKnob {
+	int* mode = NULL;
 	IMMediumKnob() {
-		addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundMediumBlackKnob.svg")));
-		addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnob.svg"));
-		addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobEffects.svg"));
-		shadow->blurRadius = box.size.y * blurRadiusRatio;
+		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundMediumBlackKnob.svg")));
+		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnob.svg"));
+		// addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobEffects.svg"));
+		// shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
 		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
 		snap = makeSnap;			

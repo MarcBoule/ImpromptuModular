@@ -105,36 +105,36 @@ void DynamicSVGSwitch::setSizeRatio(float ratio) {
 
 // Dynamic SVGKnob
 
-void DynamicSVGKnob::addFrameAll(std::shared_ptr<Svg> svg) {
-    framesAll.push_back(svg);
-	if (framesAll.size() == 1) {
-		setSvg(svg);
-	}
-}
+// void DynamicSVGKnob::addFrameAll(std::shared_ptr<Svg> svg) {
+    // framesAll.push_back(svg);
+	// if (framesAll.size() == 1) {
+		// setSvg(svg);
+	// }
+// }
 
-void DynamicSVGKnob::step() {
-    if(mode != NULL && *mode != oldMode) {
-        if (*mode > 0 && !frameAltName.empty() && !frameEffectName.empty()) {// JIT loading of alternate skin
-			framesAll.push_back(APP->window->loadSvg(frameAltName));
-			effect = new SvgWidget();
-			effect->setSvg(APP->window->loadSvg(frameEffectName));
-			effect->visible = false;
-			addChild(effect);
-			frameAltName.clear();// don't reload!
-			frameEffectName.clear();// don't reload!
-		}
-        if ((*mode) == 0) {
-			setSvg(framesAll[0]);
-			if (effect != NULL)
-				effect->visible = false;
-		}
-		else {
-			setSvg(framesAll[1]);
-			effect->visible = true;
-		}
-        oldMode = *mode;
-		fb->dirty = true;
-    }
-	SvgKnob::step();
-}
+// void DynamicSVGKnob::step() {
+    // if(mode != NULL && *mode != oldMode) {
+        // if (*mode > 0 && !frameAltName.empty() && !frameEffectName.empty()) {// JIT loading of alternate skin
+			// framesAll.push_back(APP->window->loadSvg(frameAltName));
+			// effect = new SvgWidget();
+			// effect->setSvg(APP->window->loadSvg(frameEffectName));
+			// effect->visible = false;
+			// addChild(effect);
+			// frameAltName.clear();// don't reload!
+			// frameEffectName.clear();// don't reload!
+		// }
+        // if ((*mode) == 0) {
+			// setSvg(framesAll[0]);
+			// if (effect != NULL)
+				// effect->visible = false;
+		// }
+		// else {
+			// setSvg(framesAll[1]);
+			// effect->visible = true;
+		// }
+        // oldMode = *mode;
+		// fb->dirty = true;
+    // }
+	// SvgKnob::step();
+// }
 
