@@ -842,6 +842,18 @@ struct ChordKeyWidget : ModuleWidget {
 		MergeOutputsItem *mergeItem = createMenuItem<MergeOutputsItem>("Poly merge outputs into top note", RIGHT_ARROW);
 		mergeItem->module = module;
 		menu->addChild(mergeItem);
+		
+		menu->addChild(new MenuLabel());// empty line
+
+		MenuLabel *expLabel = new MenuLabel();
+		expLabel->text = "Expander module";
+		menu->addChild(expLabel);
+		
+		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (6HP right side)", "");
+		expItem->module = module;
+		expItem->model = modelChordKeyExpander;
+		expItem->posit = box.pos.plus(math::Vec(box.size.x,0));
+		menu->addChild(expItem);	
 	}	
 	
 	

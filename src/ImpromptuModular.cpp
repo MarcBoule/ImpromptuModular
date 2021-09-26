@@ -182,7 +182,14 @@ bool loadDarkAsDefault() {
 
 
 void InstantiateExpanderItem::onAction(const event::Action &e) {
-	ModuleWidget *mw = model->createModuleWidget(module);
+	// Create Module and ModuleWidget
+	engine::Module* module = model->createModule();
+	APP->engine->addModule(module);
+
+	ModuleWidget* mw = model->createModuleWidget(module);
+	// APP->scene->rack->addModuleAtMouse(mw);
+	
+	// ModuleWidget *mw = model->createModuleWidget();
 	if (mw) {
 		APP->scene->rack->setModulePosNearest(mw, posit);
 		APP->scene->rack->addModule(mw);
@@ -192,4 +199,5 @@ void InstantiateExpanderItem::onAction(const event::Action &e) {
 		APP->history->push(h);
 	}
 }
+
 
