@@ -68,7 +68,7 @@ NVGcolor prepareDisplay(NVGcontext *vg, Rect *box, int fontSize) {
 	NVGcolor backgroundColor = nvgRGB(0x38, 0x38, 0x38); 
 	NVGcolor borderColor = nvgRGB(0x10, 0x10, 0x10);
 	nvgBeginPath(vg);
-	nvgRoundedRect(vg, 0.0, 0.0, box->size.x, box->size.y, 5.0);
+	nvgRoundedRect(vg, 0.0, 0.0, box->size.x, box->size.y, 5.0f);
 	nvgFillColor(vg, backgroundColor);
 	nvgFill(vg);
 	nvgStrokeWidth(vg, 1.0);

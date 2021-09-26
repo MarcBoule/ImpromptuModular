@@ -455,6 +455,8 @@ struct TactWidget : ModuleWidget {
 		static const int colRulerPadR = 136;
 		
 		// Tactile touch pads
+		panel->addChild(new TactPadSvg(mm2px(Vec(24.890f, 11.663f)), mode));
+		panel->addChild(new TactPadSvg(mm2px(Vec(46.225f, 11.663f)), mode));
 		TactPad2 *tpadR;
 		TactPad2 *tpadL;
 		// Right (no dynamic width, but must do first so that left will get mouse events when wider overlaps)
@@ -806,6 +808,7 @@ struct Tact1Widget : ModuleWidget {
 		static const int colRulerPad = 14;
 		
 		// Tactile touch pad
+		panel->addChild(new TactPadSvg(mm2px(Vec(4.908f, 14.296f)), mode));
 		TactPad *tpad;
 		addParam(tpad = createParam<TactPad>(VecPx(colRulerPad, rowRuler0), module, Tact1::TACT_PARAM));
 		if (module) {
@@ -1096,6 +1099,7 @@ struct TactGWidget : ModuleWidget {
 		static constexpr float padY = 12.8f;
 		
 		// Tactile touch pad
+		panel->addChild(new TactPadSvg(mm2px(Vec(16.0f, 13.2f)), mode));
 		TactPad *tpad;
 		addParam(tpad = createParam<TactPad>(mm2px(Vec(16.0f, padY)), module, TactG::TACT_PARAM));
 		if (module) {

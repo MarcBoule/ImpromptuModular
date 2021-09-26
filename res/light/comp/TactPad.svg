@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="14.908mm"
+   height="67.300003mm"
+   viewBox="0 0 14.908 67.300001"
+   version="1.1"
+   id="svg909"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="TactPad.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview911"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     scale-x="1"
+     inkscape:zoom="3.1072952"
+     inkscape:cx="386.02705"
+     inkscape:cy="290.44553"
+     inkscape:window-width="1920"
+     inkscape:window-height="1057"
+     inkscape:window-x="-8"
+     inkscape:window-y="1072"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs906" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       style="fill:#a0a0a0;stroke:#646464;stroke-width:0.781839"
+       id="g40"
+       transform="matrix(1.2799763,0,0,1.2780855,-39.221564,-217.82719)">
+      <rect
+         style="stroke-width:0.931171;paint-order:stroke markers fill"
+         id="rect36"
+         width="10.716"
+         height="51.726002"
+         x="31.108"
+         y="170.89799"
+         rx="0.66016614"
+         ry="0.66114277" />
+      <path
+         style="stroke-width:0.207187"
+         inkscape:connector-curvature="0"
+         id="path38"
+         d="m 30.777,218.618 11.275,0.04 0.063,0.04 m -11.338,-44.178 11.275,0.04 0.063,0.041" />
+    </g>
+  </g>
+</svg>

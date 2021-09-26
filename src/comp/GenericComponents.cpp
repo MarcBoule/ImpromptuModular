@@ -160,6 +160,17 @@ void KeyboardMed::draw(const DrawArgs& args) {
 	SvgWidget::draw(args);
 }
 
+void TactPadSvg::draw(const DrawArgs& args) {
+	if (mode && *mode != 0) {
+		nvgBeginPath(args.vg);
+		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
+		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 5.0f);
+		nvgFillPaint(args.vg, grad);
+		nvgFill(args.vg);
+	}
+	SvgWidget::draw(args);
+}
+
 // Knobs
 
 // nothing
