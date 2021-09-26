@@ -1188,8 +1188,7 @@ struct ClockedWidget : ModuleWidget {
 			if ( e.key == GLFW_KEY_M && ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) ) {
 				Clocked *module = dynamic_cast<Clocked*>(this->module);
 				if (clockMaster.id != module->id && clockMaster.validateClockModule()) {
-					// autopatch(slaveResetRunBpmInputs, &module->resetClockOutputsHigh);
-					WARN("Autopatch is currently disabled");
+					autopatch(slaveResetRunBpmInputs, &module->resetClockOutputsHigh);
 				}
 				e.consume(this);
 				return;

@@ -92,11 +92,11 @@ struct ClockMaster {// should not need to have mutex since only menu driven
 	int64_t id = -1;
 	bool resetClockOutputsHigh;
 	
-	void setAsMaster(int _id, bool _resetClockOutputsHigh) {
+	void setAsMaster(int64_t _id, bool _resetClockOutputsHigh) {
 		id = _id,
 		resetClockOutputsHigh = _resetClockOutputsHigh;
 	}
-	void setAsMasterIfNoMasterExists(int _id, bool _resetClockOutputsHigh) {
+	void setAsMasterIfNoMasterExists(int64_t _id, bool _resetClockOutputsHigh) {
 		if (id == -1) {
 			setAsMaster(_id, _resetClockOutputsHigh);
 		}
@@ -104,7 +104,7 @@ struct ClockMaster {// should not need to have mutex since only menu driven
 	void removeMaster() {
 		id = -1;
 	}
-	void removeAsMasterIfThisIsMaster(int _id) {
+	void removeAsMasterIfThisIsMaster(int64_t _id) {
 		if (id == _id) {
 			removeMaster();
 		}	

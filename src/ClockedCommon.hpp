@@ -163,18 +163,18 @@ struct OnStopItem : MenuItem {
 };	
 
 
-/*
+
 // must have done validateClockModule() before calling this
 static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveResetClockOutputsHighPtr) {
 	for (Widget* widget : APP->scene->rack->getModuleContainer()->children) {
 		ModuleWidget* moduleWidget = dynamic_cast<ModuleWidget *>(widget);
 		if (moduleWidget) {
-			int otherId = moduleWidget->module->id;
+			int64_t otherId = moduleWidget->module->id;
 			if (otherId == clockMaster.id && moduleWidget->model->slug.substr(0, 7) == std::string("Clocked")) {
 				// here we have found the clock master, so autopatch to it
 				// first we need to find the PortWidgets of the proper outputs of the clock master
 				PortWidget* masterResetRunBpmOutputs[3];
-				for (PortWidget* outputWidgetOnMaster : moduleWidget->outputs) {
+				for (PortWidget* outputWidgetOnMaster : moduleWidget->getOutputs()) {
 					int outId = outputWidgetOnMaster->portId;
 					if (outId >= 4 && outId <= 6) {
 						masterResetRunBpmOutputs[outId - 4] = outputWidgetOnMaster;
@@ -182,12 +182,16 @@ static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveResetClock
 				}
 				// now we can make the actual cables between master and slave
 				for (int i = 0; i < 3; i++) {
-					std::list<CableWidget*> cablesOnSlaveInput = APP->scene->rack->getCablesOnPort(slaveResetRunBpmInputs[i]);
+					std::vector<CableWidget*> cablesOnSlaveInput = APP->scene->rack->getCablesOnPort(slaveResetRunBpmInputs[i]);
 					if (cablesOnSlaveInput.empty()) {
-						CableWidget* cable = new CableWidget();
-						cable->setInput(slaveResetRunBpmInputs[i]);
-						cable->setOutput(masterResetRunBpmOutputs[i]);
-						APP->scene->rack->addCable(cable);
+						CableWidget* cw = new CableWidget();
+						// cable->setInput(slaveResetRunBpmInputs[i]);
+						// cable->setOutput(masterResetRunBpmOutputs[i]);
+						cw->setNextCableColor();
+						cw->inputPort = slaveResetRunBpmInputs[i];
+						cw->outputPort = masterResetRunBpmOutputs[i];
+						cw->updateCable();
+						APP->scene->rack->addCable(cw);
 					}
 				}
 				*slaveResetClockOutputsHighPtr = clockMaster.resetClockOutputsHigh;
@@ -197,15 +201,15 @@ static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveResetClock
 	}
 	// assert(false);
 	// here the clock master was not found; this should never happen, since AutopatchToMasterItem is never invoked when a valid master does not exist
-}*/
+}
 
 struct AutopatchItem : MenuItem {
-	int64_t *idPtr;
+	int64_t* idPtr;
 	bool *resetClockOutputsHighPtr;
 	PortWidget **slaveResetRunBpmInputs;
 		
 	struct AutopatchMakeMasterItem : MenuItem {
-		int64_t *idPtr;
+		int64_t* idPtr;
 		bool *resetClockOutputsHighPtr;
 		void onAction(const event::Action &e) override {
 			clockMaster.setAsMaster(*idPtr, *resetClockOutputsHighPtr);
@@ -216,8 +220,7 @@ struct AutopatchItem : MenuItem {
 		PortWidget **slaveResetRunBpmInputs;
 		bool *resetClockOutputsHighPtr;
 		void onAction(const event::Action &e) override {
-			// autopatch(slaveResetRunBpmInputs, resetClockOutputsHighPtr);
-			WARN("Autopatch is currently disabled");
+			autopatch(slaveResetRunBpmInputs, resetClockOutputsHighPtr);
 		}
 	};
 
