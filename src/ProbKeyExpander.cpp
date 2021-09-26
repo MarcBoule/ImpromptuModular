@@ -160,4 +160,4 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 	}
 };
 
-Model *modelProbKeyExpander = createModel<ProbKeyExpander, ProbKeyExpanderWidget>("Prob-Key-Expander");
+// Model *modelProbKeyExpander = createModel<ProbKeyExpander, ProbKeyExpanderWidget>("Prob-Key-Expander");

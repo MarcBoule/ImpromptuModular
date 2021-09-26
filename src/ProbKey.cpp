@@ -637,7 +637,7 @@ struct ProbKey : Module {
 	
 	
 	// Expander
-	PkxIntfFromExp rightMessages[2] = {};// messages from expander
+	// PkxIntfFromExp rightMessages[2] = {};// messages from expander
 
 		
 	// Constants
@@ -739,8 +739,8 @@ struct ProbKey : Module {
 	ProbKey() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
-		rightExpander.producerMessage = &(rightMessages[0]);
-		rightExpander.consumerMessage = &(rightMessages[1]);
+		// rightExpander.producerMessage = &(rightMessages[0]);
+		// rightExpander.consumerMessage = &(rightMessages[1]);
 
 		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		configParam(LENGTH_PARAM, 0.0f, (float)(OutputKernel::MAX_LENGTH - 1), (float)(OutputKernel::MAX_LENGTH - 1), "Lock length", "", 0.0f, 1.0f, 1.0f);
@@ -950,7 +950,7 @@ struct ProbKey : Module {
 		int index = getIndex();
 		int length = getLength();
 				
-		bool expanderPresent = rightExpander.module && (rightExpander.module->model == modelProbKeyExpander);
+		// bool expanderPresent = rightExpander.module && (rightExpander.module->model == modelProbKeyExpander);
 
 		
 		//********** Buttons, knobs, switches and inputs **********
@@ -1055,13 +1055,12 @@ struct ProbKey : Module {
 				// got rising edge on gate input poly channel c
 				bool isLockedStep = getLock() > random::uniform();
 				if (c == 0 && !isLockedStep) {
-					if (expanderPresent && ((PkxIntfFromExp*)rightExpander.consumerMessage)->manualLockLow != 0) {
-						// lock low from expander has higher priority than step lock in menu
-						isLockedStep = outputKernels[c].calcLowLock(((PkxIntfFromExp*)rightExpander.consumerMessage)->manualLockLow, length);
-					}
-					else {
+					// if (expanderPresent && ((PkxIntfFromExp*)rightExpander.consumerMessage)->manualLockLow != 0) {
+						// isLockedStep = outputKernels[c].calcLowLock(((PkxIntfFromExp*)rightExpander.consumerMessage)->manualLockLow, length);// lock low from expander has higher priority than step lock in menu
+					// }
+					// else {
 						isLockedStep = getStepLock(outputKernels[c].getNextStep(length));
-					}						
+					// }						
 				}
 				
 				if (isLockedStep) {
@@ -1150,12 +1149,12 @@ struct ProbKey : Module {
 		}// processLights()
 		
 		// To Expander
-		if (expanderPresent) {
-			PkxIntfFromMother *messagesToExpander = (PkxIntfFromMother*)(rightExpander.module->leftExpander.producerMessage);
-			messagesToExpander->panelTheme = panelTheme;
-			messagesToExpander->minCvChan0 = outputKernels[0].getMinCv();
-			rightExpander.module->leftExpander.messageFlipRequested = true;
-		}
+		// if (expanderPresent) {
+			// PkxIntfFromMother *messagesToExpander = (PkxIntfFromMother*)(rightExpander.module->leftExpander.producerMessage);
+			// messagesToExpander->panelTheme = panelTheme;
+			// messagesToExpander->minCvChan0 = outputKernels[0].getMinCv();
+			// rightExpander.module->leftExpander.messageFlipRequested = true;
+		// }
 	}
 	
 	void setKeyLightsProb(int key, float prob, bool tracer, bool tracerLockedStep) {
@@ -1483,18 +1482,18 @@ struct ProbKeyWidget : ModuleWidget {
 		tracerItem->module = module;
 		menu->addChild(tracerItem);
 		
-		bool expanderPresent = module->rightExpander.module && (module->rightExpander.module->model == modelProbKeyExpander);
-		bool stepLockDisabled = expanderPresent && ((PkxIntfFromExp*)module->rightExpander.consumerMessage)->manualLockLow != 0;
-		if (stepLockDisabled) {
-			MenuLabel *sldisLabel = new MenuLabel();
-			sldisLabel->text = "Manual step lock [inactive when low lock]";
-			menu->addChild(sldisLabel);
-		}
-		else {
+		// bool expanderPresent = module->rightExpander.module && (module->rightExpander.module->model == modelProbKeyExpander);
+		// bool stepLockDisabled = expanderPresent && ((PkxIntfFromExp*)module->rightExpander.consumerMessage)->manualLockLow != 0;
+		// if (stepLockDisabled) {
+			// MenuLabel *sldisLabel = new MenuLabel();
+			// sldisLabel->text = "Manual step lock [inactive when low lock]";
+			// menu->addChild(sldisLabel);
+		// }
+		// else {
 			StepLockItem *stepLockItem = createMenuItem<StepLockItem>("Manual step lock", RIGHT_ARROW);
 			stepLockItem->module = module;
 			menu->addChild(stepLockItem);
-		}
+		// }
 	}
 
 

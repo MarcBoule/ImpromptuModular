@@ -102,10 +102,10 @@ struct DynamicSVGSwitch : SvgSwitch {
 	TransformWidget *tw;
 	
 	void addFrameAll(std::shared_ptr<Svg> svg);
-    void addFrameAlt0(std::string filename) {frameAltName0 = filename;}
-    void addFrameAlt1(std::string filename) {frameAltName1 = filename;}
+    // void addFrameAlt0(std::string filename) {frameAltName0 = filename;}
+    // void addFrameAlt1(std::string filename) {frameAltName1 = filename;}
 	void setSizeRatio(float ratio);
-    void step() override;
+    // void step() override;
 };
 
 struct DynamicSVGKnob : SvgKnob {
@@ -128,8 +128,8 @@ struct IMBigPushButton : DynamicSVGSwitch {
 		momentary = true;
 		addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKD6_0.svg")));
 		addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKD6_1.svg")));
-		addFrameAlt0(asset::plugin(pluginInstance, "res/dark/comp/CKD6_0.svg"));
-		addFrameAlt1(asset::plugin(pluginInstance, "res/dark/comp/CKD6_1.svg"));
+		// addFrameAlt0(asset::plugin(pluginInstance, "res/dark/comp/CKD6_0.svg"));
+		// addFrameAlt1(asset::plugin(pluginInstance, "res/dark/comp/CKD6_1.svg"));
 		setSizeRatio(0.9f);		
 		shadow->blurRadius = 1.0f;
 	}
@@ -140,8 +140,8 @@ struct IMPushButton : DynamicSVGSwitch {
 		momentary = true;
 		addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/TL1105_0.svg")));
 		addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/TL1105_1.svg")));
-		addFrameAlt0(asset::plugin(pluginInstance, "res/dark/comp/TL1105_0.svg"));
-		addFrameAlt1(asset::plugin(pluginInstance, "res/dark/comp/TL1105_1.svg"));	
+		// addFrameAlt0(asset::plugin(pluginInstance, "res/dark/comp/TL1105_0.svg"));
+		// addFrameAlt1(asset::plugin(pluginInstance, "res/dark/comp/TL1105_1.svg"));	
 	}
 };
 

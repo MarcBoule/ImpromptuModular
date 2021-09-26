@@ -36,7 +36,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhraseSeq32);
 	p->addModel(modelPhraseSeqExpander);
 	p->addModel(modelProbKey);
-	p->addModel(modelProbKeyExpander);
+	// p->addModel(modelProbKeyExpander);
 	p->addModel(modelSemiModularSynth);
 	p->addModel(modelTact);
 	p->addModel(modelTact1);

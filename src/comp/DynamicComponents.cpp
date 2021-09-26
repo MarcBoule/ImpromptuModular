@@ -78,7 +78,7 @@ void DynamicSVGSwitch::setSizeRatio(float ratio) {
 	shadow->box.size = sw->box.size; 
 }
 
-void DynamicSVGSwitch::step() {
+/*void DynamicSVGSwitch::step() {
     if(mode != NULL && *mode != oldMode) {
         if (*mode > 0 && !frameAltName0.empty() && !frameAltName1.empty()) {// JIT loading of alternate skin
 			framesAll.push_back(APP->window->loadSvg(frameAltName0));
@@ -99,7 +99,7 @@ void DynamicSVGSwitch::step() {
 		fb->dirty = true;// dirty is not sufficient when changing via frames assignments above (i.e. onChange() is required)
     }
 	SvgSwitch::step();
-}
+}*/
 
 
 
