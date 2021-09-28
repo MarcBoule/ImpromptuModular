@@ -125,12 +125,12 @@ struct WriteSeq64 : Module {
 		configParam(WRITE_PARAM, 0.0f, 1.0f, 0.0f, "Write");
 		configParam(MONITOR_PARAM, 0.0f, 1.0f, 1.0f, "Monitor");	
 		
-		getParamQuantity(SHARP_PARAM)->resetEnabled = false;		
-		getParamQuantity(PASTESYNC_PARAM)->resetEnabled = false;		
-		getParamQuantity(MONITOR_PARAM)->resetEnabled = false;		
-		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
-		getParamQuantity(QUANTIZE_PARAM)->resetEnabled = false;		
-		getParamQuantity(CHANNEL_PARAM)->resetEnabled = false;		
+		getParamQuantity(SHARP_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(PASTESYNC_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(MONITOR_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(QUANTIZE_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(CHANNEL_PARAM)->randomizeEnabled = false;		
 
 		onReset();
 		

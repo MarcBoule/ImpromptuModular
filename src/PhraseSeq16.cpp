@@ -230,9 +230,9 @@ struct PhraseSeq16 : Module {
 		configParam(SLIDE_KNOB_PARAM, 0.0f, 2.0f, 0.2f, "Slide rate");
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");						
 		
-		getParamQuantity(CPMODE_PARAM)->resetEnabled = false;		
-		getParamQuantity(EDIT_PARAM)->resetEnabled = false;		
-		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
+		getParamQuantity(CPMODE_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(EDIT_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->randomizeEnabled = false;		
 
 		onReset();
 		

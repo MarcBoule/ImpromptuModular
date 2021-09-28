@@ -260,10 +260,10 @@ struct PhraseSeq32 : Module {
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");
 		
 		#ifdef RACK_V2_PREP
-		getParamQuantity(CPMODE_PARAM)->resetEnabled = false;		
-		getParamQuantity(CONFIG_PARAM)->resetEnabled = false;		
-		getParamQuantity(EDIT_PARAM)->resetEnabled = false;		
-		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
+		getParamQuantity(CPMODE_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(CONFIG_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(EDIT_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->randomizeEnabled = false;		
 		#endif
 
 		for (int i = 0; i < 32; i++) {

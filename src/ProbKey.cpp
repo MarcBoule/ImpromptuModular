@@ -757,12 +757,12 @@ struct ProbKey : Module {
 		configParam(TR_UP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up 1 semitone");
 		configParam(TR_DOWN_PARAM, 0.0f, 1.0f, 0.0f, "Transpose down 1 semitone");
 		
-		getParamQuantity(LOCK_KNOB_PARAM)->resetEnabled = false;		
-		getParamQuantity(LENGTH_PARAM)->resetEnabled = false;		
-		getParamQuantity(INDEX_PARAM)->resetEnabled = false;		
-		getParamQuantity(DENSITY_PARAM)->resetEnabled = false;		
-		getParamQuantity(SQUASH_PARAM)->resetEnabled = false;		
-		getParamQuantity(OFFSET_PARAM)->resetEnabled = false;		
+		getParamQuantity(LOCK_KNOB_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(LENGTH_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(INDEX_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(DENSITY_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(SQUASH_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(OFFSET_PARAM)->randomizeEnabled = false;		
 		
 		pkInfo.showMarks = 1;
 		

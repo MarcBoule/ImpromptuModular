@@ -143,9 +143,9 @@ struct BigButtonSeq2 : Module {
 		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "Clear");	
 		configParam(SAMPLEHOLD_PARAM, 0.0f, 1.0f, 0.0f, "Sample & hold");
 		
-		getParamQuantity(DISPMODE_PARAM)->resetEnabled = false;		
-		getParamQuantity(LEN_PARAM)->resetEnabled = false;		
-		getParamQuantity(CHAN_PARAM)->resetEnabled = false;	
+		getParamQuantity(DISPMODE_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(LEN_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(CHAN_PARAM)->randomizeEnabled = false;	
 
 		onReset();
 		

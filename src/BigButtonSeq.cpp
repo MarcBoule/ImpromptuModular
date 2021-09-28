@@ -120,9 +120,9 @@ struct BigButtonSeq : Module {
 		configParam(QUANTIZEBIG_PARAM, 0.0f, 1.0f, 0.0f, "Quantize big button");
 		configParam(WRITEFILL_PARAM, 0.0f, 1.0f, 0.0f, "Write fill");		
 		
-		getParamQuantity(LEN_PARAM)->resetEnabled = false;		
-		getParamQuantity(RND_PARAM)->resetEnabled = false;		
-		getParamQuantity(CHAN_PARAM)->resetEnabled = false;		
+		getParamQuantity(LEN_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(RND_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(CHAN_PARAM)->randomizeEnabled = false;		
 		
 		onReset();
 		

@@ -196,9 +196,9 @@ struct GateSeq64 : Module {
 		configParam(CPMODE_PARAM, 0.0f, 2.0f, 2.0f, "Copy-paste mode");		
 		
 		#ifdef RACK_V2_PREP
-		getParamQuantity(CPMODE_PARAM)->resetEnabled = false;		
-		getParamQuantity(CONFIG_PARAM)->resetEnabled = false;		
-		getParamQuantity(EDIT_PARAM)->resetEnabled = false;		
+		getParamQuantity(CPMODE_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(CONFIG_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(EDIT_PARAM)->randomizeEnabled = false;		
 		#endif
 		
 		for (int i = 0; i < MAX_SEQS; i++) {

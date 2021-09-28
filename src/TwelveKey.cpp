@@ -91,7 +91,7 @@ struct TwelveKey : Module {
 		configParam(VELPOL_PARAM, 0.0, 1.0, 0.0, "Velocity polarity");
 		
 		#ifdef RACK_V2_PREP
-		getParamQuantity(VELPOL_PARAM)->resetEnabled = false;		
+		getParamQuantity(VELPOL_PARAM)->randomizeEnabled = false;		
 		#endif
 
 		onReset();

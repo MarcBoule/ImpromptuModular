@@ -110,12 +110,12 @@ struct CvPad : Module {
 		configParam(ATTACH_PARAM, 0.0f, 1.0f, 1.0f, "Attach");
 		configParam(CONFIG_PARAM, 0.0f, 2.0f, 0.0f, "Configuration");// 0 is top position (4x4), 1 is middle (2x8), 2 is bot (1x16)
 		
-		getParamQuantity(SHARP_PARAM)->resetEnabled = false;		
-		getParamQuantity(CONFIG_PARAM)->resetEnabled = false;		
-		getParamQuantity(QUANTIZE_PARAM)->resetEnabled = false;		
-		getParamQuantity(ATTACH_PARAM)->resetEnabled = false;		
-		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
-		getParamQuantity(BANK_PARAM)->resetEnabled = false;		
+		getParamQuantity(SHARP_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(CONFIG_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(QUANTIZE_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(ATTACH_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(BANK_PARAM)->randomizeEnabled = false;		
 
 		onReset();
 		

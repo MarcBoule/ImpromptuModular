@@ -56,7 +56,7 @@ struct FoundryExpander : Module {
 		configParam(WRITEMODE_PARAM, 0.0f, 1.0f, 0.0f, "Write mode");
 	
 		#ifdef RACK_V2_PREP
-		getParamQuantity(SYNC_SEQCV_PARAM)->resetEnabled = false;		
+		getParamQuantity(SYNC_SEQCV_PARAM)->randomizeEnabled = false;		
 		#endif
 
 		leftExpander.producerMessage = leftMessages[0];

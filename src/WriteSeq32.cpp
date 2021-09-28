@@ -125,12 +125,12 @@ struct WriteSeq32 : Module {
 		configParam(STEPS_PARAM, 1.0f, 32.0f, 32.0f, "Number of steps");		
 		configParam(MONITOR_PARAM, 0.0f, 1.0f, 1.0f, "Monitor");		
 		
-		getParamQuantity(PASTESYNC_PARAM)->resetEnabled = false;		
-		getParamQuantity(MONITOR_PARAM)->resetEnabled = false;		
-		getParamQuantity(AUTOSTEP_PARAM)->resetEnabled = false;		
-		getParamQuantity(SHARP_PARAM)->resetEnabled = false;		
-		getParamQuantity(QUANTIZE_PARAM)->resetEnabled = false;		
-		getParamQuantity(STEPS_PARAM)->resetEnabled = false;		
+		getParamQuantity(PASTESYNC_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(MONITOR_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(AUTOSTEP_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(SHARP_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(QUANTIZE_PARAM)->randomizeEnabled = false;		
+		getParamQuantity(STEPS_PARAM)->randomizeEnabled = false;		
 
 		onReset();
 		

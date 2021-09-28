@@ -113,7 +113,7 @@ struct ChordKey : Module {
 		configParam(TRANSPOSEUP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up");
 		configParam(TRANSPOSEDOWN_PARAM, 0.0f, 1.0f, 0.0f, "Transpose down");
 		
-		getParamQuantity(INDEX_PARAM)->resetEnabled = false;		
+		getParamQuantity(INDEX_PARAM)->randomizeEnabled = false;		
 		
 		pkInfo.showMarks = 4;
 		
