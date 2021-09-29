@@ -166,7 +166,7 @@ struct PartWidget : ModuleWidget {
 				return;
 			}
 			static const float offsetXfrac = 16.5f;
-			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize);
+			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
 

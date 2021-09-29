@@ -555,7 +555,7 @@ struct ChordKeyWidget : ModuleWidget {
 			if (!(font = APP->window->loadFont(fontPath))) {
 				return;
 			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize);
+			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
 
@@ -598,7 +598,7 @@ struct ChordKeyWidget : ModuleWidget {
 			if (!(font = APP->window->loadFont(fontPath))) {
 				return;
 			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize);
+			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
 

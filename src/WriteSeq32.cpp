@@ -652,7 +652,7 @@ struct WriteSeq32Widget : ModuleWidget {
 			if (!(font = APP->window->loadFont(fontPath))) {
 				return;
 			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
+			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -1.5);
 
@@ -681,7 +681,7 @@ struct WriteSeq32Widget : ModuleWidget {
 			if (!(font = APP->window->loadFont(fontPath))) {
 				return;
 			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18);
+			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 			nvgFontFaceId(args.vg, font->handle);
 			//nvgTextLetterSpacing(args.vg, 2.5);
 

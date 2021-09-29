@@ -1410,7 +1410,7 @@ struct FoundryWidget : ModuleWidget {
 			if (!(font = APP->window->loadFont(fontPath))) {
 				return;
 			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize);
+			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
 
@@ -1439,7 +1439,7 @@ struct FoundryWidget : ModuleWidget {
 				return;
 			}
 			static const float offsetXfrac = 3.5f;
-			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize);
+			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -0.4);
 

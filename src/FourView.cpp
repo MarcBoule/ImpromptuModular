@@ -526,7 +526,7 @@ struct FourViewWidget : ModuleWidget {
 			if (!(font = APP->window->loadFont(fontPath))) {
 				return;
 			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 17);
+			NVGcolor textColor = prepareDisplay(args.vg, &box, 17, module ? &(module->panelTheme) : NULL);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -1.5);
 
