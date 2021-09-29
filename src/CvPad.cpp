@@ -453,7 +453,7 @@ struct CvPadWidget : ModuleWidget {
 	};	
 
 
-	struct BankDisplayWidget : LightWidget {//TransparentWidget {
+	struct BankDisplayWidget : TransparentWidget {
 		CvPad *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
@@ -515,7 +515,7 @@ struct CvPadWidget : ModuleWidget {
 	};
 	
 
-	struct CvDisplayWidget : LightWidget {//TransparentWidget {
+	struct CvDisplayWidget : TransparentWidget {
 		CvPad *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

@@ -1386,7 +1386,7 @@ struct FoundryWidget : ModuleWidget {
 	int lastPanelTheme = -1;
 	
 	template <int NUMCHAR>
-	struct DisplayWidget : LightWidget {//TransparentWidget {// a centered display, must derive from this
+	struct DisplayWidget : TransparentWidget {// a centered display, must derive from this
 		Foundry *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

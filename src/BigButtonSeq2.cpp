@@ -619,7 +619,7 @@ struct BigButtonSeq2 : Module {
 struct BigButtonSeq2Widget : ModuleWidget {
 	int lastPanelTheme = -1;
 
-	struct ChanDisplayWidget : LightWidget {//TransparentWidget {
+	struct ChanDisplayWidget : TransparentWidget {
 		BigButtonSeq2 *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
@@ -647,7 +647,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		}
 	};
 
-	struct StepsDisplayWidget : LightWidget {//TransparentWidget {
+	struct StepsDisplayWidget : TransparentWidget {
 		BigButtonSeq2 *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

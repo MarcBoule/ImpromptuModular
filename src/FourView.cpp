@@ -489,7 +489,7 @@ struct FourView : Module {
 struct FourViewWidget : ModuleWidget {
 	int lastPanelTheme = -1;
 
-	struct NotesDisplayWidget : LightWidget {//TransparentWidget {
+	struct NotesDisplayWidget : TransparentWidget {
 		FourView* module;
 		int baseIndex;
 		std::shared_ptr<Font> font;

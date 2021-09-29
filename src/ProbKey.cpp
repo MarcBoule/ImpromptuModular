@@ -1264,7 +1264,7 @@ struct ProbKeyWidget : ModuleWidget {
 		}
 	};
 
-	struct MainDisplayWidget : LightWidget {
+	struct MainDisplayWidget : TransparentWidget {
 		ProbKey *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

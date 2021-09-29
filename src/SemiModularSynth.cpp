@@ -1852,7 +1852,7 @@ struct SemiModularSynth : Module {
 struct SemiModularSynthWidget : ModuleWidget {
 	int lastPanelTheme = -1;
 
-	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
+	struct SequenceDisplayWidget : TransparentWidget {
 		SemiModularSynth *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

@@ -1733,7 +1733,7 @@ struct PhraseSeq32 : Module {
 struct PhraseSeq32Widget : ModuleWidget {
 	int lastPanelTheme = -1;
 	
-	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
+	struct SequenceDisplayWidget : TransparentWidget {
 		PhraseSeq32 *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

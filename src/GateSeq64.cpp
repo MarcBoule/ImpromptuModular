@@ -1168,7 +1168,7 @@ struct GateSeq64 : Module {
 struct GateSeq64Widget : ModuleWidget {
 	int lastPanelTheme = -1;
 		
-	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
+	struct SequenceDisplayWidget : TransparentWidget {
 		GateSeq64 *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

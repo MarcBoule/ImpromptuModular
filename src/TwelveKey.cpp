@@ -387,7 +387,7 @@ struct TwelveKeyWidget : ModuleWidget {
 	// old:
 	// int lastPanelTheme = -1;
 
-	struct OctaveNumDisplayWidget : LightWidget {//TransparentWidget {
+	struct OctaveNumDisplayWidget : TransparentWidget {
 		TwelveKey *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

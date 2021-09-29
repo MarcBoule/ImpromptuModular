@@ -535,7 +535,7 @@ struct ChordKey : Module {
 struct ChordKeyWidget : ModuleWidget {
 	int lastPanelTheme = -1;
 
-	struct OctDisplayWidget : LightWidget {//TransparentWidget {
+	struct OctDisplayWidget : TransparentWidget {
 		ChordKey *module;
 		int index;
 		std::shared_ptr<Font> font;
@@ -580,7 +580,7 @@ struct ChordKeyWidget : ModuleWidget {
 			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};
-	struct IndexDisplayWidget : LightWidget {//TransparentWidget {
+	struct IndexDisplayWidget : TransparentWidget {
 		ChordKey *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

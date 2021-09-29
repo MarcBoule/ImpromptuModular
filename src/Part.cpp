@@ -146,7 +146,7 @@ struct Part : Module {
 struct PartWidget : ModuleWidget {
 	int lastPanelTheme = -1;
 
-	struct SplitDisplayWidget : LightWidget {//TransparentWidget {
+	struct SplitDisplayWidget : TransparentWidget {
 		Part *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

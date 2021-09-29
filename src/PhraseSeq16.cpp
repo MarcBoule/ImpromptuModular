@@ -1631,7 +1631,7 @@ struct PhraseSeq16 : Module {
 struct PhraseSeq16Widget : ModuleWidget {
 	int lastPanelTheme = -1;
 
-	struct SequenceDisplayWidget : LightWidget {//TransparentWidget {
+	struct SequenceDisplayWidget : TransparentWidget {
 		PhraseSeq16 *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

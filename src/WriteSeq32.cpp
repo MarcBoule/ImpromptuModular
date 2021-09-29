@@ -604,7 +604,7 @@ struct WriteSeq32Widget : ModuleWidget {
 	int lastPanelTheme = -1;
 	int notesPos[8]; // used for rendering notes in LCD_24, 8 gate and 8 step LEDs 
 
-	struct NotesDisplayWidget : LightWidget {//TransparentWidget {
+	struct NotesDisplayWidget : TransparentWidget {
 		WriteSeq32 *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
@@ -668,7 +668,7 @@ struct WriteSeq32Widget : ModuleWidget {
 	};
 
 
-	struct StepsDisplayWidget : LightWidget {//TransparentWidget {
+	struct StepsDisplayWidget : TransparentWidget {
 		WriteSeq32 *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;

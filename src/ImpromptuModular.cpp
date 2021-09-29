@@ -50,6 +50,21 @@ void init(rack::Plugin *p) {
 
 // General objects
 
+void InverterWidget::draw(const DrawArgs& args) {
+	TransparentWidget::draw(args);
+	if (panelThemeSrc != NULL && *panelThemeSrc != 0) {
+		nvgSave(args.vg);
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, SCHEME_WHITE);	
+		nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+		nvgGlobalCompositeBlendFuncSeparate(args.vg, NVG_ONE_MINUS_DST_COLOR, NVG_ZERO, NVG_ONE_MINUS_DST_COLOR, NVG_ONE);// src, dest
+		nvgFill(args.vg);
+		nvgClosePath(args.vg);
+		nvgRestore(args.vg);
+	}			
+}
+
+
 ClockMaster clockMaster;  
 
 
@@ -58,7 +73,7 @@ ClockMaster clockMaster;
 
 
 NVGcolor prepareDisplay(NVGcontext *vg, Rect *box, int fontSize) {
-
+	
 	nvgBeginPath(vg);
 	NVGpaint grad = nvgLinearGradient(vg, 0, 0, 0, box->size.y, colTopD, colBotD);	
 	nvgRoundedRect(vg, -1.5f, -1.5f, box->size.x + 3.0f, box->size.y + 3.0f, 5.0f);
@@ -76,6 +91,7 @@ NVGcolor prepareDisplay(NVGcontext *vg, Rect *box, int fontSize) {
 	nvgStroke(vg);
 	nvgFontSize(vg, fontSize);
 	NVGcolor textColor = nvgRGB(0xaf, 0xd2, 0x2c);
+	nvgGlobalTint(vg, color::WHITE);
 	return textColor;
 }
 

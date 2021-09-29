@@ -73,17 +73,7 @@ struct InverterWidget : TransparentWidget {
 		box.size = _size;
 		panelThemeSrc = _panelThemeSrc;
 	}
-	void draw(const DrawArgs& args) override {
-		TransparentWidget::draw(args);
-		if (panelThemeSrc != NULL && *panelThemeSrc != 0) {
-			nvgBeginPath(args.vg);
-			nvgFillColor(args.vg, SCHEME_WHITE);	
-			nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
-			nvgGlobalCompositeBlendFuncSeparate(args.vg, NVG_ONE_MINUS_DST_COLOR, NVG_ZERO, NVG_ONE_MINUS_DST_COLOR, NVG_ONE);// src, dest
-			nvgFill(args.vg);
-			nvgClosePath(args.vg);	
-		}			
-	}
+	void draw(const DrawArgs& args) override;
 };
 
 
