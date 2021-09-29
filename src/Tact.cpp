@@ -816,7 +816,7 @@ struct Tact1Widget : ModuleWidget {
 		}
 			
 		static const float colRulerLed = colRulerPad + 60.6f;
-		static const int lightsOffsetY = 22.5f;
+		static const float lightsOffsetY = 22.5f;
 		static const int lightsSpacingY = 17;
 				
 		// Tactile lights

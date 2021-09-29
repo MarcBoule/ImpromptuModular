@@ -864,7 +864,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		}
 
 		// Gates LED buttons
-		static const int yRulerT2 = 123.6f;
+		static const float yRulerT2 = 123.6f;
 		for (int i = 0; i < 8; i++) {
 			addParam(createParamCentered<LEDButton>(VecPx(notesPos[i] + 29.6f, yRulerT2), module, WriteSeq32::GATE_PARAM + i));
 			addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(notesPos[i] + 29.6f, yRulerT2), module, WriteSeq32::GATE_LIGHTS + i * 2));
