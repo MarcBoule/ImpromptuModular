@@ -501,15 +501,15 @@ struct TwelveKeyWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/TwelveKey.svg")));
-		Widget* panel = getPanel();
-		panel->addChild(new InverterWidget(panel->box.size, mode));
+		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		
 		// Screws
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 
 
@@ -521,7 +521,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		static const int posWhiteY = 115;
 		static const int posBlackY = 40;
 		
-		panel->addChild(new KeyboardBig(mm2px(Vec(1.354f, 11.757f)), mode));
+		svgPanel->fb->addChild(new KeyboardBig(mm2px(Vec(1.354f, 11.757f)), mode));
 
 		// Black keys
 		addChild(createPianoKey<PianoKeyBig>(VecPx(30, posBlackY), 1, module ? &module->pkInfo : NULL));
@@ -605,8 +605,8 @@ struct TwelveKeyWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((TwelveKey*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
-				Widget* panel = getPanel();
-				((FramebufferWidget*)panel)->dirty = true;
+				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
 			}
 		}

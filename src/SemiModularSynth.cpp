@@ -2225,18 +2225,18 @@ struct SemiModularSynthWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/SemiModular.svg")));
-		Widget* panel = getPanel();
-		panel->addChild(new InverterWidget(panel->box.size, mode));
+		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 1 / 3 + 30 , 0), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 1 / 3 + 30 , 365), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 2 / 3 + 45 , 0), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 2 / 3 + 45 , 365), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 1 / 3 + 30 , 0), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 1 / 3 + 30 , 365), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 2 / 3 + 45 , 0), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx((box.size.x - 90) * 2 / 3 + 45 , 365), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 
 		// SEQUENCER 
@@ -2286,7 +2286,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		static const int KeyWhiteY = 141 + 4;
 		static const int offsetKeyLEDx = 6;
 		static const int offsetKeyLEDy = 16;
-		panel->addChild(new KeyboardMed(mm2px(Vec(19.577f, 34.657f)), mode));
+		svgPanel->fb->addChild(new KeyboardMed(mm2px(Vec(19.577f, 34.657f)), mode));
 		// Black keys and lights
 		addChild(createPianoKey<PianoKeySmall>(VecPx(65+keyNudgeX, KeyBlackY), 1, module ? &module->pkInfo : NULL));
 		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(65+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, SemiModularSynth::KEY_LIGHTS + 1 * 2));
@@ -2530,8 +2530,8 @@ struct SemiModularSynthWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((SemiModularSynth*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
-				Widget* panel = getPanel();
-				((FramebufferWidget*)panel)->dirty = true;
+				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
 			}
 		}

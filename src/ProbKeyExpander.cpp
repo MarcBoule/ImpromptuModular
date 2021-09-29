@@ -120,12 +120,12 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 	
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ProbKeyExpander.svg")));
-		Widget* panel = getPanel();
-		panel->addChild(new InverterWidget(panel->box.size, mode));
+		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		// Expansion module
 		static const float col0 = 10.16f;
@@ -151,8 +151,8 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((ProbKeyExpander*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
-				Widget* panel = getPanel();
-				((FramebufferWidget*)panel)->dirty = true;
+				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
 			}
 		}

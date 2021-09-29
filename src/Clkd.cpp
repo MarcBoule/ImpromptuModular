@@ -904,14 +904,14 @@ struct ClkdWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Clkd.svg")));
-		Widget* panel = getPanel();
-		panel->addChild(new InverterWidget(panel->box.size, mode));
+		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 
 		static const int colL = 30;
@@ -1012,8 +1012,8 @@ struct ClkdWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((Clkd*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
-				Widget* panel = getPanel();
-				((FramebufferWidget*)panel)->dirty = true;
+				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
 			}
 		}

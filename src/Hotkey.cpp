@@ -391,12 +391,12 @@ struct HotkeyWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/Hotkey.svg")));
-		Widget* panel = getPanel();
-		panel->addChild(new InverterWidget(panel->box.size, mode));
+		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		panel->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
+		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
 
 
 		static const float centerX = 22.5f;
@@ -419,8 +419,8 @@ struct HotkeyWidget : ModuleWidget {
 		if (module) {
 			int panelTheme = (((Hotkey*)module)->panelTheme);
 			if (panelTheme != lastPanelTheme) {
-				Widget* panel = getPanel();
-				((FramebufferWidget*)panel)->dirty = true;
+				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
 			}
 		}
