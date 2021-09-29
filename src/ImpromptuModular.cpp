@@ -52,75 +52,22 @@ void init(rack::Plugin *p) {
 
 void InverterWidget::draw(const DrawArgs& args) {
 	TransparentWidget::draw(args);
-/*	if (panelThemeSrc != NULL && *panelThemeSrc != 0) {
-		nvgSave(args.vg);
+	if (panelThemeSrc != NULL && *panelThemeSrc != 0) {
+		// nvgSave(args.vg);
 		nvgBeginPath(args.vg);
 		nvgFillColor(args.vg, SCHEME_WHITE);// this is the source, the current framebuffer is the dest	
 		nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
-		// nvgGlobalAlpha(args.vg, 1.0);
-		// nvgGlobalCompositeOperation(args.vg, NVG_DESTINATION_ATOP);
-		// BEST: (with no globalAlpha override)
 		nvgGlobalCompositeBlendFuncSeparate(args.vg, 
 			NVG_ONE_MINUS_DST_COLOR,// srcRGB
 			NVG_ZERO,// dstRGB
 			NVG_ONE_MINUS_DST_COLOR,// srcAlpha
 			NVG_ONE);// dstAlpha
-		// TEST:
-		// nvgGlobalCompositeBlendFuncSeparate(args.vg, 
-			// NVG_ONE_MINUS_DST_COLOR,// srcRGB
-			// NVG_ZERO,// dstRGB
-			// NVG_ONE_MINUS_DST_COLOR,// srcAlpha
-			// NVG_ONE);// dstAlpha
 		// blend factor: https://github.com/memononen/nanovg/blob/master/src/nanovg.h#L86
 		// OpenGL blend doc: https://www.khronos.org/opengl/wiki/Blending
 		nvgFill(args.vg);
 		nvgClosePath(args.vg);
-		nvgRestore(args.vg);
-	}*/			
-}
-
-
-void invertSvg(std::shared_ptr<Svg> _svg) {
-	int shapeIndex = 0;
-	// Iterate shape linked list
-	NSVGimage* svg = _svg->handle;
-	for (NSVGshape* shape = svg->shapes; shape; shape = shape->next, shapeIndex++) {
-		// Visibility
-		if (!(shape->flags & NSVG_FLAGS_VISIBLE))
-			continue;
-
-		// Fill shape
-		if (shape->fill.type) {
-			switch (shape->fill.type) {
-				case NSVG_PAINT_COLOR: {
-					shape->fill.color = shape->fill.color ^ 0x00FFFFFF;
-				} break;
-				case NSVG_PAINT_LINEAR_GRADIENT:
-				case NSVG_PAINT_RADIAL_GRADIENT: {
-					// NSVGgradient* g = shape->fill.gradient;
-					// (void)g;
-					// DEBUG_ONLY(printf("		gradient: type: %s xform: %f %f %f %f %f %f spread: %d fx: %f fy: %f nstops: %d\n", (shape->fill.type == NSVG_PAINT_LINEAR_GRADIENT ? "linear" : "radial"), g->xform[0], g->xform[1], g->xform[2], g->xform[3], g->xform[4], g->xform[5], g->spread, g->fx, g->fy, g->nstops);)
-					// for (int i = 0; i < g->nstops; i++) {
-						// DEBUG_ONLY(printf("			stop: #%08x\t%f\n", g->stops[i].color, g->stops[i].offset);)
-					// }
-					// nvgFillPaint(vg, getPaint(vg, &shape->fill));
-				} break;
-			}
-		}
-
-		// Stroke shape
-		if (shape->stroke.type) {
-			switch (shape->stroke.type) {
-				case NSVG_PAINT_COLOR: {
-					shape->stroke.color = shape->stroke.color ^ 0x00FFFFFF;
-				} break;
-				case NSVG_PAINT_LINEAR_GRADIENT: {
-					// NSVGgradient *g = shape->stroke.gradient;
-					// printf("		lin grad: %f\t%f\n", g->fx, g->fy);
-				} break;
-			}
-		}
-	}
+		// nvgRestore(args.vg);
+	}			
 }
 
 
