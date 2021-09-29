@@ -76,6 +76,7 @@ struct InverterWidget : TransparentWidget {
 	void draw(const DrawArgs& args) override;
 };
 
+void invertSvg(std::shared_ptr<Svg>);
 
 
 struct ClockMaster {// should not need to have mutex since only menu driven
