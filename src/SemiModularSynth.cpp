@@ -2407,10 +2407,10 @@ struct SemiModularSynthWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colB4, rowB1), module, SemiModularSynth::AUTOSTEP_PARAM, mode));		
 		// CV in
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colB5, rowB1), true, module, SemiModularSynth::CV_INPUT, mode));
-		// Clock
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colB6, rowB1), true, module, SemiModularSynth::CLOCK_INPUT, mode));
 		// Reset
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colB7, rowB1), true, module, SemiModularSynth::RESET_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colB6, rowB1), true, module, SemiModularSynth::RESET_INPUT, mode));
+		// Clock
+		addInput(createDynamicPortCentered<IMPort>(VecPx(colB7, rowB1), true, module, SemiModularSynth::CLOCK_INPUT, mode));
 
 		
 
