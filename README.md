@@ -78,7 +78,7 @@ The table below shows a comparison of the features available in the Impromptu se
 
 <a id="known-issues"></a>
 ## Known issues
-For sequencers and clock modules, it is advisable to have a Audio module added to your patch and assigned to a sound device in order for the timing and response delays in the user interface to be of the proper duration. This is a [known artifact](https://github.com/VCVRack/Rack/issues/919) in VCV Rack.
+For sequencers and clock modules, it is advisable to have a Audio module added to your patch and assigned to a sound device in order for the timing and response delays in the user interface to be of the proper duration.
 
 
 ## License
