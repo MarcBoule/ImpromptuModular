@@ -129,8 +129,11 @@ struct BigButtonSeq2 : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);		
 		
 		configParam(RND_PARAM, 0.0f, 100.0f, 0.0f, "Random");
+		paramQuantities[RND_PARAM]->snapEnabled = true;
 		configParam(CHAN_PARAM, 0.0f, 6.0f - 1.0f, 0.0f, "Channel", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset	
+		paramQuantities[CHAN_PARAM]->snapEnabled = true;
 		configParam(LEN_PARAM, 0.0f, 128.0f - 1.0f, 32.0f - 1.0f, "Length", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
+		paramQuantities[LEN_PARAM]->snapEnabled = true;
 		configParam(DISPMODE_PARAM, 0.0f, 1.0f, 0.0f, "Display mode");		
 		configParam(WRITEFILL_PARAM, 0.0f, 1.0f, 0.0f, "Write fill");
 		configParam(BANK_PARAM, 0.0f, 1.0f, 0.0f, "Bank");	
@@ -842,7 +845,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		
 		
 		// Rnd knob
-		addParam(createDynamicParamCentered<IMSmallKnob<true>>(VecPx(colRulerT0, rowRuler0), module, BigButtonSeq2::RND_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(colRulerT0, rowRuler0), module, BigButtonSeq2::RND_PARAM, mode));
 		// Channel knob
 		addParam(createDynamicParamCentered<IMSixPosBigKnob>(VecPx(colRulerCenter - clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::CHAN_PARAM, mode));	
 		// Channel display
@@ -852,7 +855,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		displayChan->module = module;
 		addChild(displayChan);	
 		// Len knob
-		addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::LEN_PARAM, mode));
+		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::LEN_PARAM, mode));
 		// Length display
 		StepsDisplayWidget *displaySteps = new StepsDisplayWidget();
 		displaySteps->box.pos = VecPx(colRulerT5 - 27 + lengthDisplayOffsetX, rowRuler0 - 15);

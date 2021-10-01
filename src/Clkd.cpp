@@ -221,9 +221,11 @@ struct Clkd : Module {
 		for (int i = 0; i < 3; i++) {// Row 2-4 (sub clocks)
 			// Ratio1 knob
 			snprintf(strBuf, 32, "Clk %i ratio", i + 1);
-			configParam<RatioParam>(RATIO_PARAMS + i, ((float)numRatios - 1.0f)*-1.0f, float(numRatios) - 1.0f, 0.0f, strBuf);		
+			configParam<RatioParam>(RATIO_PARAMS + i, ((float)numRatios - 1.0f)*-1.0f, float(numRatios) - 1.0f, 0.0f, strBuf);
+			paramQuantities[RATIO_PARAMS + i]->snapEnabled = true;
 		}
 		configParam<BpmParam>(BPM_PARAM, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		paramQuantities[BPM_PARAM]->snapEnabled = true;
 		
 		clk[0].construct(nullptr, &resetClockOutputsHigh, &trigOuts[0]);
 		for (int i = 1; i < 4; i++) {
@@ -874,7 +876,7 @@ struct ClkdWidget : ModuleWidget {
 		menu->addChild(apItem);
 	}
 	
-	struct BpmKnob : IMMediumKnob<true> {
+	struct BpmKnob : IMMediumKnob {
 		int *displayIndexPtr = NULL;
 		void onButton(const event::Button& e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
@@ -884,7 +886,7 @@ struct ClkdWidget : ModuleWidget {
 			IMMediumKnob::onButton(e);
 		}
 	};
-	struct RatioKnob : IMSmallKnob<true> {
+	struct RatioKnob : IMSmallKnob {
 		int *displayIndexPtr = NULL;
 		void onButton(const event::Button& e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();

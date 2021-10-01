@@ -2189,12 +2189,12 @@ struct PhraseSeq16Widget : ModuleWidget {
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colB0 + ledVsButtonDX, rowB1), module, PhraseSeq16::GATE1_PROB_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colB0, rowB1), module, PhraseSeq16::GATE1_PROB_PARAM, mode));
 		// Gate 1 probability knob
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colB1, rowB1), module, PhraseSeq16::GATE1_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(colB1, rowB1), module, PhraseSeq16::GATE1_KNOB_PARAM, mode));
 		// Slide light and button
 		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colB2 + ledVsButtonDX, rowB1), module, PhraseSeq16::SLIDE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colB2, rowB1), module, PhraseSeq16::SLIDE_BTN_PARAM, mode));
 		// Slide knob
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colB3, rowB1), module, PhraseSeq16::SLIDE_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(colB3, rowB1), module, PhraseSeq16::SLIDE_KNOB_PARAM, mode));
 		// Autostep
 		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colB4, rowB1), module, PhraseSeq16::AUTOSTEP_PARAM, mode));		
 		// CV in

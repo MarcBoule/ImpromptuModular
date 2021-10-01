@@ -102,6 +102,7 @@ struct CvPad : Module {
 			configParam(PAD_PARAMS + p, 0.0f, 1.0f, 0.0f, string::f("CV pad %i", p + 1));
 		}
 		configParam(BANK_PARAM, 0.0f, 8.0f - 1.0f, 0.0f, "Bank", "", 0.0f, 1.0f, 1.0f);	// base, multiplier, offset
+		paramQuantities[BANK_PARAM]->snapEnabled = true;
 		configParam(WRITE_PARAM, 0.0f, 1.0f, 0.0f, "Write");				
 		configParam(CV_PARAM, -INFINITY, INFINITY, 0.0f, "CV");		
 		configParam(SHARP_PARAM, 0.0f, 2.0f, 0.0f, "Volts / Notation");// 0 is top position
@@ -996,7 +997,7 @@ struct CvPadWidget : ModuleWidget {
 		// cv knob
 		addParam(createDynamicParamCentered<CvKnob>(VecPx(padX + padXd * 2, topY), module, CvPad::CV_PARAM, mode));
 		// bank knob
-		addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, mode));
+		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, mode));
 
 		
 	}

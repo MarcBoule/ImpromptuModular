@@ -59,6 +59,7 @@ struct ProbKeyExpander : Module {
 		leftExpander.consumerMessage = &(leftMessages[1]);
 		
 		configParam(MINOCT_PARAM, -4.0f, 4.0f, 0.0f, "Min CV out octave offset");
+		paramQuantities[MINOCT_PARAM]->snapEnabled = true;
 		for (int i = 0; i < 4; i++) {
 			configParam(MANUAL_LOCK_LOW_PARAMS + i, 0.0f, 1.0f, 0.0f, string::f("Manual lock low %i", i + 1));
 		}
@@ -136,7 +137,7 @@ struct ProbKeyExpanderWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, row0)), false, module, ProbKeyExpander::MINCV_OUTPUT, mode));
 		
 		// minOct knob
-		addParam(createDynamicParamCentered<IMMediumKnob<true>>(mm2px(Vec(col0, row1)), module, ProbKeyExpander::MINOCT_PARAM, mode));
+		addParam(createDynamicParamCentered<IMMediumKnob>(mm2px(Vec(col0, row1)), module, ProbKeyExpander::MINOCT_PARAM, mode));
 		
 		// manual lock low
 		static const float row2 = 107.0f;

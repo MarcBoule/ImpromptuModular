@@ -109,8 +109,11 @@ struct BigButtonSeq : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);		
 		
 		configParam(CHAN_PARAM, 0.0f, 6.0f - 1.0f, 0.0f, "Channel", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset		
+		paramQuantities[CHAN_PARAM]->snapEnabled = true;
 		configParam(LEN_PARAM, 0.0f, 64.0f - 1.0f, 32.0f - 1.0f, "Length", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
-		configParam(RND_PARAM, 0.0f, 100.0f, 0.0f, "Random");		
+		paramQuantities[LEN_PARAM]->snapEnabled = true;
+		configParam(RND_PARAM, 0.0f, 100.0f, 0.0f, "Random");	
+		paramQuantities[RND_PARAM]->snapEnabled = true;		
 		configParam(BANK_PARAM, 0.0f, 1.0f, 0.0f, "Bank");	
 		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "Clear");	
 		configParam(DEL_PARAM, 0.0f, 1.0f, 0.0f, "Delete");	
@@ -650,10 +653,10 @@ struct BigButtonSeqWidget : ModuleWidget {
 		static const int row3 = 183;// len and rnd
 		
 		// Len knob and jack
-		addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(218, row3), module, BigButtonSeq::LEN_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(218, row3), module, BigButtonSeq::LEN_PARAM, mode));		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(218 - 53, row3), true, module, BigButtonSeq::LEN_INPUT, mode));
 		// Rnd knob and jack
-		addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(37, row3), module, BigButtonSeq::RND_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(37, row3), module, BigButtonSeq::RND_PARAM, mode));		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(37 + 53, row3), true, module, BigButtonSeq::RND_INPUT, mode));
 
 

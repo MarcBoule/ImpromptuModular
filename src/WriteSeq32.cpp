@@ -122,7 +122,8 @@ struct WriteSeq32 : Module {
 		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
 		configParam(STEPR_PARAM, 0.0f, 1.0f, 0.0f, "Step right");	
 		configParam(WRITE_PARAM, 0.0f, 1.0f, 0.0f, "Write");
-		configParam(STEPS_PARAM, 1.0f, 32.0f, 32.0f, "Number of steps");		
+		configParam(STEPS_PARAM, 1.0f, 32.0f, 32.0f, "Number of steps");
+		paramQuantities[STEPS_PARAM]->snapEnabled = true;		
 		configParam(MONITOR_PARAM, 0.0f, 1.0f, 1.0f, "Monitor");		
 		
 		getParamQuantity(PASTESYNC_PARAM)->randomizeEnabled = false;		
@@ -925,7 +926,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		displaySteps->module = module;
 		addChild(displaySteps);
 		// Steps knob
-		addParam(createDynamicParamCentered<IMBigKnob<true>>(VecPx(col3, row1), module, WriteSeq32::STEPS_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(col3, row1), module, WriteSeq32::STEPS_PARAM, mode));		
 		// Monitor
 		addParam(createDynamicParamCentered<IMSwitch2H>(VecPx(col3, row2), module, WriteSeq32::MONITOR_PARAM, mode));		
 		// Write input

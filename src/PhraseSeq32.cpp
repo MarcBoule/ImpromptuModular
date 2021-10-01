@@ -2301,12 +2301,12 @@ struct PhraseSeq32Widget : ModuleWidget {
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnB0 + ledVsButtonDX, rowB1), module, PhraseSeq32::GATE1_PROB_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnB0, rowB1), module, PhraseSeq32::GATE1_PROB_PARAM, mode));
 		// Gate 1 probability knob
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(columnB1, rowB1), module, PhraseSeq32::GATE1_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(columnB1, rowB1), module, PhraseSeq32::GATE1_KNOB_PARAM, mode));
 		// Slide light and button
 		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnB2 + ledVsButtonDX, rowB1), module, PhraseSeq32::SLIDE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnB2, rowB1), module, PhraseSeq32::SLIDE_BTN_PARAM, mode));
 		// Slide knob
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(columnB3, rowB1), module, PhraseSeq32::SLIDE_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(columnB3, rowB1), module, PhraseSeq32::SLIDE_KNOB_PARAM, mode));
 		// CV in
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnB4, rowB1), true, module, PhraseSeq32::CV_INPUT, mode));
 		// Clock input

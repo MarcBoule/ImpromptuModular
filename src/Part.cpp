@@ -318,7 +318,7 @@ struct PartWidget : ModuleWidget {
 		addChild(new SplitDisplayWidget(VecPx(colM, row1), VecPx(65, 24), module));// 4 characters + decimal point
 		
 		// Split knob 
-		addParam(createDynamicParamCentered<IMBigKnob<false>>(VecPx(colM, row2), module, Part::SPLIT_PARAM, mode));
+		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(colM, row2), module, Part::SPLIT_PARAM, mode));
 
 
 		// CV input

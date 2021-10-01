@@ -61,6 +61,7 @@ struct ChordKeyExpander : Module {
 		for (int c = 0; c < 4; c++) {
 			snprintf(strBuf, 32, "Oct channel %i", c + 1);
 			configParam(OCT_PARAMS + c, -4.0f, 4.0f, 0.0f, strBuf);
+			paramQuantities[OCT_PARAMS + c]->snapEnabled = true;
 		}
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -245,20 +246,20 @@ struct ChordKeyExpanderWidget : ModuleWidget {
 		
 		// Quantizer 1 (top left)
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row0), true, module, ChordKeyExpander::CV_INPUTS + 0, mode));	
-		addParam(createDynamicParamCentered<IMMediumKnob<true>>(VecPx(col0, row1), module, ChordKeyExpander::OCT_PARAMS + 0, mode));
+		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(col0, row1), module, ChordKeyExpander::OCT_PARAMS + 0, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col0, row2), false, module, ChordKeyExpander::CV_OUTPUTS + 0, mode));
 		// Quantizer 2 (top right)
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row0), true, module, ChordKeyExpander::CV_INPUTS + 1, mode));	
-		addParam(createDynamicParamCentered<IMMediumKnob<true>>(VecPx(col1, row1), module, ChordKeyExpander::OCT_PARAMS + 1, mode));
+		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(col1, row1), module, ChordKeyExpander::OCT_PARAMS + 1, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col1, row2), false, module, ChordKeyExpander::CV_OUTPUTS + 1, mode));
 		
 		// Quantizer 3 (bot left)
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row3), true, module, ChordKeyExpander::CV_INPUTS + 2, mode));	
-		addParam(createDynamicParamCentered<IMMediumKnob<true>>(VecPx(col0, row4), module, ChordKeyExpander::OCT_PARAMS + 2, mode));
+		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(col0, row4), module, ChordKeyExpander::OCT_PARAMS + 2, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col0, row5), false, module, ChordKeyExpander::CV_OUTPUTS + 2, mode));
 		// Quantizer 4 (bot right)
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row3), true, module, ChordKeyExpander::CV_INPUTS + 3, mode));	
-		addParam(createDynamicParamCentered<IMMediumKnob<true>>(VecPx(col1, row4), module, ChordKeyExpander::OCT_PARAMS + 3, mode));
+		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(col1, row4), module, ChordKeyExpander::OCT_PARAMS + 3, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col1, row5), false, module, ChordKeyExpander::CV_OUTPUTS + 3, mode));
 
 	}

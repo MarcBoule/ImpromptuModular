@@ -168,7 +168,6 @@ struct IMPushButton : TL1105 {
 	// }
 // };
 
-template<bool makeSnap>
 struct IMBigKnob : Rogan1PSWhite  {
 	int* mode = NULL;
 	IMBigKnob() {
@@ -177,7 +176,6 @@ struct IMBigKnob : Rogan1PSWhite  {
 		// addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeEffects.svg"));
 		// shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
-		snap = makeSnap;
 	}
 };
 
@@ -193,7 +191,6 @@ struct IMBigKnobInf : Rogan1PSWhite {
 	}
 };
 
-template<bool makeSnap>
 struct IMSmallKnob : RoundSmallBlackKnob {
 	int* mode = NULL;
 	IMSmallKnob() {
@@ -203,7 +200,6 @@ struct IMSmallKnob : RoundSmallBlackKnob {
 		// shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
 		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
-		snap = makeSnap;
 	}
 };
 
@@ -219,7 +215,7 @@ struct IMMediumKnobInf : RoundBlackKnob {
 		speed = 0.9f;				
 	}
 };
-template<bool makeSnap>
+
 struct IMMediumKnob : RoundBlackKnob {
 	int* mode = NULL;
 	IMMediumKnob() {
@@ -229,11 +225,10 @@ struct IMMediumKnob : RoundBlackKnob {
 		// shadow->blurRadius = box.size.y * blurRadiusRatio;
 		// shadow->opacity = 0.1;
 		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
-		snap = makeSnap;			
 	}
 };
 
-struct IMFivePosSmallKnob : IMSmallKnob<true> {
+struct IMFivePosSmallKnob : IMSmallKnob {
 	IMFivePosSmallKnob() {
 		speed = 1.6f;
 		minAngle = -0.5*float(M_PI);
@@ -241,7 +236,7 @@ struct IMFivePosSmallKnob : IMSmallKnob<true> {
 	}
 };
 
-struct IMFivePosMediumKnob : IMMediumKnob<true> {
+struct IMFivePosMediumKnob : IMMediumKnob {
 	IMFivePosMediumKnob() {
 		speed = 1.6f;
 		minAngle = -0.5*float(M_PI);
@@ -249,7 +244,7 @@ struct IMFivePosMediumKnob : IMMediumKnob<true> {
 	}
 };
 
-struct IMSixPosBigKnob : IMBigKnob<true> {
+struct IMSixPosBigKnob : IMBigKnob {
 	IMSixPosBigKnob() {
 		speed = 1.3f;
 		minAngle = -0.4*float(M_PI);

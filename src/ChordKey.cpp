@@ -109,6 +109,7 @@ struct ChordKey : Module {
 			configParam(OCTINC_PARAMS + cni, 0.0, 1.0, 0.0, strBuf);
 		}
 		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
+		paramQuantities[INDEX_PARAM]->snapEnabled = true;
 		configParam(FORCE_PARAM, 0.0f, 1.0f, 0.0f, "Force gate on");
 		configParam(TRANSPOSEUP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up");
 		configParam(TRANSPOSEDOWN_PARAM, 0.0f, 1.0f, 0.0f, "Transpose down");
@@ -949,7 +950,7 @@ struct ChordKeyWidget : ModuleWidget {
 		// Index input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 2 - 8), true, module, ChordKey::INDEX_INPUT, mode));
 		// Index knob
-		addParam(createDynamicParamCentered<IMMediumKnob<true>>(VecPx(col1, rowY + rowYd * 2 - 8), module, ChordKey::INDEX_PARAM, mode));	
+		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(col1, rowY + rowYd * 2 - 8), module, ChordKey::INDEX_PARAM, mode));	
 	
 		// Gate input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 3 + 8), true, module, ChordKey::GATE_INPUT, mode));

@@ -508,15 +508,15 @@ struct TactWidget : ModuleWidget {
 		static const int row1b = row1c - 59;
 		
 		// Attv knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colC3L, row1b), module, Tact::ATTV_PARAMS + 0, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colC3R, row1b), module, Tact::ATTV_PARAMS + 1, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(colC3L, row1b), module, Tact::ATTV_PARAMS + 0, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(colC3R, row1b), module, Tact::ATTV_PARAMS + 1, mode));
 
 		
 		static const int row1a = row1b - 59;
 		
 		// Rate knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colC3L, row1a), module, Tact::RATE_PARAMS + 0, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(colC3R, row1a), module, Tact::RATE_PARAMS + 1, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(colC3L, row1a), module, Tact::RATE_PARAMS + 0, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(colC3R, row1a), module, Tact::RATE_PARAMS + 1, mode));
 		
 
 		static const int colRulerC1L = colC - 30 - 1;
@@ -827,8 +827,8 @@ struct Tact1Widget : ModuleWidget {
 		static const int rowRuler2 = 275;// rate and exp
 		static const int offsetFromSide2 = 25;
 		// Rate and attenuverter knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(offsetFromSide2, rowRuler2), module, Tact1::RATE_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(VecPx(box.size.x - offsetFromSide2, rowRuler2), module, Tact1::ATTV_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(offsetFromSide2, rowRuler2), module, Tact1::RATE_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(box.size.x - offsetFromSide2, rowRuler2), module, Tact1::ATTV_PARAM, mode));
 		
 		static const int rowRuler3 = 332;
 		
@@ -1122,9 +1122,9 @@ struct TactGWidget : ModuleWidget {
 		static constexpr float knobOffsetY = 20.5f;
 		
 		// Rate, Attv, Ofst Knobs
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(mm2px(Vec(knobX, knobTopY)), module, TactG::RATE_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY)), module, TactG::ATTV_PARAM, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 2.0f)), module, TactG::OFFSET_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(mm2px(Vec(knobX, knobTopY)), module, TactG::RATE_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(mm2px(Vec(knobX, knobTopY + knobOffsetY)), module, TactG::ATTV_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 2.0f)), module, TactG::OFFSET_PARAM, mode));
 		
 		
 		static constexpr float rowRulerB1 = 94.8f;
@@ -1134,7 +1134,7 @@ struct TactGWidget : ModuleWidget {
 	
 		// Offset 2 input and cv knob
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(knobX, knobTopY + knobOffsetY * 3.0f - 1.6f)), true, module, TactG::OFFSET2_INPUT, mode));
-		addParam(createDynamicParamCentered<IMSmallKnob<false>>(mm2px(Vec(knobX, rowRulerB1)), module, TactG::OFFSET2_CV_PARAM, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(mm2px(Vec(knobX, rowRulerB1)), module, TactG::OFFSET2_CV_PARAM, mode));
 		
 		// x3 and Exp switches
 		addParam(createDynamicParamCentered<IMSwitch2V>(mm2px(Vec(colRulerR, rowRulerB1)), module, TactG::RATE_MULT_PARAM, mode));	
