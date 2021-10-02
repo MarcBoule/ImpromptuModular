@@ -51,11 +51,6 @@
      inkscape:window-maximized="1"
      inkscape:current-layer="svg104"
      inkscape:pagecheckerboard="0" />
-  <path
-     d="M 0,0 H 101.60035 V 128.50044 H 0 Z m 0,0"
-     id="path2"
-     inkscape:connector-curvature="0"
-     style="fill:#dcdcdc;stroke-width:1" />
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -64,7 +59,7 @@
      height="27.317852"
      width="96.182091"
      id="rect6"
-     style="fill:#999999;stroke-width:1;paint-order:stroke markers fill" />
+     style="fill:#afafaf;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <g
      word-spacing="0"
      letter-spacing="0"

@@ -52,7 +52,8 @@ void init(rack::Plugin *p) {
 
 void InverterWidget::draw(const DrawArgs& args) {
 	TransparentWidget::draw(args);
-	if (panelThemeSrc != NULL && *panelThemeSrc != 0) {
+	bool invert = panelThemeSrc != NULL ? *panelThemeSrc != 0 : loadDarkAsDefault();
+	if (invert) {
 		// nvgSave(args.vg);
 		nvgBeginPath(args.vg);
 		nvgFillColor(args.vg, SCHEME_WHITE);// this is the source, the current framebuffer is the dest	

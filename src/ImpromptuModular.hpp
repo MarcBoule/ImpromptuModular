@@ -61,10 +61,26 @@ static constexpr float clockIgnoreOnResetDuration = 0.001f;// disable clock on p
 static const int displayAlpha = 23;
 static const std::string darkPanelID = "Dark";
 static const unsigned int expanderRefreshStepSkips = 4;
+static const NVGcolor colPanelBase = nvgRGB(220, 220, 220);
 
 
 
 // General objects
+
+struct PanelBaseWidget : TransparentWidget {
+	int* panelThemeSrc = NULL;
+	PanelBaseWidget(Vec _size, int* _panelThemeSrc) {
+		box.size = _size;
+		panelThemeSrc = _panelThemeSrc;
+	}
+	void draw(const DrawArgs& args) override {
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, colPanelBase);
+		nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+		nvgFill(args.vg);
+		TransparentWidget::draw(args);
+	}
+};
 
 
 struct InverterWidget : TransparentWidget {

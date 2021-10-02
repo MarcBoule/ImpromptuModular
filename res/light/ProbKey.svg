@@ -43,9 +43,9 @@
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="1.6616246"
-     inkscape:cx="61.686617"
-     inkscape:cy="165.19977"
+     inkscape:zoom="1.7481032"
+     inkscape:cx="239.97439"
+     inkscape:cy="242.83463"
      inkscape:window-x="-8"
      inkscape:window-y="1072"
      inkscape:window-maximized="1"
@@ -60,11 +60,6 @@
        id="guide4658"
        inkscape:locked="false" />
   </sodipodi:namedview>
-  <path
-     d="M 0,0 H 127.00041 V 128.50041 H 0 Z m 0,0"
-     id="path2"
-     inkscape:connector-curvature="0"
-     style="fill:#dcdcdc;stroke-width:1" />
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -73,7 +68,7 @@
      height="17.38533"
      width="31.270102"
      id="rect4"
-     style="fill:#999999;stroke-width:1;paint-order:stroke markers fill" />
+     style="fill:#afafaf;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78124982"
      id="g8"

@@ -582,8 +582,7 @@ struct BigButtonSeqWidget : ModuleWidget {
 		metroItem->module = module;
 		menu->addChild(metroItem);
 	}	
-	
-	
+		
 	BigButtonSeqWidget(BigButtonSeq *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
@@ -591,6 +590,7 @@ struct BigButtonSeqWidget : ModuleWidget {
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/BigButtonSeq.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws

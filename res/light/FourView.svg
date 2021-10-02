@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="40.639999mm"
    height="128.5mm"
    viewBox="0 0 40.639999 128.50044"
    version="1.1"
    id="svg56"
    sodipodi:docname="FourView.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata62">
     <rdf:RDF>
@@ -22,7 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -38,23 +38,19 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-height="1057"
      id="namedview58"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
      inkscape:zoom="1.2421053"
-     inkscape:cx="15.327011"
-     inkscape:cy="254.25813"
+     inkscape:cx="14.894067"
+     inkscape:cy="254.00423"
      inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-y="1072"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg56" />
-  <path
-     d="M 0,0 H 40.64014 V 128.50044 H 0 Z m 0,0"
-     id="path2"
-     inkscape:connector-curvature="0"
-     style="fill:#dcdcdc;stroke-width:1" />
+     inkscape:current-layer="svg56"
+     inkscape:pagecheckerboard="0" />
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -63,7 +59,7 @@
      height="32.562031"
      width="32.851315"
      id="rect4"
-     style="fill:#999999;stroke-width:1;paint-order:stroke markers fill" />
+     style="fill:#afafaf;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <path
      d="m 20.792391,123.89778 -2.086407,0.14592 v -2.63681 q 0,-0.2944 0.0832,-0.42624 0.08192,-0.13312 0.281601,-0.18816 0.19584,-0.055 0.444161,-0.003 0.286721,0.0602 0.456962,0.2432 0.17024,0.18688 0.17024,0.42241 0,0.23808 -0.20224,0.36608 -0.200961,0.13184 -0.520962,0.064 -0.104961,-0.023 -0.184321,-0.0563 -0.08064,-0.0346 -0.262401,-0.1408 v 1.7216 l 1.561606,-0.1088 v -1.98913 q 0,-0.288 0.0832,-0.43136 0.0832,-0.1408 0.288001,-0.192 0.204801,-0.0512 0.448001,0 0.284161,0.0589 0.451842,0.2432 0.166401,0.1792 0.166401,0.41472 0,0.24961 -0.200961,0.37633 -0.198401,0.128 -0.520962,0.0602 -0.204801,-0.0435 -0.456962,-0.2048 z"
      style="font-weight:400;font-size:3.52800012px;line-height:1.25;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0;word-spacing:0;fill:#333333;stroke-width:1"

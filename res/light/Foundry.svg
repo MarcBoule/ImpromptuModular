@@ -43,19 +43,14 @@
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="2.1236842"
-     inkscape:cx="251.68526"
-     inkscape:cy="208.83519"
+     inkscape:zoom="1.7481032"
+     inkscape:cx="364.681"
+     inkscape:cy="242.83464"
      inkscape:window-x="-8"
      inkscape:window-y="1072"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg328"
      inkscape:pagecheckerboard="0" />
-  <path
-     d="M 0,0 H 193.04066 V 128.50043 H 0 Z m 0,0"
-     id="path2"
-     inkscape:connector-curvature="0"
-     style="fill:#dcdcdc;stroke-width:1" />
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -64,7 +59,7 @@
      height="33.957123"
      width="46.736645"
      id="rect4"
-     style="fill:#999999;stroke-width:1;paint-order:stroke markers fill" />
+     style="fill:#afafaf;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -73,7 +68,7 @@
      height="33.957123"
      width="15.57888"
      id="rect6"
-     style="fill:#cccccc;stroke-width:1;paint-order:stroke markers fill" />
+     style="fill:#c8c8c8;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78124994"
      id="g10"
@@ -743,7 +738,7 @@
      height="33.957123"
      width="15.57888"
      id="rect192"
-     style="fill:#cccccc;stroke-width:1;paint-order:stroke markers fill" />
+     style="fill:#c8c8c8;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78124994"
      id="g196"
@@ -782,7 +777,7 @@
      height="33.957123"
      width="46.736645"
      id="rect202"
-     style="fill:#999999;stroke-width:1;paint-order:stroke markers fill" />
+     style="fill:#afafaf;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <g
      style="line-height:1.25;-inkscape-font-specification:'Sniglet, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;stroke-width:0.78124994"
      id="g206"
@@ -889,7 +884,7 @@
      height="34.544643"
      width="15.57888"
      id="rect230"
-     style="fill:#cccccc;stroke-width:1;paint-order:stroke markers fill" />
+     style="fill:#c8c8c8;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78124994"
      id="g234"
@@ -924,7 +919,7 @@
      d="m 59.322885,102.19582 -1.749761,1.74976 -1.74976,-1.74976 m 65.815046,0 -1.74976,1.74976 -1.74976,-1.74976 m 3.49952,-16.627199 -1.74976,1.74976 -1.74976,-1.74976"
      id="path240"
      inkscape:connector-curvature="0"
-     style="fill:#999999;stroke-width:1" />
+     style="fill:#afafaf;stroke-width:1;fill-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78124994"
      id="g244"

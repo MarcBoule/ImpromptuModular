@@ -45,17 +45,12 @@
      units="mm"
      inkscape:zoom="1.7481032"
      inkscape:cx="307.47613"
-     inkscape:cy="242.83464"
+     inkscape:cy="242.83463"
      inkscape:window-x="-8"
      inkscape:window-y="1072"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg214"
      inkscape:pagecheckerboard="0" />
-  <path
-     d="M 0,0 H 162.56056 V 128.50044 H 0 Z m 0,0"
-     id="path2"
-     inkscape:connector-curvature="0"
-     style="fill:#dcdcdc;stroke-width:1" />
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -64,7 +59,7 @@
      height="35.750523"
      width="17.22118"
      id="rect4"
-     style="fill:#cccccc;stroke-width:1;paint-order:stroke markers fill" />
+     style="fill:#c8c8c8;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -73,7 +68,7 @@
      height="35.750523"
      width="46.566563"
      id="rect6"
-     style="fill:#999999;stroke-width:1;paint-order:stroke markers fill" />
+     style="fill:#afafaf;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <g
      style="line-height:1.25;stroke-width:0.78124732"
      id="g10"

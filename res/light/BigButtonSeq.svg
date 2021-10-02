@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="86.360001mm"
    height="128.5mm"
    viewBox="0 0 86.360321 128.50044"
    version="1.1"
    id="svg82"
    sodipodi:docname="BigButtonSeq.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata88">
     <rdf:RDF>
@@ -22,7 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -38,23 +38,19 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-height="1057"
      id="namedview84"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
      inkscape:zoom="1.0618529"
-     inkscape:cx="67.43793"
-     inkscape:cy="213.43901"
+     inkscape:cx="67.335127"
+     inkscape:cy="213.30638"
      inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-y="1072"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg82" />
-  <path
-     d="M 0,0 H 86.360311 V 128.50046 H 0 Z m 0,0"
-     id="path2"
-     inkscape:connector-curvature="0"
-     style="fill:#dcdcdc;stroke-width:1" />
+     inkscape:current-layer="svg82"
+     inkscape:pagecheckerboard="0" />
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -63,7 +59,7 @@
      height="15.783445"
      width="80.93959"
      id="rect4"
-     style="fill:#999999;stroke-width:1;paint-order:stroke markers fill" />
+     style="fill:#afafaf;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <g
      word-spacing="0"
      letter-spacing="0"

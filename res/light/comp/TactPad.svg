@@ -24,9 +24,9 @@
      inkscape:document-units="mm"
      showgrid="false"
      scale-x="1"
-     inkscape:zoom="3.1072952"
-     inkscape:cx="386.02705"
-     inkscape:cy="290.44553"
+     inkscape:zoom="3.3377417"
+     inkscape:cx="28.312556"
+     inkscape:cy="127.1818"
      inkscape:window-width="1920"
      inkscape:window-height="1057"
      inkscape:window-x="-8"
@@ -40,11 +40,11 @@
      inkscape:groupmode="layer"
      id="layer1">
     <g
-       style="fill:#a0a0a0;stroke:#646464;stroke-width:0.781839"
+       style="fill:#a0a0a0;fill-opacity:1;stroke:#646464;stroke-width:0.781839;stroke-opacity:1"
        id="g40"
        transform="matrix(1.2799763,0,0,1.2780855,-39.221564,-217.82719)">
       <rect
-         style="stroke-width:0.931171;paint-order:stroke markers fill"
+         style="fill:#a0a0a0;fill-opacity:1;stroke:#646464;stroke-width:0.931171;stroke-opacity:1;paint-order:stroke markers fill"
          id="rect36"
          width="10.716"
          height="51.726002"
@@ -53,7 +53,7 @@
          rx="0.66016614"
          ry="0.66114277" />
       <path
-         style="stroke-width:0.207187"
+         style="fill:#a0a0a0;fill-opacity:1;stroke:#646464;stroke-width:0.207187;stroke-opacity:1"
          inkscape:connector-curvature="0"
          id="path38"
          d="m 30.777,218.618 11.275,0.04 0.063,0.04 m -11.338,-44.178 11.275,0.04 0.063,0.041" />

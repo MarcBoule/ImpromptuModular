@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="20.32mm"
    height="128.5mm"
    viewBox="0 0 20.32 128.50044"
    version="1.1"
    id="svg48"
    sodipodi:docname="ClockedExpander.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <metadata
      id="metadata54">
     <rdf:RDF>
@@ -22,7 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -38,23 +38,19 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-height="1057"
      id="namedview50"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
      inkscape:zoom="1.2421053"
-     inkscape:cx="-48.694111"
-     inkscape:cy="302.08923"
+     inkscape:cx="-48.707626"
+     inkscape:cy="302.30931"
      inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-y="1072"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg48" />
-  <path
-     d="M 0,0 H 20.32007 V 128.50044 H 0 Z m 0,0"
-     id="path2"
-     inkscape:connector-curvature="0"
-     style="fill:#dcdcdc;stroke-width:1" />
+     inkscape:current-layer="svg48"
+     inkscape:pagecheckerboard="0" />
   <g
      style="line-height:1.25;stroke-width:0.78124732"
      id="g6"
