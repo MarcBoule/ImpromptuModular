@@ -928,6 +928,7 @@ struct CvPadWidget : ModuleWidget {
 		static const int ledOffsetY = 30;
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
+				svgPanel->fb->addChild(new CvPadSvg(mm2px(Vec(21.749f, 37.908f)).plus(Vec(padXd * x, padYd * y)), mode));
 				// pad
 				addParam(createParamCentered<Pad>(VecPx(padX + padXd * x, padY + padYd * y), module, CvPad::PAD_PARAMS + y * 4 + x));
 				// light

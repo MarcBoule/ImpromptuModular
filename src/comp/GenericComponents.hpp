@@ -107,6 +107,17 @@ struct TactPadSvg : SvgWidget {
 };
 
 
+struct CvPadSvg : SvgWidget {
+	int* mode = NULL;
+	CvPadSvg(Vec(_pos), int* _mode) {
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/CvPad.svg")));
+		box.pos = _pos; 
+		mode = _mode;
+	}
+	void draw(const DrawArgs& args) override;
+};
+
+
 
 // Knobs
 
