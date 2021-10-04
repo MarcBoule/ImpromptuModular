@@ -180,10 +180,11 @@ struct IMBigKnob : Rogan1PSWhite  {
 };
 
 
+
 struct Rogan1SWhite : Rogan {
 	Rogan1SWhite() {
-		setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
-		// setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1S.svg")));
+		// setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
+		setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1S-new.svg")));
 		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PS-bg.svg")));
 		fg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite-fg.svg")));
 	}
