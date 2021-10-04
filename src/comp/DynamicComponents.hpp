@@ -179,7 +179,17 @@ struct IMBigKnob : Rogan1PSWhite  {
 	}
 };
 
-struct IMBigKnobInf : Rogan1PSWhite {
+
+struct Rogan1SWhite : Rogan {
+	Rogan1SWhite() {
+		setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
+		// setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1S.svg")));
+		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PS-bg.svg")));
+		fg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite-fg.svg")));
+	}
+};
+
+struct IMBigKnobInf : Rogan1SWhite {
 	int* mode = NULL;
 	IMBigKnobInf() {
 		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/BlackKnobLarge.svg")));
