@@ -168,6 +168,7 @@ struct IMPushButton : TL1105 {
 	// }
 // };
 
+
 struct Rogan1PSWhiteIM : Rogan {
 	Rogan1PSWhiteIM() {
 		setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
@@ -176,8 +177,6 @@ struct Rogan1PSWhiteIM : Rogan {
 		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PSWhite-fg.svg")));
 	}
 };
-
-
 struct IMBigKnob : Rogan1PSWhiteIM  {
 	int* mode = NULL;
 	IMBigKnob() {
@@ -199,7 +198,6 @@ struct Rogan1SWhite : Rogan {
 		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PSWhite-fg.svg")));
 	}
 };
-
 struct IMBigKnobInf : Rogan1SWhite {
 	int* mode = NULL;
 	IMBigKnobInf() {
@@ -227,7 +225,7 @@ struct TrimpotSmall : app::SvgKnob {
 		bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Trimpot-bg.svg")));
 	}
 };
-struct IMSmallKnob : TrimpotSmall {// RoundSmallBlackKnob {
+struct IMSmallKnob : TrimpotSmall {
 	int* mode = NULL;
 	IMSmallKnob() {
 		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundSmallBlackKnob.svg")));
@@ -241,14 +239,6 @@ struct IMSmallKnob : TrimpotSmall {// RoundSmallBlackKnob {
 
 
 
-struct RoundBlackKnobIM : RoundKnob {
-	RoundBlackKnobIM() {
-		setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/RoundBlackKnob.svg")));
-		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/RoundBlackKnob-bg.svg")));
-	}
-};
-
-
 struct Rogan1White : Rogan {
 	Rogan1White() {
 		// setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
@@ -258,9 +248,7 @@ struct Rogan1White : Rogan {
 		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PWhite-fg.svg")));
 	}
 };
-
-
-struct IMMediumKnobInf : Rogan1White {// RoundBlackKnobIM {
+struct IMMediumKnobInf : Rogan1White {
 	int* mode = NULL;
 	IMMediumKnobInf() {
 		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundMediumBlackKnobNoMark.svg")));
@@ -274,22 +262,15 @@ struct IMMediumKnobInf : Rogan1White {// RoundBlackKnobIM {
 };
 
 
-struct TrimpotMedium : app::SvgKnob {
-	widget::SvgWidget* bg;
 
-	TrimpotMedium() {
-		minAngle = -0.83 * M_PI;
-		maxAngle = 0.83 * M_PI;
-
-		bg = new widget::SvgWidget;
-		fb->addChildBelow(bg, tw);
-
-		setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Trimpot2.svg")));
-		bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Trimpot2-bg.svg")));
+struct Rogan1PWhiteIM : Rogan {
+	Rogan1PWhiteIM() {
+		setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PWhite.svg")));
+		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1P-bg.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PWhite-fg.svg")));
 	}
 };
-
-struct IMMediumKnob : RoundBlackKnobIM { // Rogan1PBlue {// TrimpotMedium {
+struct IMMediumKnob : Rogan1PWhiteIM {
 	int* mode = NULL;
 	IMMediumKnob() {
 		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundMediumBlackKnob.svg")));
@@ -301,26 +282,27 @@ struct IMMediumKnob : RoundBlackKnobIM { // Rogan1PBlue {// TrimpotMedium {
 	}
 };
 
+
 struct IMFivePosSmallKnob : IMSmallKnob {
 	IMFivePosSmallKnob() {
 		speed = 1.6f;
-		minAngle = -0.5*float(M_PI);
-		maxAngle = 0.5*float(M_PI);
+		minAngle = -0.5 * float(M_PI);
+		maxAngle = 0.5 * float(M_PI);
 	}
 };
 
 struct IMFivePosMediumKnob : IMMediumKnob {
 	IMFivePosMediumKnob() {
 		speed = 1.6f;
-		minAngle = -0.5*float(M_PI);
-		maxAngle = 0.5*float(M_PI);
+		minAngle = -0.5 * float(M_PI);
+		maxAngle = 0.5 * float(M_PI);
 	}
 };
 
 struct IMSixPosBigKnob : IMBigKnob {
 	IMSixPosBigKnob() {
 		speed = 1.3f;
-		minAngle = -0.4*float(M_PI);
-		maxAngle = 0.4*float(M_PI);
+		minAngle = -0.4 * float(M_PI);
+		maxAngle = 0.4 * float(M_PI);
 	}
 };

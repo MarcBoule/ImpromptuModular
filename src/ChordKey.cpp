@@ -942,16 +942,16 @@ struct ChordKeyWidget : ModuleWidget {
 		static const int displayHeights = 24; // 22 for 14pt, 24 for 15pt
 			
 		// Transpose buttons
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0, rowY - 16), module, ChordKey::TRANSPOSEDOWN_PARAM, mode));		
-		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col1, rowY - 16), module, ChordKey::TRANSPOSEUP_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0, rowY - 16 - 6.429f), module, ChordKey::TRANSPOSEDOWN_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col1, rowY - 16 - 6.429f), module, ChordKey::TRANSPOSEUP_PARAM, mode));		
 			
 		// Index display
-		addChild(new IndexDisplayWidget(VecPx((col0 + col1) / 2, rowY + rowYd / 2 - 4), VecPx(36, displayHeights), module));// 2 characters
+		addChild(new IndexDisplayWidget(VecPx((col0 + col1) / 2 + 6, rowY + rowYd / 2 - 4) - 6.429f, VecPx(36, displayHeights), module));// 2 characters
 		
 		// Index input
-		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 2 - 8), true, module, ChordKey::INDEX_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 2 - 9), true, module, ChordKey::INDEX_INPUT, mode));
 		// Index knob
-		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(col1, rowY + rowYd * 2 - 8), module, ChordKey::INDEX_PARAM, mode));	
+		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(col1, rowY + rowYd * 2 - 9), module, ChordKey::INDEX_PARAM, mode));	
 	
 		// Gate input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 3 + 8), true, module, ChordKey::GATE_INPUT, mode));

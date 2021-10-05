@@ -38,19 +38,26 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1057"
+     inkscape:window-height="1001"
      id="namedview92"
      showgrid="false"
-     inkscape:zoom="1.8777592"
-     inkscape:cx="-96.657763"
-     inkscape:cy="160.56372"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:zoom="7.5110368"
+     inkscape:cx="76.487443"
+     inkscape:cy="119.22455"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg90"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:pagecheckerboard="0" />
+     inkscape:pagecheckerboard="0"
+     showguides="true"
+     inkscape:guide-bbox="true">
+    <sodipodi:guide
+       position="40.64,44.925597"
+       orientation="1,0"
+       id="guide988" />
+  </sodipodi:namedview>
   <rect
      rx="2.3399999"
      ry="2.3399999"
@@ -250,11 +257,11 @@
        inkscape:connector-curvature="0" />
   </g>
   <path
-     d="m 10.15936,81.995502 v 1.6448 M 40.64,25.194912 v 1.69216"
+     d="m 10.15936,81.995502 v 1.6448"
      id="path56"
      inkscape:connector-curvature="0"
-     style="fill:none;stroke:#232323;stroke-width:0.132;stroke-opacity:1"
-     sodipodi:nodetypes="cccc" />
+     style="fill:none;stroke:#232323;stroke-width:0.132002;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     sodipodi:nodetypes="cc" />
   <g
      aria-label="CLKD"
      style="font-weight:400;font-size:4.2329998px;line-height:1.25;font-family:Sniglet;letter-spacing:0;word-spacing:0;stroke-width:0.20703125;fill:#232323;fill-opacity:1"
@@ -375,4 +382,8 @@
        id="path86"
        inkscape:connector-curvature="0" />
   </g>
+  <path
+     d="m 40.64,25.19473 v 1.000013"
+     style="fill:none;stroke:#232323;stroke-width:0.13200166;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path889" />
 </svg>

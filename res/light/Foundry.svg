@@ -38,16 +38,16 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1057"
+     inkscape:window-height="1001"
      id="namedview330"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
      inkscape:zoom="1.7481032"
      inkscape:cx="364.68099"
-     inkscape:cy="242.83463"
-     inkscape:window-x="-8"
-     inkscape:window-y="1072"
+     inkscape:cy="151.30686"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg328"
      inkscape:pagecheckerboard="0" />
@@ -1208,4 +1208,16 @@
        id="path324"
        inkscape:connector-curvature="0" />
   </g>
+  <path
+     d="m 97.852756,42.180969 v 1.000004"
+     style="fill:none;stroke:#232323;stroke-width:0.132001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path889" />
+  <path
+     d="m 119.87319,42.180497 v 1.000004"
+     style="fill:none;stroke:#232323;stroke-width:0.132001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path889-7" />
+  <path
+     d="m 141.21426,42.180497 v 1.000004"
+     style="fill:none;stroke:#232323;stroke-width:0.132001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path889-7-5" />
 </svg>

@@ -999,7 +999,7 @@ struct CvPadWidget : ModuleWidget {
 		// cv knob
 		addParam(createDynamicParamCentered<CvKnob>(VecPx(padX + padXd * 2, topY), module, CvPad::CV_PARAM, mode));
 		// bank knob
-		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, mode));
+		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, mode));
 
 		
 	}

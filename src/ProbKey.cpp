@@ -1567,7 +1567,7 @@ struct ProbKeyWidget : ModuleWidget {
 		
 		// ****** Bottom portion ******
 		
-		static const float row0 = 82.5f;
+		static const float row0 = 83.5f;
 		static const float row1 = 96.5f;
 		static const float row2 = 114.0f;
 		
@@ -1628,7 +1628,7 @@ struct ProbKeyWidget : ModuleWidget {
 		// **** col4 ****
 
 		// Lock knob, led, button and input
-		addParam(createDynamicParamCentered<IMBigKnob>(mm2px(Vec(col4, row0 + 2.0f)), module, ProbKey::LOCK_KNOB_PARAM, mode));
+		addParam(createDynamicParamCentered<IMBigKnob>(mm2px(Vec(col4, row0 + 1.0f)), module, ProbKey::LOCK_KNOB_PARAM, mode));
 		addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(col4 - 5.0f, row1 + 4.0f - 6.8f)), module, ProbKey::LOCK_LIGHT));	
 		addParam(createDynamicParamCentered<IMBigPushButton>(mm2px(Vec(col4, row1 + 4.0f)), module, ProbKey::LOCK_BUTTON_PARAM, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col4, row2)), true, module, ProbKey::LOCK_INPUT, mode));
