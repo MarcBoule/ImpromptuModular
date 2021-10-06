@@ -221,7 +221,7 @@ struct ChordKeyExpanderWidget : ModuleWidget {
 		int* mode = module ? &module->panelTheme : NULL;
 		
 		// Main panel from Inkscape
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/ChordKeyExpander.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/ChordKeyExpander.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	

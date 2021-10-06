@@ -86,7 +86,6 @@ struct DynamicSVGScrew : SvgWidget {
 struct IMScrew : DynamicSVGScrew {
 	IMScrew() {
 		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/ScrewSilver.svg")));
-		// addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/ScrewSilver.svg")));
 		addFrameAlt(asset::system("res/ComponentLibrary/ScrewBlack.svg"));
 	}
 };
@@ -99,11 +98,6 @@ struct IMScrew : DynamicSVGScrew {
 struct IMPort : PJ301MPort  {
 	int* mode = NULL;
 	IMPort() {
-		// addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/PJ301M.svg")));
-		// addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/PJ301M.svg")));
-		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/PJ301M.svg"));
-		// shadow->blurRadius = 1.0f;
-		// shadow->opacity = 0.8;
 	}
 };
 
@@ -134,13 +128,7 @@ struct IMBigPushButton : CKD6 {
 
 struct IMPushButton : TL1105 {
 	int* mode = NULL;
-	IMPushButton() {
-		// momentary = true;
-		// addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/TL1105_0.svg")));
-		// addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/TL1105_1.svg")));
-		// addFrameAlt0(asset::plugin(pluginInstance, "res/dark/comp/TL1105_0.svg"));
-		// addFrameAlt1(asset::plugin(pluginInstance, "res/dark/comp/TL1105_1.svg"));	
-	}
+	IMPushButton() {}
 };
 
 
@@ -184,30 +172,24 @@ struct Rogan1PSWhiteIM : Rogan {
 		setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
 		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PS-bg.svg")));
 		// fg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite-fg.svg")));
-		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PSWhite-fg.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PSWhite-fg.svg")));
 	}
 };
 
 
 struct IMBigKnob : Rogan1PSWhiteIM  {
 	int* mode = NULL;
-	IMBigKnob() {
-		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/BlackKnobLargeWithMark.svg")));
-		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeWithMark.svg"));
-		// addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeEffects.svg"));
-		// shadow->blurRadius = box.size.y * blurRadiusRatio;
-		// shadow->opacity = 0.1;
-	}
+	IMBigKnob() {}
 };
 
 
 struct Rogan1SWhite : Rogan {
 	Rogan1SWhite() {
 		// setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
-		setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1S.svg")));
+		setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1S.svg")));
 		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PS-bg.svg")));
 		// fg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite-fg.svg")));
-		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PSWhite-fg.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PSWhite-fg.svg")));
 	}
 };
 
@@ -215,11 +197,6 @@ struct Rogan1SWhite : Rogan {
 struct IMBigKnobInf : Rogan1SWhite {
 	int* mode = NULL;
 	IMBigKnobInf() {
-		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/BlackKnobLarge.svg")));
-		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLarge.svg"));
-		// addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/BlackKnobLargeEffects.svg"));
-		// shadow->blurRadius = box.size.y * blurRadiusRatio;
-		// shadow->opacity = 0.1;
 		speed = 0.9f;				
 	}
 };
@@ -235,32 +212,25 @@ struct TrimpotSmall : app::SvgKnob {
 		bg = new widget::SvgWidget;
 		fb->addChildBelow(bg, tw);
 
-		setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Trimpot.svg")));
-		bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Trimpot-bg.svg")));
+		setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Trimpot.svg")));
+		bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Trimpot-bg.svg")));
 	}
 };
 
 
 struct IMSmallKnob : TrimpotSmall {
 	int* mode = NULL;
-	IMSmallKnob() {
-		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundSmallBlackKnob.svg")));
-		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/RoundSmallBlackKnob.svg"));
-		// addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundSmallBlackKnobEffects.svg"));		
-		// shadow->blurRadius = box.size.y * blurRadiusRatio;
-		// shadow->opacity = 0.1;
-		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
-	}
+	IMSmallKnob() {}
 };
 
 
 struct Rogan1White : Rogan {
 	Rogan1White() {
 		// setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
-		setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1.svg")));
+		setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1.svg")));
 		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1P-bg.svg")));
 		// fg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite-fg.svg")));
-		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PWhite-fg.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PWhite-fg.svg")));
 	}
 };
 
@@ -268,12 +238,6 @@ struct Rogan1White : Rogan {
 struct IMMediumKnobInf : Rogan1White {
 	int* mode = NULL;
 	IMMediumKnobInf() {
-		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundMediumBlackKnobNoMark.svg")));
-		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobNoMark.svg"));
-		// addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobEffects.svg"));
-		// shadow->blurRadius = box.size.y * blurRadiusRatio;
-		// shadow->opacity = 0.1;
-		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
 		speed = 0.9f;				
 	}
 };
@@ -283,21 +247,14 @@ struct Rogan1PWhiteIM : Rogan {
 	Rogan1PWhiteIM() {
 		setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PWhite.svg")));
 		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1P-bg.svg")));
-		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PWhite-fg.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PWhite-fg.svg")));
 	}
 };
 
 
 struct IMMediumKnob : Rogan1PWhiteIM {
 	int* mode = NULL;
-	IMMediumKnob() {
-		// addFrameAll(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/RoundMediumBlackKnob.svg")));
-		// addFrameAlt(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnob.svg"));
-		// addFrameEffect(asset::plugin(pluginInstance, "res/dark/comp/RoundMediumBlackKnobEffects.svg"));
-		// shadow->blurRadius = box.size.y * blurRadiusRatio;
-		// shadow->opacity = 0.1;
-		// shadow->box.pos = Vec(0.0, box.size.y * 0.15);
-	}
+	IMMediumKnob() {}
 };
 
 
@@ -372,7 +329,7 @@ struct GiantLight2 : BASE {
 struct KeyboardBig : SvgWidget {
 	int* mode = NULL;
 	KeyboardBig(Vec(_pos), int* _mode) {
-		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/KeyboardBig.svg")));
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/comp/KeyboardBig.svg")));
 		box.pos = _pos; 
 		mode = _mode;
 	}
@@ -383,7 +340,7 @@ struct KeyboardBig : SvgWidget {
 struct KeyboardMed : SvgWidget {
 	int* mode = NULL;
 	KeyboardMed(Vec(_pos), int* _mode) {
-		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/KeyboardMed.svg")));
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/comp/KeyboardMed.svg")));
 		box.pos = _pos; 
 		mode = _mode;
 	}
@@ -394,7 +351,7 @@ struct KeyboardMed : SvgWidget {
 struct TactPadSvg : SvgWidget {
 	int* mode = NULL;
 	TactPadSvg(Vec(_pos), int* _mode) {
-		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/TactPad.svg")));
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/comp/TactPad.svg")));
 		box.pos = _pos; 
 		mode = _mode;
 	}
@@ -405,7 +362,7 @@ struct TactPadSvg : SvgWidget {
 struct CvPadSvg : SvgWidget {
 	int* mode = NULL;
 	CvPadSvg(Vec(_pos), int* _mode) {
-		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/CvPad.svg")));
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/comp/CvPad.svg")));
 		box.pos = _pos; 
 		mode = _mode;
 	}
