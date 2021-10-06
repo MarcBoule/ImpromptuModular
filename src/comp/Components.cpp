@@ -123,7 +123,7 @@ struct SwitchOutlineWidget : Widget {
 
 
 IMSwitch2V::IMSwitch2V() {
-	shadow->visible = false;
+	shadow->hide();
 
 	// add margins:
 	fb->box.size = fb->box.size.plus(Vec(margins.l + margins.r, margins.t + margins.b));
@@ -138,7 +138,7 @@ IMSwitch2V::IMSwitch2V() {
 
 
 IMSwitch2H::IMSwitch2H() {
-	shadow->visible = false;
+	shadow->hide();
 	
 	TransformWidget *tw = new TransformWidget();
 	tw->box.size = sw->box.size;
@@ -219,6 +219,7 @@ LEDBezelBig::LEDBezelBig() {
 // ----------
 
 void KeyboardBig::draw(const DrawArgs& args) {
+	// already framebuffered when added to module's main panel
 	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
@@ -231,6 +232,7 @@ void KeyboardBig::draw(const DrawArgs& args) {
 
 
 void KeyboardMed::draw(const DrawArgs& args) {
+	// already framebuffered when added to module's main panel
 	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
@@ -243,6 +245,7 @@ void KeyboardMed::draw(const DrawArgs& args) {
 
 
 void TactPadSvg::draw(const DrawArgs& args) {
+	// already framebuffered when added to module's main panel
 	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
@@ -255,6 +258,7 @@ void TactPadSvg::draw(const DrawArgs& args) {
 
 
 void CvPadSvg::draw(const DrawArgs& args) {
+	// already framebuffered when added to module's main panel
 	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	

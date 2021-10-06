@@ -79,7 +79,8 @@ ClockMaster clockMaster;
 
 
 NVGcolor prepareDisplay(NVGcontext *vg, Rect *box, int fontSize, int* mode) {
-	if (mode && *mode != 0) {
+	// not framebuffered
+	if (isDark(mode)) {
 		nvgBeginPath(vg);
 		NVGpaint grad = nvgLinearGradient(vg, 0, 0, 0, box->size.y, colTopD, colBotD);	
 		nvgRoundedRect(vg, -1.5f, -1.5f, box->size.x + 3.0f, box->size.y + 3.0f, 5.0f);
