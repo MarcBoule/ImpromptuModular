@@ -93,33 +93,27 @@ void DynamicSVGScrew::step() {
 // Buttons and switches
 // ----------
 
-void IMSwitch2V::draw(const DrawArgs& args) {
-	if (isDark(mode)) {
-		nvgBeginPath(args.vg);
-		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
-		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
-		nvgFillPaint(args.vg, grad);
-		nvgFill(args.vg);
-	}	
-	CKSS::draw(args);
-}
+struct Margins {
+	static constexpr float l = 1.0f;
+	static constexpr float r = 1.0f;
+	static constexpr float t = 1.0f;
+	static constexpr float b = 1.0f;
+};
+Margins margins;
 
 
 struct SwitchOutlineWidget : Widget {
 	int** mode = NULL;
-	Margins* margins;
 	
-	SwitchOutlineWidget(int** _mode, Margins* _margins, Vec _size) {
+	SwitchOutlineWidget(int** _mode, Vec _size) {
 		mode = _mode;
-		margins = _margins;
 		box.size = _size;
 	}
 	void draw(const DrawArgs& args) override {
 		if (mode && isDark(*mode)) {
-			// DEBUG("dbx: %g, %g, %g, %g", box.size.x, box.size.y, box.pos.x, box.pos.y);
 			nvgBeginPath(args.vg);
 			NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
-			nvgRoundedRect(args.vg, -margins->l, -margins->t, box.size.x + margins->l + margins->r, box.size.y + margins->t + margins->b, 1.5f);
+			nvgRoundedRect(args.vg, 0, 0, box.size.x, box.size.y, 1.5f);
 			nvgFillPaint(args.vg, grad);
 			nvgFill(args.vg);
 		}
@@ -128,15 +122,23 @@ struct SwitchOutlineWidget : Widget {
 };
 
 
+IMSwitch2V::IMSwitch2V() {
+	shadow->visible = false;
+
+	// add margins:
+	fb->box.size = fb->box.size.plus(Vec(margins.l + margins.r, margins.t + margins.b));
+	box.size = fb->box.size;
+	sw->box.pos = sw->box.pos.plus(Vec(margins.l, margins.t));
+
+	// add switch outline:
+	SwitchOutlineWidget* sow = new SwitchOutlineWidget(&mode, box.size);// box.size already includes margins
+	sow->box.pos = Vec(0, 0);
+	fb->addChildBottom(sow);
+}
+
 
 IMSwitch2H::IMSwitch2H() {
-	margins.l = 0.5f;
-	margins.r = 0.5f;
-	margins.t = 0.5f;
-	margins.b = 0.5f;
-
-	shadow->opacity = 0.0;
-	// DEBUG("i  : %f, %f", sw->box.size.x, sw->box.size.y);
+	shadow->visible = false;
 	
 	TransformWidget *tw = new TransformWidget();
 	tw->box.size = sw->box.size;
@@ -157,35 +159,27 @@ IMSwitch2H::IMSwitch2H() {
 	box.size = fb->box.size;
 	tw->box.pos = tw->box.pos.plus(Vec(margins.l, margins.t));
 
-	// switch outline (BUG!! use draw() code version for now, but not framebuffered):
-	// DEBUG("  f: %f, %f", box.size.x, box.size.y);
-	// SwitchOutlineWidget* sow = new SwitchOutlineWidget(&mode, &margins, box.size.mult(0.5f));
-	// sow->box.pos = Vec(0, 0);
-	// fb->addChildBottom(sow);
+	// add switch outline:
+	SwitchOutlineWidget* sow = new SwitchOutlineWidget(&mode, box.size);// box.size already includes margins
+	sow->box.pos = Vec(0, 0);
+	fb->addChildBottom(sow);
 }
 
 
-void IMSwitch2H::draw(const DrawArgs& args) {
-	if (isDark(mode)) {
-		nvgBeginPath(args.vg);
-		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
-		nvgRoundedRect(args.vg, -margins.l, -margins.t, box.size.x + margins.l + margins.r, box.size.y + margins.t + margins.b, 1.5f);
-		nvgFillPaint(args.vg, grad);
-		nvgFill(args.vg);
-	}
-	CKSS::draw(args);
-}
+IMSwitch3VInv::IMSwitch3VInv() {
+	addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_2.svg")));
+	addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_1.svg")));
+	addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_0.svg")));
+	
+	// add margins:
+	fb->box.size = fb->box.size.plus(Vec(margins.l + margins.r, margins.t + margins.b));
+	box.size = fb->box.size;
+	sw->box.pos = sw->box.pos.plus(Vec(margins.l, margins.t));
 
-
-void IMSwitch3VInv::draw(const DrawArgs& args) {
-	if (isDark(mode)) {
-		nvgBeginPath(args.vg);
-		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
-		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
-		nvgFillPaint(args.vg, grad);
-		nvgFill(args.vg);
-	}
-	SvgSwitch::draw(args);
+	// add switch outline:
+	SwitchOutlineWidget* sow = new SwitchOutlineWidget(&mode, box.size);// box.size already includes margins
+	sow->box.pos = Vec(0, 0);
+	fb->addChildBottom(sow);
 }
 
 
@@ -205,6 +199,24 @@ LEDBezelBig::LEDBezelBig() {
 	shadow->box.size = sw->box.size; 
 }
 
+
+
+// Knobs
+// ----------
+
+// none
+
+
+
+// Lights
+// ----------
+
+// none
+
+
+
+// Svg Widgets
+// ----------
 
 void KeyboardBig::draw(const DrawArgs& args) {
 	if (isDark(mode)) {
@@ -229,6 +241,7 @@ void KeyboardMed::draw(const DrawArgs& args) {
 	SvgWidget::draw(args);
 }
 
+
 void TactPadSvg::draw(const DrawArgs& args) {
 	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
@@ -240,6 +253,7 @@ void TactPadSvg::draw(const DrawArgs& args) {
 	SvgWidget::draw(args);
 }
 
+
 void CvPadSvg::draw(const DrawArgs& args) {
 	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
@@ -250,25 +264,3 @@ void CvPadSvg::draw(const DrawArgs& args) {
 	}
 	SvgWidget::draw(args);
 }
-
-
-
-// Knobs
-// ----------
-
-// none
-
-
-
-// Lights
-// ----------
-
-// none
-
-
-
-// Svg Widgets
-// ----------
-
-// none
-

@@ -21,19 +21,15 @@ static const int colDeltaD = 30;
 static const NVGcolor colTopD = nvgRGB(128 - colDeltaD, 128 - colDeltaD, 128 - colDeltaD);
 static const NVGcolor colBotD = nvgRGB(128 + colDeltaD, 128 + colDeltaD, 128 + colDeltaD);
 
-struct Margins {
-	float l;
-	float r;
-	float t;
-	float b;
-};
 
 
 // Dark management
 // ----------------------------------------
 
 void saveDarkAsDefault(bool darkAsDefault);
+
 bool loadDarkAsDefault();
+
 inline bool isDark(int* mode) {
 	return (mode != NULL) ? (*mode != 0) : loadDarkAsDefault();
 }
@@ -150,26 +146,19 @@ struct IMPushButton : TL1105 {
 
 struct IMSwitch2V : CKSS {
 	int* mode = NULL;
-	void draw(const DrawArgs& args) override;
+	IMSwitch2V();
 };
 
 
 struct IMSwitch2H : CKSS {
 	int* mode = NULL;
-	Margins margins;
 	IMSwitch2H();
-	void draw(const DrawArgs& args) override;
 };
 
 
 struct IMSwitch3VInv : SvgSwitch {
 	int* mode = NULL;
-	IMSwitch3VInv() {
-		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_2.svg")));
-		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_1.svg")));
-		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_0.svg")));
-	}
-	void draw(const DrawArgs& args) override;
+	IMSwitch3VInv();
 };
 
 
