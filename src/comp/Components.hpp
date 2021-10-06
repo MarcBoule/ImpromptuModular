@@ -13,19 +13,63 @@ using namespace rack;
 extern Plugin *pluginInstance;
 
 
-static const float blurRadiusRatio = 0.06f;
+static const int colDelta = 50;
+static const NVGcolor colTop = nvgRGB(128 - colDelta, 128 - colDelta, 128 - colDelta);
+static const NVGcolor colBot = nvgRGB(128 + colDelta, 128 + colDelta, 128 + colDelta);
+
+static const int colDeltaD = 30;
+static const NVGcolor colTopD = nvgRGB(128 - colDeltaD, 128 - colDeltaD, 128 - colDeltaD);
+static const NVGcolor colBotD = nvgRGB(128 + colDeltaD, 128 + colDeltaD, 128 + colDeltaD);
+
+struct Margins {
+	float l;
+	float r;
+	float t;
+	float b;
+};
 
 
 
-// ******** Dynamic Widgets ********
+// Helpers
+// ----------------------------------------
 
-// General Dynamic Widget creation
+// Dynamic widgets
 template <class TWidget>
 TWidget* createDynamicWidget(Vec pos, int* mode) {
 	TWidget *dynWidget = createWidget<TWidget>(pos);
 	dynWidget->mode = mode;
 	return dynWidget;
 }
+
+
+// Dynamic ports
+template <class TDynamicPort>
+TDynamicPort* createDynamicPortCentered(Vec pos, bool isInput, Module *module, int portId, int* mode) {
+	TDynamicPort *dynPort = isInput ? 
+		createInput<TDynamicPort>(pos, module, portId) :
+		createOutput<TDynamicPort>(pos, module, portId);
+	dynPort->mode = mode;
+	dynPort->box.pos = dynPort->box.pos.minus(dynPort->box.size.div(2));// centering
+	return dynPort;
+}
+
+
+// Dynamic params
+template <class TDynamicParam>
+TDynamicParam* createDynamicParamCentered(Vec pos, Module *module, int paramId, int* mode) {
+	TDynamicParam *dynParam = createParam<TDynamicParam>(pos, module, paramId);
+	dynParam->mode = mode;
+	dynParam->box.pos = dynParam->box.pos.minus(dynParam->box.size.div(2));// centering
+	return dynParam;
+}
+
+
+
+// Variations on existing knobs, lights, etc
+// ----------------------------------------
+
+// Screws
+// ----------
 
 struct DynamicSVGScrew : SvgWidget {
     int* mode = NULL;
@@ -48,29 +92,9 @@ struct IMScrew : DynamicSVGScrew {
 };
 
 
-// ******** Dynamic Ports ********
 
-template <class TDynamicPort>
-TDynamicPort* createDynamicPortCentered(Vec pos, bool isInput, Module *module, int portId, int* mode) {
-	TDynamicPort *dynPort = isInput ? 
-		createInput<TDynamicPort>(pos, module, portId) :
-		createOutput<TDynamicPort>(pos, module, portId);
-	dynPort->mode = mode;
-	dynPort->box.pos = dynPort->box.pos.minus(dynPort->box.size.div(2));// centering
-	return dynPort;
-}
-
-// struct DynamicSVGPort : SvgPort {
-    // int* mode = NULL;
-    // int oldMode = -1;
-    // std::vector<std::shared_ptr<Svg>> frames;
-	// std::string frameAltName;
-
-    // void addFrame(std::shared_ptr<Svg> svg);
-    // void addFrameAlt(std::string filename) {frameAltName = filename;}
-    // void step() override;
-// };
-
+// Ports
+// ----------
 
 struct IMPort : PJ301MPort  {
 	int* mode = NULL;
@@ -84,57 +108,15 @@ struct IMPort : PJ301MPort  {
 };
 
 
-// ******** Dynamic Params ********
 
-template <class TDynamicParam>
-TDynamicParam* createDynamicParamCentered(Vec pos, Module *module, int paramId, int* mode) {
-	TDynamicParam *dynParam = createParam<TDynamicParam>(pos, module, paramId);
-	dynParam->mode = mode;
-	dynParam->box.pos = dynParam->box.pos.minus(dynParam->box.size.div(2));// centering
-	return dynParam;
-}
-
-// struct DynamicSVGSwitch : SvgSwitch {
-    // int* mode = NULL;
-    // int oldMode = -1;
-	// std::vector<std::shared_ptr<Svg>> framesAll;
-	// std::string frameAltName0;
-	// std::string frameAltName1;
-	// TransformWidget *tw;
-	
-	// void addFrameAll(std::shared_ptr<Svg> svg);
-    // void addFrameAlt0(std::string filename) {frameAltName0 = filename;}
-    // void addFrameAlt1(std::string filename) {frameAltName1 = filename;}
-	// void setSizeRatio(float ratio);
-    // void step() override;
-// };
-
-// struct DynamicSVGKnob : SvgKnob {
-    // int* mode = NULL;
-    // int oldMode = -1;
-	// std::vector<std::shared_ptr<Svg>> framesAll;
-	// SvgWidget* effect = NULL;
-	// std::string frameAltName;
-	// std::string frameEffectName;
-
-	// void addFrameAll(std::shared_ptr<Svg> svg);
-    // void addFrameAlt(std::string filename) {frameAltName = filename;}	
-	// void addFrameEffect(std::string filename) {frameEffectName = filename;}	
-    // void step() override;
-// };
-
+// Buttons and switches
+// ----------
 
 struct IMBigPushButton : CKD6 {
 	int* mode = NULL;
 	TransformWidget *tw;
 	IMBigPushButton() {
-		// momentary = true;
-		// addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKD6_0.svg")));
-		// addFrameAll(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKD6_1.svg")));
-		// addFrameAlt0(asset::plugin(pluginInstance, "res/dark/comp/CKD6_0.svg"));
-		// addFrameAlt1(asset::plugin(pluginInstance, "res/dark/comp/CKD6_1.svg"));
 		setSizeRatio(0.9f);		
-		// shadow->blurRadius = 1.0f;
 	}
 	void setSizeRatio(float ratio) {
 		sw->box.size = sw->box.size.mult(ratio);
@@ -149,6 +131,7 @@ struct IMBigPushButton : CKD6 {
 	}
 };
 
+
 struct IMPushButton : TL1105 {
 	int* mode = NULL;
 	IMPushButton() {
@@ -161,13 +144,40 @@ struct IMPushButton : TL1105 {
 };
 
 
-// struct IMKnob : DynamicSVGKnob {
-	// IMKnob() {
-		// minAngle = -0.83*float(M_PI);
-		// maxAngle = 0.83*float(M_PI);
-	// }
-// };
+struct IMSwitch2V : CKSS {
+	int* mode = NULL;
+	void draw(const DrawArgs& args) override;
+};
 
+
+struct IMSwitch2H : CKSS {
+	int* mode = NULL;
+	Margins margins;
+	IMSwitch2H();
+	void draw(const DrawArgs& args) override;
+};
+
+
+struct IMSwitch3VInv : SvgSwitch {
+	int* mode = NULL;
+	IMSwitch3VInv() {
+		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_2.svg")));
+		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_1.svg")));
+		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_0.svg")));
+	}
+	void draw(const DrawArgs& args) override;
+};
+
+
+struct LEDBezelBig : SvgSwitch {
+	TransformWidget *tw;
+	LEDBezelBig();
+};
+
+
+
+// Knobs
+// ----------
 
 struct Rogan1PSWhiteIM : Rogan {
 	Rogan1PSWhiteIM() {
@@ -177,6 +187,8 @@ struct Rogan1PSWhiteIM : Rogan {
 		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PSWhite-fg.svg")));
 	}
 };
+
+
 struct IMBigKnob : Rogan1PSWhiteIM  {
 	int* mode = NULL;
 	IMBigKnob() {
@@ -198,6 +210,8 @@ struct Rogan1SWhite : Rogan {
 		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PSWhite-fg.svg")));
 	}
 };
+
+
 struct IMBigKnobInf : Rogan1SWhite {
 	int* mode = NULL;
 	IMBigKnobInf() {
@@ -225,6 +239,8 @@ struct TrimpotSmall : app::SvgKnob {
 		bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Trimpot-bg.svg")));
 	}
 };
+
+
 struct IMSmallKnob : TrimpotSmall {
 	int* mode = NULL;
 	IMSmallKnob() {
@@ -238,7 +254,6 @@ struct IMSmallKnob : TrimpotSmall {
 };
 
 
-
 struct Rogan1White : Rogan {
 	Rogan1White() {
 		// setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
@@ -248,6 +263,8 @@ struct Rogan1White : Rogan {
 		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PWhite-fg.svg")));
 	}
 };
+
+
 struct IMMediumKnobInf : Rogan1White {
 	int* mode = NULL;
 	IMMediumKnobInf() {
@@ -262,7 +279,6 @@ struct IMMediumKnobInf : Rogan1White {
 };
 
 
-
 struct Rogan1PWhiteIM : Rogan {
 	Rogan1PWhiteIM() {
 		setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PWhite.svg")));
@@ -270,6 +286,8 @@ struct Rogan1PWhiteIM : Rogan {
 		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/light/comp/Rogan1PWhite-fg.svg")));
 	}
 };
+
+
 struct IMMediumKnob : Rogan1PWhiteIM {
 	int* mode = NULL;
 	IMMediumKnob() {
@@ -291,6 +309,7 @@ struct IMFivePosSmallKnob : IMSmallKnob {
 	}
 };
 
+
 struct IMFivePosMediumKnob : IMMediumKnob {
 	IMFivePosMediumKnob() {
 		speed = 1.6f;
@@ -299,6 +318,7 @@ struct IMFivePosMediumKnob : IMMediumKnob {
 	}
 };
 
+
 struct IMSixPosBigKnob : IMBigKnob {
 	IMSixPosBigKnob() {
 		speed = 1.3f;
@@ -306,3 +326,90 @@ struct IMSixPosBigKnob : IMBigKnob {
 		maxAngle = 0.4 * float(M_PI);
 	}
 };
+
+
+
+
+// Lights
+// ----------
+
+struct OrangeLight : GrayModuleLightWidget {
+	OrangeLight() {
+		addBaseColor(SCHEME_ORANGE);
+	}
+};
+
+
+struct GreenRedWhiteLight : GrayModuleLightWidget {
+	GreenRedWhiteLight() {
+		addBaseColor(SCHEME_GREEN);
+		addBaseColor(SCHEME_RED);
+		addBaseColor(SCHEME_WHITE);
+	}
+};
+
+
+template <typename BASE>
+struct GiantLight : BASE {
+	GiantLight() {
+		this->box.size = mm2px(Vec(19.0f, 19.0f));
+	}
+};
+
+
+template <typename BASE>
+struct GiantLight2 : BASE {
+	GiantLight2() {
+		this->box.size = mm2px(Vec(12.8f, 12.8f));
+	}
+};
+
+
+
+// Svg Widgets
+// ----------
+
+struct KeyboardBig : SvgWidget {
+	int* mode = NULL;
+	KeyboardBig(Vec(_pos), int* _mode) {
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/KeyboardBig.svg")));
+		box.pos = _pos; 
+		mode = _mode;
+	}
+	void draw(const DrawArgs& args) override;
+};
+
+
+struct KeyboardMed : SvgWidget {
+	int* mode = NULL;
+	KeyboardMed(Vec(_pos), int* _mode) {
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/KeyboardMed.svg")));
+		box.pos = _pos; 
+		mode = _mode;
+	}
+	void draw(const DrawArgs& args) override;
+};
+
+
+struct TactPadSvg : SvgWidget {
+	int* mode = NULL;
+	TactPadSvg(Vec(_pos), int* _mode) {
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/TactPad.svg")));
+		box.pos = _pos; 
+		mode = _mode;
+	}
+	void draw(const DrawArgs& args) override;
+};
+
+
+struct CvPadSvg : SvgWidget {
+	int* mode = NULL;
+	CvPadSvg(Vec(_pos), int* _mode) {
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/light/comp/CvPad.svg")));
+		box.pos = _pos; 
+		mode = _mode;
+	}
+	void draw(const DrawArgs& args) override;
+};
+
+

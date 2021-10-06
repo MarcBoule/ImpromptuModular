@@ -5,13 +5,31 @@
 //***********************************************************************************************
 
 
-#include "GenericComponents.hpp"
+#include "Components.hpp"
 
 
 
 // Screws
+// ----------
 
-// nothing
+void DynamicSVGScrew::addFrame(std::shared_ptr<Svg> svg) {
+	frames.push_back(svg);
+    if(frames.size() == 1) {
+        setSvg(svg);
+	}
+}
+
+void DynamicSVGScrew::step() {
+    if(mode != NULL && *mode != oldMode) {
+        if (*mode > 0 && !frameAltName.empty()) {// JIT loading of alternate skin
+			frames.push_back(APP->window->loadSvg(frameAltName));
+			frameAltName.clear();// don't reload!
+		}
+        setSvg(frames[*mode]);
+        oldMode = *mode;
+    }
+	SvgWidget::step();
+}
 
 
 
@@ -22,7 +40,7 @@
 
 
 // Buttons and switches
-
+// ----------
 
 void IMSwitch2V::draw(const DrawArgs& args) {
 	if (mode && *mode != 0) {
@@ -183,12 +201,10 @@ void CvPadSvg::draw(const DrawArgs& args) {
 }
 
 // Knobs
-
-// nothing
+// ----------
 
 
 
 // Lights
-
-// nothing
+// ----------
 

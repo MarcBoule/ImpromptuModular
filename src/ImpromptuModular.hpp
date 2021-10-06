@@ -13,8 +13,7 @@
 #pragma once
 
 #include "rack.hpp"
-#include "comp/DynamicComponents.hpp"
-#include "comp/GenericComponents.hpp"
+#include "comp/Components.hpp"
 
 using namespace rack;
 
