@@ -931,25 +931,25 @@ struct ClkdWidget : ModuleWidget {
 
 
 		// Row 0
-		// Reset input
-		addInput(slaveResetRunBpmInputs[0] = createDynamicPortCentered<IMPort>(VecPx(colL, row0), true, module, Clkd::RESET_INPUT, mode));
-		// Run input
-		addInput(slaveResetRunBpmInputs[1] = createDynamicPortCentered<IMPort>(VecPx(colC, row0), true, module, Clkd::RUN_INPUT, mode));
 		// Bpm input
-		addInput(slaveResetRunBpmInputs[2] = createDynamicPortCentered<IMPort>(VecPx(colR, row0), true, module, Clkd::BPM_INPUT, mode));
+		addInput(slaveResetRunBpmInputs[2] = createDynamicPortCentered<IMPort>(VecPx(colL, row0), true, module, Clkd::BPM_INPUT, mode));
+		// Reset input
+		addInput(slaveResetRunBpmInputs[0] = createDynamicPortCentered<IMPort>(VecPx(colC, row0), true, module, Clkd::RESET_INPUT, mode));
+		// Run input
+		addInput(slaveResetRunBpmInputs[1] = createDynamicPortCentered<IMPort>(VecPx(colR, row0), true, module, Clkd::RUN_INPUT, mode));
 		
 
 		// Row 1
-		// Reset LED bezel and light
-		addParam(createParamCentered<LEDBezel>(VecPx(colL, row1), module, Clkd::RESET_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colL, row1), module, Clkd::RESET_LIGHT));
-		// Run LED bezel and light
-		addParam(createParamCentered<LEDBezel>(VecPx(colC, row1), module, Clkd::RUN_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colC, row1), module, Clkd::RUN_LIGHT));
 		// Master BPM knob
 		BpmKnob *bpmKnob;
-		addParam(bpmKnob = createDynamicParamCentered<BpmKnob>(VecPx(colR, row1), module, Clkd::BPM_PARAM, mode));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
+		addParam(bpmKnob = createDynamicParamCentered<BpmKnob>(VecPx(colL, row1), module, Clkd::BPM_PARAM, mode));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		// bpmKnob->displayIndexPtr = (done below with ratio knobs)
+		// Reset LED bezel and light
+		addParam(createParamCentered<LEDBezel>(VecPx(colC, row1), module, Clkd::RESET_PARAM));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colC, row1), module, Clkd::RESET_LIGHT));
+		// Run LED bezel and light
+		addParam(createParamCentered<LEDBezel>(VecPx(colR, row1), module, Clkd::RUN_PARAM));
+		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colR, row1), module, Clkd::RUN_LIGHT));
 
 		// Row 2
 		// BPM display
