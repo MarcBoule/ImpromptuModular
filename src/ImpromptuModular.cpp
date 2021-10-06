@@ -52,8 +52,7 @@ void init(rack::Plugin *p) {
 
 void InverterWidget::draw(const DrawArgs& args) {
 	TransparentWidget::draw(args);
-	bool invert = panelThemeSrc != NULL ? *panelThemeSrc != 0 : loadDarkAsDefault();
-	if (invert) {
+	if (isDark(panelThemeSrc)) {
 		// nvgSave(args.vg);
 		nvgBeginPath(args.vg);
 		nvgFillColor(args.vg, SCHEME_WHITE);// this is the source, the current framebuffer is the dest	
@@ -145,6 +144,7 @@ int printNote(float cvVal, char* text, bool sharp) {// text must be at least 4 c
 	return cursor;
 }
 
+
 int moveIndex(int index, int indexNext, int numSteps) {
 	if (indexNext < 0)
 		index = numSteps - 1;
@@ -164,44 +164,6 @@ int moveIndex(int index, int indexNext, int numSteps) {
 		}
 	}
 	return index;
-}
-
-
-void saveDarkAsDefault(bool darkAsDefault) {
-	json_t *settingsJ = json_object();
-	json_object_set_new(settingsJ, "darkAsDefault", json_boolean(darkAsDefault));
-	std::string settingsFilename = asset::user("ImpromptuModular.json");
-	FILE *file = fopen(settingsFilename.c_str(), "w");
-	if (file) {
-		json_dumpf(settingsJ, file, JSON_INDENT(2) | JSON_REAL_PRECISION(9));
-		fclose(file);
-	}
-	json_decref(settingsJ);
-}
-
-bool loadDarkAsDefault() {
-	bool ret = false;
-	std::string settingsFilename = asset::user("ImpromptuModular.json");
-	FILE *file = fopen(settingsFilename.c_str(), "r");
-	if (!file) {
-		saveDarkAsDefault(false);
-		return ret;
-	}
-	json_error_t error;
-	json_t *settingsJ = json_loadf(file, 0, &error);
-	if (!settingsJ) {
-		// invalid setting json file
-		fclose(file);
-		saveDarkAsDefault(false);
-		return ret;
-	}
-	json_t *darkAsDefaultJ = json_object_get(settingsJ, "darkAsDefault");
-	if (darkAsDefaultJ)
-		ret = json_boolean_value(darkAsDefaultJ);
-	
-	fclose(file);
-	json_decref(settingsJ);
-	return ret;
 }
 
 

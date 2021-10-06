@@ -29,6 +29,22 @@ struct Margins {
 };
 
 
+// Dark management
+// ----------------------------------------
+
+void saveDarkAsDefault(bool darkAsDefault);
+bool loadDarkAsDefault();
+inline bool isDark(int* mode) {
+	return (mode != NULL) ? (*mode != 0) : loadDarkAsDefault();
+}
+
+struct DarkDefaultItem : MenuItem {
+	void onAction(const event::Action &e) override {
+		saveDarkAsDefault(rightText.empty());// implicitly toggled
+	}
+};	
+
+
 
 // Helpers
 // ----------------------------------------
@@ -283,7 +299,6 @@ struct IMSixPosBigKnob : IMBigKnob {
 		maxAngle = 0.4 * float(M_PI);
 	}
 };
-
 
 
 

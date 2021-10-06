@@ -8,6 +8,57 @@
 #include "Components.hpp"
 
 
+// Dark management
+// ----------------------------------------
+
+void saveDarkAsDefault(bool darkAsDefault) {
+	json_t *settingsJ = json_object();
+	json_object_set_new(settingsJ, "darkAsDefault", json_boolean(darkAsDefault));
+	std::string settingsFilename = asset::user("ImpromptuModular.json");
+	FILE *file = fopen(settingsFilename.c_str(), "w");
+	if (file) {
+		json_dumpf(settingsJ, file, JSON_INDENT(2) | JSON_REAL_PRECISION(9));
+		fclose(file);
+	}
+	json_decref(settingsJ);
+}
+
+
+bool loadDarkAsDefault() {
+	bool ret = false;
+	std::string settingsFilename = asset::user("ImpromptuModular.json");
+	FILE *file = fopen(settingsFilename.c_str(), "r");
+	if (!file) {
+		saveDarkAsDefault(false);
+		return ret;
+	}
+	json_error_t error;
+	json_t *settingsJ = json_loadf(file, 0, &error);
+	if (!settingsJ) {
+		// invalid setting json file
+		fclose(file);
+		saveDarkAsDefault(false);
+		return ret;
+	}
+	json_t *darkAsDefaultJ = json_object_get(settingsJ, "darkAsDefault");
+	if (darkAsDefaultJ)
+		ret = json_boolean_value(darkAsDefaultJ);
+	
+	fclose(file);
+	json_decref(settingsJ);
+	return ret;
+}
+
+
+
+// Helpers
+// ----------------------------------------
+
+// none
+
+
+// Variations on existing knobs, lights, etc
+// ----------------------------------------
 
 // Screws
 // ----------
@@ -20,13 +71,14 @@ void DynamicSVGScrew::addFrame(std::shared_ptr<Svg> svg) {
 }
 
 void DynamicSVGScrew::step() {
-    if(mode != NULL && *mode != oldMode) {
-        if (*mode > 0 && !frameAltName.empty()) {// JIT loading of alternate skin
+    int newMode = isDark(mode) ? 1 : 0;
+	if (newMode != oldMode) {
+        if (newMode > 0 && !frameAltName.empty()) {// JIT loading of alternate skin
 			frames.push_back(APP->window->loadSvg(frameAltName));
 			frameAltName.clear();// don't reload!
 		}
-        setSvg(frames[*mode]);
-        oldMode = *mode;
+        setSvg(frames[newMode]);
+        oldMode = newMode;
     }
 	SvgWidget::step();
 }
@@ -34,8 +86,7 @@ void DynamicSVGScrew::step() {
 
 
 // Ports
-
-// nothing
+// ----------
 
 
 
@@ -43,7 +94,7 @@ void DynamicSVGScrew::step() {
 // ----------
 
 void IMSwitch2V::draw(const DrawArgs& args) {
-	if (mode && *mode != 0) {
+	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
 		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
@@ -64,8 +115,8 @@ struct SwitchOutlineWidget : Widget {
 		box.size = _size;
 	}
 	void draw(const DrawArgs& args) override {
-		if (mode && *mode && **mode != 0) {
-			DEBUG("dbx: %g, %g, %g, %g", box.size.x, box.size.y, box.pos.x, box.pos.y);
+		if (mode && isDark(*mode)) {
+			// DEBUG("dbx: %g, %g, %g, %g", box.size.x, box.size.y, box.pos.x, box.pos.y);
 			nvgBeginPath(args.vg);
 			NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
 			nvgRoundedRect(args.vg, -margins->l, -margins->t, box.size.x + margins->l + margins->r, box.size.y + margins->t + margins->b, 1.5f);
@@ -115,7 +166,7 @@ IMSwitch2H::IMSwitch2H() {
 
 
 void IMSwitch2H::draw(const DrawArgs& args) {
-	if (mode && *mode != 0) {
+	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
 		nvgRoundedRect(args.vg, -margins.l, -margins.t, box.size.x + margins.l + margins.r, box.size.y + margins.t + margins.b, 1.5f);
@@ -127,7 +178,7 @@ void IMSwitch2H::draw(const DrawArgs& args) {
 
 
 void IMSwitch3VInv::draw(const DrawArgs& args) {
-	if (mode && *mode != 0) {
+	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
 		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
@@ -156,7 +207,7 @@ LEDBezelBig::LEDBezelBig() {
 
 
 void KeyboardBig::draw(const DrawArgs& args) {
-	if (mode && *mode != 0) {
+	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
 		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
@@ -168,7 +219,7 @@ void KeyboardBig::draw(const DrawArgs& args) {
 
 
 void KeyboardMed::draw(const DrawArgs& args) {
-	if (mode && *mode != 0) {
+	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
 		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
@@ -179,7 +230,7 @@ void KeyboardMed::draw(const DrawArgs& args) {
 }
 
 void TactPadSvg::draw(const DrawArgs& args) {
-	if (mode && *mode != 0) {
+	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
 		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 5.0f);
@@ -190,7 +241,7 @@ void TactPadSvg::draw(const DrawArgs& args) {
 }
 
 void CvPadSvg::draw(const DrawArgs& args) {
-	if (mode && *mode != 0) {
+	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
 		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 5.0f);
@@ -200,11 +251,24 @@ void CvPadSvg::draw(const DrawArgs& args) {
 	SvgWidget::draw(args);
 }
 
+
+
 // Knobs
 // ----------
+
+// none
 
 
 
 // Lights
 // ----------
+
+// none
+
+
+
+// Svg Widgets
+// ----------
+
+// none
 
