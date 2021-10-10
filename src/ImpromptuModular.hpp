@@ -57,11 +57,14 @@ extern Model *modelBlankPanel;
 // General constants
 static const bool retrigGatesOnReset = true;
 static constexpr float clockIgnoreOnResetDuration = 0.001f;// disable clock on powerup and reset for 1 ms (so that the first step plays)
-static const int displayAlpha = 23;
+
 static const std::string darkPanelID = "Dark";
 static const unsigned int expanderRefreshStepSkips = 4;
 static const NVGcolor colPanelBase = nvgRGB(220, 220, 220);
+static const NVGcolor displayColOn = nvgRGB(0xaf, 0xd2, 0x2c);
+static const NVGcolor displayColOff = nvgRGB(67, 70, 55);
 
+// DEPRECATED static const int displayAlpha = 23;// use with nvgFillColor(args.vg, nvgTransRGBA(displayColOn, displayAlpha)); to get color for displayColOff
 
 
 // General objects
@@ -249,7 +252,7 @@ inline bool calcWarningFlash(long count, long countInit) {
 	return true;
 }	
 
-NVGcolor prepareDisplay(NVGcontext *vg, Rect *box, int fontSize, int* mode);
+void drawDisplayBackground(NVGcontext *vg, Rect *box, int* mode);
 
 inline void calcNoteAndOct(float cv, int* note12, int* oct0) {
 	// note12 is a note index (0 to 11) representing the C to B keys respectively

@@ -397,28 +397,35 @@ struct TwelveKeyWidget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
+
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				nvgFontSize(args.vg, 18);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				//nvgTextLetterSpacing(args.vg, 2.5);
+							
+				Vec textPos = VecPx(6, 24);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+				
+				char displayStr[2];
+				if (module == NULL) {
+					displayStr[0] = '4';
+				}
+				else {	
+					displayStr[0] = 0x30 + (char)(module->octaveNum);
+				}
+				displayStr[1] = 0;
+				
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			//nvgTextLetterSpacing(args.vg, 2.5);
-						
-			Vec textPos = VecPx(6, 24);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
-			nvgFillColor(args.vg, textColor);
-			
-			char displayStr[2];
-			if (module == NULL) {
-				displayStr[0] = '4';
-			}
-			else {	
-				displayStr[0] = 0x30 + (char)(module->octaveNum);
-			}
-			displayStr[1] = 0;
-			
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};
 	

@@ -553,32 +553,39 @@ struct ChordKeyWidget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			nvgTextLetterSpacing(args.vg, -0.4);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(6.7f, textOffsetY);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
-			nvgFillColor(args.vg, textColor);
-			int octaveNum = module ? module->octs[module->getIndex()][index] : 4;
-			char displayStr[2];
-			if (octaveNum >= 0) {
-				displayStr[0] = 0x30 + (char)(octaveNum);
-			}
-			else {
-				displayStr[0] = '-';
-				if (module->offWarning > 0l && index == module->offWarningChan) {
-					bool warningFlashState = calcWarningFlash(module->offWarning, (long) (module->warningTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips));
-					if (!warningFlashState) 
-						displayStr[0] = 'X';
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
 				}
+				nvgFontSize(args.vg, textFontSize);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				nvgTextLetterSpacing(args.vg, -0.4);
+
+				Vec textPos = VecPx(6.7f, textOffsetY);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+				int octaveNum = module ? module->octs[module->getIndex()][index] : 4;
+				char displayStr[2];
+				if (octaveNum >= 0) {
+					displayStr[0] = 0x30 + (char)(octaveNum);
+				}
+				else {
+					displayStr[0] = '-';
+					if (module->offWarning > 0l && index == module->offWarningChan) {
+						bool warningFlashState = calcWarningFlash(module->offWarning, (long) (module->warningTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips));
+						if (!warningFlashState) 
+							displayStr[0] = 'X';
+					}
+				}
+				displayStr[1] = 0;
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 			}
-			displayStr[1] = 0;
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};
 	struct IndexDisplayWidget : TransparentWidget {
@@ -596,21 +603,28 @@ struct ChordKeyWidget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			nvgTextLetterSpacing(args.vg, -0.4);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(6.7f, textOffsetY);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
-			nvgFillColor(args.vg, textColor);
-			char displayStr[3];
-			int indexNum = module ? module->getIndex() + 1 : 1;
-			snprintf(displayStr, 3, "%2u", (unsigned) indexNum);
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				nvgFontSize(args.vg, textFontSize);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				nvgTextLetterSpacing(args.vg, -0.4);
+
+				Vec textPos = VecPx(6.7f, textOffsetY);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+				char displayStr[3];
+				int indexNum = module ? module->getIndex() + 1 : 1;
+				snprintf(displayStr, 3, "%2u", (unsigned) indexNum);
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+			}
 		}
 	};
 	

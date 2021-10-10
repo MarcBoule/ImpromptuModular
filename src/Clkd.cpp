@@ -733,46 +733,53 @@ struct ClkdWidget : ModuleWidget {
 		}
 		
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			//nvgTextLetterSpacing(args.vg, 2.5);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(6, 24);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
-			nvgFillColor(args.vg, textColor);
-			if (module == NULL) {
-				snprintf(displayStr, 4, "120");
-			}
-			else if (module->editingBpmMode != 0l) {// BPM mode to display
-				if (!module->bpmDetectionMode)
-					snprintf(displayStr, 4, " CV");
-				else
-					snprintf(displayStr, 4, "P%2u", (unsigned) module->ppqn);
-			}
-			else if (module->displayIndex > 0) {// Ratio to display
-				bool isDivision = false;
-				int ratioDoubled = module->getRatioDoubled(module->displayIndex - 1);
-				if (ratioDoubled < 0) {
-					ratioDoubled = -1 * ratioDoubled;
-					isDivision = true;
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
 				}
-				if ( (ratioDoubled % 2) == 1 )
-					snprintf(displayStr, 4, "%c,5", 0x30 + (char)(ratioDoubled / 2));
-				else {
-					snprintf(displayStr, 16, "X%2u", (unsigned)(ratioDoubled / 2));
-					if (isDivision)
-						displayStr[0] = '/';
+				nvgFontSize(args.vg, 18);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				//nvgTextLetterSpacing(args.vg, 2.5);
+
+				Vec textPos = VecPx(6, 24);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+				if (module == NULL) {
+					snprintf(displayStr, 4, "120");
 				}
+				else if (module->editingBpmMode != 0l) {// BPM mode to display
+					if (!module->bpmDetectionMode)
+						snprintf(displayStr, 4, " CV");
+					else
+						snprintf(displayStr, 4, "P%2u", (unsigned) module->ppqn);
+				}
+				else if (module->displayIndex > 0) {// Ratio to display
+					bool isDivision = false;
+					int ratioDoubled = module->getRatioDoubled(module->displayIndex - 1);
+					if (ratioDoubled < 0) {
+						ratioDoubled = -1 * ratioDoubled;
+						isDivision = true;
+					}
+					if ( (ratioDoubled % 2) == 1 )
+						snprintf(displayStr, 4, "%c,5", 0x30 + (char)(ratioDoubled / 2));
+					else {
+						snprintf(displayStr, 16, "X%2u", (unsigned)(ratioDoubled / 2));
+						if (isDivision)
+							displayStr[0] = '/';
+					}
+				}
+				else {// BPM to display
+					snprintf(displayStr, 4, "%3u", (unsigned)((60.0f / module->masterLength) + 0.5f));
+				}
+				displayStr[3] = 0;// more safety
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 			}
-			else {// BPM to display
-				snprintf(displayStr, 4, "%3u", (unsigned)((60.0f / module->masterLength) + 0.5f));
-			}
-			displayStr[3] = 0;// more safety
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};		
 	

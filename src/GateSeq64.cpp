@@ -1256,88 +1256,95 @@ struct GateSeq64Widget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			Vec textPos = VecPx(6, 24);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
-			nvgFillColor(args.vg, textColor);				
-			
-			if (module == NULL) {
-				snprintf(displayStr, 4, "  1");
-			}
-			else {
-				bool editingSequence = module->isEditingSequence();
-				if (module->infoCopyPaste != 0l) {
-					if (module->infoCopyPaste > 0l)// if copy display "CPY"
-						snprintf(displayStr, 4, "CPY");
-					else {
-						float cpMode = module->params[GateSeq64::CPMODE_PARAM].getValue();
-						if (editingSequence && !module->seqCopied) {// cross paste to seq
-							if (cpMode > 1.5f)// All = init
-								snprintf(displayStr, 4, "CLR");
-							else if (cpMode < 0.5f)// 4 = random gate
-								snprintf(displayStr, 4, "RGT");
-							else// 8 = random probs
-								snprintf(displayStr, 4, "RPR");
-						}
-						else if (!editingSequence && module->seqCopied) {// cross paste to song
-							if (cpMode > 1.5f)// All = init
-								snprintf(displayStr, 4, "CLR");
-							else if (cpMode < 0.5f)// 4 = increase by 1
-								snprintf(displayStr, 4, "INC");
-							else// 8 = random phrases
-								snprintf(displayStr, 4, "RPH");
-						}
-						else
-							snprintf(displayStr, 4, "PST");
-					}
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
+
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
 				}
-				else if (module->displayProbInfo != 0l) {
-					int prob = module->attributes[module->sequence][module->stepIndexEdit].getGatePVal();
-					if ( prob>= 100)
-						snprintf(displayStr, 4, "1,0");
-					else if (prob >= 1)
-						snprintf(displayStr, 16, ",%02u", (unsigned) prob);
-					else
-						snprintf(displayStr, 4, "  0");
-				}
-				else if (module->editingPpqn != 0ul) {
-					snprintf(displayStr, 16, "x%2u", (unsigned) module->pulsesPerStep);
-				}
-				else if (module->displayState == GateSeq64::DISP_LENGTH) {
-					if (editingSequence)
-						snprintf(displayStr, 16, "L%2u", (unsigned) module->sequences[module->sequence].getLength());
-					else
-						snprintf(displayStr, 16, "L%2u", (unsigned) module->phrases);
-				}
-				else if (module->displayState == GateSeq64::DISP_MODES) {
-					if (editingSequence)
-						runModeToStr(module->sequences[module->sequence].getRunMode());
-					else
-						runModeToStr(module->runModeSong);
+				nvgFontSize(args.vg, 18);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				Vec textPos = VecPx(6, 24);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
+				nvgFillColor(args.vg, displayColOn);				
+				
+				if (module == NULL) {
+					snprintf(displayStr, 4, "  1");
 				}
 				else {
-					int dispVal = 0;
-					char specialCode = ' ';
-					if (editingSequence)
-						dispVal = module->sequence;
-					else {
-						if (module->editingPhraseSongRunning > 0l || !module->running) {
-							dispVal = module->phrase[module->phraseIndexEdit];
-							if (module->editingPhraseSongRunning > 0l)
-								specialCode = '*';
+					bool editingSequence = module->isEditingSequence();
+					if (module->infoCopyPaste != 0l) {
+						if (module->infoCopyPaste > 0l)// if copy display "CPY"
+							snprintf(displayStr, 4, "CPY");
+						else {
+							float cpMode = module->params[GateSeq64::CPMODE_PARAM].getValue();
+							if (editingSequence && !module->seqCopied) {// cross paste to seq
+								if (cpMode > 1.5f)// All = init
+									snprintf(displayStr, 4, "CLR");
+								else if (cpMode < 0.5f)// 4 = random gate
+									snprintf(displayStr, 4, "RGT");
+								else// 8 = random probs
+									snprintf(displayStr, 4, "RPR");
+							}
+							else if (!editingSequence && module->seqCopied) {// cross paste to song
+								if (cpMode > 1.5f)// All = init
+									snprintf(displayStr, 4, "CLR");
+								else if (cpMode < 0.5f)// 4 = increase by 1
+									snprintf(displayStr, 4, "INC");
+								else// 8 = random phrases
+									snprintf(displayStr, 4, "RPH");
+							}
+							else
+								snprintf(displayStr, 4, "PST");
 						}
-						else
-							dispVal = module->phrase[module->phraseIndexRun];
 					}
-					snprintf(displayStr, 4, "%c%2u", specialCode, (unsigned)(dispVal) + 1 );
+					else if (module->displayProbInfo != 0l) {
+						int prob = module->attributes[module->sequence][module->stepIndexEdit].getGatePVal();
+						if ( prob>= 100)
+							snprintf(displayStr, 4, "1,0");
+						else if (prob >= 1)
+							snprintf(displayStr, 16, ",%02u", (unsigned) prob);
+						else
+							snprintf(displayStr, 4, "  0");
+					}
+					else if (module->editingPpqn != 0ul) {
+						snprintf(displayStr, 16, "x%2u", (unsigned) module->pulsesPerStep);
+					}
+					else if (module->displayState == GateSeq64::DISP_LENGTH) {
+						if (editingSequence)
+							snprintf(displayStr, 16, "L%2u", (unsigned) module->sequences[module->sequence].getLength());
+						else
+							snprintf(displayStr, 16, "L%2u", (unsigned) module->phrases);
+					}
+					else if (module->displayState == GateSeq64::DISP_MODES) {
+						if (editingSequence)
+							runModeToStr(module->sequences[module->sequence].getRunMode());
+						else
+							runModeToStr(module->runModeSong);
+					}
+					else {
+						int dispVal = 0;
+						char specialCode = ' ';
+						if (editingSequence)
+							dispVal = module->sequence;
+						else {
+							if (module->editingPhraseSongRunning > 0l || !module->running) {
+								dispVal = module->phrase[module->phraseIndexEdit];
+								if (module->editingPhraseSongRunning > 0l)
+									specialCode = '*';
+							}
+							else
+								dispVal = module->phrase[module->phraseIndexRun];
+						}
+						snprintf(displayStr, 4, "%c%2u", specialCode, (unsigned)(dispVal) + 1 );
+					}
 				}
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 			}
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};	
 		

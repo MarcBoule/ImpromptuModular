@@ -464,21 +464,28 @@ struct CvPadWidget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			//nvgTextLetterSpacing(args.vg, 2.5);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(6, 24);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
-			nvgFillColor(args.vg, textColor);
-			char displayStr[2];
-			unsigned int bank = (unsigned)(module ? module->bank : 0);
-			snprintf(displayStr, 2, "%1u", (unsigned) (bank + 1) );
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				nvgFontSize(args.vg, 18);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				//nvgTextLetterSpacing(args.vg, 2.5);
+
+				Vec textPos = VecPx(6, 24);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+				char displayStr[2];
+				unsigned int bank = (unsigned)(module ? module->bank : 0);
+				snprintf(displayStr, 2, "%1u", (unsigned) (bank + 1) );
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+			}
 		}
 	};
 
@@ -553,19 +560,26 @@ struct CvPadWidget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			nvgTextLetterSpacing(args.vg, -1.5);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(6, 24);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~~~~~~", NULL);
-			nvgFillColor(args.vg, textColor);
-			cvToStr();
-			nvgText(args.vg, textPos.x, textPos.y, text, NULL);
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				nvgFontSize(args.vg, 18);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				nvgTextLetterSpacing(args.vg, -1.5);
+
+				Vec textPos = VecPx(6, 24);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~~~~~~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+				cvToStr();
+				nvgText(args.vg, textPos.x, textPos.y, text, NULL);
+			}
 		}
 		
 		void createContextMenu() {

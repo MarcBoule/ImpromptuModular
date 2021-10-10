@@ -864,77 +864,84 @@ struct ClockedWidget : ModuleWidget {
 		}
 		
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			//nvgTextLetterSpacing(args.vg, 2.5);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(6, 24);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
-			nvgFillColor(args.vg, textColor);
-			if (module == NULL) {
-				if (knobIndex == 0)
-					snprintf(displayStr, 4, "120");
-				else
-					snprintf(displayStr, 4, "X 1");
-			}
-			else if (module->notifyInfo[knobIndex] > 0l)
-			{
-				int srcParam = module->notifyingSource[knobIndex];
-				if ( (srcParam >= Clocked::SWING_PARAMS + 0) && (srcParam <= Clocked::SWING_PARAMS + 3) ) {
-					float swValue = module->swingAmount[knobIndex];//module->params[Clocked::SWING_PARAMS + knobIndex].getValue();
-					int swInt = (int)std::round(swValue * 99.0f);
-					snprintf(displayStr, 16, " %2u", (unsigned) abs(swInt));
-					if (swInt < 0)
-						displayStr[0] = '-';
-					if (swInt >= 0)
-						displayStr[0] = '+';
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
 				}
-				else if ( (srcParam >= Clocked::DELAY_PARAMS + 1) && (srcParam <= Clocked::DELAY_PARAMS + 3) ) {				
-					int delayKnobIndex = (int)(module->params[Clocked::DELAY_PARAMS + knobIndex].getValue() + 0.5f);
-					if (module->displayDelayNoteMode)
-						snprintf(displayStr, 4, "%s", (delayLabelsNote[delayKnobIndex]).c_str());
+				nvgFontSize(args.vg, 18);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				//nvgTextLetterSpacing(args.vg, 2.5);
+
+				Vec textPos = VecPx(6, 24);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+				if (module == NULL) {
+					if (knobIndex == 0)
+						snprintf(displayStr, 4, "120");
 					else
-						snprintf(displayStr, 4, "%s", (delayLabelsClock[delayKnobIndex]).c_str());
-				}					
-				else if ( (srcParam >= Clocked::PW_PARAMS + 0) && (srcParam <= Clocked::PW_PARAMS + 3) ) {				
-					float pwValue = module->pulseWidth[knobIndex];//module->params[Clocked::PW_PARAMS + knobIndex].getValue();
-					int pwInt = ((int)std::round(pwValue * 98.0f)) + 1;
-					snprintf(displayStr, 16, "_%2u", (unsigned) abs(pwInt));
-				}					
-			}
-			else {
-				if (knobIndex > 0) {// ratio to display
-					bool isDivision = false;
-					int ratioDoubled = module->getRatioDoubled(knobIndex);
-					if (ratioDoubled < 0) {
-						ratioDoubled = -1 * ratioDoubled;
-						isDivision = true;
-					}
-					if ( (ratioDoubled % 2) == 1 )
-						snprintf(displayStr, 4, "%c,5", 0x30 + (char)(ratioDoubled / 2));
-					else {
-						snprintf(displayStr, 16, "X%2u", (unsigned)(ratioDoubled / 2));
-						if (isDivision)
-							displayStr[0] = '/';
-					}
+						snprintf(displayStr, 4, "X 1");
 				}
-				else {// BPM to display
-					if (module->editingBpmMode != 0l) {
-						if (!module->bpmDetectionMode)
-							snprintf(displayStr, 4, " CV");
+				else if (module->notifyInfo[knobIndex] > 0l)
+				{
+					int srcParam = module->notifyingSource[knobIndex];
+					if ( (srcParam >= Clocked::SWING_PARAMS + 0) && (srcParam <= Clocked::SWING_PARAMS + 3) ) {
+						float swValue = module->swingAmount[knobIndex];//module->params[Clocked::SWING_PARAMS + knobIndex].getValue();
+						int swInt = (int)std::round(swValue * 99.0f);
+						snprintf(displayStr, 16, " %2u", (unsigned) abs(swInt));
+						if (swInt < 0)
+							displayStr[0] = '-';
+						if (swInt >= 0)
+							displayStr[0] = '+';
+					}
+					else if ( (srcParam >= Clocked::DELAY_PARAMS + 1) && (srcParam <= Clocked::DELAY_PARAMS + 3) ) {				
+						int delayKnobIndex = (int)(module->params[Clocked::DELAY_PARAMS + knobIndex].getValue() + 0.5f);
+						if (module->displayDelayNoteMode)
+							snprintf(displayStr, 4, "%s", (delayLabelsNote[delayKnobIndex]).c_str());
 						else
-							snprintf(displayStr, 16, "P%2u", (unsigned) module->ppqn);
-					}
-					else
-						snprintf(displayStr, 16, "%3u", (unsigned)((120.0f / module->masterLength) + 0.5f));
+							snprintf(displayStr, 4, "%s", (delayLabelsClock[delayKnobIndex]).c_str());
+					}					
+					else if ( (srcParam >= Clocked::PW_PARAMS + 0) && (srcParam <= Clocked::PW_PARAMS + 3) ) {				
+						float pwValue = module->pulseWidth[knobIndex];//module->params[Clocked::PW_PARAMS + knobIndex].getValue();
+						int pwInt = ((int)std::round(pwValue * 98.0f)) + 1;
+						snprintf(displayStr, 16, "_%2u", (unsigned) abs(pwInt));
+					}					
 				}
+				else {
+					if (knobIndex > 0) {// ratio to display
+						bool isDivision = false;
+						int ratioDoubled = module->getRatioDoubled(knobIndex);
+						if (ratioDoubled < 0) {
+							ratioDoubled = -1 * ratioDoubled;
+							isDivision = true;
+						}
+						if ( (ratioDoubled % 2) == 1 )
+							snprintf(displayStr, 4, "%c,5", 0x30 + (char)(ratioDoubled / 2));
+						else {
+							snprintf(displayStr, 16, "X%2u", (unsigned)(ratioDoubled / 2));
+							if (isDivision)
+								displayStr[0] = '/';
+						}
+					}
+					else {// BPM to display
+						if (module->editingBpmMode != 0l) {
+							if (!module->bpmDetectionMode)
+								snprintf(displayStr, 4, " CV");
+							else
+								snprintf(displayStr, 16, "P%2u", (unsigned) module->ppqn);
+						}
+						else
+							snprintf(displayStr, 16, "%3u", (unsigned)((120.0f / module->masterLength) + 0.5f));
+					}
+				}
+				displayStr[3] = 0;// more safety
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 			}
-			displayStr[3] = 0;// more safety
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};		
 	

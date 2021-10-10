@@ -632,21 +632,28 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			//nvgTextLetterSpacing(args.vg, 2.5);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(6, 24);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
-			nvgFillColor(args.vg, textColor);
-			char displayStr[2];
-			unsigned int channel = (unsigned)(module ? module->channel : 0);
-			snprintf(displayStr, 2, "%1u", (unsigned) (channel + 1) );
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				nvgFontSize(args.vg, 18);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				//nvgTextLetterSpacing(args.vg, 2.5);
+
+				Vec textPos = VecPx(6, 24);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+				char displayStr[2];
+				unsigned int channel = (unsigned)(module ? module->channel : 0);
+				snprintf(displayStr, 2, "%1u", (unsigned) (channel + 1) );
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+			}
 		}
 	};
 
@@ -660,23 +667,30 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			//nvgTextLetterSpacing(args.vg, 2.5);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(6, 24);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
-			nvgFillColor(args.vg, textColor);
-			char displayStr[4];
-			unsigned dispVal = 128;
-			if (module)
-				dispVal = (unsigned)(module->params[BigButtonSeq2::DISPMODE_PARAM].getValue() < 0.5f ?  module->length : module->indexStep + 1);
-			snprintf(displayStr, 4, "%3u",  dispVal);
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				nvgFontSize(args.vg, 18);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				//nvgTextLetterSpacing(args.vg, 2.5);
+
+				Vec textPos = VecPx(6, 24);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+				char displayStr[4];
+				unsigned dispVal = 128;
+				if (module)
+					dispVal = (unsigned)(module->params[BigButtonSeq2::DISPMODE_PARAM].getValue() < 0.5f ?  module->length : module->indexStep + 1);
+				snprintf(displayStr, 4, "%3u",  dispVal);
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+			}
 		}
 	};
 	

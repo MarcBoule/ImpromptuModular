@@ -77,8 +77,7 @@ ClockMaster clockMaster;
 
 // General functions
 
-
-NVGcolor prepareDisplay(NVGcontext *vg, Rect *box, int fontSize, int* mode) {
+void drawDisplayBackground(NVGcontext *vg, Rect *box, int* mode) {
 	// not framebuffered
 	if (isDark(mode)) {
 		nvgBeginPath(vg);
@@ -97,10 +96,6 @@ NVGcolor prepareDisplay(NVGcontext *vg, Rect *box, int fontSize, int* mode) {
 	nvgStrokeWidth(vg, 1.0);
 	nvgStrokeColor(vg, borderColor);
 	nvgStroke(vg);
-	nvgFontSize(vg, fontSize);
-	NVGcolor textColor = nvgRGB(0xaf, 0xd2, 0x2c);
-	nvgGlobalTint(vg, color::WHITE);
-	return textColor;
 }
 
 

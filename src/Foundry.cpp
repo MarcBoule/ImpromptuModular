@@ -1407,24 +1407,31 @@ struct FoundryWidget : ModuleWidget {
 		}
 		
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			nvgTextLetterSpacing(args.vg, -0.4);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(5.7f, textOffsetY);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			std::string initString(NUMCHAR,'~');
-			nvgText(args.vg, textPos.x, textPos.y, initString.c_str(), NULL);
-			nvgFillColor(args.vg, textColor);
-			char overlayChar = printText();
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
-			if (overlayChar != 0) {
-				displayStr[0] = overlayChar;
-				displayStr[1] = 0;
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				nvgFontSize(args.vg, textFontSize);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				nvgTextLetterSpacing(args.vg, -0.4);
+
+				Vec textPos = VecPx(5.7f, textOffsetY);
+				nvgFillColor(args.vg, displayColOff);
+				std::string initString(NUMCHAR,'~');
+				nvgText(args.vg, textPos.x, textPos.y, initString.c_str(), NULL);
+				nvgFillColor(args.vg, displayColOn);
+				char overlayChar = printText();
 				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+				if (overlayChar != 0) {
+					displayStr[0] = overlayChar;
+					displayStr[1] = 0;
+					nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+				}
 			}
 		}
 		
@@ -1435,28 +1442,37 @@ struct FoundryWidget : ModuleWidget {
 		VelocityDisplayWidget(Vec _pos, Vec _size, Foundry *_module) : DisplayWidget(_pos, _size, _module) {};
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			static const float offsetXfrac = 3.5f;
-			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			nvgTextLetterSpacing(args.vg, -0.4);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(6.3f, textOffsetY);
-			char useRed = printText();
-			if (useRed == 1)
-				textColor = nvgRGB(0xE0, 0xD0, 0x30);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
-			std::string initString(".~~");
-			nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, initString.c_str(), NULL);
-			if (useRed == 1)
-				textColor = nvgRGB(0xFF, 0x2C, 0x20);
-			nvgFillColor(args.vg, textColor);
-			nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &displayStr[1], NULL);
-			displayStr[1] = 0;
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				static const float offsetXfrac = 3.5f;
+				nvgFontSize(args.vg, textFontSize);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
+				NVGcolor textColor = displayColOn;
+				NVGcolor textColorOff = displayColOff;
+				nvgFontFaceId(args.vg, font->handle);
+				nvgTextLetterSpacing(args.vg, -0.4);
+
+				Vec textPos = VecPx(6.3f, textOffsetY);
+				char useRed = printText();
+				if (useRed == 1)
+					textColorOff = nvgRGB(74, 60, 54);
+				nvgFillColor(args.vg, textColorOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
+				std::string initString(".~~");
+				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, initString.c_str(), NULL);
+				if (useRed == 1)
+					textColor = nvgRGB(0xFF, 0x2C, 0x20);
+				nvgFillColor(args.vg, textColor);
+				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &displayStr[1], NULL);
+				displayStr[1] = 0;
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+			}
 		}
 
 		char printText() override {

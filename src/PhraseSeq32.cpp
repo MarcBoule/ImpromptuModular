@@ -1820,77 +1820,84 @@ struct PhraseSeq32Widget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			Vec textPos = VecPx(6, 24);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
-			nvgFillColor(args.vg, textColor);
-					
-			if (module == NULL) {
-				snprintf(displayStr, 4, "  1");
-			}
-			else {
-				bool editingSequence = module->isEditingSequence();
-				if (module->infoCopyPaste != 0l) {
-					if (module->infoCopyPaste > 0l)
-						snprintf(displayStr, 4, "CPY");
-					else {
-						float cpMode = module->params[PhraseSeq32::CPMODE_PARAM].getValue();
-						if (editingSequence && !module->seqCopied) {// cross paste to seq
-							if (cpMode > 1.5f)// All = toggle gate 1
-								snprintf(displayStr, 4, "TG1");
-							else if (cpMode < 0.5f)// 4 = random CV
-								snprintf(displayStr, 4, "RCV");
-							else// 8 = random gate 1
-								snprintf(displayStr, 4, "RG1");
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
+
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				nvgFontSize(args.vg, 18);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				Vec textPos = VecPx(6, 24);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+						
+				if (module == NULL) {
+					snprintf(displayStr, 4, "  1");
+				}
+				else {
+					bool editingSequence = module->isEditingSequence();
+					if (module->infoCopyPaste != 0l) {
+						if (module->infoCopyPaste > 0l)
+							snprintf(displayStr, 4, "CPY");
+						else {
+							float cpMode = module->params[PhraseSeq32::CPMODE_PARAM].getValue();
+							if (editingSequence && !module->seqCopied) {// cross paste to seq
+								if (cpMode > 1.5f)// All = toggle gate 1
+									snprintf(displayStr, 4, "TG1");
+								else if (cpMode < 0.5f)// 4 = random CV
+									snprintf(displayStr, 4, "RCV");
+								else// 8 = random gate 1
+									snprintf(displayStr, 4, "RG1");
+							}
+							else if (!editingSequence && module->seqCopied) {// cross paste to song
+								if (cpMode > 1.5f)// All = init
+									snprintf(displayStr, 4, "CLR");
+								else if (cpMode < 0.5f)// 4 = increase by 1
+									snprintf(displayStr, 4, "INC");
+								else// 8 = random phrases
+									snprintf(displayStr, 4, "RPH");
+							}
+							else
+								snprintf(displayStr, 4, "PST");
 						}
-						else if (!editingSequence && module->seqCopied) {// cross paste to song
-							if (cpMode > 1.5f)// All = init
-								snprintf(displayStr, 4, "CLR");
-							else if (cpMode < 0.5f)// 4 = increase by 1
-								snprintf(displayStr, 4, "INC");
-							else// 8 = random phrases
-								snprintf(displayStr, 4, "RPH");
-						}
+					}
+					else if (module->editingPpqn != 0ul) {
+						snprintf(displayStr, 16, "x%2u", (unsigned) module->pulsesPerStep);
+					}
+					else if (module->displayState == PhraseSeq32::DISP_MODE) {
+						if (editingSequence)
+							runModeToStr(module->sequences[module->seqIndexEdit].getRunMode());
 						else
-							snprintf(displayStr, 4, "PST");
+							runModeToStr(module->runModeSong);
+					}
+					else if (module->displayState == PhraseSeq32::DISP_LENGTH) {
+						if (editingSequence)
+							snprintf(displayStr, 16, "L%2u", (unsigned) module->sequences[module->seqIndexEdit].getLength());
+						else
+							snprintf(displayStr, 16, "L%2u", (unsigned) module->phrases);
+					}
+					else if (module->displayState == PhraseSeq32::DISP_TRANSPOSE) {
+						snprintf(displayStr, 16, "+%2u", (unsigned) abs(module->sequences[module->seqIndexEdit].getTranspose()));
+						if (module->sequences[module->seqIndexEdit].getTranspose() < 0)
+							displayStr[0] = '-';
+					}
+					else if (module->displayState == PhraseSeq32::DISP_ROTATE) {
+						snprintf(displayStr, 16, ")%2u", (unsigned) abs(module->sequences[module->seqIndexEdit].getRotate()));
+						if (module->sequences[module->seqIndexEdit].getRotate() < 0)
+							displayStr[0] = '(';
+					}
+					else {// DISP_NORMAL
+						snprintf(displayStr, 16, " %2u", (unsigned) (editingSequence ? 
+							module->seqIndexEdit : module->phrase[module->phraseIndexEdit]) + 1 );
 					}
 				}
-				else if (module->editingPpqn != 0ul) {
-					snprintf(displayStr, 16, "x%2u", (unsigned) module->pulsesPerStep);
-				}
-				else if (module->displayState == PhraseSeq32::DISP_MODE) {
-					if (editingSequence)
-						runModeToStr(module->sequences[module->seqIndexEdit].getRunMode());
-					else
-						runModeToStr(module->runModeSong);
-				}
-				else if (module->displayState == PhraseSeq32::DISP_LENGTH) {
-					if (editingSequence)
-						snprintf(displayStr, 16, "L%2u", (unsigned) module->sequences[module->seqIndexEdit].getLength());
-					else
-						snprintf(displayStr, 16, "L%2u", (unsigned) module->phrases);
-				}
-				else if (module->displayState == PhraseSeq32::DISP_TRANSPOSE) {
-					snprintf(displayStr, 16, "+%2u", (unsigned) abs(module->sequences[module->seqIndexEdit].getTranspose()));
-					if (module->sequences[module->seqIndexEdit].getTranspose() < 0)
-						displayStr[0] = '-';
-				}
-				else if (module->displayState == PhraseSeq32::DISP_ROTATE) {
-					snprintf(displayStr, 16, ")%2u", (unsigned) abs(module->sequences[module->seqIndexEdit].getRotate()));
-					if (module->sequences[module->seqIndexEdit].getRotate() < 0)
-						displayStr[0] = '(';
-				}
-				else {// DISP_NORMAL
-					snprintf(displayStr, 16, " %2u", (unsigned) (editingSequence ? 
-						module->seqIndexEdit : module->phrase[module->phraseIndexEdit]) + 1 );
-				}
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 			}
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};		
 	

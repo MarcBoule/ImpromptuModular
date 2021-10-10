@@ -1276,38 +1276,45 @@ struct ProbKeyWidget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			//nvgTextLetterSpacing(args.vg, 2.5);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(6, 24);
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~~~~", NULL);
-			nvgFillColor(args.vg, textColor);
-			char displayStr[5];
-			if (module) {
-				if (module->dispManager.getMode() == DisplayManager::DISP_NORMAL) {
-					if (module->indexCvCap12 != 0) {
-						snprintf(displayStr, 5, "*%3u", module->getIndex() + 1);
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				nvgFontSize(args.vg, 18);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				//nvgTextLetterSpacing(args.vg, 2.5);
+
+				Vec textPos = VecPx(6, 24);
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~~~~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+				char displayStr[5];
+				if (module) {
+					if (module->dispManager.getMode() == DisplayManager::DISP_NORMAL) {
+						if (module->indexCvCap12 != 0) {
+							snprintf(displayStr, 5, "*%3u", module->getIndex() + 1);
+						}
+						else {
+							snprintf(displayStr, 5, "%4u", module->getIndex() + 1);
+						}
+					}
+					else if (module->dispManager.getMode() == DisplayManager::DISP_LENGTH) {
+						snprintf(displayStr, 5, " L%2u", module->getLength());
 					}
 					else {
-						snprintf(displayStr, 5, "%4u", module->getIndex() + 1);
+						memcpy(displayStr, module->dispManager.getText(), 5);
 					}
 				}
-				else if (module->dispManager.getMode() == DisplayManager::DISP_LENGTH) {
-					snprintf(displayStr, 5, " L%2u", module->getLength());
-				}
 				else {
-					memcpy(displayStr, module->dispManager.getText(), 5);
+					snprintf(displayStr, 5, "1");
 				}
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 			}
-			else {
-				snprintf(displayStr, 5, "1");
-			}
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 		}
 	};
 	

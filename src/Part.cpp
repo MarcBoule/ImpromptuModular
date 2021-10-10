@@ -162,23 +162,30 @@ struct PartWidget : ModuleWidget {
 		}
 
 		void draw(const DrawArgs &args) override {
-			if (!(font = APP->window->loadFont(fontPath))) {
-				return;
-			}
-			static const float offsetXfrac = 16.5f;
-			NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
-			nvgFontFaceId(args.vg, font->handle);
-			nvgTextLetterSpacing(args.vg, -0.4);
+			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
+		}
 
-			Vec textPos = VecPx(6.3f, textOffsetY);
-			printText();
-			nvgFillColor(args.vg, nvgTransRGBA(textColor, displayAlpha));
-			nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
-			nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, ".~~", NULL);
-			nvgFillColor(args.vg, textColor);
-			nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &displayStr[2], NULL);// print decimal point and two chars to the right of decimal point
-			displayStr[2] = 0;
-			nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);// print two chars to the left of decimal point
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				static const float offsetXfrac = 16.5f;
+				nvgFontSize(args.vg, textFontSize);
+				// NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
+				nvgFontFaceId(args.vg, font->handle);
+				nvgTextLetterSpacing(args.vg, -0.4);
+
+				Vec textPos = VecPx(6.3f, textOffsetY);
+				printText();
+				nvgFillColor(args.vg, displayColOff);
+				nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
+				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, ".~~", NULL);
+				nvgFillColor(args.vg, displayColOn);
+				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &displayStr[2], NULL);// print decimal point and two chars to the right of decimal point
+				displayStr[2] = 0;
+				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);// print two chars to the left of decimal point
+			}
 		}
 
 		void printText() {
