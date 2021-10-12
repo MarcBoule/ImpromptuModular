@@ -649,10 +649,6 @@ struct WriteSeq32Widget : ModuleWidget {
 			}
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -683,10 +679,6 @@ struct WriteSeq32Widget : ModuleWidget {
 		
 		StepsDisplayWidget() {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
-		}
-
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
 		}
 
 		void drawLayer(const DrawArgs &args, int layer) override {
@@ -873,6 +865,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		displayNotes->module = module;
 		displayNotes->notesPosLocal = notesPos;
 		addChild(displayNotes);
+		svgPanel->fb->addChild(new DisplayBackground(displayNotes->box.pos, displayNotes->box.size, mode));
 
 		// Step LEDs (must be done after Notes display such that LED glow will overlay the notes display
 		for (int i = 0; i < 8; i++) {
@@ -940,6 +933,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		displaySteps->box.pos = VecPx(col3, row0).minus(displaySteps->box.size.div(2));
 		displaySteps->module = module;
 		addChild(displaySteps);
+		svgPanel->fb->addChild(new DisplayBackground(displaySteps->box.pos, displaySteps->box.size, mode));
 		// Steps knob
 		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(col3, row1), module, WriteSeq32::STEPS_PARAM, mode));		
 		// Monitor

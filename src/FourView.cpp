@@ -522,10 +522,6 @@ struct FourViewWidget : ModuleWidget {
 			}
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -658,6 +654,7 @@ struct FourViewWidget : ModuleWidget {
 		for (int i = 0; i < 4; i++) {
 			displayNotes[i] = new NotesDisplayWidget(VecPx(centerX + offsetXR, rowRulerTop + i * spacingY), VecPx(52, 29), module, i);
 			addChild(displayNotes[i]);
+			svgPanel->fb->addChild(new DisplayBackground(displayNotes[i]->box.pos, displayNotes[i]->box.size, mode));
 
 			addInput(createDynamicPortCentered<IMPort>(VecPx(centerX - offsetXL, rowRulerTop + i * spacingY), true, module, FourView::CV_INPUTS + i, mode));	
 		}

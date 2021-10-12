@@ -330,6 +330,17 @@ struct GiantLight2 : BASE {
 // Svg Widgets
 // ----------
 
+struct DisplayBackground : TransparentWidget {
+	int* mode = NULL;
+	DisplayBackground(Vec(_pos), Vec(_size), int* _mode) {
+		box.size = _size;
+		box.pos = _pos; 
+		mode = _mode;
+	}
+	void draw(const DrawArgs& args) override;
+};
+
+
 struct KeyboardBig : SvgWidget {
 	int* mode = NULL;
 	KeyboardBig(Vec(_pos), int* _mode) {

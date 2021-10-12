@@ -396,10 +396,6 @@ struct TwelveKeyWidget : ModuleWidget {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -591,6 +587,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		octaveNumDisplay->box.pos = VecPx(columnRulerR2, rowRuler0).minus(octaveNumDisplay->box.size.div(2));
 		octaveNumDisplay->module = module;
 		addChild(octaveNumDisplay);
+		svgPanel->fb->addChild(new DisplayBackground(octaveNumDisplay->box.pos, octaveNumDisplay->box.size, mode));
 		
 		// Max velocity button and lights
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerL2, rowRuler1), module, TwelveKey::MAXVEL_PARAM, mode));

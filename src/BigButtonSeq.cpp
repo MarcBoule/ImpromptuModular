@@ -453,10 +453,6 @@ struct BigButtonSeqWidget : ModuleWidget {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 		
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -489,10 +485,6 @@ struct BigButtonSeqWidget : ModuleWidget {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-		
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -656,12 +648,14 @@ struct BigButtonSeqWidget : ModuleWidget {
 		displayChan->box.pos = VecPx(170, row2).minus(displayChan->box.size.div(2));
 		displayChan->module = module;
 		addChild(displayChan);	
+		svgPanel->fb->addChild(new DisplayBackground(displayChan->box.pos, displayChan->box.size, mode));
 		// Length display
 		StepsDisplayWidget *displaySteps = new StepsDisplayWidget();
 		displaySteps->box.size = VecPx(40, 30);// 2 characters
 		displaySteps->box.pos = VecPx(218, row2).minus(displaySteps->box.size.div(2));
 		displaySteps->module = module;
-		addChild(displaySteps);	
+		addChild(displaySteps);
+		svgPanel->fb->addChild(new DisplayBackground(displaySteps->box.pos, displaySteps->box.size, mode));
 
 
 		

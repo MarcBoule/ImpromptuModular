@@ -161,10 +161,6 @@ struct PartWidget : ModuleWidget {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -323,7 +319,9 @@ struct PartWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMSwitch2H>(VecPx(colM, row0), module, Part::MODE_PARAM, mode));		
 		
 		// Display
-		addChild(new SplitDisplayWidget(VecPx(colM, row1), VecPx(65, 24), module));// 4 characters + decimal point
+		SplitDisplayWidget* splitDisplayWidget = new SplitDisplayWidget(VecPx(colM, row1), VecPx(65, 24), module);// 4 characters + decimal point
+		addChild(splitDisplayWidget);
+		svgPanel->fb->addChild(new DisplayBackground(splitDisplayWidget->box.pos, splitDisplayWidget->box.size, mode));
 		
 		// Split knob 
 		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(colM, row2), module, Part::SPLIT_PARAM, mode));

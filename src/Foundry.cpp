@@ -1406,10 +1406,6 @@ struct FoundryWidget : ModuleWidget {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 		
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -1440,10 +1436,6 @@ struct FoundryWidget : ModuleWidget {
 	
 	struct VelocityDisplayWidget : DisplayWidget<4> {
 		VelocityDisplayWidget(Vec _pos, Vec _size, Foundry *_module) : DisplayWidget(_pos, _size, _module) {};
-
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
 
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
@@ -2283,7 +2275,9 @@ struct FoundryWidget : ModuleWidget {
 		// Velocity display
 		static const int colRulerVel = 289;
 		static const int trkButtonsOffsetX = 14;
-		addChild(new VelocityDisplayWidget(VecPx(colRulerVel, rowRulerDisp), VecPx(displayWidths + 4, displayHeights), module));// 3 characters
+		VelocityDisplayWidget* velocityDisplayWidget = new VelocityDisplayWidget(VecPx(colRulerVel, rowRulerDisp), VecPx(displayWidths + 4, displayHeights), module);
+		addChild(velocityDisplayWidget);// 3 characters
+		svgPanel->fb->addChild(new DisplayBackground(velocityDisplayWidget->box.pos, velocityDisplayWidget->box.size, mode));
 		// Velocity knob
 		addParam(createDynamicParamCentered<VelocityKnob>(VecPx(colRulerVel, rowRulerKnobs), module, Foundry::VEL_KNOB_PARAM, mode));	
 		// Veocity mode button and lights
@@ -2294,7 +2288,9 @@ struct FoundryWidget : ModuleWidget {
 
 		// Seq edit display 
 		static const int colRulerEditSeq = colRulerVel + displaySpacingX + 3;
-		addChild(new SeqEditDisplayWidget(VecPx(colRulerEditSeq, rowRulerDisp), VecPx(displayWidths, displayHeights), module));// 5 characters
+		SeqEditDisplayWidget* seqEditDisplayWidget = new SeqEditDisplayWidget(VecPx(colRulerEditSeq, rowRulerDisp), VecPx(displayWidths, displayHeights), module);// 5 characters
+		addChild(seqEditDisplayWidget);
+		svgPanel->fb->addChild(new DisplayBackground(seqEditDisplayWidget->box.pos, seqEditDisplayWidget->box.size, mode));
 		// Sequence-edit knob
 		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(colRulerEditSeq, rowRulerKnobs), module, Foundry::SEQUENCE_PARAM, mode));		
 		// Transpose/rotate button
@@ -2303,7 +2299,9 @@ struct FoundryWidget : ModuleWidget {
 			
 		// Phrase edit display 
 		static const int colRulerEditPhr = colRulerEditSeq + displaySpacingX + 1;
-		addChild(new PhrEditDisplayWidget(VecPx(colRulerEditPhr, rowRulerDisp), VecPx(displayWidths, displayHeights), module));// 5 characters
+		PhrEditDisplayWidget* phrEditDisplayWidget = new PhrEditDisplayWidget(VecPx(colRulerEditPhr, rowRulerDisp), VecPx(displayWidths, displayHeights), module);// 5 characters
+		addChild(phrEditDisplayWidget);
+		svgPanel->fb->addChild(new DisplayBackground(phrEditDisplayWidget->box.pos, phrEditDisplayWidget->box.size, mode));
 		// Phrase knob
 		addParam(createDynamicParamCentered<PhraseKnob>(VecPx(colRulerEditPhr, rowRulerKnobs), module, Foundry::PHRASE_PARAM, mode));		
 		// Begin/end buttons
@@ -2313,7 +2311,9 @@ struct FoundryWidget : ModuleWidget {
 				
 		// Track display
 		static const int colRulerTrk = colRulerEditPhr + displaySpacingX;
-		addChild(new TrackDisplayWidget(VecPx(colRulerTrk, rowRulerDisp), VecPx(displayWidths - 13, displayHeights), module));// 2 characters
+		TrackDisplayWidget* trackDisplayWidget = new TrackDisplayWidget(VecPx(colRulerTrk, rowRulerDisp), VecPx(displayWidths - 13, displayHeights), module);// 2 characters
+		addChild(trackDisplayWidget);
+		svgPanel->fb->addChild(new DisplayBackground(trackDisplayWidget->box.pos, trackDisplayWidget->box.size, mode));
 		// Track buttons
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerTrk + trkButtonsOffsetX, rowRulerKnobs), module, Foundry::TRACKUP_PARAM, mode));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerTrk - trkButtonsOffsetX, rowRulerKnobs), module, Foundry::TRACKDOWN_PARAM, mode));

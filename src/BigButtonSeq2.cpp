@@ -631,10 +631,6 @@ struct BigButtonSeq2Widget : ModuleWidget {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -664,10 +660,6 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		
 		StepsDisplayWidget() {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
-		}
-
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
 		}
 
 		void drawLayer(const DrawArgs &args, int layer) override {
@@ -868,7 +860,8 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		displayChan->box.pos = VecPx(colRulerCenter - 12, rowRuler0 - 15);
 		displayChan->box.size = VecPx(24, 30);// 1 character
 		displayChan->module = module;
-		addChild(displayChan);	
+		addChild(displayChan);
+		svgPanel->fb->addChild(new DisplayBackground(displayChan->box.pos, displayChan->box.size, mode));
 		// Len knob
 		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler0), module, BigButtonSeq2::LEN_PARAM, mode));
 		// Length display
@@ -877,6 +870,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		displaySteps->box.size = VecPx(55, 30);// 3 characters
 		displaySteps->module = module;
 		addChild(displaySteps);
+		svgPanel->fb->addChild(new DisplayBackground(displaySteps->box.pos, displaySteps->box.size, mode));
 		
 		// Rnd jack
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerT0, rowRuler1), true, module, BigButtonSeq2::RND_INPUT, mode));

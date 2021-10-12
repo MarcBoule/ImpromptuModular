@@ -646,10 +646,6 @@ struct WriteSeq64Widget : ModuleWidget {
 			}
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -678,10 +674,6 @@ struct WriteSeq64Widget : ModuleWidget {
 		
 		StepsDisplayWidget() {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
-		}
-
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
 		}
 
 		void drawLayer(const DrawArgs &args, int layer) override {
@@ -716,10 +708,6 @@ struct WriteSeq64Widget : ModuleWidget {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -750,10 +738,6 @@ struct WriteSeq64Widget : ModuleWidget {
 		
 		ChannelDisplayWidget() {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
-		}
-
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
 		}
 
 		void drawLayer(const DrawArgs &args, int layer) override {
@@ -903,12 +887,14 @@ struct WriteSeq64Widget : ModuleWidget {
 		channelTrack->box.pos = VecPx(colT0, rowT0).minus(channelTrack->box.size.div(2));
 		channelTrack->module = module;
 		addChild(channelTrack);
+		svgPanel->fb->addChild(new DisplayBackground(channelTrack->box.pos, channelTrack->box.size, mode));
 		// Step display
 		StepDisplayWidget *displayStep = new StepDisplayWidget();
 		displayStep->box.size = VecPx(40, 30);// 2 characters
 		displayStep->box.pos = VecPx(colT1, rowT0).minus(displayStep->box.size.div(2));
 		displayStep->module = module;
 		addChild(displayStep);
+		svgPanel->fb->addChild(new DisplayBackground(displayStep->box.pos, displayStep->box.size, mode));
 		// Gate LED
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colT2, rowT0), module, WriteSeq64::GATE_LIGHT));
 		// Note display
@@ -917,6 +903,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		displayNote->box.pos = VecPx(colT3 + 37, rowT0).minus(displayNote->box.size.div(2));
 		displayNote->module = module;
 		addChild(displayNote);
+		svgPanel->fb->addChild(new DisplayBackground(displayNote->box.pos, displayNote->box.size, mode));
 		// Volt/sharp/flat switch
 		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colT3 + 114, rowT0), module, WriteSeq64::SHARP_PARAM, mode));
 		// Steps display
@@ -925,6 +912,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		displaySteps->box.pos = VecPx(colT4, rowT0).minus(displaySteps->box.size.div(2));
 		displaySteps->module = module;
 		addChild(displaySteps);
+		svgPanel->fb->addChild(new DisplayBackground(displaySteps->box.pos, displaySteps->box.size, mode));
 
 		static const int rowT1 = 117;
 		

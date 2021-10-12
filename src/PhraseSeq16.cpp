@@ -1717,10 +1717,6 @@ struct PhraseSeq16Widget : ModuleWidget {
 				snprintf(displayStr, 4, "%s", modeLabels[num].c_str());
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -2134,6 +2130,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		displaySequence->box.pos = VecPx(colMK1, rowMK0 + 4).minus(displaySequence->box.size.div(2));
 		displaySequence->module = module;
 		addChild(displaySequence);
+		svgPanel->fb->addChild(new DisplayBackground(displaySequence->box.pos, displaySequence->box.size, mode));
 		// Len/mode button
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colMK2, rowMK0), module, PhraseSeq16::RUNMODE_PARAM, mode));
 		

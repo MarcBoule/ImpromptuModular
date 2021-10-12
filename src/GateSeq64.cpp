@@ -1255,10 +1255,6 @@ struct GateSeq64Widget : ModuleWidget {
 				snprintf(displayStr, 4, "%s", modeLabels[num].c_str());
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -1649,6 +1645,7 @@ struct GateSeq64Widget : ModuleWidget {
 		displaySequence->box.pos = VecPx(colC3, rowC0).minus(displaySequence->box.size.div(2));
 		displaySequence->module = module;
 		addChild(displaySequence);
+		svgPanel->fb->addChild(new DisplayBackground(displaySequence->box.pos, displaySequence->box.size, mode));
 		// Modes button
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colC3, rowC1), module, GateSeq64::MODES_PARAM, mode));
 		// Copy/paste buttons

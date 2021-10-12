@@ -552,10 +552,6 @@ struct ChordKeyWidget : ModuleWidget {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -600,10 +596,6 @@ struct ChordKeyWidget : ModuleWidget {
 			box.pos = _pos.minus(_size.div(2));
 			module = _module;
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
-		}
-
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
 		}
 
 		void drawLayer(const DrawArgs &args, int layer) override {
@@ -960,7 +952,9 @@ struct ChordKeyWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col1, rowY - 16 - 6.429f), module, ChordKey::TRANSPOSEUP_PARAM, mode));		
 			
 		// Index display
-		addChild(new IndexDisplayWidget(VecPx((col0 + col1) / 2 + 6, rowY + rowYd / 2 - 4) - 6.429f, VecPx(36, displayHeights), module));// 2 characters
+		IndexDisplayWidget* indexDisplayWidget = new IndexDisplayWidget(VecPx((col0 + col1) / 2 + 6, rowY + rowYd / 2 - 4) - 6.429f, VecPx(36, displayHeights), module);// 2 characters
+		addChild(indexDisplayWidget);
+		svgPanel->fb->addChild(new DisplayBackground(indexDisplayWidget->box.pos, indexDisplayWidget->box.size, mode));
 		
 		// Index input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 2 - 9), true, module, ChordKey::INDEX_INPUT, mode));
@@ -979,7 +973,9 @@ struct ChordKeyWidget : ModuleWidget {
 			addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col3, rowY + rowYd * cni), module, ChordKey::OCTINC_PARAMS + cni, mode));
 
 			// oct displays
-			addChild(new OctDisplayWidget(VecPx(col4, rowY + rowYd * cni), VecPx(23, displayHeights), module, cni));// 1 character
+			OctDisplayWidget* octDisplayWidget = new OctDisplayWidget(VecPx(col4, rowY + rowYd * cni), VecPx(23, displayHeights), module, cni);// 1 character
+			addChild(octDisplayWidget);
+			svgPanel->fb->addChild(new DisplayBackground(octDisplayWidget->box.pos, octDisplayWidget->box.size, mode));
 
 			// cv outputs
 			addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, rowY + rowYd * cni), false, module, ChordKey::CV_OUTPUTS + cni, mode));

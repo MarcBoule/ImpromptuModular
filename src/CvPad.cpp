@@ -463,10 +463,6 @@ struct CvPadWidget : ModuleWidget {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -557,10 +553,6 @@ struct CvPadWidget : ModuleWidget {
 					text[0] = (cvVal<0.0f) ? '-' : ' ';
 				}
 			}
-		}
-
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
 		}
 
 		void drawLayer(const DrawArgs &args, int layer) override {
@@ -984,6 +976,7 @@ struct CvPadWidget : ModuleWidget {
 		displayBank->box.pos = displayBank->box.pos.minus(displayBank->box.size.div(2));// centering
 		displayBank->module = module;
 		addChild(displayBank);	
+		svgPanel->fb->addChild(new DisplayBackground(displayBank->box.pos, displayBank->box.size, mode));
 		// bank input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(rightX + rightO, topY), true, module, CvPad::BANK_INPUT, mode));
 		// Volt/sharp/flat switch
@@ -1010,12 +1003,11 @@ struct CvPadWidget : ModuleWidget {
 		displayCv->box.pos = displayCv->box.pos.minus(displayCv->box.size.div(2));// centering
 		displayCv->module = module;
 		addChild(displayCv);
+		svgPanel->fb->addChild(new DisplayBackground(displayCv->box.pos, displayCv->box.size, mode));
 		// cv knob
 		addParam(createDynamicParamCentered<CvKnob>(VecPx(padX + padXd * 2, topY), module, CvPad::CV_PARAM, mode));
 		// bank knob
 		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, mode));
-
-		
 	}
 	
 	

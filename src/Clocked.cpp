@@ -863,10 +863,6 @@ struct ClockedWidget : ModuleWidget {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 		
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -1121,6 +1117,7 @@ struct ClockedWidget : ModuleWidget {
 		displayRatios[0]->module = module;
 		displayRatios[0]->knobIndex = 0;
 		addChild(displayRatios[0]);
+		svgPanel->fb->addChild(new DisplayBackground(displayRatios[0]->box.pos, displayRatios[0]->box.size, mode));
 		
 		// Row 1
 		// Reset LED bezel and light
@@ -1153,6 +1150,7 @@ struct ClockedWidget : ModuleWidget {
 			displayRatios[i + 1]->module = module;
 			displayRatios[i + 1]->knobIndex = i + 1;
 			addChild(displayRatios[i + 1]);
+			svgPanel->fb->addChild(new DisplayBackground(displayRatios[i + 1]->box.pos, displayRatios[i + 1]->box.size, mode));
 			// Sync light
 			addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colM1 + 54, row2 + i * rowSpacingClks), module, Clocked::CLK_LIGHTS + i + 1));		
 			// Swing knobs

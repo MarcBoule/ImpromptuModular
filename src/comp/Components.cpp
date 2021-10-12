@@ -88,6 +88,7 @@ void DynamicSVGScrew::step() {
 // Ports
 // ----------
 
+// none
 
 
 // Buttons and switches
@@ -217,6 +218,27 @@ LEDBezelBig::LEDBezelBig() {
 
 // Svg Widgets
 // ----------
+
+void DisplayBackground::draw(const DrawArgs& args) {
+	if (isDark(mode)) {
+		nvgBeginPath(args.vg);
+		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
+		nvgRoundedRect(args.vg, -1.5f, -1.5f, box.size.x + 3.0f, box.size.y + 3.0f, 5.0f);
+		nvgFillPaint(args.vg, grad);
+		nvgFill(args.vg);
+	}
+
+	NVGcolor backgroundColor = nvgRGB(0x38, 0x38, 0x38); 
+	NVGcolor borderColor = nvgRGB(0x10, 0x10, 0x10);
+	nvgBeginPath(args.vg);
+	nvgRoundedRect(args.vg, 0.0, 0.0, box.size.x, box.size.y, 5.0f);
+	nvgFillColor(args.vg, backgroundColor);
+	nvgFill(args.vg);
+	nvgStrokeWidth(args.vg, 1.0);
+	nvgStrokeColor(args.vg, borderColor);
+	nvgStroke(args.vg);
+}
+
 
 void KeyboardBig::draw(const DrawArgs& args) {
 	// already framebuffered when added to module's main panel

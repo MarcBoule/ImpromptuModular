@@ -252,7 +252,7 @@ inline bool calcWarningFlash(long count, long countInit) {
 	return true;
 }	
 
-void drawDisplayBackground(NVGcontext *vg, Rect *box, int* mode);
+DEPRECATED void drawDisplayBackground(NVGcontext *vg, Rect *box, int* mode);
 
 inline void calcNoteAndOct(float cv, int* note12, int* oct0) {
 	// note12 is a note index (0 to 11) representing the C to B keys respectively

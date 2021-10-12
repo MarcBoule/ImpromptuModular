@@ -1275,10 +1275,6 @@ struct ProbKeyWidget : ModuleWidget {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
 
-		void draw(const DrawArgs &args) override {
-			drawDisplayBackground(args.vg, &box, module ? &(module->panelTheme) : NULL);
-		}
-
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
@@ -1623,6 +1619,7 @@ struct ProbKeyWidget : ModuleWidget {
 		displayMain->box.pos = mm2px(Vec((col2 + col3) * 0.5f, row2 - 2.0f)).minus(displayMain->box.size.div(2));
 		displayMain->module = module;
 		addChild(displayMain);
+		svgPanel->fb->addChild(new DisplayBackground(displayMain->box.pos, displayMain->box.size, mode));
 
 
 		// **** col3 ****
