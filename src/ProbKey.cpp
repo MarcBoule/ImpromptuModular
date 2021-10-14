@@ -10,7 +10,6 @@
 //***********************************************************************************************
 
 
-#include "ProbKeyUtil.hpp"
 #include "comp/PianoKey.hpp"
 #include "Interop.hpp"
 
@@ -346,7 +345,6 @@ class OutputKernel {
 	
 	float buf[MAX_LENGTH];// holds CVs or ProbKernel::IDEM_CV
 	float lastCv;// sample and hold, must never hold ProbKernel::IDEM_CV
-	float minCv;
 	int step;
 	
 	
@@ -357,7 +355,6 @@ class OutputKernel {
 			buf[i] = 0.0f;
 		}
 		lastCv = 0.0f;
-		minCv = 0.0f;
 		step = 0;
 	}
 	
@@ -375,9 +372,6 @@ class OutputKernel {
 		
 		// lastCv
 		json_object_set_new(rootJ, string::f("lastCv%i", id).c_str(), json_real(lastCv));
-
-		// minCv
-		json_object_set_new(rootJ, string::f("minCv%i", id).c_str(), json_real(minCv));
 
 		// step
 		json_object_set_new(rootJ, string::f("step%i", id).c_str(), json_integer(step));
@@ -401,32 +395,12 @@ class OutputKernel {
 			lastCv = json_number_value(lastCvJ);
 		}
 
-		// minCv
-		json_t *minCvJ = json_object_get(rootJ, string::f("minCv%i", id).c_str());
-		if (minCvJ) {
-			minCv = json_number_value(minCvJ);
-		}
-		
 		// step
 		json_t *stepJ = json_object_get(rootJ, "step");
 		if (stepJ) {
 			step = json_integer_value(stepJ);
 		}
 
-	}
-
-
-	void calcMinCv(int length) {
-		// will leave minCv untouched if all CVs within length are IDEM_CV
-		float bufMin = 100.0f;
-		for (int i = 0; i < length; i++) {
-			if (buf[i] != ProbKernel::IDEM_CV && buf[i] < bufMin) {
-				bufMin = buf[i];
-			}
-		}
-		if (bufMin != 100.0f) {
-			minCv = bufMin;
-		}
 	}
 
 
@@ -443,8 +417,6 @@ class OutputKernel {
 		float currCv = buf[step];
 		step = (step + 1) % length;
 		buf[step] = currCv;
-		// minCv must be redone since the overwritten value could have been the minCv
-		calcMinCv(length);
 	}
 		
 	void stepWithInsertNew(float newCv, int length) {
@@ -452,57 +424,11 @@ class OutputKernel {
 		buf[step] = newCv;
 		if (buf[step] != ProbKernel::IDEM_CV) {
 			lastCv = buf[step];
-			if (length <= 1) {
-				minCv = lastCv;
-			}
-			else {
-				minCv = std::min(minCv, lastCv);
-			}
 		}
 	}
 		
-	
-	bool calcLowLock(uint8_t manualLockLow, int length) {
-		int nextStep = getNextStep(length);
-		// buf[nextStep] is next recycle-to-be-used, this method checks lock potential against that
-		
-		if (buf[nextStep] != ProbKernel::IDEM_CV) {
-			float lowestCvs[4] = {100.0f, 100.0f, 100.0f, 100.0f};
-			
-			// find lowest CV
-			for (int i = 0; i < length; i++) {
-				if (buf[i] != ProbKernel::IDEM_CV && buf[i] < lowestCvs[0]) {
-					lowestCvs[0] = buf[i];
-				}
-			}
-			// find 2nd, 3rd and 4th lowest CVs
-			for (int j = 1; j < 4; j++) {
-				if (lowestCvs[j - 1] == 100.0f) {
-					break;
-				}
-				for (int i = 0; i < length; i++) {
-					if (buf[i] != ProbKernel::IDEM_CV && buf[i] < lowestCvs[j] && buf[i] > lowestCvs[j - 1]) {
-						lowestCvs[j] = buf[i];
-					}
-				}	
-			}
-			
-			// check nextStep against lowest CVs if manual locks wanted
-			for (int j = 0; j < 4; j++) {
-				if (((manualLockLow & (0x1 << j)) != 0) && buf[nextStep] == lowestCvs[j]) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	
 	float getCv() {
 		return lastCv;
-	}
-	float getMinCv() {
-		return minCv;
 	}
 	float getBuf(int i) {
 		return buf[i];
@@ -637,8 +563,7 @@ struct ProbKey : Module {
 	
 	
 	// Expander
-	// PkxIntfFromExp rightMessages[2] = {};// messages from expander
-
+	// none
 		
 	// Constants
 	enum ModeIds {MODE_PROB, MODE_ANCHOR, MODE_RANGE};
@@ -739,9 +664,6 @@ struct ProbKey : Module {
 	ProbKey() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
-		// rightExpander.producerMessage = &(rightMessages[0]);
-		// rightExpander.consumerMessage = &(rightMessages[1]);
-
 		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		paramQuantities[INDEX_PARAM]->snapEnabled = true;
 		configParam(LENGTH_PARAM, 0.0f, (float)(OutputKernel::MAX_LENGTH - 1), (float)(OutputKernel::MAX_LENGTH - 1), "Lock length", "", 0.0f, 1.0f, 1.0f);
@@ -840,7 +762,6 @@ struct ProbKey : Module {
 		}
 		json_object_set_new(rootJ, "probKernels", probsJ);
 
-		
 		// outputKernels
 		for (int i = 0; i < PORT_MAX_CHANNELS; i++) {
 			outputKernels[i].dataToJson(rootJ, i);
@@ -1057,12 +978,7 @@ struct ProbKey : Module {
 				// got rising edge on gate input poly channel c
 				bool isLockedStep = getLock() > random::uniform();
 				if (c == 0 && !isLockedStep) {
-					// if (expanderPresent && ((PkxIntfFromExp*)rightExpander.consumerMessage)->manualLockLow != 0) {
-						// isLockedStep = outputKernels[c].calcLowLock(((PkxIntfFromExp*)rightExpander.consumerMessage)->manualLockLow, length);// lock low from expander has higher priority than step lock in menu
-					// }
-					// else {
-						isLockedStep = getStepLock(outputKernels[c].getNextStep(length));
-					// }						
+					isLockedStep = getStepLock(outputKernels[c].getNextStep(length));
 				}
 				
 				if (isLockedStep) {
@@ -1149,14 +1065,6 @@ struct ProbKey : Module {
 			}
 			dispManager.process();
 		}// processLights()
-		
-		// To Expander
-		// if (expanderPresent) {
-			// PkxIntfFromMother *messagesToExpander = (PkxIntfFromMother*)(rightExpander.module->leftExpander.producerMessage);
-			// messagesToExpander->panelTheme = panelTheme;
-			// messagesToExpander->minCvChan0 = outputKernels[0].getMinCv();
-			// rightExpander.module->leftExpander.messageFlipRequested = true;
-		// }
 	}
 	
 	void setKeyLightsProb(int key, float prob, bool tracer, bool tracerLockedStep) {
