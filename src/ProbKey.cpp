@@ -578,7 +578,9 @@ struct ProbKey : Module {
 	float overlap;
 	int indexCvCap12;
 	int showTracer;
-	uint32_t stepLock;// bit 0 is step 0 in output kernel, etc. (applies to poly chan 0 only)
+	int perIndexManualLocks;// this really is two distinct modes and different stepLock bitfields are used below
+	uint32_t stepLock;// bit 0 is step 0 in output kernel, etc. (applies to poly chan 0 only and is not per index)
+	uint32_t stepLocks[NUM_INDEXES];// stepLock when perIndexManualLocks (applies to poly chan 0 only and is per index)
 	ProbKernel probKernels[NUM_INDEXES];
 	OutputKernel outputKernels[PORT_MAX_CHANNELS];
 	
@@ -650,14 +652,25 @@ struct ProbKey : Module {
 		int length0 = (int)std::round(params[LENGTH_PARAM].getValue() + inputs[LENGTH_INPUT].getVoltage() * 1.6f);
 		return clamp(length0, 0, OutputKernel::MAX_LENGTH - 1 ) + 1;
 	}
-	bool getStepLock(uint32_t s) {
+	bool getStepLock(uint32_t s, int i) {
+		if (perIndexManualLocks != 0) {
+			return (stepLocks[i] & (0x1ul << s)) != 0ul;
+		}
 		return (stepLock & (0x1ul << s)) != 0ul;
 	}
-	void toggleStepLock(uint32_t s) {
-		stepLock ^= (0x1ul << s);
+	void toggleStepLock(uint32_t s, int i) {
+		if (perIndexManualLocks != 0) {
+			stepLocks[i] ^= (0x1ul << s);
+		}
+		else {
+			stepLock ^= (0x1ul << s);
+		}
 	}
 	void clearStepLock() {
 		stepLock = 0ul;
+	}
+	void clearStepLocks(int i) {
+		stepLocks[i] = 0ul;
 	}
 
 
@@ -701,9 +714,11 @@ struct ProbKey : Module {
 		overlap = 0.5f;// must be 0 to 1
 		indexCvCap12 = 0;
 		showTracer = 1;
+		perIndexManualLocks = 0;
 		clearStepLock(); // this is stepLock;
 		for (int i = 0; i < NUM_INDEXES; i++) {
 			probKernels[i].reset();
+			clearStepLocks(i); // this is stepLocks[];
 		}
 		for (int i = 0; i < PORT_MAX_CHANNELS; i++) {
 			outputKernels[i].reset();
@@ -751,9 +766,19 @@ struct ProbKey : Module {
 		// showTracer
 		json_object_set_new(rootJ, "showTracer", json_integer(showTracer));
 
+		// perIndexManualLocks
+		json_object_set_new(rootJ, "perIndexManualLocks", json_integer(perIndexManualLocks));
+
 		// stepLock
 		json_object_set_new(rootJ, "stepLock", json_integer(stepLock));
 
+		// stepLocks
+		json_t *stepLocksJ = json_array();
+		for (int i = 0; i < NUM_INDEXES; i++) {
+			json_array_insert_new(stepLocksJ, i, json_integer(stepLocks[i]));
+		}
+		json_object_set_new(rootJ, "stepLocks", stepLocksJ);
+		
 		// probKernels
 		json_t* probsJ = json_array();
 		for (size_t i = 0; i < NUM_INDEXES; i++) {
@@ -802,10 +827,27 @@ struct ProbKey : Module {
 			showTracer = json_integer_value(showTracerJ);
 		}
 
+		// perIndexManualLocks
+		json_t *perIndexManualLocksJ = json_object_get(rootJ, "perIndexManualLocks");
+		if (perIndexManualLocksJ) {
+			perIndexManualLocks = json_integer_value(perIndexManualLocksJ);
+		}
+
 		// stepLock
 		json_t *stepLockJ = json_object_get(rootJ, "stepLock");
 		if (stepLockJ) {
 			stepLock = json_integer_value(stepLockJ);
+		}
+
+		// stepLocks
+		json_t *stepLocksJ = json_object_get(rootJ, "stepLocks");
+		if (stepLocksJ && json_is_array(stepLocksJ)) {
+			for (int i = 0; i < NUM_INDEXES; i++) {
+				json_t *stepLocksArrayJ = json_array_get(stepLocksJ, i);
+				if (stepLocksArrayJ) {
+					stepLocks[i] = json_integer_value(stepLocksArrayJ);
+				}
+			}
 		}
 
 		// probKernels
@@ -976,17 +1018,30 @@ struct ProbKey : Module {
 			// gate input triggers
 			if (gateInTriggers[c].process(inputs[GATE_INPUT].getVoltage(c))) {
 				// got rising edge on gate input poly channel c
-				bool isLockedStep = getLock() > random::uniform();
-				if (c == 0 && !isLockedStep) {
-					isLockedStep = getStepLock(outputKernels[c].getNextStep(length));
-				}
 				
-				if (isLockedStep) {
+				// mannual lock has higher precedence, since will use manual lock memory; but works only for poly chan 0
+				bool isLockedStep = false;
+				if (c == 0 && getStepLock(outputKernels[c].getNextStep(length), index)) {
+					// recycle CV (WILL CHANGE TO USE MANUAL LOCK CV MEMORY)
+					if (perIndexLockItem != 0) {
+						int nextStep = outputKernels[c].getNextStep(length);
+						float newCv = 0.0f;// stepLocksCvs[index, nextStep];
+						outputKernels[c].stepWithInsertNew(newCv, length);
+					}
+					else {
+						outputKernels[c].stepWithKeepOld(length);
+					}
+					
+					isLockedStep = true;
+				}
+				// knob lock has lower precedence, since it has no special lock memory (it uses the output register)	
+				else if (getLock() > random::uniform()) {
 					// recycle CV
 					outputKernels[c].stepWithKeepOld(length);
+					isLockedStep = true;
 				}
+				// generate new random CV (taking hold into account though)
 				else {
-					// generate new random CV (taking hold into account though)
 					bool hold = inputs[HOLD_INPUT].isConnected() && inputs[HOLD_INPUT].getVoltage(std::min(c, inputs[HOLD_INPUT].getChannels())) > 1.0f;
 					if (hold) {
 						outputKernels[c].stepWithCopy(length);
@@ -1277,26 +1332,47 @@ struct ProbKeyWidget : ModuleWidget {
 		struct StepLockSubItem : MenuItem {
 			ProbKey *module;
 			int stepNum;
+			int index;
 			void onAction(const event::Action &e) override {
-				module->toggleStepLock(stepNum);
+				module->toggleStepLock(stepNum, index);
 				// unconsume event:
 				e.context->propagating = false;
 				e.context->consumed = false;
 				e.context->target = NULL;
 			}
 			void step() override {
-				rightText = CHECKMARK(module->getStepLock(stepNum));
+				rightText = CHECKMARK(module->getStepLock(stepNum, index));
 				MenuItem::step();
 			}
 		};
 		struct StepLockClearAllItem : MenuItem {
 			ProbKey *module;
+			int index;
 			void onAction(const event::Action &e) override {
-				module->clearStepLock();
+				if (module->perIndexManualLocks != 0) {
+					module->clearStepLocks(index);
+				}
+				else {
+					module->clearStepLock();
+				}
 				// unconsume event:
 				e.context->propagating = false;
 				e.context->consumed = false;
 				e.context->target = NULL;
+			}
+		};
+		struct PerIndexManualLocksItem : MenuItem {
+			ProbKey *module;
+			void onAction(const event::Action &e) override {
+				module->perIndexManualLocks ^= 0x1;
+				// unconsume event:
+				e.context->propagating = false;
+				e.context->consumed = false;
+				e.context->target = NULL;
+			}
+			void step() override {
+				rightText = CHECKMARK(module->perIndexManualLocks != 0);
+				MenuItem::step();
 			}
 		};
 		struct StepLockDoneItem : MenuItem {
@@ -1309,10 +1385,16 @@ struct ProbKeyWidget : ModuleWidget {
 		Menu *createChildMenu() override {
 			Menu *menu = new Menu;
 			char buf[8];
+			int index = module->getIndex();
 
 			StepLockClearAllItem *clearItem = createMenuItem<StepLockClearAllItem>("Clear all", "");
 			clearItem->module = module;
+			clearItem->index = index;
 			menu->addChild(clearItem);
+			
+			PerIndexManualLocksItem *perIndexLockItem = createMenuItem<PerIndexManualLocksItem>("Per index manual locks", CHECKMARK(module->perIndexManualLocks != 0));
+			perIndexLockItem->module = module;
+			menu->addChild(perIndexLockItem);
 			
 			StepLockDoneItem *doneItem = createMenuItem<StepLockDoneItem>("Done", "");
 			doneItem->module = module;
@@ -1337,9 +1419,10 @@ struct ProbKeyWidget : ModuleWidget {
 				noteStr.insert(0, std::string(oct, ' '));
 				noteStr.insert(0, std::string("-"));
 				
-				StepLockSubItem *slockItem = createMenuItem<StepLockSubItem>(noteStr, CHECKMARK(module->getStepLock(s)));
+				StepLockSubItem *slockItem = createMenuItem<StepLockSubItem>(noteStr, CHECKMARK(module->getStepLock(s, index)));
 				slockItem->module = module;
 				slockItem->stepNum = s;
+				slockItem->index = index;
 				menu->addChild(slockItem);
 			}
 			
