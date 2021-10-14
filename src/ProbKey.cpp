@@ -1023,8 +1023,8 @@ struct ProbKey : Module {
 				bool isLockedStep = false;
 				if (c == 0 && getStepLock(outputKernels[c].getNextStep(length), index)) {
 					// recycle CV (WILL CHANGE TO USE MANUAL LOCK CV MEMORY)
-					if (perIndexLockItem != 0) {
-						int nextStep = outputKernels[c].getNextStep(length);
+					if (perIndexManualLocks != 0) {
+						// int nextStep = outputKernels[c].getNextStep(length);
 						float newCv = 0.0f;// stepLocksCvs[index, nextStep];
 						outputKernels[c].stepWithInsertNew(newCv, length);
 					}
