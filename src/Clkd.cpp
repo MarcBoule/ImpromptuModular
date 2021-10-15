@@ -854,7 +854,7 @@ struct ClkdWidget : ModuleWidget {
 		onStopItem->resetOnStartStopPtr = &module->resetOnStartStop;
 		menu->addChild(onStopItem);
 
-		ResetHighItem *rhItem = createMenuItem<ResetHighItem>("Outputs reset high when not running", CHECKMARK(module->resetClockOutputsHigh));
+		ResetHighItem *rhItem = createMenuItem<ResetHighItem>("Outputs high on reset when not running", CHECKMARK(module->resetClockOutputsHigh));
 		rhItem->module = module;
 		menu->addChild(rhItem);
 		

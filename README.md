@@ -154,7 +154,7 @@ The following recommendations should also be followed in order to ensure proper 
 	
 	1. (**GOOD**) Default settings, but activating the options "*On Stop -> Do internal reset*" and "*On Stop -> Send reset pulse*" in Clocked. This causes both the clock generator and the sequencer to restart when stopping the clock, and is equivalent to stopping the clock and manually pressing reset in case (i). 
 	
-	1. (**BAD**) Default settings, but deactivating the option "*Outputs reset high when not running*" in Clocked. In this setup, with both the clock and sequencer running, the following operations will result in a missed first step: stop the clock, press reset, start the clock again.
+	1. (**BAD**) Default settings, but deactivating the option "*Outputs high on reset when not running*" in Clocked. In this setup, with both the clock and sequencer running, the following operations will result in a missed first step: stop the clock, press reset, start the clock again.
 
 * Run cables are used.
 
@@ -162,11 +162,11 @@ The following recommendations should also be followed in order to ensure proper 
 
 	1. (**GOOD**) Default settings, but activating the options "*On Stop -> Do internal reset*" and "*On Stop -> Send reset pulse*" in Clocked. This causes both the clock generator and the sequencer to restart when stopping the clock, and is equivalent to stopping the clock and manually pressing reset in case (iv). 
 	
-	1. **Note**: The option "*Outputs reset high when not running*" in Clocked can also be deactivated without consequence when run cables are used, and should be set for optimal use of the other modules in the patch.
+	1. **Note**: The option "*Outputs high on reset when not running*" in Clocked can also be deactivated without consequence when run cables are used, and should be set for optimal use of the other modules in the patch.
 
 When Clocked is used with sequential switches or other non-Impromptu sequencers, and first steps are not playing correctly upon reset, the following guidelines may be of help:
 
-1. The option "*Outputs reset high when not running*" should ideally be in its defaut state in Clocked (i.e. checked), but ultimately the user should experiment with both settings to see which one works best for the setup and modules being used.
+1. The option "*Outputs high on reset when not running*" should ideally be in its defaut state in Clocked (i.e. checked), but ultimately the user should experiment with both settings to see which one works best for the setup and modules being used.
 
 1. The reset and clock signals coming from Clocked should preferrably not pass through any other module and should be connected directly to the sequencer or sequential switch.
 
@@ -318,7 +318,7 @@ Clkd: A smaller version of Clocked but without swing, clock delay and pulse widt
 
 For a tutorial on Clocked regarding chaining, clock multiplications and divisions, swing and clock delay features, please see Nigel Sixsmith's [Talking Rackheads episode 12](https://www.youtube.com/watch?v=ymfOh1yCzU4). It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here. 
 
-* **RESET**: Restart all channels' time keeping. The clock outputs are held high when a stopped clock is reset (instead of low). This is required so that when controlling sequential switches (which are assumed to also be reset on the same event) will not get triggered and moved to step 2 when the clock is started again. The right-click menu option "*Outputs reset high when not running*" can be turned off, to allow the outputs to be held low when resetting a stopped clock.
+* **RESET**: Restart all channels' time keeping. The clock outputs are held high when a stopped clock is reset (instead of low). This is required so that when controlling sequential switches (which are assumed to also be reset on the same event) will not get triggered and moved to step 2 when the clock is started again. The right-click menu option "*Outputs high on reset when not running*" can be turned off, to allow the outputs to be held low when resetting a stopped clock.
 
 * **RUN**: The run button functions as a pause/play button. When turned off, the clock outputs are held in their current states. When run is turned on again, the clock engine resumes where it left off, such that when using multiple outputs with different clock ratios, a large patch with multiple sequencers playing at different speeds will not be out of sync. This effectively makes for proper pausing behavior in multi-track and multi-clock patches. For sequencers with RUN inputs, it may be beneficial to connect the RUN output of Clocked/Clkd to the RUN input of the sequencers. In the case of the Phrase Sequencers (see below), this will ensure gates are not kept high while stopped, and will also allow feedback of the notes that are entered when programming a stopped sequencer. For more detailed explanations on this, please see this section on [resets, clocks and run states](#clk_rst_run).
 
@@ -334,7 +334,7 @@ PW and Swing CV inputs are aso available in the Clocked [expander module](#expan
 
 Many options are available in the modules' **right-click menu**, and can be used to setup Clocked/Clkd for your particular needs. In particular, the RUN CV input is trigger sensitive by default, but can be made level sensitive (gate mode) by turning on the "_Run CV input is level sensitive_" option; when chaining multiple Clocked/Clkd modules, only the first module in the chain should have this option turned on. 
 
-Clocked and Clkd also feature the ability to automatically patch the Reset, Run and BPM cables to a designated clock master. Any instance of Clocked or Clkd can be designated as the clock master using the module's "_Auto-patch_" menu entry. When auto-patching clocks: if the slave clock already has a connection to one of the inputs mentioned above, that input un-touched; the status of the "*Outputs reset high when not running*" setting will be copied from the master clock into the slave clock.
+Clocked and Clkd also feature the ability to automatically patch the Reset, Run and BPM cables to a designated clock master. Any instance of Clocked or Clkd can be designated as the clock master using the module's "_Auto-patch_" menu entry. When auto-patching clocks: if the slave clock already has a connection to one of the inputs mentioned above, that input un-touched; the status of the "*Outputs high on reset when not running*" setting will be copied from the master clock into the slave clock.
 
 
 <a id="clocked-sync"></a>
