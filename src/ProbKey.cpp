@@ -338,7 +338,7 @@ class ProbKernel {
 class OutputKernel {
 	public:
 
-	static const int MAX_LENGTH = 32;
+	static const int MAX_LENGTH = 32;// if this becomes bigger, will need to change bitfield types for ProbKey::stepLock and ProbKey::stepLocks
 	
 	
 	private:
@@ -441,6 +441,10 @@ class OutputKernel {
 	}
 	int getNextStep(int length) {
 		return (step + 1) % length;
+	}
+	void resetPlayHead() {
+		step = 0;
+		lastCv = buf[0];
 	}
 };
 
@@ -581,6 +585,7 @@ struct ProbKey : Module {
 	int perIndexManualLocks;// this really is two distinct modes and different stepLock bitfields are used below
 	uint32_t stepLock;// bit 0 is step 0 in output kernel, etc. (applies to poly chan 0 only and is not per index)
 	uint32_t stepLocks[NUM_INDEXES];// stepLock when perIndexManualLocks (applies to poly chan 0 only and is per index)
+	float stepLocksCvs[NUM_INDEXES][OutputKernel::MAX_LENGTH];// only save active members as indicated by stepLocks bitfields
 	ProbKernel probKernels[NUM_INDEXES];
 	OutputKernel outputKernels[PORT_MAX_CHANNELS];
 	
@@ -720,6 +725,11 @@ struct ProbKey : Module {
 			probKernels[i].reset();
 			clearStepLocks(i); // this is stepLocks[];
 		}
+		for (int i = 0; i < NUM_INDEXES; i++) {
+			for (int j = 0; j < OutputKernel::MAX_LENGTH; j++) {
+				stepLocksCvs[i][j] = 0.0f;
+			}
+		}
 		for (int i = 0; i < PORT_MAX_CHANNELS; i++) {
 			outputKernels[i].reset();
 		}
@@ -778,6 +788,19 @@ struct ProbKey : Module {
 			json_array_insert_new(stepLocksJ, i, json_integer(stepLocks[i]));
 		}
 		json_object_set_new(rootJ, "stepLocks", stepLocksJ);
+
+		// stepLocksCvs
+		json_t *stepLocksCvsJ = json_array();
+		for (int i = 0; i < NUM_INDEXES; i++) {
+			if (stepLocks[i] != 0x0) {
+				for (int j = 0; j < OutputKernel::MAX_LENGTH; j++) {
+					if ( ((stepLocks[i] >> j) & 0x1) != 0) {
+						json_array_append_new(stepLocksCvsJ, json_real(stepLocksCvs[i][j]));
+					}
+				}
+			}
+		}
+		json_object_set_new(rootJ, "stepLocksCvs", stepLocksCvsJ);
 		
 		// probKernels
 		json_t* probsJ = json_array();
@@ -846,6 +869,30 @@ struct ProbKey : Module {
 				json_t *stepLocksArrayJ = json_array_get(stepLocksJ, i);
 				if (stepLocksArrayJ) {
 					stepLocks[i] = json_integer_value(stepLocksArrayJ);
+				}
+			}
+			
+			// stepLocksCvs
+			json_t *stepLocksCvsJ = json_object_get(rootJ, "stepLocksCvs");
+			if (stepLocksCvsJ && json_is_array(stepLocksCvsJ)) {
+				size_t slsize = json_array_size(stepLocksCvsJ);
+				unsigned int sli = 0;
+				for (int i = 0; i < NUM_INDEXES; i++) {
+					if (stepLocks[i] != 0x0) {
+						for (int j = 0; j < OutputKernel::MAX_LENGTH; j++) {
+							if ( ((stepLocks[i] >> j) & 0x1) != 0) {
+								json_t *stepLocksCvsArrayJ = json_array_get(stepLocksCvsJ, sli);
+								sli++;
+								if (stepLocksCvsArrayJ) {
+									stepLocksCvs[i][j] = json_number_value(stepLocksCvsArrayJ);;
+								}
+								if (sli >= slsize) {
+									i = NUM_INDEXES;
+									break;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -1024,8 +1071,8 @@ struct ProbKey : Module {
 				if (c == 0 && getStepLock(outputKernels[c].getNextStep(length), index)) {
 					// recycle CV (WILL CHANGE TO USE MANUAL LOCK CV MEMORY)
 					if (perIndexManualLocks != 0) {
-						// int nextStep = outputKernels[c].getNextStep(length);
-						float newCv = 0.0f;// stepLocksCvs[index, nextStep];
+						int nextStep = outputKernels[c].getNextStep(length);
+						float newCv = stepLocksCvs[index][nextStep];
 						outputKernels[c].stepWithInsertNew(newCv, length);
 					}
 					else {
@@ -1335,6 +1382,9 @@ struct ProbKeyWidget : ModuleWidget {
 			int index;
 			void onAction(const event::Action &e) override {
 				module->toggleStepLock(stepNum, index);
+				if (module->perIndexManualLocks != 0 && module->getStepLock(stepNum, index)) {
+					module->stepLocksCvs[index][stepNum] = module->outputKernels[0].getBuf(stepNum);
+				}
 				// unconsume event:
 				e.context->propagating = false;
 				e.context->consumed = false;
@@ -1342,6 +1392,11 @@ struct ProbKeyWidget : ModuleWidget {
 			}
 			void step() override {
 				rightText = CHECKMARK(module->getStepLock(stepNum, index));
+				if (module->perIndexManualLocks != 0 && module->getStepLock(stepNum, index)) {
+					if (module->stepLocksCvs[index][stepNum] != module->outputKernels[0].getBuf(stepNum)) {
+						rightText.insert(0, "*");
+					}
+				}
 				MenuItem::step();
 			}
 		};
@@ -1354,6 +1409,18 @@ struct ProbKeyWidget : ModuleWidget {
 				}
 				else {
 					module->clearStepLock();
+				}
+				// unconsume event:
+				e.context->propagating = false;
+				e.context->consumed = false;
+				e.context->target = NULL;
+			}
+		};
+		struct ResetPlayheadsItem : MenuItem {
+			ProbKey *module;
+			void onAction(const event::Action &e) override {
+				for (int c = 0; c < PORT_MAX_CHANNELS; c++) {
+					module->outputKernels[c].resetPlayHead();
 				}
 				// unconsume event:
 				e.context->propagating = false;
@@ -1387,10 +1454,14 @@ struct ProbKeyWidget : ModuleWidget {
 			char buf[8];
 			int index = module->getIndex();
 
-			StepLockClearAllItem *clearItem = createMenuItem<StepLockClearAllItem>("Clear all", "");
+			StepLockClearAllItem *clearItem = createMenuItem<StepLockClearAllItem>("Clear all locks", "");
 			clearItem->module = module;
 			clearItem->index = index;
 			menu->addChild(clearItem);
+			
+			ResetPlayheadsItem *resetPlayheadsItem = createMenuItem<ResetPlayheadsItem>("Reset playhead", "");
+			resetPlayheadsItem->module = module;
+			menu->addChild(resetPlayheadsItem);
 			
 			PerIndexManualLocksItem *perIndexLockItem = createMenuItem<PerIndexManualLocksItem>("Per index manual locks", CHECKMARK(module->perIndexManualLocks != 0));
 			perIndexLockItem->module = module;
@@ -1478,18 +1549,9 @@ struct ProbKeyWidget : ModuleWidget {
 		tracerItem->module = module;
 		menu->addChild(tracerItem);
 		
-		// bool expanderPresent = module->rightExpander.module && (module->rightExpander.module->model == modelProbKeyExpander);
-		// bool stepLockDisabled = expanderPresent && ((PkxIntfFromExp*)module->rightExpander.consumerMessage)->manualLockLow != 0;
-		// if (stepLockDisabled) {
-			// MenuLabel *sldisLabel = new MenuLabel();
-			// sldisLabel->text = "Manual step lock [inactive when low lock]";
-			// menu->addChild(sldisLabel);
-		// }
-		// else {
-			StepLockItem *stepLockItem = createMenuItem<StepLockItem>("Manual step lock", RIGHT_ARROW);
-			stepLockItem->module = module;
-			menu->addChild(stepLockItem);
-		// }
+		StepLockItem *stepLockItem = createMenuItem<StepLockItem>("Manual step lock", RIGHT_ARROW);
+		stepLockItem->module = module;
+		menu->addChild(stepLockItem);
 	}
 
 
