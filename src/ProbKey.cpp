@@ -1422,10 +1422,6 @@ struct ProbKeyWidget : ModuleWidget {
 				for (int c = 0; c < PORT_MAX_CHANNELS; c++) {
 					module->outputKernels[c].resetPlayHead();
 				}
-				// unconsume event:
-				e.context->propagating = false;
-				e.context->consumed = false;
-				e.context->target = NULL;
 			}
 		};
 		struct PerIndexManualLocksItem : MenuItem {
@@ -1442,11 +1438,11 @@ struct ProbKeyWidget : ModuleWidget {
 				MenuItem::step();
 			}
 		};
-		struct StepLockDoneItem : MenuItem {
-			ProbKey *module;
-			void onAction(const event::Action &e) override {
-			}
-		};
+		// struct StepLockDoneItem : MenuItem {
+			// ProbKey *module;
+			// void onAction(const event::Action &e) override {
+			// }
+		// };
 		
 		ProbKey *module;
 		Menu *createChildMenu() override {
@@ -1467,9 +1463,9 @@ struct ProbKeyWidget : ModuleWidget {
 			perIndexLockItem->module = module;
 			menu->addChild(perIndexLockItem);
 			
-			StepLockDoneItem *doneItem = createMenuItem<StepLockDoneItem>("Done", "");
-			doneItem->module = module;
-			menu->addChild(doneItem);
+			// StepLockDoneItem *doneItem = createMenuItem<StepLockDoneItem>("Done", "");
+			// doneItem->module = module;
+			// menu->addChild(doneItem);
 			
 			menu->addChild(new MenuSeparator());
 			
@@ -1536,6 +1532,10 @@ struct ProbKeyWidget : ModuleWidget {
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
+		
+		StepLockItem *stepLockItem = createMenuItem<StepLockItem>("Manual step lock", RIGHT_ARROW);
+		stepLockItem->module = module;
+		menu->addChild(stepLockItem);
 
 		OverlapSlider *ovlpSlider = new OverlapSlider(&(module->overlap));
 		ovlpSlider->box.size.x = 200.0f;
@@ -1548,10 +1548,6 @@ struct ProbKeyWidget : ModuleWidget {
 		ShowTracerItem *tracerItem = createMenuItem<ShowTracerItem>("Show generated note", CHECKMARK(module->showTracer));
 		tracerItem->module = module;
 		menu->addChild(tracerItem);
-		
-		StepLockItem *stepLockItem = createMenuItem<StepLockItem>("Manual step lock", RIGHT_ARROW);
-		stepLockItem->module = module;
-		menu->addChild(stepLockItem);
 	}
 
 
