@@ -691,12 +691,12 @@ struct WriteSeq64Widget : ModuleWidget {
 				nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
 				nvgFillColor(args.vg, displayColOn);
 				char displayStr[3];
-				unsigned int numSteps = (module ? (unsigned) module->indexSteps[module->calcChan()] : 64);
+				unsigned int numSteps = (module ? (unsigned)(module->indexSteps[module->calcChan()]) : 64);
 				snprintf(displayStr, 3, "%2u", numSteps);
 				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 			}
 		}
-	};	
+	};
 	
 	
 	struct StepDisplayWidget : TransparentWidget {
