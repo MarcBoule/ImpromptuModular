@@ -184,11 +184,8 @@ IMSwitch3VInv::IMSwitch3VInv() {
 }
 
 
-
-LEDBezelBig::LEDBezelBig() {
-	momentary = true;
+LEDLightBezelBig::LEDLightBezelBig() {
 	float ratio = 2.13f;
-	addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/LEDBezel.svg")));
 	sw->box.size = sw->box.size.mult(ratio);
 	fb->removeChild(sw);
 	tw = new TransformWidget();
@@ -197,6 +194,8 @@ LEDBezelBig::LEDBezelBig() {
 	tw->box.size = sw->box.size; 
 	fb->addChild(tw);
 	box.size = sw->box.size; 
+	light->box.size *= ratio; 
+	light->box.pos *= ratio;
 	shadow->box.size = sw->box.size; 
 }
 

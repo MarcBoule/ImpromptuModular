@@ -162,9 +162,9 @@ struct IMSwitch3VInv : SvgSwitch {
 };
 
 
-struct LEDBezelBig : SvgSwitch {
+struct LEDLightBezelBig : LEDLightBezel<RedLight> {
 	TransformWidget *tw;
-	LEDBezelBig();
+	LEDLightBezelBig();
 };
 
 
@@ -306,22 +306,6 @@ struct GreenRedWhiteLight : GrayModuleLightWidget {
 		addBaseColor(SCHEME_GREEN);
 		addBaseColor(SCHEME_RED);
 		addBaseColor(SCHEME_WHITE);
-	}
-};
-
-
-template <typename BASE>
-struct GiantLight : BASE {
-	GiantLight() {
-		this->box.size = mm2px(Vec(19.0f, 19.0f));
-	}
-};
-
-
-template <typename BASE>
-struct GiantLight2 : BASE {
-	GiantLight2() {
-		this->box.size = mm2px(Vec(12.8f, 12.8f));
 	}
 };
 

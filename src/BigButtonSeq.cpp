@@ -692,9 +692,8 @@ struct BigButtonSeqWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col5 + 1, row6 + cvOffY), true, module, BigButtonSeq::FILL_INPUT, mode));
 
 		// And now time for... BIG BUTTON!
-		addChild(createLightCentered<GiantLight<RedLight>>(VecPx(colC, row6 + 25), module, BigButtonSeq::BIG_LIGHT));
-		addParam(createParamCentered<LEDBezelBig>(VecPx(colC, row6 + 25), module, BigButtonSeq::BIG_PARAM));
-		addChild(createLightCentered<GiantLight2<RedLight>>(VecPx(colC, row6 + 25), module, BigButtonSeq::BIGC_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colC, row6 - 8), module, BigButtonSeq::BIG_LIGHT));
+		addParam(createLightParamCentered<LEDLightBezelBig>(VecPx(colC, row6 + 29), module, BigButtonSeq::BIG_PARAM, BigButtonSeq::BIGC_LIGHT));
 		// Big input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colC - 57, row6 + cvOffY), true, module, BigButtonSeq::BIG_INPUT, mode));
 		// Big snap

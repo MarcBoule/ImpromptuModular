@@ -609,7 +609,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		WriteSeq32 *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		char text[4];
+		char text[8];
 		int* notesPosLocal;
 
 		NotesDisplayWidget() {
@@ -695,7 +695,7 @@ struct WriteSeq32Widget : ModuleWidget {
 				nvgFillColor(args.vg, displayColOff);
 				nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
 				nvgFillColor(args.vg, displayColOn);
-				char displayStr[3];
+				char displayStr[8];
 				unsigned int numSteps = (module ? (unsigned int)(module->calcSteps()) : 32);
 				snprintf(displayStr, 3, "%2u", (unsigned int)numSteps);
 				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
