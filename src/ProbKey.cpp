@@ -1385,10 +1385,7 @@ struct ProbKeyWidget : ModuleWidget {
 				if (module->perIndexManualLocks != 0 && module->getStepLock(stepNum, index)) {
 					module->stepLocksCvs[index][stepNum] = module->outputKernels[0].getBuf(stepNum);
 				}
-				// unconsume event:
-				e.context->propagating = false;
-				e.context->consumed = false;
-				e.context->target = NULL;
+				e.unconsume();
 			}
 			void step() override {
 				rightText = CHECKMARK(module->getStepLock(stepNum, index));
@@ -1410,10 +1407,7 @@ struct ProbKeyWidget : ModuleWidget {
 				else {
 					module->clearStepLock();
 				}
-				// unconsume event:
-				e.context->propagating = false;
-				e.context->consumed = false;
-				e.context->target = NULL;
+				e.unconsume();
 			}
 		};
 		struct ResetPlayheadsItem : MenuItem {
@@ -1428,10 +1422,7 @@ struct ProbKeyWidget : ModuleWidget {
 			ProbKey *module;
 			void onAction(const event::Action &e) override {
 				module->perIndexManualLocks ^= 0x1;
-				// unconsume event:
-				e.context->propagating = false;
-				e.context->consumed = false;
-				e.context->target = NULL;
+				e.unconsume();
 			}
 			void step() override {
 				rightText = CHECKMARK(module->perIndexManualLocks != 0);
