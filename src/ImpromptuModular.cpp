@@ -77,28 +77,6 @@ ClockMaster clockMaster;
 
 // General functions
 
-void drawDisplayBackground(NVGcontext *vg, Rect *box, int* mode) {
-	// not framebuffered
-	if (isDark(mode)) {
-		nvgBeginPath(vg);
-		NVGpaint grad = nvgLinearGradient(vg, 0, 0, 0, box->size.y, colTopD, colBotD);	
-		nvgRoundedRect(vg, -1.5f, -1.5f, box->size.x + 3.0f, box->size.y + 3.0f, 5.0f);
-		nvgFillPaint(vg, grad);
-		nvgFill(vg);
-	}
-
-	NVGcolor backgroundColor = nvgRGB(0x38, 0x38, 0x38); 
-	NVGcolor borderColor = nvgRGB(0x10, 0x10, 0x10);
-	nvgBeginPath(vg);
-	nvgRoundedRect(vg, 0.0, 0.0, box->size.x, box->size.y, 5.0f);
-	nvgFillColor(vg, backgroundColor);
-	nvgFill(vg);
-	nvgStrokeWidth(vg, 1.0);
-	nvgStrokeColor(vg, borderColor);
-	nvgStroke(vg);
-}
-
-
 static const char noteLettersSharp[12] = {'C', 'C', 'D', 'D', 'E', 'F', 'F', 'G', 'G', 'A', 'A', 'B'};
 static const char noteLettersFlat [12] = {'C', 'D', 'D', 'E', 'E', 'F', 'G', 'G', 'A', 'A', 'B', 'B'};
 static const char isBlackKey      [12] = { 0,   1,   0,   1,   0,   0,   1,   0,   1,   0,   1,   0 };

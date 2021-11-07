@@ -252,8 +252,6 @@ inline bool calcWarningFlash(long count, long countInit) {
 	return true;
 }	
 
-DEPRECATED void drawDisplayBackground(NVGcontext *vg, Rect *box, int* mode);
-
 inline void calcNoteAndOct(float cv, int* note12, int* oct0) {
 	// note12 is a note index (0 to 11) representing the C to B keys respectively
 	// oct0 is an octave number, 0 representing octave 4 (as in C4 for example)
