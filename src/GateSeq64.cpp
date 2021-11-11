@@ -1176,8 +1176,6 @@ struct GateSeq64 : Module {
 };// GateSeq64 : module
 
 struct GateSeq64Widget : ModuleWidget {
-	int lastPanelTheme = -1;
-		
 	struct SequenceDisplayWidget : TransparentWidget {
 		GateSeq64 *module;
 		std::shared_ptr<Font> font;
@@ -1408,15 +1406,14 @@ struct GateSeq64Widget : ModuleWidget {
 		}
 	};
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		GateSeq64 *module = dynamic_cast<GateSeq64*>(this->module);
 		assert(module);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		menu->addChild(new MenuSeparator());
+		
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -1442,13 +1439,12 @@ struct GateSeq64Widget : ModuleWidget {
 		lockItem->module = module;
 		menu->addChild(lockItem);
 		
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 
-		MenuLabel *expLabel = new MenuLabel();
-		expLabel->text = "Expander module";
-		menu->addChild(expLabel);
+		MenuLabel *actionsLabel = new MenuLabel();
+		actionsLabel->text = "Actions";
+		menu->addChild(actionsLabel);
 		
-
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (4HP right side)", "");
 		expItem->module = module;
 		expItem->model = modelGateSeq64Expander;
@@ -1659,18 +1655,6 @@ struct GateSeq64Widget : ModuleWidget {
 		// Outputs
 		for (int iSides = 0; iSides < 4; iSides++)
 			addOutput(createDynamicPortCentered<IMPort>(VecPx(323, 218 + iSides * 40), false, module, GateSeq64::GATE_OUTPUTS + iSides, mode));
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((GateSeq64*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 

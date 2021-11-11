@@ -497,8 +497,6 @@ struct FourView : Module {
 
 
 struct FourViewWidget : ModuleWidget {
-	int lastPanelTheme = -1;
-
 	struct NotesDisplayWidget : TransparentWidget {
 		FourView* module;
 		int baseIndex;
@@ -597,17 +595,16 @@ struct FourViewWidget : ModuleWidget {
 	void appendContextMenu(Menu *menu) override {
 		FourView *module = dynamic_cast<FourView*>(this->module);
 		assert(module);
-
+		
+		menu->addChild(new MenuSeparator());
+		
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		menu->addChild(interopSeqItem);		
-				
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -670,18 +667,6 @@ struct FourViewWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX + offsetX, posY2), false, module, FourView::CV_OUTPUTS + 1, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX - offsetX, posY2 + spacingY2), false, module, FourView::CV_OUTPUTS + 2, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX + offsetX, posY2 + spacingY2), false, module, FourView::CV_OUTPUTS + 3, mode));
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((FourView*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 	
 	void onHoverKey(const event::HoverKey& e) override {

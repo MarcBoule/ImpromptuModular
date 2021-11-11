@@ -36,16 +36,13 @@ struct BlankPanel : Module {
 
 
 struct BlankPanelWidget : ModuleWidget {
-	int lastPanelTheme = -1;
-	
 	void appendContextMenu(Menu *menu) override {
 		BlankPanel *module = dynamic_cast<BlankPanel*>(this->module);
 		assert(module);
 				
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
+		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 	}	
 
 
@@ -66,19 +63,6 @@ struct BlankPanelWidget : ModuleWidget {
 		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
 		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
 	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((BlankPanel*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
-	}
-	
 };
 
 Model *modelBlankPanel = createModel<BlankPanel, BlankPanelWidget>("Blank-Panel");

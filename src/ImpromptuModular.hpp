@@ -271,4 +271,4 @@ struct InstantiateExpanderItem : MenuItem {
 };
 
 
-void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast);
+void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast, SvgPanel* mainPanel);

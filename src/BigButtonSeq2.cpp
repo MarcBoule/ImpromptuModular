@@ -631,8 +631,6 @@ struct BigButtonSeq2 : Module {
 
 
 struct BigButtonSeq2Widget : ModuleWidget {
-	int lastPanelTheme = -1;
-
 	struct ChanDisplayWidget : TransparentWidget {
 		BigButtonSeq2 *module;
 		std::shared_ptr<Font> font;
@@ -784,16 +782,15 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		BigButtonSeq2 *module = dynamic_cast<BigButtonSeq2*>(this->module);
 		assert(module);
 
+		menu->addChild(new MenuSeparator());
+
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		menu->addChild(interopSeqItem);		
 
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 		
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -947,18 +944,6 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		// S&H LED button
 		addParam(createParamCentered<LEDButton>(VecPx(colRulerT6 + 2, rowRuler10 + gateOffsetY / 2), module, BigButtonSeq2::SAMPLEHOLD_PARAM));
 		addChild(createLightCentered<MediumLight<GreenLight>>(VecPx(colRulerT6 + 2, rowRuler10 + gateOffsetY / 2), module, BigButtonSeq2::SAMPLEHOLD_LIGHT));
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((BigButtonSeq2*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 

@@ -1860,8 +1860,6 @@ struct SemiModularSynth : Module {
 
 
 struct SemiModularSynthWidget : ModuleWidget {
-	int lastPanelTheme = -1;
-
 	struct SequenceDisplayWidget : TransparentWidget {
 		SemiModularSynth *module;
 		std::shared_ptr<Font> font;
@@ -2128,17 +2126,16 @@ struct SemiModularSynthWidget : ModuleWidget {
 		SemiModularSynth *module = dynamic_cast<SemiModularSynth*>(this->module);
 		assert(module);
 
+		menu->addChild(new MenuSeparator());
+		
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		interopSeqItem->disabled = !module->isEditingSequence();
 		menu->addChild(interopSeqItem);		
-				
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -2526,18 +2523,6 @@ struct SemiModularSynthWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colLfo, rowVCO3), false, module, SemiModularSynth::LFO_TRI_OUTPUT, mode));		
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colLfo, rowVCO4), false, module, SemiModularSynth::LFO_SIN_OUTPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colLfo, rowVCO5), true, module, SemiModularSynth::LFO_RESET_INPUT, mode));
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((SemiModularSynth*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 

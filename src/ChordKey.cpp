@@ -544,8 +544,6 @@ struct ChordKey : Module {
 
 
 struct ChordKeyWidget : ModuleWidget {
-	int lastPanelTheme = -1;
-
 	struct OctDisplayWidget : TransparentWidget {
 		ChordKey *module;
 		int index;
@@ -804,17 +802,30 @@ struct ChordKeyWidget : ModuleWidget {
 		ChordKey *module = dynamic_cast<ChordKey*>(this->module);
 		assert(module);
 
+		menu->addChild(new MenuSeparator());
+
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		menu->addChild(interopSeqItem);		
 				
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		
+		menu->addChild(new MenuSeparator());
+		
+		MenuLabel *settingsLabel = new MenuLabel();
+		settingsLabel->text = "Settings";
+		menu->addChild(settingsLabel);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		KeypressEmitGateItem *keypressMonItem = createMenuItem<KeypressEmitGateItem>("Keypress monitoring", CHECKMARK(module->keypressEmitGate));
+		keypressMonItem->module = module;
+		menu->addChild(keypressMonItem);
 		
-		menu->addChild(new MenuLabel());// empty line
+		MergeOutputsItem *mergeItem = createMenuItem<MergeOutputsItem>("Poly merge outputs into top note", RIGHT_ARROW);
+		mergeItem->module = module;
+		menu->addChild(mergeItem);
 		
+		menu->addChild(new MenuSeparator());
+
 		MenuLabel *actionsLabel = new MenuLabel();
 		actionsLabel->text = "Actions";
 		menu->addChild(actionsLabel);
@@ -832,26 +843,6 @@ struct ChordKeyWidget : ModuleWidget {
 		transposeSlider->box.size.x = 200.0f;
 		menu->addChild(transposeSlider);
 
-		menu->addChild(new MenuLabel());// empty line
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
-
-		KeypressEmitGateItem *keypressMonItem = createMenuItem<KeypressEmitGateItem>("Keypress monitoring", CHECKMARK(module->keypressEmitGate));
-		keypressMonItem->module = module;
-		menu->addChild(keypressMonItem);
-		
-		MergeOutputsItem *mergeItem = createMenuItem<MergeOutputsItem>("Poly merge outputs into top note", RIGHT_ARROW);
-		mergeItem->module = module;
-		menu->addChild(mergeItem);
-		
-		menu->addChild(new MenuLabel());// empty line
-
-		MenuLabel *expLabel = new MenuLabel();
-		expLabel->text = "Expander module";
-		menu->addChild(expLabel);
-		
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (6HP right side)", "");
 		expItem->module = module;
 		expItem->model = modelChordKeyExpander;
@@ -982,19 +973,7 @@ struct ChordKeyWidget : ModuleWidget {
 		}
 
 	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((ChordKey*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
-	}
-	
+		
 	void onHoverKey(const event::HoverKey& e) override {
 		if (e.action == GLFW_PRESS) {
 			if (e.key == GLFW_KEY_C) {

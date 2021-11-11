@@ -452,9 +452,6 @@ struct BigButtonSeq : Module {
 
 
 struct BigButtonSeqWidget : ModuleWidget {
-	int lastPanelTheme = -1;
-	float lastPanelContrast = -1.0f;
-
 	struct ChanDisplayWidget : TransparentWidget {
 		BigButtonSeq *module;
 		std::shared_ptr<Font> font;
@@ -564,15 +561,14 @@ struct BigButtonSeqWidget : ModuleWidget {
 		}
 	};
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		BigButtonSeq *module = dynamic_cast<BigButtonSeq*>(this->module);
 		assert(module);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		menu->addChild(new MenuSeparator());
 
-		menu->addChild(new MenuLabel());// empty line
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -708,20 +704,6 @@ struct BigButtonSeqWidget : ModuleWidget {
 		
 		// Metronome light
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(col0 + 1, row7), module, BigButtonSeq::METRONOME_LIGHT + 0));
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((BigButtonSeq*)module)->panelTheme);
-			float panelContrast = (((BigButtonSeq*)module)->panelContrast);
-			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-				lastPanelContrast = panelContrast;
-			}
-		}
-		Widget::step();
 	}
 };
 

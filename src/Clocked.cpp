@@ -856,7 +856,6 @@ struct Clocked : Module {
 
 
 struct ClockedWidget : ModuleWidget {
-	int lastPanelTheme = -1;
 	PortWidget* slaveResetRunBpmInputs[3];
 
 	struct RatioDisplayWidget : TransparentWidget {
@@ -971,15 +970,14 @@ struct ClockedWidget : ModuleWidget {
 		}
 	};	
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		Clocked *module = dynamic_cast<Clocked*>(this->module);
 		assert(module);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		menu->addChild(new MenuSeparator());
+		
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -1005,11 +1003,11 @@ struct ClockedWidget : ModuleWidget {
 		runInItem->module = module;
 		menu->addChild(runInItem);
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 
-		MenuLabel *expLabel = new MenuLabel();
-		expLabel->text = "Actions";
-		menu->addChild(expLabel);
+		MenuLabel *actionsLabel = new MenuLabel();
+		actionsLabel->text = "Actions";
+		menu->addChild(actionsLabel);
 		
 		AutopatchItem *apItem = createMenuItem<AutopatchItem>("Auto-patch", RIGHT_ARROW);
 		apItem->idPtr = &module->id;
@@ -1169,18 +1167,6 @@ struct ClockedWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col3, row5), false, module, Clocked::CLK_OUTPUTS + 1, mode));	
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col4, row5), false, module, Clocked::CLK_OUTPUTS + 2, mode));	
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row5), false, module, Clocked::CLK_OUTPUTS + 3, mode));	
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((Clocked*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 	
 	void onHoverKey(const event::HoverKey& e) override {

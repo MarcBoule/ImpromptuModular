@@ -353,22 +353,20 @@ struct Hotkey : Module {
 
 
 struct HotkeyWidget : ModuleWidget {
-	int lastPanelTheme = -1;
 	char strBuf[512];
 	
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		Hotkey *module = dynamic_cast<Hotkey*>(this->module);
 		assert(module);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		menu->addChild(new MenuSeparator());
 
-		menu->addChild(new MenuLabel());// empty line
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Current hotkey";
+		settingsLabel->text = "Current hotkey:";
 		menu->addChild(settingsLabel);
 		
 		MenuLabel *hotkeyLabel = new MenuLabel();
@@ -412,18 +410,6 @@ struct HotkeyWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(centerX, 288.0f), false, module, Hotkey::TRIG_OUTPUT, mode));
 	}
 	
-	void step() override {
-		if (module) {
-			int panelTheme = (((Hotkey*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
-	}
-		
 	void onHoverKey(const event::HoverKey& e) override {
 		if (e.action == GLFW_PRESS) {
 			Hotkey *module = dynamic_cast<Hotkey*>(this->module);

@@ -161,28 +161,34 @@ void InstantiateExpanderItem::onAction(const event::Action &e) {
 }
 
 
-void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast) {
+void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast, SvgPanel* mainPanel) {
 		
 	struct PanelThemeItem : MenuItem {
 		int* panelTheme = NULL;
 		float* panelContrast = NULL;
+		SvgPanel* mainPanel;
 		
 		Menu *createChildMenu() override {
 			struct PanelThemeDarkItem : MenuItem {
 				int* panelTheme = NULL;
+				SvgPanel* mainPanel;
 				void onAction(const event::Action &e) override {
 					*panelTheme ^= 0x1;
+					mainPanel->fb->dirty = true;
 				}
 			};
 
 			struct PanelContrastQuantity : Quantity {
 				float* panelContrast;
+				SvgPanel* mainPanel;
 				
-				PanelContrastQuantity(float* _panelContrast) {
+				PanelContrastQuantity(float* _panelContrast, SvgPanel* _mainPanel) {
 					panelContrast = _panelContrast;
+					mainPanel = _mainPanel;
 				}
 				void setValue(float value) override {
 					*panelContrast = math::clamp(value, getMinValue(), getMaxValue());
+					mainPanel->fb->dirty = true;
 				}
 				float getValue() override {
 					return *panelContrast;
@@ -192,15 +198,15 @@ void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast)
 				float getDefaultValue() override {return panelContrastDefault;}
 				float getDisplayValue() override {return *panelContrast;}
 				std::string getDisplayValueString() override {
-					return string::f("%.1f", *panelContrast);
+					return string::f("%.1f", rescale(*panelContrast, getMinValue(), getMaxValue(), 0.0f, 100.0f));
 				}
 				void setDisplayValue(float displayValue) override {setValue(displayValue);}
 				std::string getLabel() override {return "Panel contrast";}
 				std::string getUnit() override {return "";}
 			};
 			struct PanelContrastSlider : ui::Slider {
-				PanelContrastSlider(float* panelContrast) {
-					quantity = new PanelContrastQuantity(panelContrast);
+				PanelContrastSlider(float* panelContrast, SvgPanel* mainPanel) {
+					quantity = new PanelContrastQuantity(panelContrast, mainPanel);
 				}
 				~PanelContrastSlider() {
 					delete quantity;
@@ -209,7 +215,7 @@ void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast)
 			
 			struct DarkDefaultItem : MenuItem {
 				void onAction(const event::Action &e) override {
-					saveDarkAsDefault(rightText.empty());// implicitly toggled
+					saveDarkAsDefault(rightText.empty());
 				}
 			};	
 			
@@ -217,9 +223,10 @@ void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast)
 			
 			PanelThemeDarkItem *ptdItem = createMenuItem<PanelThemeDarkItem>("Dark", CHECKMARK(*panelTheme));
 			ptdItem->panelTheme = panelTheme;
+			ptdItem->mainPanel = mainPanel;
 			menu->addChild(ptdItem);
 			
-			PanelContrastSlider *cSlider = new PanelContrastSlider(panelContrast);
+			PanelContrastSlider *cSlider = new PanelContrastSlider(panelContrast, mainPanel);
 			cSlider->box.size.x = 200.0f;
 			menu->addChild(cSlider);
 
@@ -232,5 +239,6 @@ void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast)
 	PanelThemeItem *ptItem = createMenuItem<PanelThemeItem>("Panel theme", RIGHT_ARROW);
 	ptItem->panelTheme = panelTheme;
 	ptItem->panelContrast = panelContrast;
+	ptItem->mainPanel = mainPanel;
 	menu->addChild(ptItem);
 }

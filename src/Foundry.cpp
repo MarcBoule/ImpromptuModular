@@ -1393,8 +1393,6 @@ struct Foundry : Module {
 
 
 struct FoundryWidget : ModuleWidget {
-	int lastPanelTheme = -1;
-	
 	template <int NUMCHAR>
 	struct DisplayWidget : TransparentWidget {// a centered display, must derive from this
 		Foundry *module;
@@ -1982,17 +1980,16 @@ struct FoundryWidget : ModuleWidget {
 		Foundry *module = dynamic_cast<Foundry*>(this->module);
 		assert(module);
 
+		menu->addChild(new MenuSeparator());
+
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		interopSeqItem->disabled = !module->editingSequence;
 		menu->addChild(interopSeqItem);		
 				
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-		
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -2034,11 +2031,11 @@ struct FoundryWidget : ModuleWidget {
 		mergeItem->module = module;
 		menu->addChild(mergeItem);
 		
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 
-		MenuLabel *expLabel = new MenuLabel();
-		expLabel->text = "Expander module";
-		menu->addChild(expLabel);
+		MenuLabel *actionsLabel = new MenuLabel();
+		actionsLabel->text = "Actions";
+		menu->addChild(actionsLabel);
 		
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (10HP right side)", "");
 		expItem->module = module;
@@ -2435,18 +2432,6 @@ struct FoundryWidget : ModuleWidget {
 		// Run and reset inputs
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB11, rowRulerBHigh), true, module, Foundry::RUNCV_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB11, rowRulerBLow), true, module, Foundry::RESET_INPUT, mode));	
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((Foundry*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 

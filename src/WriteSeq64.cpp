@@ -613,8 +613,6 @@ struct WriteSeq64 : Module {
 
 
 struct WriteSeq64Widget : ModuleWidget {
-	int lastPanelTheme = -1;
-
 	struct NoteDisplayWidget : TransparentWidget {
 		WriteSeq64 *module;
 		std::shared_ptr<Font> font;
@@ -824,17 +822,15 @@ struct WriteSeq64Widget : ModuleWidget {
 		WriteSeq64 *module = dynamic_cast<WriteSeq64*>(this->module);
 		assert(module);
 
+		menu->addChild(new MenuSeparator());
+		
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		menu->addChild(interopSeqItem);		
 
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
-
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -1010,18 +1006,6 @@ struct WriteSeq64Widget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row1), false, module, WriteSeq64::GATE_OUTPUTS + 1, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row2), false, module, WriteSeq64::GATE_OUTPUTS + 2, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row3), false, module, WriteSeq64::GATE_OUTPUTS + 3, mode));
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((WriteSeq64*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 

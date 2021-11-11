@@ -728,7 +728,6 @@ struct Clkd : Module {
 
 
 struct ClkdWidget : ModuleWidget {
-	int lastPanelTheme = -1;
 	PortWidget* slaveResetRunBpmInputs[3];
 
 	struct BpmRatioDisplayWidget : TransparentWidget {
@@ -828,15 +827,14 @@ struct ClkdWidget : ModuleWidget {
 		}
 	};	
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		Clkd *module = dynamic_cast<Clkd*>(this->module);
 		assert(module);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		menu->addChild(new MenuSeparator());
+		
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -862,7 +860,7 @@ struct ClkdWidget : ModuleWidget {
 		trigItem->module = module;
 		menu->addChild(trigItem);
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 
 		MenuLabel *expLabel = new MenuLabel();
 		expLabel->text = "Actions";
@@ -1010,18 +1008,6 @@ struct ClkdWidget : ModuleWidget {
 		// Out out
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row6), false, module, Clkd::BPM_OUTPUT, mode));
 
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((Clkd*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 	
 	void onHoverKey(const event::HoverKey& e) override {

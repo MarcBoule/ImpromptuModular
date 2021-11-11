@@ -1228,8 +1228,6 @@ struct ProbKey : Module {
 
 
 struct ProbKeyWidget : ModuleWidget {
-	int lastPanelTheme = -1;
-
 	struct IndexCvCap12Item : MenuItem {
 		ProbKey *module;
 		void onAction(const event::Action &e) override {
@@ -1494,25 +1492,16 @@ struct ProbKeyWidget : ModuleWidget {
 	void appendContextMenu(Menu *menu) override {
 		ProbKey *module = dynamic_cast<ProbKey*>(this->module);
 		assert(module);
-				
+		
+		menu->addChild(new MenuSeparator());
+		
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
-		menu->addChild(interopSeqItem);		
+		menu->addChild(interopSeqItem);
 
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 		
-		// menu->addChild(new MenuLabel());// empty line
-		
-		// MenuLabel *actionsLabel = new MenuLabel();
-		// actionsLabel->text = "Actions";
-		// menu->addChild(actionsLabel);
-
-		// todo
-
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -1714,20 +1703,6 @@ struct ProbKeyWidget : ModuleWidget {
 		// Gate output
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col6, row2)), false, module, ProbKey::GATE_OUTPUT, mode));
 	}
-	
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((ProbKey*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
-	}
-
 };
 
 Model *modelProbKey = createModel<ProbKey, ProbKeyWidget>("Prob-Key");

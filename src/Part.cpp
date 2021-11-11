@@ -154,8 +154,6 @@ struct Part : Module {
 
 
 struct PartWidget : ModuleWidget {
-	int lastPanelTheme = -1;
-
 	struct SplitDisplayWidget : TransparentWidget {
 		Part *module;
 		std::shared_ptr<Font> font;
@@ -258,15 +256,14 @@ struct PartWidget : ModuleWidget {
 		}
 	};
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		Part *module = dynamic_cast<Part*>(this->module);
 		assert(module);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		menu->addChild(new MenuSeparator());
+
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 		
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -338,18 +335,6 @@ struct PartWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colL, row5), true, module, Part::SPLIT_INPUT, mode));		
 		// Gate low output
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colR, row5), false, module, Part::LOW_OUTPUT, mode));
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((Part*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 

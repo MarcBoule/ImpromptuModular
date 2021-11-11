@@ -392,11 +392,6 @@ struct TwelveKey : Module {
 
 
 struct TwelveKeyWidget : ModuleWidget {
-	// new:
-	int lastPanelTheme = -1;// TODO integrate this into a new ImpromptuModuleWidget which does all the management in one struct instead of in all modules! Then declare "WriteSeq32Widget : ImpromptuModuleWidget" above
-	// old:
-	// int lastPanelTheme = -1;
-
 	struct OctaveNumDisplayWidget : TransparentWidget {
 		TwelveKey *module;
 		std::shared_ptr<Font> font;
@@ -461,15 +456,14 @@ struct TwelveKeyWidget : ModuleWidget {
 		}
 	};
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		TwelveKey *module = dynamic_cast<TwelveKey*>(this->module);
 		assert(module);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		menu->addChild(new MenuSeparator());
+
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 		
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -601,18 +595,6 @@ struct TwelveKeyWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler1), false, module, TwelveKey::CV_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler2), false, module, TwelveKey::GATE_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR2, rowRuler2), false, module, TwelveKey::VEL_OUTPUT, mode));
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((TwelveKey*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 

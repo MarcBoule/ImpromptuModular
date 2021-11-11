@@ -359,8 +359,6 @@ struct Tact : Module {
 
 
 struct TactWidget : ModuleWidget {
-	int lastPanelTheme = -1;
-
 	struct ExtendRateItem : MenuItem {
 		Tact *module;
 		void onAction(const event::Action &e) override {
@@ -377,15 +375,14 @@ struct TactWidget : ModuleWidget {
 		}
 	};
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		Tact *module = dynamic_cast<Tact*>(this->module);
 		assert(module);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		menu->addChild(new MenuSeparator());
 
-		menu->addChild(new MenuLabel());// empty line
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -550,18 +547,6 @@ struct TactWidget : ModuleWidget {
 		// Lights
 		addChild(createLightCentered<SmallLight<GreenLight>>(VecPx(colC - 48, row2 - 21), module, Tact::CVIN_LIGHTS + 0 * 2));		
 		addChild(createLightCentered<SmallLight<GreenLight>>(VecPx(colC + 48, row2 - 21), module, Tact::CVIN_LIGHTS + 1 * 2));		
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((Tact*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 
@@ -745,8 +730,6 @@ struct Tact1 : Module {
 };
 
 struct Tact1Widget : ModuleWidget {
-	int lastPanelTheme = -1;
-
 	struct ExtendRateItem : MenuItem {
 		Tact1 *module;
 		void onAction(const event::Action &e) override {
@@ -758,15 +741,14 @@ struct Tact1Widget : ModuleWidget {
 	};
 	
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		Tact1 *module = dynamic_cast<Tact1*>(this->module);
 		assert(module);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		menu->addChild(new MenuSeparator());
+		
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -832,18 +814,6 @@ struct Tact1Widget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(30, rowRuler3), false, module, Tact1::CV_OUTPUT, mode));
 		// Exp switch
 		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(69, rowRuler3), module, Tact1::EXP_PARAM, mode));		
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((Tact1*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 
@@ -1035,8 +1005,6 @@ struct TactG : Module {
 };
 
 struct TactGWidget : ModuleWidget {
-	int lastPanelTheme = -1;
-
 	struct ExtendRateItem : MenuItem {
 		TactG *module;
 		void onAction(const event::Action &e) override {
@@ -1048,15 +1016,14 @@ struct TactGWidget : ModuleWidget {
 	};
 	
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		TactG *module = dynamic_cast<TactG*>(this->module);
 		assert(module);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		menu->addChild(new MenuSeparator());
+		
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -1140,18 +1107,6 @@ struct TactGWidget : ModuleWidget {
 		// Gate and CV outputs
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB1)), false, module, TactG::CV_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(colRulerM, rowRulerB2)), false, module, TactG::GATE_OUTPUT, mode));
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((TactG*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 

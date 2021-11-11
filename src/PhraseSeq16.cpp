@@ -1639,8 +1639,6 @@ struct PhraseSeq16 : Module {
 
 
 struct PhraseSeq16Widget : ModuleWidget {
-	int lastPanelTheme = -1;
-
 	struct SequenceDisplayWidget : TransparentWidget {
 		PhraseSeq16 *module;
 		std::shared_ptr<Font> font;
@@ -1907,17 +1905,16 @@ struct PhraseSeq16Widget : ModuleWidget {
 		PhraseSeq16 *module = dynamic_cast<PhraseSeq16*>(this->module);
 		assert(module);
 
+		menu->addChild(new MenuSeparator());
+		
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		interopSeqItem->disabled = !module->isEditingSequence();
 		menu->addChild(interopSeqItem);		
 				
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
-
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -1947,11 +1944,11 @@ struct PhraseSeq16Widget : ModuleWidget {
 		aseqItem->module = module;
 		menu->addChild(aseqItem);
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 
-		MenuLabel *expLabel = new MenuLabel();
-		expLabel->text = "Expander module";
-		menu->addChild(expLabel);
+		MenuLabel *actionsLabel = new MenuLabel();
+		actionsLabel->text = "Actions";
+		menu->addChild(actionsLabel);
 		
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (4HP right side)", "");
 		expItem->module = module;
@@ -2221,18 +2218,6 @@ struct PhraseSeq16Widget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colB5, rowB0), false, module, PhraseSeq16::CV_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colB6, rowB0), false, module, PhraseSeq16::GATE1_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colB7, rowB0), false, module, PhraseSeq16::GATE2_OUTPUT, mode));
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((PhraseSeq16*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 

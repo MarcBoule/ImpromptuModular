@@ -438,8 +438,6 @@ struct CvPad : Module {
 
 
 struct CvPadWidget : ModuleWidget {
-	int lastPanelTheme = -1;
-	
 	// Widgets
 	// --------------------------------
 	
@@ -863,14 +861,23 @@ struct CvPadWidget : ModuleWidget {
 	
 	
 	void appendContextMenu(Menu *menu) override {
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
-
 		CvPad *module = (CvPad*)(this->module);
+		
+		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		
+		menu->addChild(new MenuSeparator());
 
-		menu->addChild(new MenuLabel());// empty line
+		MenuLabel *settingsLabel = new MenuLabel();
+		settingsLabel->text = "Settings";
+		menu->addChild(settingsLabel);
+		
+		HighSensitivityCvKnobItem *hscItem = createMenuItem<HighSensitivityCvKnobItem>("High sensitivity CV knob", CHECKMARK(module->highSensitivityCvKnob));
+		hscItem->module = module;
+		menu->addChild(hscItem);
+
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *actionsLabel = new MenuLabel();
 		actionsLabel->text = "Actions";
@@ -889,17 +896,6 @@ struct CvPadWidget : ModuleWidget {
 		opItem->bankSrc = &(module->bank);
 		opItem->cvsCpBufSrc = module->cvsCpBuf;
 		menu->addChild(opItem);
-		
-		menu->addChild(new MenuLabel());// empty line
-
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
-		
-		HighSensitivityCvKnobItem *hscItem = createMenuItem<HighSensitivityCvKnobItem>("High sensitivity CV knob", CHECKMARK(module->highSensitivityCvKnob));
-		hscItem->module = module;
-		menu->addChild(hscItem);
-		
 	}
 	
 	CvPadWidget(CvPad *module) {
@@ -1004,19 +1000,6 @@ struct CvPadWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<CvKnob>(VecPx(padX + padXd * 2, topY), module, CvPad::CV_PARAM, mode));
 		// bank knob
 		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, mode));
-	}
-	
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((CvPad*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 

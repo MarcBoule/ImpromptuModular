@@ -612,7 +612,6 @@ struct WriteSeq32 : Module {
 
 
 struct WriteSeq32Widget : ModuleWidget {
-	int lastPanelTheme = -1;
 	int notesPos[8]; // used for rendering notes in LCD_24, 8 gate and 8 step LEDs 
 
 	struct NotesDisplayWidget : TransparentWidget {
@@ -764,16 +763,15 @@ struct WriteSeq32Widget : ModuleWidget {
 		WriteSeq32 *module = dynamic_cast<WriteSeq32*>(this->module);
 		assert(module);
 		
+		menu->addChild(new MenuSeparator());
+		
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		menu->addChild(interopSeqItem);		
-				
-		MenuLabel *spacerLabel = new MenuLabel();
-		menu->addChild(spacerLabel);
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
-		menu->addChild(new MenuLabel());// empty line
+		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();
 		settingsLabel->text = "Settings";
@@ -954,18 +952,6 @@ struct WriteSeq32Widget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col5, row2), false, module, WriteSeq32::GATE_OUTPUTS + 2, mode));
 		// Clock
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col5, row3), true, module, WriteSeq32::CLOCK_INPUT, mode));		
-	}
-	
-	void step() override {
-		if (module) {
-			int panelTheme = (((WriteSeq32*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
-				svgPanel->fb->dirty = true;
-				lastPanelTheme = panelTheme;
-			}
-		}
-		Widget::step();
 	}
 };
 
