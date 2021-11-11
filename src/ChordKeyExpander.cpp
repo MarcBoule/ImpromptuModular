@@ -47,6 +47,7 @@ struct ChordKeyExpander : Module {
 
 	// No need to save, no reset
 	int panelTheme;
+	float panelContrast;
 	RefreshCounter refresh;
 
 	
@@ -65,6 +66,7 @@ struct ChordKeyExpander : Module {
 		}
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 	
 
@@ -208,22 +210,16 @@ struct ChordKeyExpander : Module {
 
 struct ChordKeyExpanderWidget : ModuleWidget {
 	int lastPanelTheme = -1;
-
-	struct PanelThemeItem : MenuItem {
-		ChordKeyExpander *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
 	
 	ChordKeyExpanderWidget(ChordKeyExpander *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/ChordKeyExpander.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 
 		// Screws

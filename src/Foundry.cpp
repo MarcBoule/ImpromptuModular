@@ -98,6 +98,7 @@ struct Foundry : Module {
 
 	// Need to save, no reset
 	int panelTheme;
+	float panelContrast;
 	
 	// Need to save, with reset
 	int velocityMode;
@@ -244,6 +245,7 @@ struct Foundry : Module {
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 
 	
@@ -299,6 +301,9 @@ struct Foundry : Module {
 
 		// panelTheme
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+
+		// panelContrast
+		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
 
 		// velocityMode
 		json_object_set_new(rootJ, "velocityMode", json_integer(velocityMode));
@@ -360,6 +365,11 @@ struct Foundry : Module {
 			if (panelTheme == 2)// metal was deprecated 
 				panelTheme = 1;
 		}
+
+		// panelContrast
+		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
+		if (panelContrastJ)
+			panelContrast = json_number_value(panelContrastJ);
 
 		// velocityMode
 		json_t *velocityModeJ = json_object_get(rootJ, "velocityMode");
@@ -1767,12 +1777,6 @@ struct FoundryWidget : ModuleWidget {
 	};
 	
 
-	struct PanelThemeItem : MenuItem {
-		Foundry *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
 	struct ResetOnRunItem : MenuItem {
 		Foundry *module;
 		void onAction(const event::Action &e) override {
@@ -1986,15 +1990,7 @@ struct FoundryWidget : ModuleWidget {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
 		
-		MenuLabel *themeLabel = new MenuLabel();
-		themeLabel->text = "Panel Theme";
-		menu->addChild(themeLabel);
-
-		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
-		darkItem->module = module;
-		menu->addChild(darkItem);
-		
-		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
 
 		menu->addChild(new MenuLabel());// empty line
 		
@@ -2160,11 +2156,12 @@ struct FoundryWidget : ModuleWidget {
 	FoundryWidget(Foundry *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/Foundry.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws

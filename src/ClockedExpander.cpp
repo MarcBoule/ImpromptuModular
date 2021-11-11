@@ -28,6 +28,7 @@ struct ClockedExpander : Module {
 
 	// No need to save, no reset
 	int panelTheme;
+	float panelContrast;
 	unsigned int expanderRefreshCounter = 0;
 
 
@@ -38,6 +39,7 @@ struct ClockedExpander : Module {
 		leftExpander.consumerMessage = leftMessages[1];
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 
 
@@ -70,11 +72,12 @@ struct ClockedExpanderWidget : ModuleWidget {
 	ClockedExpanderWidget(ClockedExpander *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 	
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/ClockedExpander.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws

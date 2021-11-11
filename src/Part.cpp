@@ -38,6 +38,7 @@ struct Part : Module {
 		
 	// Need to save, no reset
 	int panelTheme;
+	float panelContrast;
 	
 	// Need to save, with reset
 	bool showSharp;
@@ -62,6 +63,7 @@ struct Part : Module {
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 
 	
@@ -84,6 +86,9 @@ struct Part : Module {
 		// panelTheme
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
 
+		// panelContrast
+		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
+
 		// showSharp
 		json_object_set_new(rootJ, "showSharp", json_boolean(showSharp));
 		
@@ -100,6 +105,11 @@ struct Part : Module {
 		if (panelThemeJ)
 			panelTheme = json_integer_value(panelThemeJ);
 		
+		// panelContrast
+		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
+		if (panelContrastJ)
+			panelContrast = json_number_value(panelContrastJ);
+
 		// showSharp
 		json_t *showSharpJ = json_object_get(rootJ, "showSharp");
 		if (showSharpJ)
@@ -235,12 +245,6 @@ struct PartWidget : ModuleWidget {
 		}
 	};
 
-	struct PanelThemeItem : MenuItem {
-		Part *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
 	struct SharpItem : MenuItem {
 		Part *module;
 		void onAction(const event::Action &e) override {
@@ -260,15 +264,7 @@ struct PartWidget : ModuleWidget {
 		Part *module = dynamic_cast<Part*>(this->module);
 		assert(module);
 
-		MenuLabel *themeLabel = new MenuLabel();
-		themeLabel->text = "Panel Theme";
-		menu->addChild(themeLabel);
-
-		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
-		darkItem->module = module;
-		menu->addChild(darkItem);
-
-		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
 		
 		menu->addChild(new MenuLabel());// empty line
 		
@@ -289,11 +285,12 @@ struct PartWidget : ModuleWidget {
 	PartWidget(Part *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/Part.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws

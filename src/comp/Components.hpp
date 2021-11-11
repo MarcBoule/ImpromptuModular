@@ -34,12 +34,6 @@ inline bool isDark(int* mode) {
 	return (mode != NULL) ? (*mode != 0) : loadDarkAsDefault();
 }
 
-struct DarkDefaultItem : MenuItem {
-	void onAction(const event::Action &e) override {
-		saveDarkAsDefault(rightText.empty());// implicitly toggled
-	}
-};	
-
 
 
 // Helpers

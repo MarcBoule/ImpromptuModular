@@ -48,6 +48,7 @@ struct TwelveKey : Module {
 	
 	// Need to save, no reset
 	int panelTheme;
+	float panelContrast;
 	
 	
 	// Need to save, with reset
@@ -97,6 +98,7 @@ struct TwelveKey : Module {
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 
 	void onReset() override {
@@ -133,6 +135,9 @@ struct TwelveKey : Module {
 		
 		// panelTheme
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+
+		// panelContrast
+		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
 
 		// octave
 		json_object_set_new(rootJ, "octave", json_integer(octaveNum));
@@ -172,6 +177,11 @@ struct TwelveKey : Module {
 		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
 		if (panelThemeJ)
 			panelTheme = json_integer_value(panelThemeJ);
+
+		// panelContrast
+		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
+		if (panelContrastJ)
+			panelContrast = json_number_value(panelContrastJ);
 
 		// octave
 		json_t *octaveJ = json_object_get(rootJ, "octave");
@@ -426,12 +436,6 @@ struct TwelveKeyWidget : ModuleWidget {
 	};
 	
 	
-	struct PanelThemeItem : MenuItem {
-		TwelveKey *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
 	struct InvertVelItem : MenuItem {
 		TwelveKey *module;
 		void onAction(const event::Action &e) override {
@@ -463,15 +467,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		TwelveKey *module = dynamic_cast<TwelveKey*>(this->module);
 		assert(module);
 
-		MenuLabel *themeLabel = new MenuLabel();
-		themeLabel->text = "Panel Theme";
-		menu->addChild(themeLabel);
-
-		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
-		darkItem->module = module;
-		menu->addChild(darkItem);
-		
-		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
 		
 		menu->addChild(new MenuLabel());// empty line
 		
@@ -501,11 +497,12 @@ struct TwelveKeyWidget : ModuleWidget {
 	TwelveKeyWidget(TwelveKey *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/TwelveKey.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		

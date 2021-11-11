@@ -45,6 +45,7 @@ struct Tact : Module {
 		
 	// Need to save, no reset
 	int panelTheme;
+	float panelContrast;
 	
 	// Need to save, with reset
 	double cv[2];// actual Tact CV since Tactknob can be different than these when transitioning
@@ -89,6 +90,7 @@ struct Tact : Module {
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 
 	
@@ -120,6 +122,9 @@ struct Tact : Module {
 		// panelTheme
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
 
+		// panelContrast
+		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
+
 		// cv
 		json_object_set_new(rootJ, "cv0", json_real(cv[0]));
 		json_object_set_new(rootJ, "cv1", json_real(cv[1]));
@@ -150,6 +155,11 @@ struct Tact : Module {
 		if (panelThemeJ)
 			panelTheme = json_integer_value(panelThemeJ);
 		
+		// panelContrast
+		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
+		if (panelContrastJ)
+			panelContrast = json_number_value(panelContrastJ);
+
 		// cv
 		json_t *cv0J = json_object_get(rootJ, "cv0");
 		if (cv0J)
@@ -351,12 +361,6 @@ struct Tact : Module {
 struct TactWidget : ModuleWidget {
 	int lastPanelTheme = -1;
 
-	struct PanelThemeItem : MenuItem {
-		Tact *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
 	struct ExtendRateItem : MenuItem {
 		Tact *module;
 		void onAction(const event::Action &e) override {
@@ -379,15 +383,7 @@ struct TactWidget : ModuleWidget {
 		Tact *module = dynamic_cast<Tact*>(this->module);
 		assert(module);
 
-		MenuLabel *themeLabel = new MenuLabel();
-		themeLabel->text = "Panel Theme";
-		menu->addChild(themeLabel);
-
-		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
-		darkItem->module = module;
-		menu->addChild(darkItem);
-
-		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
 
 		menu->addChild(new MenuLabel());// empty line
 		
@@ -437,11 +433,12 @@ struct TactWidget : ModuleWidget {
 	TactWidget(Tact *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/Tact.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
@@ -595,6 +592,7 @@ struct Tact1 : Module {
 		
 	// Need to save, no reset
 	int panelTheme;
+	float panelContrast;
 	
 	// Need to save, with reset
 	double cv;// actual Tact CV since Tactknob can be different than these when transitioning
@@ -622,6 +620,7 @@ struct Tact1 : Module {
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 
 	
@@ -647,6 +646,9 @@ struct Tact1 : Module {
 		// panelTheme
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
 
+		// panelContrast
+		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
+
 		// cv
 		json_object_set_new(rootJ, "cv", json_real(cv));
 		
@@ -665,6 +667,11 @@ struct Tact1 : Module {
 		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
 		if (panelThemeJ)
 			panelTheme = json_integer_value(panelThemeJ);
+
+		// panelContrast
+		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
+		if (panelContrastJ)
+			panelContrast = json_number_value(panelContrastJ);
 
 		// cv
 		json_t *cvJ = json_object_get(rootJ, "cv");
@@ -740,12 +747,6 @@ struct Tact1 : Module {
 struct Tact1Widget : ModuleWidget {
 	int lastPanelTheme = -1;
 
-	struct PanelThemeItem : MenuItem {
-		Tact1 *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
 	struct ExtendRateItem : MenuItem {
 		Tact1 *module;
 		void onAction(const event::Action &e) override {
@@ -763,15 +764,7 @@ struct Tact1Widget : ModuleWidget {
 		Tact1 *module = dynamic_cast<Tact1*>(this->module);
 		assert(module);
 
-		MenuLabel *themeLabel = new MenuLabel();
-		themeLabel->text = "Panel Theme";
-		menu->addChild(themeLabel);
-
-		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
-		darkItem->module = module;
-		menu->addChild(darkItem);
-		
-		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
 
 		menu->addChild(new MenuLabel());// empty line
 		
@@ -792,11 +785,12 @@ struct Tact1Widget : ModuleWidget {
 	Tact1Widget(Tact1 *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/Tact1.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
@@ -887,6 +881,7 @@ struct TactG : Module {
 		
 	// Need to save, no reset
 	int panelTheme;
+	float panelContrast;
 	
 	// Need to save, with reset
 	double cv;// actual Tact CV since Tactknob can be different than these when transitioning
@@ -916,6 +911,7 @@ struct TactG : Module {
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 
 	
@@ -940,6 +936,9 @@ struct TactG : Module {
 		// panelTheme
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
 
+		// panelContrast
+		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
+
 		// cv
 		json_object_set_new(rootJ, "cv", json_real(cv));
 		
@@ -955,6 +954,11 @@ struct TactG : Module {
 		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
 		if (panelThemeJ)
 			panelTheme = json_integer_value(panelThemeJ);
+
+		// panelContrast
+		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
+		if (panelContrastJ)
+			panelContrast = json_number_value(panelContrastJ);
 
 		// cv
 		json_t *cvJ = json_object_get(rootJ, "cv");
@@ -1033,12 +1037,6 @@ struct TactG : Module {
 struct TactGWidget : ModuleWidget {
 	int lastPanelTheme = -1;
 
-	struct PanelThemeItem : MenuItem {
-		TactG *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
 	struct ExtendRateItem : MenuItem {
 		TactG *module;
 		void onAction(const event::Action &e) override {
@@ -1056,15 +1054,7 @@ struct TactGWidget : ModuleWidget {
 		TactG *module = dynamic_cast<TactG*>(this->module);
 		assert(module);
 
-		MenuLabel *themeLabel = new MenuLabel();
-		themeLabel->text = "Panel Theme";
-		menu->addChild(themeLabel);
-
-		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
-		darkItem->module = module;
-		menu->addChild(darkItem);
-		
-		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
 
 		menu->addChild(new MenuLabel());// empty line
 		
@@ -1085,11 +1075,12 @@ struct TactGWidget : ModuleWidget {
 	TactGWidget(TactG *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/TactG.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws

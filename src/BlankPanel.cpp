@@ -8,34 +8,35 @@
 
 struct BlankPanel : Module {
 	int panelTheme;
+	float panelContrast;
 
 	BlankPanel() {
 		config(0, 0, 0, 0);
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
 		return rootJ;
 	}
 
 	void dataFromJson(json_t *rootJ) override {
 		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
 		if (panelThemeJ) panelTheme = json_integer_value(panelThemeJ);
+
+		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
+		if (panelContrastJ)
+			panelContrast = json_number_value(panelContrastJ);
+
 	}	
 };
 
 
 struct BlankPanelWidget : ModuleWidget {
 	int lastPanelTheme = -1;
-
-	struct PanelThemeItem : MenuItem {
-		BlankPanel *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
 	
 	void appendContextMenu(Menu *menu) override {
 		BlankPanel *module = dynamic_cast<BlankPanel*>(this->module);
@@ -44,26 +45,19 @@ struct BlankPanelWidget : ModuleWidget {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
 
-		MenuLabel *themeLabel = new MenuLabel();
-		themeLabel->text = "Panel Theme";
-		menu->addChild(themeLabel);
-
-		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
-		darkItem->module = module;
-		menu->addChild(darkItem);
-
-		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
 	}	
 
 
 	BlankPanelWidget(BlankPanel *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/BlankPanel.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws

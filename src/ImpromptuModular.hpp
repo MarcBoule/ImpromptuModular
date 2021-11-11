@@ -58,7 +58,7 @@ extern Model *modelBlankPanel;
 static const bool retrigGatesOnReset = true;
 static constexpr float clockIgnoreOnResetDuration = 0.001f;// disable clock on powerup and reset for 1 ms (so that the first step plays)
 
-static const std::string darkPanelID = "Dark";
+static constexpr float panelContrastDefault = 220.0f;
 static const unsigned int expanderRefreshStepSkips = 4;
 static const NVGcolor colPanelBase = nvgRGB(220, 220, 220);
 static const NVGcolor displayColOn = nvgRGB(0xaf, 0xd2, 0x2c);
@@ -70,10 +70,10 @@ static const NVGcolor displayColOff = nvgRGB(67, 70, 55);
 // General objects
 
 struct PanelBaseWidget : TransparentWidget {
-	int* panelThemeSrc = NULL;
-	PanelBaseWidget(Vec _size, int* _panelThemeSrc) {
+	float* panelContrastSrc = NULL;
+	PanelBaseWidget(Vec _size, float* _panelContrastSrc) {
 		box.size = _size;
-		panelThemeSrc = _panelThemeSrc;
+		panelContrastSrc = _panelContrastSrc;
 	}
 	void draw(const DrawArgs& args) override {
 		nvgBeginPath(args.vg);
@@ -269,3 +269,6 @@ struct InstantiateExpanderItem : MenuItem {
 	Vec posit;
 	void onAction(const event::Action &e) override;
 };
+
+
+void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast);

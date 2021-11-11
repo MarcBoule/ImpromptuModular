@@ -61,6 +61,7 @@ struct FourView : Module {
 
 	// Need to save, no reset
 	int panelTheme;
+	float panelContrast;
 	
 	// Need to save, with reset
 	int allowPolyOverride;
@@ -90,6 +91,7 @@ struct FourView : Module {
 		configParam(MODE_PARAM, 0.0, 1.0, 0.0, "Display mode");// 0.0 is left, notes by default left, chord right
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 	
 
@@ -115,6 +117,9 @@ struct FourView : Module {
 		// panelTheme
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
 
+		// panelContrast
+		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
+
 		// allowPolyOverride
 		json_object_set_new(rootJ, "allowPolyOverride", json_integer(allowPolyOverride));
 
@@ -129,6 +134,11 @@ struct FourView : Module {
 		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
 		if (panelThemeJ)
 			panelTheme = json_integer_value(panelThemeJ);
+
+		// panelContrast
+		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
+		if (panelContrastJ)
+			panelContrast = json_number_value(panelContrastJ);
 
 		// allowPolyOverride
 		json_t *allowPolyOverrideJ = json_object_get(rootJ, "allowPolyOverride");
@@ -543,12 +553,6 @@ struct FourViewWidget : ModuleWidget {
 	};
 
 
-	struct PanelThemeItem : MenuItem {
-		FourView *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
 	struct PolyIn1Item : MenuItem {
 		FourView *module;
 		void onAction(const event::Action &e) override {
@@ -601,15 +605,7 @@ struct FourViewWidget : ModuleWidget {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
 
-		MenuLabel *themeLabel = new MenuLabel();
-		themeLabel->text = "Panel Theme";
-		menu->addChild(themeLabel);
-
-		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
-		darkItem->module = module;
-		menu->addChild(darkItem);
-		
-		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
 
 		menu->addChild(new MenuLabel());// empty line
 		
@@ -630,11 +626,12 @@ struct FourViewWidget : ModuleWidget {
 	FourViewWidget(FourView *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/FourView.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 
 		// Screws

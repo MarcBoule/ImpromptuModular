@@ -96,6 +96,7 @@ struct PhraseSeq32 : Module {
 
 	// Need to save, no reset
 	int panelTheme;
+	float panelContrast;
 	
 	// Need to save, with reset
 	bool autoseq;
@@ -272,6 +273,7 @@ struct PhraseSeq32 : Module {
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 
 	
@@ -367,6 +369,9 @@ struct PhraseSeq32 : Module {
 		// panelTheme
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
 
+		// panelContrast
+		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
+
 		// autostepLen
 		json_object_set_new(rootJ, "autostepLen", json_boolean(autostepLen));
 		
@@ -446,6 +451,11 @@ struct PhraseSeq32 : Module {
 		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
 		if (panelThemeJ)
 			panelTheme = json_integer_value(panelThemeJ);
+
+		// panelContrast
+		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
+		if (panelContrastJ)
+			panelContrast = json_number_value(panelContrastJ);
 
 		// autostepLen
 		json_t *autostepLenJ = json_object_get(rootJ, "autostepLen");
@@ -1897,12 +1907,6 @@ struct PhraseSeq32Widget : ModuleWidget {
 		}
 	};		
 	
-	struct PanelThemeItem : MenuItem {
-		PhraseSeq32 *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
 	struct ResetOnRunItem : MenuItem {
 		PhraseSeq32 *module;
 		void onAction(const event::Action &e) override {
@@ -2013,15 +2017,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
 
-		MenuLabel *themeLabel = new MenuLabel();
-		themeLabel->text = "Panel Theme";
-		menu->addChild(themeLabel);
-
-		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
-		darkItem->module = module;
-		menu->addChild(darkItem);
-
-		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
 
 		menu->addChild(new MenuLabel());// empty line
 		
@@ -2123,11 +2119,12 @@ struct PhraseSeq32Widget : ModuleWidget {
 	PhraseSeq32Widget(PhraseSeq32 *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/PhraseSeq32.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws

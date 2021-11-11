@@ -161,3 +161,76 @@ void InstantiateExpanderItem::onAction(const event::Action &e) {
 }
 
 
+void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast) {
+		
+	struct PanelThemeItem : MenuItem {
+		int* panelTheme = NULL;
+		float* panelContrast = NULL;
+		
+		Menu *createChildMenu() override {
+			struct PanelThemeDarkItem : MenuItem {
+				int* panelTheme = NULL;
+				void onAction(const event::Action &e) override {
+					*panelTheme ^= 0x1;
+				}
+			};
+
+			struct PanelContrastQuantity : Quantity {
+				float* panelContrast;
+				
+				PanelContrastQuantity(float* _panelContrast) {
+					panelContrast = _panelContrast;
+				}
+				void setValue(float value) override {
+					*panelContrast = math::clamp(value, getMinValue(), getMaxValue());
+				}
+				float getValue() override {
+					return *panelContrast;
+				}
+				float getMinValue() override {return 195.0f;}
+				float getMaxValue() override {return 230.0f;}
+				float getDefaultValue() override {return panelContrastDefault;}
+				float getDisplayValue() override {return *panelContrast;}
+				std::string getDisplayValueString() override {
+					return string::f("%.1f", *panelContrast);
+				}
+				void setDisplayValue(float displayValue) override {setValue(displayValue);}
+				std::string getLabel() override {return "Panel contrast";}
+				std::string getUnit() override {return "";}
+			};
+			struct PanelContrastSlider : ui::Slider {
+				PanelContrastSlider(float* panelContrast) {
+					quantity = new PanelContrastQuantity(panelContrast);
+				}
+				~PanelContrastSlider() {
+					delete quantity;
+				}
+			};
+			
+			struct DarkDefaultItem : MenuItem {
+				void onAction(const event::Action &e) override {
+					saveDarkAsDefault(rightText.empty());// implicitly toggled
+				}
+			};	
+			
+			Menu *menu = new Menu;
+			
+			PanelThemeDarkItem *ptdItem = createMenuItem<PanelThemeDarkItem>("Dark", CHECKMARK(*panelTheme));
+			ptdItem->panelTheme = panelTheme;
+			menu->addChild(ptdItem);
+			
+			PanelContrastSlider *cSlider = new PanelContrastSlider(panelContrast);
+			cSlider->box.size.x = 200.0f;
+			menu->addChild(cSlider);
+
+			menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+		
+			return menu;
+		}
+	};
+	
+	PanelThemeItem *ptItem = createMenuItem<PanelThemeItem>("Panel theme", RIGHT_ARROW);
+	ptItem->panelTheme = panelTheme;
+	ptItem->panelContrast = panelContrast;
+	menu->addChild(ptItem);
+}

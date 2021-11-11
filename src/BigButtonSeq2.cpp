@@ -68,6 +68,8 @@ struct BigButtonSeq2 : Module {
 	
 	// Need to save, no reset
 	int panelTheme;
+	float panelContrast;
+
 	
 	// Need to save, with reset
 	int indexStep;
@@ -153,6 +155,7 @@ struct BigButtonSeq2 : Module {
 		onReset();
 		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelContrast = panelContrastDefault;// TODO fix this
 	}
 
 	
@@ -196,6 +199,9 @@ struct BigButtonSeq2 : Module {
 
 		// panelTheme
 		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+
+		// panelContrast
+		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
 
 		// indexStep
 		json_object_set_new(rootJ, "indexStep", json_integer(indexStep));
@@ -266,6 +272,11 @@ struct BigButtonSeq2 : Module {
 		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
 		if (panelThemeJ)
 			panelTheme = json_integer_value(panelThemeJ);
+
+		// panelContrast
+		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
+		if (panelContrastJ)
+			panelContrast = json_number_value(panelContrastJ);
 
 		// indexStep
 		json_t *indexStepJ = json_object_get(rootJ, "indexStep");
@@ -686,12 +697,6 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		}
 	};
 	
-	struct PanelThemeItem : MenuItem {
-		BigButtonSeq2 *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
 	struct NextStepHitsItem : MenuItem {
 		BigButtonSeq2 *module;
 		void onAction(const event::Action &e) override {
@@ -786,16 +791,8 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		MenuLabel *spacerLabel = new MenuLabel();
 		menu->addChild(spacerLabel);
 
-		MenuLabel *themeLabel = new MenuLabel();
-		themeLabel->text = "Panel Theme";
-		menu->addChild(themeLabel);
-
-		PanelThemeItem *darkItem = createMenuItem<PanelThemeItem>(darkPanelID, CHECKMARK(module->panelTheme));
-		darkItem->module = module;
-		menu->addChild(darkItem);
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast));
 		
-		menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
-
 		menu->addChild(new MenuLabel());// empty line
 		
 		MenuLabel *settingsLabel = new MenuLabel();
@@ -815,11 +812,12 @@ struct BigButtonSeq2Widget : ModuleWidget {
 	BigButtonSeq2Widget(BigButtonSeq2 *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
+		float* cont = module ? &module->panelContrast : NULL;
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/BigButtonSeq2.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
-		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, mode));
+		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
