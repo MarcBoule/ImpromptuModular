@@ -453,6 +453,7 @@ struct BigButtonSeq : Module {
 
 struct BigButtonSeqWidget : ModuleWidget {
 	int lastPanelTheme = -1;
+	float lastPanelContrast = -1.0f;
 
 	struct ChanDisplayWidget : TransparentWidget {
 		BigButtonSeq *module;
@@ -712,10 +713,12 @@ struct BigButtonSeqWidget : ModuleWidget {
 	void step() override {
 		if (module) {
 			int panelTheme = (((BigButtonSeq*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
+			float panelContrast = (((BigButtonSeq*)module)->panelContrast);
+			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
 				SvgPanel* svgPanel = (SvgPanel*)getPanel();
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
+				lastPanelContrast = panelContrast;
 			}
 		}
 		Widget::step();

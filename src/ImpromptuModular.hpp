@@ -60,7 +60,6 @@ static constexpr float clockIgnoreOnResetDuration = 0.001f;// disable clock on p
 
 static constexpr float panelContrastDefault = 220.0f;
 static const unsigned int expanderRefreshStepSkips = 4;
-static const NVGcolor colPanelBase = nvgRGB(220, 220, 220);
 static const NVGcolor displayColOn = nvgRGB(0xaf, 0xd2, 0x2c);
 static const NVGcolor displayColOff = nvgRGB(67, 70, 55);
 
@@ -77,7 +76,8 @@ struct PanelBaseWidget : TransparentWidget {
 	}
 	void draw(const DrawArgs& args) override {
 		nvgBeginPath(args.vg);
-		nvgFillColor(args.vg, colPanelBase);
+		NVGcolor baseColor = panelContrastSrc ? nvgRGB(*panelContrastSrc, *panelContrastSrc, *panelContrastSrc) : nvgRGB(220, 220, 220);
+		nvgFillColor(args.vg, baseColor);
 		nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
 		nvgFill(args.vg);
 		TransparentWidget::draw(args);
