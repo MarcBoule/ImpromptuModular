@@ -67,26 +67,6 @@ static const NVGcolor displayColOff = nvgRGB(67, 70, 55);
 
 // General objects
 
-struct PanelBaseWidget : TransparentWidget {
-	float* panelContrastSrc = NULL;
-	PanelBaseWidget(Vec _size, float* _panelContrastSrc) {
-		box.size = _size;
-		panelContrastSrc = _panelContrastSrc;
-	}
-	void draw(const DrawArgs& args) override;
-};
-
-
-struct InverterWidget : TransparentWidget {
-	int* panelThemeSrc = NULL;
-	InverterWidget(Vec _size, int* _panelThemeSrc) {
-		box.size = _size;
-		panelThemeSrc = _panelThemeSrc;
-	}
-	void draw(const DrawArgs& args) override;
-};
-
-
 struct ClockMaster {// should not need to have mutex since only menu driven
 	int64_t id = -1;
 	bool resetClockOutputsHigh;
@@ -261,6 +241,3 @@ struct InstantiateExpanderItem : MenuItem {
 	Vec posit;
 	void onAction(const event::Action &e) override;
 };
-
-
-void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast, SvgPanel* mainPanel);

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "rack.hpp"
+#include "PanelTheme.hpp"
 
 using namespace rack;
 
@@ -20,26 +21,6 @@ static const NVGcolor colBot = nvgRGB(128 + colDelta, 128 + colDelta, 128 + colD
 static const int colDeltaD = 30;
 static const NVGcolor colTopD = nvgRGB(128 - colDeltaD, 128 - colDeltaD, 128 - colDeltaD);
 static const NVGcolor colBotD = nvgRGB(128 + colDeltaD, 128 + colDeltaD, 128 + colDeltaD);
-
-
-
-// Dark management
-// ----------------------------------------
-static constexpr float panelContrastDefault = 220.0f;
-
-void saveThemeAndContrastAsDefault(int themeDefault, float contrastDefault);
-
-void loadThemeAndContrastFromDefault(int* panelTheme, float* panelContrast);
-
-inline bool isDark(int* panelTheme) {
-	if (panelTheme != NULL) {
-		return (*panelTheme != 0);
-	}
-	int themeDefault;
-	float contrastDefault;
-	loadThemeAndContrastFromDefault(&themeDefault, &contrastDefault);
-	return (themeDefault != 0);
-}
 
 
 
