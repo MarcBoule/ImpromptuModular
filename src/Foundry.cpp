@@ -1359,10 +1359,11 @@ struct Foundry : Module {
 			if (rightExpander.module && rightExpander.module->model == modelFoundryExpander) {
 				float *messagesToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
 				messagesToExpander[0] = (float)panelTheme;
-				messagesToExpander[1] = (((writeMode & 0x2) == 0) && editingSequence) ? 1.0f : 0.0f;// lights[WRITE_SEL_LIGHTS + 0].setBrightness()
-				messagesToExpander[2] = (((writeMode & 0x1) == 0) && editingSequence) ? 1.0f : 0.0f;// lights[WRITE_SEL_LIGHTS + 1].setBrightness()
+				messagesToExpander[1] = panelContrast;
+				messagesToExpander[2] = (((writeMode & 0x2) == 0) && editingSequence) ? 1.0f : 0.0f;// lights[WRITE_SEL_LIGHTS + 0].setBrightness()
+				messagesToExpander[3] = (((writeMode & 0x1) == 0) && editingSequence) ? 1.0f : 0.0f;// lights[WRITE_SEL_LIGHTS + 1].setBrightness()
 				for (int trkn = 0; trkn < Sequencer::NUM_TRACKS; trkn++) {
-					messagesToExpander[3 + trkn] = (editingSequence && ((writeMode & 0x1) == 0) && (multiTracks || seq.getTrackIndexEdit() == trkn)) ? 1.0f : 0.0f;
+					messagesToExpander[4 + trkn] = (editingSequence && ((writeMode & 0x1) == 0) && (multiTracks || seq.getTrackIndexEdit() == trkn)) ? 1.0f : 0.0f;
 				}	
 				rightExpander.module->leftExpander.messageFlipRequested = true;
 			}

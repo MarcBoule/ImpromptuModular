@@ -32,7 +32,7 @@ struct ChordKeyExpander : Module {
 	const float unusedValue = -100.0f;
 
 	// Expander
-	float leftMessages[2][5] = {};// messages from mother (CvPad or ChordKey): 4 CV values, panelTheme
+	float leftMessages[2][6] = {};// messages from mother (CvPad or ChordKey): 4 CV values, panelTheme, panelContrast
 
 	// Need to save, no reset
 	// none
@@ -107,6 +107,7 @@ struct ChordKeyExpander : Module {
 					chordValues[i] = messagesFromMother[i];
 				}
 				panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 1);
+				panelContrast = clamp(messagesFromMother[5], 0.0f, 255.0f);
 			}	
 			else {
 				for (int i = 0; i < 4; i++) {
@@ -154,6 +155,7 @@ struct ChordKeyExpander : Module {
 					messageToExpander[i] = chordValues[i];
 				}
 				messageToExpander[4] = (float)panelTheme;
+				messageToExpander[5] = panelContrast;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
 			}
 		}		
@@ -210,6 +212,7 @@ struct ChordKeyExpander : Module {
 
 struct ChordKeyExpanderWidget : ModuleWidget {
 	int lastPanelTheme = -1;
+	float lastPanelContrast = -1.0f;
 	
 	ChordKeyExpanderWidget(ChordKeyExpander *module) {
 		setModule(module);
@@ -258,16 +261,17 @@ struct ChordKeyExpanderWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row3), true, module, ChordKeyExpander::CV_INPUTS + 3, mode));	
 		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(col1, row4), module, ChordKeyExpander::OCT_PARAMS + 3, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(col1, row5), false, module, ChordKeyExpander::CV_OUTPUTS + 3, mode));
-
 	}
 	
 	void step() override {
 		if (module) {
 			int panelTheme = (((ChordKeyExpander*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
+			float panelContrast = (((ChordKeyExpander*)module)->panelContrast);
+			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
 				SvgPanel* svgPanel = (SvgPanel*)getPanel();
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
+				lastPanelContrast = panelContrast;
 			}
 		}
 		Widget::step();

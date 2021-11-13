@@ -1563,6 +1563,7 @@ struct PhraseSeq16 : Module {
 			if (rightExpander.module && rightExpander.module->model == modelPhraseSeqExpander) {
 				float *messagesToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
 				messagesToExpander[0] = (float)panelTheme;
+				messagesToExpander[1] = panelContrast;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
 			}
 		}// lightRefreshCounter

@@ -26,7 +26,7 @@ struct PhraseSeqExpander : Module {
 
 
 	// Expander
-	float leftMessages[2][1] = {};// messages from mother
+	float leftMessages[2][2] = {};// messages from mother
 
 
 	// No need to save
@@ -65,6 +65,7 @@ struct PhraseSeqExpander : Module {
 				// From Mother
 				float *messagesFromMother = (float*)leftExpander.consumerMessage;
 				panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 1);
+				panelContrast = clamp(messagesFromMother[1], 0.0f, 255.0f);
 			}		
 		}// expanderRefreshCounter			
 	}// process()
@@ -73,6 +74,7 @@ struct PhraseSeqExpander : Module {
 
 struct PhraseSeqExpanderWidget : ModuleWidget {
 	int lastPanelTheme = -1;
+	float lastPanelContrast = -1.0f;
 	
 	PhraseSeqExpanderWidget(PhraseSeqExpander *module) {
 		setModule(module);
@@ -103,10 +105,12 @@ struct PhraseSeqExpanderWidget : ModuleWidget {
 	void step() override {
 		if (module) {
 			int panelTheme = (((PhraseSeqExpander*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
+			float panelContrast = (((PhraseSeqExpander*)module)->panelContrast);
+			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
 				SvgPanel* svgPanel = (SvgPanel*)getPanel();
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
+				lastPanelContrast = panelContrast;
 			}
 		}
 		Widget::step();

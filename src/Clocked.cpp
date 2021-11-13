@@ -848,6 +848,7 @@ struct Clocked : Module {
 			if (rightExpander.module && rightExpander.module->model == modelClockedExpander) {
 				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
 				messageToExpander[0] = (float)panelTheme;
+				messageToExpander[1] = panelContrast;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
 			}
 		}// lightRefreshCounter

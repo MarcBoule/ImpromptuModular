@@ -23,7 +23,7 @@ struct ClockedExpander : Module {
 
 
 	// Expander
-	float leftMessages[2][1] = {};// messages from mother
+	float leftMessages[2][2] = {};// messages from mother (panelTheme and panelContrast)
 
 
 	// No need to save, no reset
@@ -60,6 +60,7 @@ struct ClockedExpander : Module {
 				// From Mother
 				float *messagesFromMother = (float*)leftExpander.consumerMessage;
 				panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 1);			
+				panelContrast = clamp(messagesFromMother[1], 0.0f, 255.0f);
 			}		
 		}// expanderRefreshCounter
 	}// process()
@@ -68,6 +69,7 @@ struct ClockedExpander : Module {
 
 struct ClockedExpanderWidget : ModuleWidget {
 	int lastPanelTheme = -1;
+	float lastPanelContrast = -1.0f;
 	
 	ClockedExpanderWidget(ClockedExpander *module) {
 		setModule(module);
@@ -99,10 +101,12 @@ struct ClockedExpanderWidget : ModuleWidget {
 	void step() override {
 		if (module) {
 			int panelTheme = (((ClockedExpander*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
+			float panelContrast = (((ClockedExpander*)module)->panelContrast);
+			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
 				SvgPanel* svgPanel = (SvgPanel*)getPanel();
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
+				lastPanelContrast = panelContrast;
 			}
 		}
 		Widget::step();

@@ -41,7 +41,7 @@ struct FoundryExpander : Module {
 	};
 	
 	// Expander
-	float leftMessages[2][1 + 2 + Sequencer::NUM_TRACKS] = {};// messages from mother
+	float leftMessages[2][2 + 2 + Sequencer::NUM_TRACKS] = {};// messages from mother
 
 
 	// No need to save
@@ -91,13 +91,14 @@ struct FoundryExpander : Module {
 
 				// From Mother
 				panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 1);
+				panelContrast = clamp(messagesFromMother[1], 0.0f, 255.0f);
 			}		
 
-			// From Mother
-			lights[WRITE_SEL_LIGHTS + 0].setBrightness(motherPresent ? messagesFromMother[1] : 0.0f);
-			lights[WRITE_SEL_LIGHTS + 1].setBrightness(motherPresent ? messagesFromMother[2] : 0.0f);			
+			// From Mother (done outside since turn off leds with no mother; has its own motherPresent guards)
+			lights[WRITE_SEL_LIGHTS + 0].setBrightness(motherPresent ? messagesFromMother[2] : 0.0f);
+			lights[WRITE_SEL_LIGHTS + 1].setBrightness(motherPresent ? messagesFromMother[3] : 0.0f);			
 			for (int trkn = 0; trkn < Sequencer::NUM_TRACKS; trkn++) {
-				lights[WRITECV2_LIGHTS + trkn].setBrightness(motherPresent ? messagesFromMother[trkn + 3] : 0.0f);
+				lights[WRITECV2_LIGHTS + trkn].setBrightness(motherPresent ? messagesFromMother[4 + trkn] : 0.0f);
 			}	
 		}// expanderRefreshCounter
 	}// process()
@@ -106,6 +107,7 @@ struct FoundryExpander : Module {
 
 struct FoundryExpanderWidget : ModuleWidget {
 	int lastPanelTheme = -1;
+	float lastPanelContrast = -1.0f;
 	
 	FoundryExpanderWidget(FoundryExpander *module) {
 		setModule(module);
@@ -186,10 +188,12 @@ struct FoundryExpanderWidget : ModuleWidget {
 	void step() override {
 		if (module) {
 			int panelTheme = (((FoundryExpander*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
+			float panelContrast = (((FoundryExpander*)module)->panelContrast);
+			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
 				SvgPanel* svgPanel = (SvgPanel*)getPanel();
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
+				lastPanelContrast = panelContrast;
 			}
 		}
 		Widget::step();

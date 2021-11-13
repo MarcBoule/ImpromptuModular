@@ -536,6 +536,7 @@ struct ChordKey : Module {
 					messageToExpander[cni] = octs[index][cni] >= 0 ? cvOuts[cni] : -100.0f;
 				}
 				messageToExpander[4] = (float)panelTheme;
+				messageToExpander[5] = panelContrast;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
 			}
 		}

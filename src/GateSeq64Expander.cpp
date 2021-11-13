@@ -25,7 +25,7 @@ struct GateSeq64Expander : Module {
 
 
 	// Expander
-	float leftMessages[2][1] = {};// messages from mother
+	float leftMessages[2][2] = {};// messages from mother
 
 
 	// No need to save
@@ -64,6 +64,7 @@ struct GateSeq64Expander : Module {
 				// From Mother
 				float *messagesFromMother = (float*)leftExpander.consumerMessage;
 				panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 1);
+				panelContrast = clamp(messagesFromMother[1], 0.0f, 255.0f);
 			}		
 		}// expanderRefreshCounter
 	}// process()
@@ -72,6 +73,7 @@ struct GateSeq64Expander : Module {
 
 struct GateSeq64ExpanderWidget : ModuleWidget {
 	int lastPanelTheme = -1;
+	float lastPanelContrast = -1.0f;
 	
 	GateSeq64ExpanderWidget(GateSeq64Expander *module) {
 		setModule(module);
@@ -103,10 +105,12 @@ struct GateSeq64ExpanderWidget : ModuleWidget {
 	void step() override {
 		if (module) {
 			int panelTheme = (((GateSeq64Expander*)module)->panelTheme);
-			if (panelTheme != lastPanelTheme) {
+			float panelContrast = (((GateSeq64Expander*)module)->panelContrast);
+			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
 				SvgPanel* svgPanel = (SvgPanel*)getPanel();
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
+				lastPanelContrast = panelContrast;
 			}
 		}
 		Widget::step();

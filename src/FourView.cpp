@@ -57,7 +57,7 @@ struct FourView : Module {
 	const float unusedValue = -100.0f;
 
 	// Expander
-	float leftMessages[2][5] = {};// messages from mother (CvPad or ChordKey): 4 CV values, panelTheme
+	float leftMessages[2][6] = {};// messages from mother (CvPad or ChordKey): 4 CV values, panelTheme, panelContrast
 
 	// Need to save, no reset
 	int panelTheme;
@@ -224,6 +224,7 @@ struct FourView : Module {
 			float *messagesFromMother = (float*)leftExpander.consumerMessage;
 			memcpy(displayValues, messagesFromMother, 4 * 4);
 			panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 1);
+			panelContrast = clamp(messagesFromMother[5], 0.0f, 255.0f);
 		}	
 		else {
 			for (int i = 0; i < 4; i++) {
