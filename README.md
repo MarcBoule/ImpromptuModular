@@ -1,5 +1,5 @@
 Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://library.vcvrack.com/).
-Version 2.0.1
+Version 2.0.2
 
 Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -9,7 +9,7 @@ Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are 
 <a id="modules"></a>
 ## Modules
 
-Each module is available in light (Classic) or dark (Dark-valor) panels, selectable by right-clicking the module in Rack.
+Each module is available in light or dark panels with contrast adjusment, selectable in the right-click menu of the modules. A global default can be set, which takes effect only when adding new modules to a patch.
 
 * [BigButtonSeq](#big-button-seq): 6-channel 64-step trigger sequencer based on the infamous BigButton by Look Mum No Computer.
 
