@@ -230,8 +230,7 @@ struct Hotkey : Module {
 		configParam(DELAY_PARAM, 0.0f, maxDelay, 0.0f, "Delay");
 		onReset();
 		
-		panelTheme = (loadDarkAsDefault() ? 1 : 0);
-		panelContrast = panelContrastDefault;// TODO fix this
+		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 	
 

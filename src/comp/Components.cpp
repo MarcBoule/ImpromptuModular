@@ -11,9 +11,10 @@
 // Dark management
 // ----------------------------------------
 
-void saveDarkAsDefault(bool darkAsDefault) {
+void saveThemeAndContrastAsDefault(int themeDefault = 0, float contrastDefault = panelContrastDefault) {
 	json_t *settingsJ = json_object();
-	json_object_set_new(settingsJ, "darkAsDefault", json_boolean(darkAsDefault));
+	json_object_set_new(settingsJ, "themeDefault", json_integer(themeDefault));
+	json_object_set_new(settingsJ, "contrastDefault", json_real(contrastDefault));
 	std::string settingsFilename = asset::user("ImpromptuModular.json");
 	FILE *file = fopen(settingsFilename.c_str(), "w");
 	if (file) {
@@ -24,29 +25,38 @@ void saveDarkAsDefault(bool darkAsDefault) {
 }
 
 
-bool loadDarkAsDefault() {
-	bool ret = false;
+void loadThemeAndContrastFromDefault(int* panelTheme, float* panelContrast) {
+	*panelTheme = 0;
+	*panelContrast = panelContrastDefault;
+	
 	std::string settingsFilename = asset::user("ImpromptuModular.json");
 	FILE *file = fopen(settingsFilename.c_str(), "r");
 	if (!file) {
-		saveDarkAsDefault(false);
-		return ret;
+		saveThemeAndContrastAsDefault();
+		return;
 	}
 	json_error_t error;
 	json_t *settingsJ = json_loadf(file, 0, &error);
 	if (!settingsJ) {
 		// invalid setting json file
 		fclose(file);
-		saveDarkAsDefault(false);
-		return ret;
+		saveThemeAndContrastAsDefault();
+		return;
 	}
-	json_t *darkAsDefaultJ = json_object_get(settingsJ, "darkAsDefault");
-	if (darkAsDefaultJ)
-		ret = json_boolean_value(darkAsDefaultJ);
+	
+	json_t *themeDefaultJ = json_object_get(settingsJ, "themeDefault");
+	if (themeDefaultJ) {
+		*panelTheme = json_integer_value(themeDefaultJ);
+	}
+	
+	json_t *contrastDefaultJ = json_object_get(settingsJ, "contrastDefault");
+	if (contrastDefaultJ) {
+		*panelContrast = json_number_value(contrastDefaultJ);
+	}
 	
 	fclose(file);
 	json_decref(settingsJ);
-	return ret;
+	return;
 }
 
 

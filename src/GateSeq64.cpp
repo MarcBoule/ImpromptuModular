@@ -207,8 +207,7 @@ struct GateSeq64 : Module {
 		}
 		onReset();
 		
-		panelTheme = (loadDarkAsDefault() ? 1 : 0);
-		panelContrast = panelContrastDefault;// TODO fix this
+		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 
 	

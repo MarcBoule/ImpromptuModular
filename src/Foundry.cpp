@@ -244,8 +244,7 @@ struct Foundry : Module {
 		seq.construct(&holdTiedNotes, &velocityMode, &stopAtEndOfSong);
 		onReset();
 		
-		panelTheme = (loadDarkAsDefault() ? 1 : 0);
-		panelContrast = panelContrastDefault;// TODO fix this
+		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 
 	
@@ -1983,13 +1982,13 @@ struct FoundryWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		interopSeqItem->disabled = !module->editingSequence;
 		menu->addChild(interopSeqItem);		
 				
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
-
 		menu->addChild(new MenuSeparator());
 		
 		MenuLabel *settingsLabel = new MenuLabel();

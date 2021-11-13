@@ -90,8 +90,7 @@ struct FourView : Module {
 		
 		configParam(MODE_PARAM, 0.0, 1.0, 0.0, "Display mode");// 0.0 is left, notes by default left, chord right
 		
-		panelTheme = (loadDarkAsDefault() ? 1 : 0);
-		panelContrast = panelContrastDefault;// TODO fix this
+		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 	
 
@@ -498,6 +497,9 @@ struct FourView : Module {
 
 
 struct FourViewWidget : ModuleWidget {
+	int lastPanelTheme = -1;
+	float lastPanelContrast = -1.0f;
+	
 	struct NotesDisplayWidget : TransparentWidget {
 		FourView* module;
 		int baseIndex;
@@ -599,11 +601,11 @@ struct FourViewWidget : ModuleWidget {
 		
 		menu->addChild(new MenuSeparator());
 		
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		menu->addChild(interopSeqItem);		
-
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
 		menu->addChild(new MenuSeparator());
 		
@@ -687,6 +689,21 @@ struct FourViewWidget : ModuleWidget {
 		}
 		ModuleWidget::onHoverKey(e);
 	}
+	
+	void step() override {
+		if (module) {
+			int panelTheme = (((FourView*)module)->panelTheme);
+			float panelContrast = (((FourView*)module)->panelContrast);
+			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
+				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				svgPanel->fb->dirty = true;
+				lastPanelTheme = panelTheme;
+				lastPanelContrast = panelContrast;
+			}
+		}
+		Widget::step();
+	}
+
 };
 
 Model *modelFourView = createModel<FourView, FourViewWidget>("Four-View");

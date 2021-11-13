@@ -12,8 +12,7 @@ struct BlankPanel : Module {
 
 	BlankPanel() {
 		config(0, 0, 0, 0);
-		panelTheme = (loadDarkAsDefault() ? 1 : 0);
-		panelContrast = panelContrastDefault;// TODO fix this
+		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 
 	json_t *dataToJson() override {

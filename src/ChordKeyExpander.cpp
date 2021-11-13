@@ -65,8 +65,7 @@ struct ChordKeyExpander : Module {
 			paramQuantities[OCT_PARAMS + c]->snapEnabled = true;
 		}
 		
-		panelTheme = (loadDarkAsDefault() ? 1 : 0);
-		panelContrast = panelContrastDefault;// TODO fix this
+		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 	
 

@@ -25,13 +25,20 @@ static const NVGcolor colBotD = nvgRGB(128 + colDeltaD, 128 + colDeltaD, 128 + c
 
 // Dark management
 // ----------------------------------------
+static constexpr float panelContrastDefault = 220.0f;
 
-void saveDarkAsDefault(bool darkAsDefault);
+void saveThemeAndContrastAsDefault(int themeDefault, float contrastDefault);
 
-bool loadDarkAsDefault();
+void loadThemeAndContrastFromDefault(int* panelTheme, float* panelContrast);
 
-inline bool isDark(int* mode) {
-	return (mode != NULL) ? (*mode != 0) : loadDarkAsDefault();
+inline bool isDark(int* panelTheme) {
+	if (panelTheme != NULL) {
+		return (*panelTheme != 0);
+	}
+	int themeDefault;
+	float contrastDefault;
+	loadThemeAndContrastFromDefault(&themeDefault, &contrastDefault);
+	return (themeDefault != 0);
 }
 
 

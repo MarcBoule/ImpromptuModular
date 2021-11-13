@@ -396,8 +396,7 @@ struct SemiModularSynth : Module {
 		oscillatorLfo.offset = false;
 		oscillatorLfo.invert = false;
 		
-		panelTheme = (loadDarkAsDefault() ? 1 : 0);
-		panelContrast = panelContrastDefault;// TODO fix this
+		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 	
 
@@ -2128,12 +2127,12 @@ struct SemiModularSynthWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 		
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		interopSeqItem->disabled = !module->isEditingSequence();
 		menu->addChild(interopSeqItem);		
-
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
 		menu->addChild(new MenuSeparator());
 		

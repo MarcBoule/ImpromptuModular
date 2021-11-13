@@ -50,6 +50,25 @@ void init(Plugin *p) {
 
 // General objects
 
+void PanelBaseWidget::draw(const DrawArgs& args) {
+	nvgBeginPath(args.vg);
+	NVGcolor baseColor;
+	if (panelContrastSrc) {
+		baseColor = nvgRGB(*panelContrastSrc, *panelContrastSrc, *panelContrastSrc);
+	}
+	else {
+		int themeDefault;
+		float contrastDefault;
+		loadThemeAndContrastFromDefault(&themeDefault, &contrastDefault);
+		baseColor = nvgRGB(contrastDefault, contrastDefault, contrastDefault);
+	}
+	nvgFillColor(args.vg, baseColor);
+	nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+	nvgFill(args.vg);
+	TransparentWidget::draw(args);
+}
+
+
 void InverterWidget::draw(const DrawArgs& args) {
 	TransparentWidget::draw(args);
 	if (isDark(panelThemeSrc)) {
@@ -214,8 +233,10 @@ void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast,
 			};
 			
 			struct DarkDefaultItem : MenuItem {
+				int* panelTheme = NULL;
+				float* panelContrast = NULL;
 				void onAction(const event::Action &e) override {
-					saveDarkAsDefault(rightText.empty());
+					saveThemeAndContrastAsDefault(*panelTheme, *panelContrast);
 				}
 			};	
 			
@@ -230,7 +251,12 @@ void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast,
 			cSlider->box.size.x = 200.0f;
 			menu->addChild(cSlider);
 
-			menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+			menu->addChild(new MenuSeparator());
+
+			DarkDefaultItem *ddItem = createMenuItem<DarkDefaultItem>("Set as default", "");
+			ddItem->panelTheme = panelTheme;
+			ddItem->panelContrast = panelContrast;
+			menu->addChild(ddItem);
 		
 			return menu;
 		}

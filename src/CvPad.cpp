@@ -121,8 +121,7 @@ struct CvPad : Module {
 
 		onReset();
 		
-		panelTheme = (loadDarkAsDefault() ? 1 : 0);
-		panelContrast = panelContrastDefault;// TODO fix this
+		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 
 	
@@ -374,6 +373,7 @@ struct CvPad : Module {
 					}
 				}
 				messageToExpander[4] = (float)panelTheme;
+				messageToExpander[5] = panelContrast;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
 			}			
 		}
