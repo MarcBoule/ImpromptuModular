@@ -33,6 +33,13 @@ void PianoKey::onDragEnd(const event::DragEnd &e) {// required since if mouse bu
 	e.consume(this);
 }
 
+// void PianoKey::draw(const DrawArgs& args) {
+	// nvgBeginPath(args.vg);
+	// nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+	// nvgStrokeColor(args.vg, nvgRGBA(255,0,0,127));
+	// nvgStrokeWidth(args.vg, 0.5f);
+	// nvgStroke(args.vg);
+// }
 
 // ******** PianoKeyWithVel ********
 
@@ -55,6 +62,7 @@ void PianoKeyWithVel::draw(const DrawArgs &args) {
 		nvgStrokeWidth(args.vg, 1.0f);
 		nvgStroke(args.vg);
 	}
+	PianoKey::draw(args);
 }
 
 void PianoKeyWithVel::onButton(const event::Button &e) {

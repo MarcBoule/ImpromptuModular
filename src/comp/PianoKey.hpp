@@ -37,6 +37,7 @@ struct PianoKey : OpaqueWidget {
 
 	void onButton(const event::Button &e) override;
 	void onDragEnd(const event::DragEnd &e) override;
+	// void draw(const DrawArgs& args) override;
 };
 
 
@@ -51,8 +52,10 @@ struct PianoKeyWithVel : PianoKey {
 
 
 struct PianoKeyBig : PianoKeyWithVel {
+	static constexpr float sizeX = 34;
+	static constexpr float sizeY = 70;
 	PianoKeyBig() {
-		box.size = VecPx(34, 70);
+		box.size = VecPx(sizeX, sizeY);
 	}
 };
 

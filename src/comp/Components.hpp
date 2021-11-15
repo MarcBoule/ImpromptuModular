@@ -307,6 +307,15 @@ struct DisplayBackground : TransparentWidget {
 };
 
 
+static const float bigKeyBlkdy = 1.79f;
+static const float bigKeyWhtdy = 27.09f;
+static const Vec bigKeysPos[12] = {	Vec(1.78f,  bigKeyWhtdy), Vec(8.806f, bigKeyBlkdy),
+									Vec(15.79f, bigKeyWhtdy), Vec(22.69f, bigKeyBlkdy),
+									Vec(29.67f, bigKeyWhtdy), 
+									Vec(43.69f, bigKeyWhtdy), Vec(50.65f, bigKeyBlkdy),
+									Vec(57.57f, bigKeyWhtdy), Vec(64.54f, bigKeyBlkdy),
+									Vec(71.46f, bigKeyWhtdy), Vec(78.42f, bigKeyBlkdy),
+									Vec(85.34f, bigKeyWhtdy)};// PianoKeyBig locations within KeyboardBig
 struct KeyboardBig : SvgWidget {
 	int* mode = NULL;
 	KeyboardBig(Vec(_pos), int* _mode) {

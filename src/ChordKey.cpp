@@ -872,48 +872,23 @@ struct ChordKeyWidget : ModuleWidget {
 
 		// ****** Top portion (keys) ******
 
-		static const float olx = 16.7f;
-		static const float dly = 70.0f / 4.0f;
-		static const float dlyd2 = 70.0f / 8.0f;
+		static const Vec keyboardPos = mm2px(Vec(1.354f, 11.757f));
+		svgPanel->fb->addChild(new KeyboardBig(keyboardPos, mode));
+
+		for (int k = 0; k < 12; k++) {
+			Vec keyPos = keyboardPos + mm2px(bigKeysPos[k]);
+			addChild(createPianoKey<PianoKeyBig>(keyPos, k, module ? &module->pkInfo : NULL));
+			
+			Vec offsetLeds = Vec(PianoKeyBig::sizeX * 0.5f, PianoKeyBig::sizeY * 1.0f / 8.0f);
+			addChild(createLightCentered<SmallLight<RedLight>>(keyPos + offsetLeds, module, ChordKey::KEY_LIGHTS + k * 4 + 0));
+			offsetLeds.y = PianoKeyBig::sizeY * 3.0f / 8.0f;
+			addChild(createLightCentered<SmallLight<OrangeLight>>(keyPos + offsetLeds, module, ChordKey::KEY_LIGHTS + k * 4 + 1));
+			offsetLeds.y = PianoKeyBig::sizeY * 5.0f / 8.0f;
+			addChild(createLightCentered<SmallLight<YellowLight>>(keyPos + offsetLeds, module, ChordKey::KEY_LIGHTS + k * 4 + 2));
+			offsetLeds.y = PianoKeyBig::sizeY * 7.0f / 8.0f;
+			addChild(createLightCentered<SmallLight<GreenLight>>(keyPos + offsetLeds, module, ChordKey::KEY_LIGHTS + k * 4 + 3));
 		
-		static const int posWhiteY = 115;
-		static const float posBlackY = 40.0f;
-
-		svgPanel->fb->addChild(new KeyboardBig(mm2px(Vec(3.894f, 11.757f)), mode));
-
-		#define DROP_LIGHTS(xLoc, yLoc, pNum) \
-			addChild(createLightCentered<SmallLight<RedLight>>(VecPx(xLoc+olx, yLoc+dlyd2+dly*0), module, ChordKey::KEY_LIGHTS + pNum * 4 + 0)); \
-			addChild(createLightCentered<SmallLight<OrangeLight>>(VecPx(xLoc+olx, yLoc+dlyd2+dly*1), module, ChordKey::KEY_LIGHTS + pNum * 4 + 1)); \
-			addChild(createLightCentered<SmallLight<YellowLight>>(VecPx(xLoc+olx, yLoc+dlyd2+dly*2), module, ChordKey::KEY_LIGHTS + pNum * 4 + 2)); \
-			addChild(createLightCentered<SmallLight<GreenLight>>(VecPx(xLoc+olx, yLoc+dlyd2+dly*3), module, ChordKey::KEY_LIGHTS + pNum * 4 + 3));
-
-		// Black keys
-		addChild(createPianoKey<PianoKeyBig>(VecPx(37.5f, posBlackY), 1, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(37.5f, posBlackY, 1);
-		addChild(createPianoKey<PianoKeyBig>(VecPx(78.5f, posBlackY), 3, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(78.5f, posBlackY, 3);
-		addChild(createPianoKey<PianoKeyBig>(VecPx(161.5f, posBlackY), 6, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(161.5f, posBlackY, 6);
-		addChild(createPianoKey<PianoKeyBig>(VecPx(202.5f, posBlackY), 8, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(202.5f, posBlackY, 8);
-		addChild(createPianoKey<PianoKeyBig>(VecPx(243.5f, posBlackY), 10, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(243.5f, posBlackY, 10);
-
-		// White keys
-		addChild(createPianoKey<PianoKeyBig>(VecPx(17.5f, posWhiteY), 0, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(17.5f, posWhiteY, 0);
-		addChild(createPianoKey<PianoKeyBig>(VecPx(58.5f, posWhiteY), 2, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(58.5f, posWhiteY, 2);
-		addChild(createPianoKey<PianoKeyBig>(VecPx(99.5f, posWhiteY), 4, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(99.5f, posWhiteY, 4);
-		addChild(createPianoKey<PianoKeyBig>(VecPx(140.5f, posWhiteY), 5, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(140.5f, posWhiteY, 5);
-		addChild(createPianoKey<PianoKeyBig>(VecPx(181.5f, posWhiteY), 7, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(181.8f, posWhiteY, 7);
-		addChild(createPianoKey<PianoKeyBig>(VecPx(222.5f, posWhiteY), 9, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(222.7f, posWhiteY, 9);
-		addChild(createPianoKey<PianoKeyBig>(VecPx(263.5f, posWhiteY), 11, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(263.5f, posWhiteY, 11);
+		}
 
 
 		

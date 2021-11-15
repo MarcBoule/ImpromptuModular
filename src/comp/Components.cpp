@@ -201,7 +201,7 @@ void KeyboardBig::draw(const DrawArgs& args) {
 	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
-		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
+		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 3.0f);
 		nvgFillPaint(args.vg, grad);
 		nvgFill(args.vg);
 	}
@@ -214,7 +214,7 @@ void KeyboardMed::draw(const DrawArgs& args) {
 	if (isDark(mode)) {
 		nvgBeginPath(args.vg);
 		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTopD, colBotD);	
-		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 1.5f);
+		nvgRoundedRect(args.vg, -1.0f, -1.0f, box.size.x + 2.0f, box.size.y + 2.0f, 2.3f);
 		nvgFillPaint(args.vg, grad);
 		nvgFill(args.vg);
 	}
