@@ -539,9 +539,9 @@ struct TwelveKeyWidget : ModuleWidget {
 		addChild(createPianoKey<PianoKeyBig>(VecPx(133, posWhiteY), 5, module ? &module->pkInfo : NULL));
 		addChild(createLight<MediumLight<GreenLight>>(VecPx(133+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 5));
 		addChild(createPianoKey<PianoKeyBig>(VecPx(174, posWhiteY), 7, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(VecPx(174+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 7));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(174.3f+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 7));
 		addChild(createPianoKey<PianoKeyBig>(VecPx(215, posWhiteY), 9, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenLight>>(VecPx(215+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 9));
+		addChild(createLight<MediumLight<GreenLight>>(VecPx(215.2f+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 9));
 		addChild(createPianoKey<PianoKeyBig>(VecPx(256, posWhiteY), 11, module ? &module->pkInfo : NULL));
 		addChild(createLight<MediumLight<GreenLight>>(VecPx(256+offsetKeyLEDx, posWhiteY+offsetKeyLEDy), module, TwelveKey::KEY_LIGHTS + 11));
 		

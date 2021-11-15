@@ -909,9 +909,9 @@ struct ChordKeyWidget : ModuleWidget {
 		addChild(createPianoKey<PianoKeyBig>(VecPx(140.5f, posWhiteY), 5, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(140.5f, posWhiteY, 5);
 		addChild(createPianoKey<PianoKeyBig>(VecPx(181.5f, posWhiteY), 7, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(181.5f, posWhiteY, 7);
+		DROP_LIGHTS(181.8f, posWhiteY, 7);
 		addChild(createPianoKey<PianoKeyBig>(VecPx(222.5f, posWhiteY), 9, module ? &module->pkInfo : NULL));
-		DROP_LIGHTS(222.5f, posWhiteY, 9);
+		DROP_LIGHTS(222.7f, posWhiteY, 9);
 		addChild(createPianoKey<PianoKeyBig>(VecPx(263.5f, posWhiteY), 11, module ? &module->pkInfo : NULL));
 		DROP_LIGHTS(263.5f, posWhiteY, 11);
 
