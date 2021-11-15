@@ -209,7 +209,7 @@ void KeyboardBig::draw(const DrawArgs& args) {
 }
 
 
-void KeyboardMed::draw(const DrawArgs& args) {
+void KeyboardSmall::draw(const DrawArgs& args) {
 	// already framebuffered when added to module's main panel
 	if (isDark(mode)) {
 		nvgBeginPath(args.vg);

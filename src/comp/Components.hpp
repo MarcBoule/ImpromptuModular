@@ -315,7 +315,7 @@ static const Vec bigKeysPos[12] = {	Vec(1.78f,  bigKeyWhtdy), Vec(8.806f, bigKey
 									Vec(43.69f, bigKeyWhtdy), Vec(50.65f, bigKeyBlkdy),
 									Vec(57.57f, bigKeyWhtdy), Vec(64.54f, bigKeyBlkdy),
 									Vec(71.46f, bigKeyWhtdy), Vec(78.42f, bigKeyBlkdy),
-									Vec(85.34f, bigKeyWhtdy)};// PianoKeyBig locations within KeyboardBig
+									Vec(85.34f, bigKeyWhtdy)};// Top-left PianoKeyBig locations within KeyboardBig
 struct KeyboardBig : SvgWidget {
 	int* mode = NULL;
 	KeyboardBig(Vec(_pos), int* _mode) {
@@ -327,10 +327,20 @@ struct KeyboardBig : SvgWidget {
 };
 
 
-struct KeyboardMed : SvgWidget {
+static const float smaKeyBlkdy = 1.35f;
+static const float smaKeyWhtdy = 14.37f;
+static const Vec smaKeysPos[12] = {	Vec(1.30f,  smaKeyWhtdy), Vec(6.08f, smaKeyBlkdy),
+									Vec(10.85f, smaKeyWhtdy), Vec(15.58f, smaKeyBlkdy),
+									Vec(20.34f, smaKeyWhtdy), 
+									Vec(30.01f, smaKeyWhtdy), Vec(34.78f, smaKeyBlkdy),
+									Vec(39.49f, smaKeyWhtdy), Vec(44.25f, smaKeyBlkdy),
+									Vec(48.97f, smaKeyWhtdy), Vec(53.78f, smaKeyBlkdy),
+									Vec(58.50f, smaKeyWhtdy)};// Top-left PianoKeySmall locations within KeyboardSmall
+
+struct KeyboardSmall : SvgWidget {
 	int* mode = NULL;
-	KeyboardMed(Vec(_pos), int* _mode) {
-		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/comp/KeyboardMed.svg")));
+	KeyboardSmall(Vec(_pos), int* _mode) {
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/comp/KeyboardSmall.svg")));
 		box.pos = _pos; 
 		mode = _mode;
 	}

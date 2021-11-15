@@ -61,7 +61,9 @@ struct PianoKeyBig : PianoKeyWithVel {
 
 
 struct PianoKeySmall : PianoKey {
+	static constexpr float sizeX = 23;
+	static constexpr float sizeY = 38;
 	PianoKeySmall() {
-		box.size = VecPx(23, 38);
+		box.size = VecPx(sizeX, sizeY);
 	}
 };

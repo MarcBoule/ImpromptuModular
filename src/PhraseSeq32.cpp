@@ -2171,42 +2171,24 @@ struct PhraseSeq32Widget : ModuleWidget {
 			addParam(createParamCentered<LEDButton>(VecPx(27, 110.6f + i * octLightsIntY), module, PhraseSeq32::OCTAVE_PARAM + i));
 			addChild(createLightCentered<MediumLight<RedLight>>(VecPx(27, 110.6f + i * octLightsIntY), module, PhraseSeq32::OCTAVE_LIGHTS + i));
 		}
+		
 		// Keys and Key lights
-		static const int keyNudgeX = 7;
-		static const int KeyBlackY = 103;
-		static const int KeyWhiteY = 141;
-		static const int offsetKeyLEDx = 6;
-		static const int offsetKeyLEDy = 16;
-		svgPanel->fb->addChild(new KeyboardMed(mm2px(Vec(18.222f, 33.303f)), mode));
-		// Black keys and lights
-		addChild(createPianoKey<PianoKeySmall>(VecPx(65+keyNudgeX, KeyBlackY), 1, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(65+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 1 * 2));
-		addChild(createPianoKey<PianoKeySmall>(VecPx(93+keyNudgeX, KeyBlackY), 3, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(93+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 3 * 2));
-		addChild(createPianoKey<PianoKeySmall>(VecPx(150+keyNudgeX, KeyBlackY), 6, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(150+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 6 * 2));
-		addChild(createPianoKey<PianoKeySmall>(VecPx(178+keyNudgeX, KeyBlackY), 8, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(178+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 8 * 2));
-		addChild(createPianoKey<PianoKeySmall>(VecPx(206+keyNudgeX, KeyBlackY), 10, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(206+keyNudgeX+offsetKeyLEDx, KeyBlackY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 10 * 2));
-		// White keys and lights
-		addChild(createPianoKey<PianoKeySmall>(VecPx(51+keyNudgeX, KeyWhiteY), 0, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(51+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 0 * 2));
-		addChild(createPianoKey<PianoKeySmall>(VecPx(79+keyNudgeX, KeyWhiteY), 2, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(79+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 2 * 2));
-		addChild(createPianoKey<PianoKeySmall>(VecPx(107+keyNudgeX, KeyWhiteY), 4, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(107+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 4 * 2));
-		addChild(createPianoKey<PianoKeySmall>(VecPx(136+keyNudgeX, KeyWhiteY), 5, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(136+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 5 * 2));
-		addChild(createPianoKey<PianoKeySmall>(VecPx(164+keyNudgeX, KeyWhiteY), 7, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(164+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 7 * 2));
-		addChild(createPianoKey<PianoKeySmall>(VecPx(192+keyNudgeX, KeyWhiteY), 9, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(192+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 9 * 2));
-		addChild(createPianoKey<PianoKeySmall>(VecPx(220+keyNudgeX, KeyWhiteY), 11, module ? &module->pkInfo : NULL));
-		addChild(createLight<MediumLight<GreenRedLight>>(VecPx(220+keyNudgeX+offsetKeyLEDx, KeyWhiteY+offsetKeyLEDy), module, PhraseSeq32::KEY_LIGHTS + 11 * 2));
+		static const Vec keyboardPos = mm2px(Vec(18.222f, 33.303f));
+		svgPanel->fb->addChild(new KeyboardSmall(keyboardPos, mode));
+		
+		static const Vec offsetLeds = Vec(PianoKeySmall::sizeX * 0.5f, PianoKeySmall::sizeY * 0.55f);
+		for (int k = 0; k < 12; k++) {
+			Vec keyPos = keyboardPos + mm2px(smaKeysPos[k]);
+			addChild(createPianoKey<PianoKeySmall>(keyPos, k, module ? &module->pkInfo : NULL));
+			addChild(createLightCentered<MediumLight<GreenRedLight>>(keyPos + offsetLeds, module, PhraseSeq32::KEY_LIGHTS + k * 2));
+		}
+
 		
 		// Key mode LED buttons	
+		static const int KeyBlackY = 103;
+		static const int KeyWhiteY = 141;
 		static const int colRulerKM = 276;
+		static const int offsetKeyLEDy = 16;
 		addParam(createParamCentered<LEDButton>(VecPx(colRulerKM, KeyBlackY + offsetKeyLEDy + 4.4f), module, PhraseSeq32::KEYNOTE_PARAM));
 		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colRulerKM,  KeyBlackY + offsetKeyLEDy + 4.4f), module, PhraseSeq32::KEYNOTE_LIGHT));
 		addParam(createParamCentered<LEDButton>(VecPx(colRulerKM, KeyWhiteY + offsetKeyLEDy + 4.4f), module, PhraseSeq32::KEYGATE_PARAM));
