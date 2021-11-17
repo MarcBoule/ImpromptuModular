@@ -187,7 +187,7 @@ static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveResetClock
 						CableWidget* cw = new CableWidget();
 						// cable->setInput(slaveResetRunBpmInputs[i]);
 						// cable->setOutput(masterResetRunBpmOutputs[i]);
-						cw->setNextCableColor();
+						cw->color = APP->scene->rack->getNextCableColor();
 						cw->inputPort = slaveResetRunBpmInputs[i];
 						cw->outputPort = masterResetRunBpmOutputs[i];
 						cw->updateCable();
