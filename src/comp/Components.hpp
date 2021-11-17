@@ -157,9 +157,9 @@ struct LEDLightBezelBig : LEDLightBezel<RedLight> {
 struct Rogan1PSWhiteIM : Rogan {
 	Rogan1PSWhiteIM() {
 		setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
-		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PS-bg.svg")));
-		// fg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite-fg.svg")));
-		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PSWhite-fg.svg")));
+		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PS_bg.svg")));
+		// fg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite_fg.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PSWhite_fg.svg")));
 	}
 };
 
@@ -174,9 +174,9 @@ struct Rogan1SWhite : Rogan {
 	Rogan1SWhite() {
 		// setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
 		setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1S.svg")));
-		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PS-bg.svg")));
-		// fg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite-fg.svg")));
-		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PSWhite-fg.svg")));
+		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PS_bg.svg")));
+		// fg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite_fg.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PSWhite_fg.svg")));
 	}
 };
 
@@ -200,7 +200,7 @@ struct TrimpotSmall : app::SvgKnob {
 		fb->addChildBelow(bg, tw);
 
 		setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Trimpot.svg")));
-		bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Trimpot-bg.svg")));
+		bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Trimpot_bg.svg")));
 	}
 };
 
@@ -215,9 +215,9 @@ struct Rogan1White : Rogan {
 	Rogan1White() {
 		// setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite.svg")));
 		setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1.svg")));
-		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1P-bg.svg")));
-		// fg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite-fg.svg")));
-		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PWhite-fg.svg")));
+		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1P_bg.svg")));
+		// fg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PSWhite_fg.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PWhite_fg.svg")));
 	}
 };
 
@@ -233,8 +233,8 @@ struct IMMediumKnobInf : Rogan1White {
 struct Rogan1PWhiteIM : Rogan {
 	Rogan1PWhiteIM() {
 		setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1PWhite.svg")));
-		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1P-bg.svg")));
-		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PWhite-fg.svg")));
+		bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1P_bg.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/Rogan1PWhite_fg.svg")));
 	}
 };
 
