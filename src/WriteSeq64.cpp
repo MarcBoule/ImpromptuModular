@@ -664,8 +664,9 @@ struct WriteSeq64Widget : ModuleWidget {
 				nvgTextLetterSpacing(args.vg, -1.5);
 
 				Vec textPos = VecPx(6, 24);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~~~~~~", NULL);
+				
 				nvgFillColor(args.vg, displayColOn);
 				cvToStr();
 				nvgText(args.vg, textPos.x, textPos.y, text, NULL);
@@ -694,8 +695,9 @@ struct WriteSeq64Widget : ModuleWidget {
 				//nvgTextLetterSpacing(args.vg, 2.5);
 
 				Vec textPos = VecPx(6, 24);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
+				
 				nvgFillColor(args.vg, displayColOn);
 				char displayStr[3];
 				unsigned int numSteps = (module ? (unsigned)(module->indexSteps[module->calcChan()]) : 64);
@@ -726,8 +728,9 @@ struct WriteSeq64Widget : ModuleWidget {
 				//nvgTextLetterSpacing(args.vg, 2.5);
 
 				Vec textPos = VecPx(6, 24);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
+				
 				nvgFillColor(args.vg, displayColOn);
 				char displayStr[3];
 				unsigned int stepNum = (module ? (unsigned) module->indexStep[module->calcChan()] : 0);
@@ -758,8 +761,9 @@ struct WriteSeq64Widget : ModuleWidget {
 				//nvgTextLetterSpacing(args.vg, 2.5);
 
 				Vec textPos = VecPx(6, 24);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
+				
 				nvgFillColor(args.vg, displayColOn);
 				char displayStr[2];
 				char chanNum = (module ? module->calcChan() : 0);

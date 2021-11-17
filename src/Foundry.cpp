@@ -1425,9 +1425,10 @@ struct FoundryWidget : ModuleWidget {
 				nvgTextLetterSpacing(args.vg, -0.4);
 
 				Vec textPos = VecPx(5.7f, textOffsetY);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				std::string initString(NUMCHAR,'~');
 				nvgText(args.vg, textPos.x, textPos.y, initString.c_str(), NULL);
+				
 				nvgFillColor(args.vg, displayColOn);
 				char overlayChar = printText();
 				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
@@ -1452,22 +1453,20 @@ struct FoundryWidget : ModuleWidget {
 				}
 				static const float offsetXfrac = 3.5f;
 				nvgFontSize(args.vg, textFontSize);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
 				NVGcolor textColor = displayColOn;
-				NVGcolor textColorOff = displayColOff;
 				nvgFontFaceId(args.vg, font->handle);
 				nvgTextLetterSpacing(args.vg, -0.4);
 
 				Vec textPos = VecPx(6.3f, textOffsetY);
 				char useRed = printText();
-				if (useRed == 1)
-					textColorOff = nvgRGB(74, 60, 54);
-				nvgFillColor(args.vg, textColorOff);
+				if (useRed == 1) {
+					textColor = nvgRGB(0xFF, 0x2C, 0x20);
+				}
+				nvgFillColor(args.vg, nvgTransRGBA(textColor, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
 				std::string initString(".~~");
 				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, initString.c_str(), NULL);
-				if (useRed == 1)
-					textColor = nvgRGB(0xFF, 0x2C, 0x20);
+				
 				nvgFillColor(args.vg, textColor);
 				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &displayStr[1], NULL);
 				displayStr[1] = 0;

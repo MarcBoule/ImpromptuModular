@@ -571,8 +571,9 @@ struct ChordKeyWidget : ModuleWidget {
 				nvgTextLetterSpacing(args.vg, -0.4);
 
 				Vec textPos = VecPx(6.7f, textOffsetY);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
+				
 				nvgFillColor(args.vg, displayColOn);
 				int octaveNum = module ? module->octs[module->getIndex()][index] : 4;
 				char displayStr[2];
@@ -617,8 +618,9 @@ struct ChordKeyWidget : ModuleWidget {
 				nvgTextLetterSpacing(args.vg, -0.4);
 
 				Vec textPos = VecPx(6.7f, textOffsetY);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
+				
 				nvgFillColor(args.vg, displayColOn);
 				char displayStr[3];
 				int indexNum = module ? module->getIndex() + 1 : 1;

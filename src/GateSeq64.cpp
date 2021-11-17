@@ -1272,8 +1272,9 @@ struct GateSeq64Widget : ModuleWidget {
 				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				Vec textPos = VecPx(6, 24);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
+				
 				nvgFillColor(args.vg, displayColOn);				
 				
 				if (module == NULL) {

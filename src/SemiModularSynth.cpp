@@ -1954,10 +1954,10 @@ struct SemiModularSynthWidget : ModuleWidget {
 				nvgFontFaceId(args.vg, font->handle);
 
 				Vec textPos = VecPx(6, 24);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
-				nvgFillColor(args.vg, displayColOn);
 				
+				nvgFillColor(args.vg, displayColOn);
 				if (module == NULL) {
 					snprintf(displayStr, 4, "  1");
 				}

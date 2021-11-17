@@ -181,9 +181,10 @@ struct PartWidget : ModuleWidget {
 
 				Vec textPos = VecPx(6.3f, textOffsetY);
 				printText();
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
 				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, ".~~", NULL);
+				
 				nvgFillColor(args.vg, displayColOn);
 				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &displayStr[2], NULL);// print decimal point and two chars to the right of decimal point
 				displayStr[2] = 0;

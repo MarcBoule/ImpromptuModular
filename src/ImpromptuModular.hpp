@@ -60,9 +60,7 @@ static constexpr float clockIgnoreOnResetDuration = 0.001f;// disable clock on p
 
 static const unsigned int expanderRefreshStepSkips = 4;
 static const NVGcolor displayColOn = nvgRGB(0xaf, 0xd2, 0x2c);
-static const NVGcolor displayColOff = nvgRGB(67, 70, 55);
 
-// DEPRECATED static const int displayAlpha = 23;// use with nvgFillColor(args.vg, nvgTransRGBA(displayColOn, displayAlpha)); to get color for displayColOff
 
 
 // General objects

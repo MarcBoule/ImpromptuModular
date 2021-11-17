@@ -883,8 +883,9 @@ struct ClockedWidget : ModuleWidget {
 				//nvgTextLetterSpacing(args.vg, 2.5);
 
 				Vec textPos = VecPx(6, 24);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
+				
 				nvgFillColor(args.vg, displayColOn);
 				if (module == NULL) {
 					if (knobIndex == 0)

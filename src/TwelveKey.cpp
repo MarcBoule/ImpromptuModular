@@ -411,10 +411,10 @@ struct TwelveKeyWidget : ModuleWidget {
 				//nvgTextLetterSpacing(args.vg, 2.5);
 							
 				Vec textPos = VecPx(6, 24);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
-				nvgFillColor(args.vg, displayColOn);
 				
+				nvgFillColor(args.vg, displayColOn);
 				char displayStr[2];
 				if (module == NULL) {
 					displayStr[0] = '4';

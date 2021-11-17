@@ -669,8 +669,9 @@ struct WriteSeq32Widget : ModuleWidget {
 
 				for (int i = 0; i < 8; i++) {
 					Vec textPos = VecPx(notesPosLocal[i], 24);
-					nvgFillColor(args.vg, displayColOff);
+					nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 					nvgText(args.vg, textPos.x, textPos.y, "~~~", NULL);
+					
 					nvgFillColor(args.vg, displayColOn);
 					cvToStr(i);
 					nvgText(args.vg, textPos.x, textPos.y, text, NULL);
@@ -700,8 +701,9 @@ struct WriteSeq32Widget : ModuleWidget {
 				//nvgTextLetterSpacing(args.vg, 2.5);
 
 				Vec textPos = VecPx(6, 24);
-				nvgFillColor(args.vg, displayColOff);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
 				nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
+				
 				nvgFillColor(args.vg, displayColOn);
 				char displayStr[8];
 				unsigned int numSteps = (module ? (unsigned int)(module->calcSteps()) : 32);
