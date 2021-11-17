@@ -27,7 +27,25 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs88" />
+     id="defs88">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect1251"
+       is_visible="true"
+       lpeversion="1"
+       satellites_param="F,0,0,1,0,9,0,1 @ F,0,0,1,0,9,0,1 @ F,0,0,1,0,9,0,1 @ F,0,0,1,0,9,0,1 @ F,0,0,1,0,9,0,1 @ F,0,0,1,0,9,0,1"
+       unit="mm"
+       method="auto"
+       mode="F"
+       radius="9"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+  </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -38,28 +56,27 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1057"
+     inkscape:window-height="1017"
      id="namedview86"
      showgrid="false"
      inkscape:document-units="mm"
      units="mm"
-     inkscape:zoom="1.7481032"
-     inkscape:cx="191.92231"
-     inkscape:cy="242.83463"
+     inkscape:zoom="3.4962064"
+     inkscape:cx="319.20312"
+     inkscape:cy="367.68424"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg84"
      inkscape:pagecheckerboard="0" />
-  <rect
-     rx="2.3399999"
-     ry="2.3399999"
-     y="67.984642"
-     x="77.98555"
-     height="50.896816"
-     width="18.576704"
+  <path
      id="rect4"
-     style="fill:#afafaf;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
+     style="fill:#afafaf;fill-opacity:1;stroke-width:3.48723;paint-order:stroke markers fill"
+     d="m 294.74805,265.94922 v 106.46094 a 9,9 135 0 1 -9,9 h -48.77149 a 9,9 135 0 0 -9,9 l 0,49.90429 a 9,9 45 0 0 9,9 h 118.98242 c 4.97056,0 9.00013,-4.02944 9.00027,-9 0.002,-58.12035 0.002,-116.24266 0.002,-174.36523 0,-4.97056 -4.02944,-9 -9,-9 h -52.21293 a 9,9 135 0 0 -9,9 z"
+     transform="matrix(0.26458424,0,0,0.26458424,-1.7502631e-4,0)"
+     inkscape:path-effect="#path-effect1251"
+     inkscape:original-d="m 294.74805,256.94922 v 124.46094 h -66.77149 v 67.90429 h 136.98242 c 0.002,-64.12001 0.002,-128.24252 0.002,-192.36523 z"
+     sodipodi:nodetypes="ccccccc" />
   <g
      style="line-height:1.25;stroke-width:0.78124732;fill:#232323;fill-opacity:1"
      id="g8"
@@ -90,15 +107,6 @@
        id="path10"
        inkscape:connector-curvature="0" />
   </g>
-  <rect
-     rx="2.3399999"
-     ry="2.3399999"
-     y="100.91531"
-     x="60.318928"
-     height="17.966143"
-     width="21.926874"
-     id="rect14"
-     style="fill:#afafaf;stroke-width:1;paint-order:stroke markers fill;fill-opacity:1" />
   <path
      word-spacing="0"
      letter-spacing="0"
