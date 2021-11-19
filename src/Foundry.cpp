@@ -1420,7 +1420,6 @@ struct FoundryWidget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, textFontSize);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				nvgTextLetterSpacing(args.vg, -0.4);
 
@@ -2200,13 +2199,13 @@ struct FoundryWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnRulerT1, rowRulerT0), module, Foundry::SEL_PARAM, mode));
 		
 		// Copy-paste and select mode switch (3 position)
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(columnRulerT2, rowRulerT0), module, Foundry::CPMODE_PARAM, mode));	// 0.0f is top position
+		addParam(createDynamicSwitchCentered<IMSwitch3VInv>(VecPx(columnRulerT2, rowRulerT0), module, Foundry::CPMODE_PARAM, mode, svgPanel));	// 0.0f is top position
 		
 		// Copy/paste buttons
 		// see under Track display
 		
 		// Main switch
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM, mode));// 1.0f is top position
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(columnRulerT5, rowRulerT0 + 3), module, Foundry::EDIT_PARAM, mode, svgPanel));// 1.0f is top position
 
 		
 		
@@ -2309,7 +2308,7 @@ struct FoundryWidget : ModuleWidget {
 		
 		// Key mode LED buttons	
 		static const int colRulerKM = 61;
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM, mode, svgPanel));
 		
 		// Gate 1 light and button
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnRulerMB1 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_LIGHT));		
@@ -2365,7 +2364,7 @@ struct FoundryWidget : ModuleWidget {
 		
 
 		// Autostep and write
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(columnRulerB0, rowRulerBHigh), module, Foundry::AUTOSTEP_PARAM, mode));		
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(columnRulerB0, rowRulerBHigh), module, Foundry::AUTOSTEP_PARAM, mode, svgPanel));		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB0, rowRulerBLow), true, module, Foundry::WRITE_INPUT, mode));
 	
 		// CV IN inputs

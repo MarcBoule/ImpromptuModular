@@ -466,7 +466,6 @@ struct BigButtonSeqWidget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				//nvgTextLetterSpacing(args.vg, 2.5);
 
@@ -498,7 +497,6 @@ struct BigButtonSeqWidget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				//nvgTextLetterSpacing(args.vg, 2.5);
 

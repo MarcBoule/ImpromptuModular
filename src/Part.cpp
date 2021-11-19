@@ -175,7 +175,6 @@ struct PartWidget : ModuleWidget {
 				}
 				static const float offsetXfrac = 16.5f;
 				nvgFontSize(args.vg, textFontSize);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				nvgTextLetterSpacing(args.vg, -0.4);
 
@@ -310,7 +309,7 @@ struct PartWidget : ModuleWidget {
 		
 
 		// Display mode switch
-		addParam(createDynamicParamCentered<IMSwitch2H>(VecPx(colM, row0), module, Part::MODE_PARAM, mode));		
+		addParam(createDynamicSwitchCentered<IMSwitch2H>(VecPx(colM, row0), module, Part::MODE_PARAM, mode, svgPanel));		
 		
 		// Display
 		SplitDisplayWidget* splitDisplayWidget = new SplitDisplayWidget(VecPx(colM, row1), VecPx(65, 24), module);// 4 characters + decimal point

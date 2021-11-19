@@ -659,7 +659,6 @@ struct WriteSeq64Widget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				nvgTextLetterSpacing(args.vg, -1.5);
 
@@ -690,7 +689,6 @@ struct WriteSeq64Widget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				//nvgTextLetterSpacing(args.vg, 2.5);
 
@@ -723,7 +721,6 @@ struct WriteSeq64Widget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				//nvgTextLetterSpacing(args.vg, 2.5);
 
@@ -756,7 +753,6 @@ struct WriteSeq64Widget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				//nvgTextLetterSpacing(args.vg, 2.5);
 
@@ -901,7 +897,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addChild(displayNote);
 		svgPanel->fb->addChild(new DisplayBackground(displayNote->box.pos, displayNote->box.size, mode));
 		// Volt/sharp/flat switch
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colT3 + 114, rowT0), module, WriteSeq64::SHARP_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch3VInv>(VecPx(colT3 + 114, rowT0), module, WriteSeq64::SHARP_PARAM, mode, svgPanel));
 		// Steps display
 		StepsDisplayWidget *displaySteps = new StepsDisplayWidget();
 		displaySteps->box.size = VecPx(40, 30);// 2 characters
@@ -919,9 +915,9 @@ struct WriteSeq64Widget : ModuleWidget {
 		// Gate button
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colT2, rowT1), module, WriteSeq64::GATE_PARAM, mode));
 		// Autostep	
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colT2 + 53, rowT1 + 6), module, WriteSeq64::AUTOSTEP_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(colT2 + 53, rowT1 + 6), module, WriteSeq64::AUTOSTEP_PARAM, mode, svgPanel));
 		// Quantize switch
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colT2 + 110, rowT1 + 6), module, WriteSeq64::QUANTIZE_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(colT2 + 110, rowT1 + 6), module, WriteSeq64::QUANTIZE_PARAM, mode, svgPanel));
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_LIGHT));
@@ -953,7 +949,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 - 15, row0), module, WriteSeq64::COPY_PARAM, mode));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 + 15, row0), module, WriteSeq64::PASTE_PARAM, mode));
 		// Paste sync (and light)
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(col0, row1), module, WriteSeq64::PASTESYNC_PARAM, mode));	
+		addParam(createDynamicSwitchCentered<IMSwitch3VInv>(VecPx(col0, row1), module, WriteSeq64::PASTESYNC_PARAM, mode, svgPanel));	
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(col0 + 32, row1 + 5), module, WriteSeq64::PENDING_LIGHT));
 		// Gate input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row2), true, module, WriteSeq64::GATE_INPUT, mode));				
@@ -980,7 +976,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row1), module, WriteSeq64::WRITE_PARAM, mode));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(col2 - 21, row1 - 21), module, WriteSeq64::WRITE_LIGHT));
 		// Monitor
-		addParam(createDynamicParamCentered<IMSwitch2H>(VecPx(col2, row2), module, WriteSeq64::MONITOR_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2H>(VecPx(col2, row2), module, WriteSeq64::MONITOR_PARAM, mode, svgPanel));
 		// Step R input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col2, row3), true, module, WriteSeq64::STEPR_INPUT, mode));
 		

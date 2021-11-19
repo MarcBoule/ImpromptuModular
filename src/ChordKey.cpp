@@ -566,7 +566,6 @@ struct ChordKeyWidget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, textFontSize);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				nvgTextLetterSpacing(args.vg, -0.4);
 
@@ -613,7 +612,6 @@ struct ChordKeyWidget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, textFontSize);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, textFontSize, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				nvgTextLetterSpacing(args.vg, -0.4);
 
@@ -929,7 +927,7 @@ struct ChordKeyWidget : ModuleWidget {
 		// Gate input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, rowY + rowYd * 3 + 8), true, module, ChordKey::GATE_INPUT, mode));
 		// Gate force switch
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(col1, rowY + rowYd * 3 + 8), module, ChordKey::FORCE_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(col1, rowY + rowYd * 3 + 8), module, ChordKey::FORCE_PARAM, mode, svgPanel));
 	
 		// oct buttons, oct displays, gate and cv outputs
 		for (int cni = 0; cni < 4; cni++) {

@@ -663,7 +663,6 @@ struct WriteSeq32Widget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				nvgTextLetterSpacing(args.vg, -1.5);
 
@@ -696,7 +695,6 @@ struct WriteSeq32Widget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				//nvgTextLetterSpacing(args.vg, 2.5);
 
@@ -832,11 +830,11 @@ struct WriteSeq32Widget : ModuleWidget {
 		
 		// Autostep, sharp/flat and quantize switches
 		// Autostep	
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(col0 + 3, yTopSwitches), module, WriteSeq32::AUTOSTEP_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(col0 + 3, yTopSwitches), module, WriteSeq32::AUTOSTEP_PARAM, mode, svgPanel));
 		// Sharp/flat
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(col4, yTopSwitches), module, WriteSeq32::SHARP_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(col4, yTopSwitches), module, WriteSeq32::SHARP_PARAM, mode, svgPanel));
 		// Quantize
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(col5, yTopSwitches), module, WriteSeq32::QUANTIZE_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(col5, yTopSwitches), module, WriteSeq32::QUANTIZE_PARAM, mode, svgPanel));
 
 		// Window LED buttons
 		static const float wLightsPosX = 149.0f;
@@ -891,7 +889,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 - 15, row1), module, WriteSeq32::COPY_PARAM, mode));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 + 15, row1), module, WriteSeq32::PASTE_PARAM, mode));
 		// Paste sync (and light)
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(col0, row2), module, WriteSeq32::PASTESYNC_PARAM, mode));	
+		addParam(createDynamicSwitchCentered<IMSwitch3VInv>(VecPx(col0, row2), module, WriteSeq32::PASTESYNC_PARAM, mode, svgPanel));	
 		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(col0 + 32, row2 + 5), module, WriteSeq32::PENDING_LIGHT));		
 		// Run CV input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row3), true, module, WriteSeq32::RUNCV_INPUT, mode));
@@ -932,7 +930,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		// Steps knob
 		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(col3, row1), module, WriteSeq32::STEPS_PARAM, mode));		
 		// Monitor
-		addParam(createDynamicParamCentered<IMSwitch2H>(VecPx(col3, row2), module, WriteSeq32::MONITOR_PARAM, mode));		
+		addParam(createDynamicSwitchCentered<IMSwitch2H>(VecPx(col3, row2), module, WriteSeq32::MONITOR_PARAM, mode, svgPanel));		
 		// Write input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col3, row3), true, module, WriteSeq32::WRITE_INPUT, mode));
 		

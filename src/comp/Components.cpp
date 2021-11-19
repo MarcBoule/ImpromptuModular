@@ -51,47 +51,31 @@ void DynamicSVGScrew::step() {
 // Buttons and switches
 // ----------
 
-struct Margins {
-	static constexpr float l = 1.0f;
-	static constexpr float r = 1.0f;
-	static constexpr float t = 1.0f;
-	static constexpr float b = 1.0f;
-};
-Margins margins;
+LEDLightBezelBig::LEDLightBezelBig() {
+	float ratio = 2.13f;
+	sw->box.size = sw->box.size.mult(ratio);
+	fb->removeChild(sw);
+	tw = new TransformWidget();
+	tw->addChild(sw);
+	tw->scale(Vec(ratio, ratio));
+	tw->box.size = sw->box.size; 
+	fb->addChild(tw);
+	box.size = sw->box.size; 
+	light->box.size *= ratio; 
+	light->box.pos *= ratio;
+	shadow->box.size = sw->box.size; 
+}
 
 
-struct SwitchOutlineWidget : Widget {
-	int** mode = NULL;
-	
-	SwitchOutlineWidget(int** _mode, Vec _size) {
-		mode = _mode;
-		box.size = _size;
+void SwitchOutlineWidget::draw(const DrawArgs& args) {
+	if (isDark(mode)) {
+		nvgBeginPath(args.vg);
+		NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
+		nvgRoundedRect(args.vg, 0 - 1, 0 - 1, box.size.x + 2, box.size.y + 2, 1.5f);
+		nvgFillPaint(args.vg, grad);
+		nvgFill(args.vg);
 	}
-	void draw(const DrawArgs& args) override {
-		if (mode && isDark(*mode)) {
-			nvgBeginPath(args.vg);
-			NVGpaint grad = nvgLinearGradient(args.vg, 0, 0, 0, box.size.y, colTop, colBot);	
-			nvgRoundedRect(args.vg, 0, 0, box.size.x, box.size.y, 1.5f);
-			nvgFillPaint(args.vg, grad);
-			nvgFill(args.vg);
-		}
-		Widget::draw(args);
-	}
-};
-
-
-IMSwitch2V::IMSwitch2V() {
-	shadow->hide();
-
-	// add margins:
-	fb->box.size = fb->box.size.plus(Vec(margins.l + margins.r, margins.t + margins.b));
-	box.size = fb->box.size;
-	sw->box.pos = sw->box.pos.plus(Vec(margins.l, margins.t));
-
-	// add switch outline:
-	SwitchOutlineWidget* sow = new SwitchOutlineWidget(&mode, box.size);// box.size already includes margins
-	sow->box.pos = Vec(0, 0);
-	fb->addChildBottom(sow);
+	Widget::draw(args);
 }
 
 
@@ -111,49 +95,6 @@ IMSwitch2H::IMSwitch2H() {
 	tw->box.size = sw->box.size;
 	fb->box.size = sw->box.size;
 	box.size = sw->box.size;
-	
-	// add margins:
-	fb->box.size = fb->box.size.plus(Vec(margins.l + margins.r, margins.t + margins.b));
-	box.size = fb->box.size;
-	tw->box.pos = tw->box.pos.plus(Vec(margins.l, margins.t));
-
-	// add switch outline:
-	SwitchOutlineWidget* sow = new SwitchOutlineWidget(&mode, box.size);// box.size already includes margins
-	sow->box.pos = Vec(0, 0);
-	fb->addChildBottom(sow);
-}
-
-
-IMSwitch3VInv::IMSwitch3VInv() {
-	addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_2.svg")));
-	addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_1.svg")));
-	addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_0.svg")));
-	
-	// add margins:
-	fb->box.size = fb->box.size.plus(Vec(margins.l + margins.r, margins.t + margins.b));
-	box.size = fb->box.size;
-	sw->box.pos = sw->box.pos.plus(Vec(margins.l, margins.t));
-
-	// add switch outline:
-	SwitchOutlineWidget* sow = new SwitchOutlineWidget(&mode, box.size);// box.size already includes margins
-	sow->box.pos = Vec(0, 0);
-	fb->addChildBottom(sow);
-}
-
-
-LEDLightBezelBig::LEDLightBezelBig() {
-	float ratio = 2.13f;
-	sw->box.size = sw->box.size.mult(ratio);
-	fb->removeChild(sw);
-	tw = new TransformWidget();
-	tw->addChild(sw);
-	tw->scale(Vec(ratio, ratio));
-	tw->box.size = sw->box.size; 
-	fb->addChild(tw);
-	box.size = sw->box.size; 
-	light->box.size *= ratio; 
-	light->box.pos *= ratio;
-	shadow->box.size = sw->box.size; 
 }
 
 

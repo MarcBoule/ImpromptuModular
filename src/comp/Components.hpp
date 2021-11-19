@@ -100,6 +100,12 @@ struct IMPort : PJ301MPort  {
 // Buttons and switches
 // ----------
 
+struct LEDLightBezelBig : LEDLightBezel<RedLight> {
+	TransformWidget *tw;
+	LEDLightBezelBig();
+};
+
+
 struct IMBigPushButton : CKD6 {
 	int* mode = NULL;
 	TransformWidget *tw;
@@ -126,28 +132,51 @@ struct IMPushButton : TL1105 {
 };
 
 
+struct SwitchOutlineWidget : Widget {
+	int* mode = NULL;
+	
+	SwitchOutlineWidget(int* _mode, Vec _size, Vec _pos) {
+		mode = _mode;
+		box.size = _size;
+		box.pos = _pos;
+	}
+	void draw(const DrawArgs& args) override;
+};
+
+// Dynamic switch (has framebuffered outline in dark mode)
+template <class TDynamicParam>
+TDynamicParam* createDynamicSwitchCentered(Vec pos, Module *module, int paramId, int* mode, SvgPanel* panel) {
+	TDynamicParam *dynParam = createParam<TDynamicParam>(pos, module, paramId);
+	dynParam->mode = mode;
+	dynParam->box.pos = dynParam->box.pos.minus(dynParam->box.size.div(2));// centering
+	SwitchOutlineWidget* sow = new SwitchOutlineWidget(mode, dynParam->box.size, dynParam->box.pos);
+	panel->fb->addChild(sow);
+	return dynParam;
+}
+
 struct IMSwitch2V : CKSS {
 	int* mode = NULL;
-	IMSwitch2V();
+	IMSwitch2V() {
+		shadow->hide();
+	}
 };
 
 
 struct IMSwitch2H : CKSS {
 	int* mode = NULL;
-	IMSwitch2H();
+	IMSwitch2H();// has a rotation transform
 };
 
 
 struct IMSwitch3VInv : SvgSwitch {
 	int* mode = NULL;
-	IMSwitch3VInv();
+	IMSwitch3VInv() {
+		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_2.svg")));
+		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_1.svg")));
+		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/CKSSThree_0.svg")));		
+	}
 };
 
-
-struct LEDLightBezelBig : LEDLightBezel<RedLight> {
-	TransformWidget *tw;
-	LEDLightBezelBig();
-};
 
 
 

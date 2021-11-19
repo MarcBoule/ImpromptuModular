@@ -1731,7 +1731,6 @@ struct PhraseSeq16Widget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				Vec textPos = VecPx(6, 24);
 				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
@@ -2094,7 +2093,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		
 		
 		// Edit mode switch
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colMK0, rowMK0), module, PhraseSeq16::EDIT_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(colMK0, rowMK0), module, PhraseSeq16::EDIT_PARAM, mode, svgPanel));
 		// Sequence display
 		SequenceDisplayWidget *displaySequence = new SequenceDisplayWidget();
 		displaySequence->box.size = VecPx(55, 30);// 3 characters
@@ -2120,7 +2119,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 - 15, rowMK2 + 5), module, PhraseSeq16::COPY_PARAM, mode));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 + 15, rowMK2 + 5), module, PhraseSeq16::PASTE_PARAM, mode));
 		// Copy-paste mode switch (3 position)
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colMK2 + 1, rowMK2 - 3), module, PhraseSeq16::CPMODE_PARAM, mode));	// 0.0f is top position
+		addParam(createDynamicSwitchCentered<IMSwitch3VInv>(VecPx(colMK2 + 1, rowMK2 - 3), module, PhraseSeq16::CPMODE_PARAM, mode, svgPanel));	// 0.0f is top position
 
 		
 		
@@ -2172,7 +2171,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		// Slide knob
 		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(colB3, rowB1), module, PhraseSeq16::SLIDE_KNOB_PARAM, mode));
 		// Autostep
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colB4, rowB1), module, PhraseSeq16::AUTOSTEP_PARAM, mode));		
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(colB4, rowB1), module, PhraseSeq16::AUTOSTEP_PARAM, mode, svgPanel));		
 		// CV in
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colB5, rowB1), true, module, PhraseSeq16::CV_INPUT, mode));
 		// Clock

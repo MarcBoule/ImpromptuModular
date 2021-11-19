@@ -406,7 +406,6 @@ struct TwelveKeyWidget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				//nvgTextLetterSpacing(args.vg, 2.5);
 							
@@ -561,7 +560,7 @@ struct TwelveKeyWidget : ModuleWidget {
 
 
 		// Velocity polarity
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colRulerCenter, rowRuler2), module, TwelveKey::VELPOL_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(colRulerCenter, rowRuler2), module, TwelveKey::VELPOL_PARAM, mode, svgPanel));
 		
 		// Right side outputs
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler0), false, module, TwelveKey::OCT_OUTPUT, mode));

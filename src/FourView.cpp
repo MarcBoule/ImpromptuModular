@@ -539,7 +539,6 @@ struct FourViewWidget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 17);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 17, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				nvgTextLetterSpacing(args.vg, -1.5);
 
@@ -659,7 +658,7 @@ struct FourViewWidget : ModuleWidget {
 
 
 		// Display mode switch
-		addParam(createDynamicParamCentered<IMSwitch2H>(VecPx(centerX, 234), module, FourView::MODE_PARAM, mode));		
+		addParam(createDynamicSwitchCentered<IMSwitch2H>(VecPx(centerX, 234), module, FourView::MODE_PARAM, mode, svgPanel));		
 
 
 		static const int spacingY2 = 46;

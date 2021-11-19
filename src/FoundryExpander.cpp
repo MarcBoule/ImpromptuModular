@@ -149,7 +149,7 @@ struct FoundryExpanderWidget : ModuleWidget {
 
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh - rowSpacingExp * 3 + 2*se), true, module, FoundryExpander::SEQCV_INPUTS + 3, mode));
 
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh - rowSpacingExp * 3 + 2*se), module, FoundryExpander::SYNC_SEQCV_PARAM, mode));// 1.0f is top position
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh - rowSpacingExp * 3 + 2*se), module, FoundryExpander::SYNC_SEQCV_PARAM, mode, svgPanel));// 1.0f is top position
 
 		
 		// Gate, tied, slide

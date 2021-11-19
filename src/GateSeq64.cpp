@@ -1269,7 +1269,6 @@ struct GateSeq64Widget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				Vec textPos = VecPx(6, 24);
 				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
@@ -1647,11 +1646,11 @@ struct GateSeq64Widget : ModuleWidget {
 		
 
 		// Seq/Song selector
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(colC4, rowC0), module, GateSeq64::EDIT_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(colC4, rowC0), module, GateSeq64::EDIT_PARAM, mode, svgPanel));
 		// Config switch (3 position)
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colC4, rowC1), module, GateSeq64::CONFIG_PARAM, mode));// 0.0f is top position
+		addParam(createDynamicSwitchCentered<IMSwitch3VInv>(VecPx(colC4, rowC1), module, GateSeq64::CONFIG_PARAM, mode, svgPanel));// 0.0f is top position
 		// Copy paste mode
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(colC4, rowC2), module, GateSeq64::CPMODE_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch3VInv>(VecPx(colC4, rowC2), module, GateSeq64::CPMODE_PARAM, mode, svgPanel));
 
 		// Outputs
 		for (int iSides = 0; iSides < 4; iSides++)

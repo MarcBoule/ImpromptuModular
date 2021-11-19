@@ -477,7 +477,6 @@ struct CvPadWidget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				//nvgTextLetterSpacing(args.vg, 2.5);
 
@@ -570,7 +569,6 @@ struct CvPadWidget : ModuleWidget {
 					return;
 				}
 				nvgFontSize(args.vg, 18);
-				// NVGcolor textColor = prepareDisplay(args.vg, &box, 18, module ? &(module->panelTheme) : NULL);
 				nvgFontFaceId(args.vg, font->handle);
 				nvgTextLetterSpacing(args.vg, -1.5);
 
@@ -944,11 +942,11 @@ struct CvPadWidget : ModuleWidget {
 		static const int topY = 60;
 		static constexpr float leftYd = 53.6f;
 		// quantize
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(leftX, topY), module, CvPad::QUANTIZE_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(leftX, topY), module, CvPad::QUANTIZE_PARAM, mode, svgPanel));
 		// attach
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(leftX, topY + leftYd), module, CvPad::ATTACH_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(leftX, topY + leftYd), module, CvPad::ATTACH_PARAM, mode, svgPanel));
 		// autostep
-		addParam(createDynamicParamCentered<IMSwitch2V>(VecPx(leftX, topY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(leftX, topY + leftYd * 2), module, CvPad::AUTOSTEP_PARAM, mode, svgPanel));
 		// write button
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(leftX, topY + leftYd * 3), module, CvPad::WRITE_PARAM, mode));	
 		// write input
@@ -975,9 +973,9 @@ struct CvPadWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(VecPx(rightX + rightO, topY), true, module, CvPad::BANK_INPUT, mode));
 		// Volt/sharp/flat switch
 		static const int triSwitchY = 119;
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(rightX - 32, triSwitchY - 6), module, CvPad::SHARP_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch3VInv>(VecPx(rightX - 32, triSwitchY - 6), module, CvPad::SHARP_PARAM, mode, svgPanel));
 		// config
-		addParam(createDynamicParamCentered<IMSwitch3VInv>(VecPx(rightX + 8, triSwitchY - 6), module, CvPad::CONFIG_PARAM, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch3VInv>(VecPx(rightX + 8, triSwitchY - 6), module, CvPad::CONFIG_PARAM, mode, svgPanel));
 		// outputs
 		static const int outY = triSwitchY + 68 * 3;
 		static const int outYd = 45;
