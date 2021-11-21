@@ -17,6 +17,7 @@ Plugin *pluginInstance;
 void init(Plugin *p) {
 	pluginInstance = p;
 
+	p->addModel(modelAdaptiveQuantizer);
 	p->addModel(modelBigButtonSeq);
 	p->addModel(modelBigButtonSeq2);
 	p->addModel(modelChordKey);

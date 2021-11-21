@@ -14,6 +14,14 @@
 	"changelogUrl": "https://github.com/MarcBoule/ImpromptuModular/tree/master/CHANGELOG.md",
 	"modules": [
 		{
+			"slug": "Adaptive-Quantizer",
+			"name": "AdaptiveQuantizer",
+			"description": "Adaptive reference based quantizer",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#adaptive-quantizer",
+			"tags": ["Quantizer"],
+			"hidden": true
+		},
+		{
 			"slug": "Big-Button-Seq",
 			"name": "BigButtonSeq",
 			"description": "6-channel, 64-step trigger sequencer",

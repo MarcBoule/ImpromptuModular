@@ -73,6 +73,7 @@ struct DynamicSVGScrew : SvgWidget {
 
     void addFrame(std::shared_ptr<Svg> svg);
     void addFrameAlt(std::string filename) {frameAltName = filename;}
+	void refreshForTheme();// must be called after resources are set, or first module in module browser will not have proper theme
     void step() override;
 };
 
@@ -81,6 +82,7 @@ struct IMScrew : DynamicSVGScrew {
 	IMScrew() {
 		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/ScrewSilver.svg")));
 		addFrameAlt(asset::system("res/ComponentLibrary/ScrewBlack.svg"));
+		refreshForTheme();
 	}
 };
 
@@ -396,6 +398,15 @@ struct CvPadSvg : SvgWidget {
 		mode = _mode;
 	}
 	void draw(const DrawArgs& args) override;
+};
+
+struct AqLedBg : SvgWidget {
+	int* mode = NULL;
+	AqLedBg(Vec(_pos), int* _mode) {
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/comp/AqLedBg.svg")));
+		box.pos = _pos; 
+		mode = _mode;
+	}
 };
 
 

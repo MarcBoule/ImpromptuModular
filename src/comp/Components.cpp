@@ -27,8 +27,8 @@ void DynamicSVGScrew::addFrame(std::shared_ptr<Svg> svg) {
 	}
 }
 
-void DynamicSVGScrew::step() {
-    int newMode = isDark(mode) ? 1 : 0;
+void DynamicSVGScrew::refreshForTheme() {
+	int newMode = isDark(mode) ? 1 : 0;
 	if (newMode != oldMode) {
         if (newMode > 0 && !frameAltName.empty()) {// JIT loading of alternate skin
 			frames.push_back(APP->window->loadSvg(frameAltName));
@@ -37,6 +37,10 @@ void DynamicSVGScrew::step() {
         setSvg(frames[newMode]);
         oldMode = newMode;
     }
+}
+
+void DynamicSVGScrew::step() {
+	refreshForTheme();
 	SvgWidget::step();
 }
 
