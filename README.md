@@ -200,9 +200,9 @@ The following sections contain more information on how each module works.
 <a id="adaptive-quantizer"></a>
 ## AdaptiveQuantizer
 
-![IM](res/img/AdaptiveQuantizer.jpg)
+![IM](res/img/AdaptiveQuantizer.jpeg)
 
-The Adaptive Quantizer quantizes a pitch CV according to the musical content in a sequence of reference notes. The reference notes sent to the Adaptive Quantizer are stored in an internal buffer, and can be held (frozen) or can continually follow the reference material. The reference memory holds a maximum of 240 notes (events). Multiple controls are available to determine how the quantization is to be performed, ranging from the number of desired pitches to different weightings that can alter the selection of notes. Windowing controls are also available to select the region of the reference memory to be used to determine the effective quantization. A chord output is also provided, which produces a polyphonic signal containing the highest weighted notes.
+The Adaptive Quantizer quantizes a pitch CV according to the musical content in a sequence of reference notes. The reference notes sent to the Adaptive Quantizer are stored in an internal buffer, and can be held (frozen) or can continually follow the reference material. The reference memory holds a maximum of 240 notes (events). Multiple controls are available to determine how the quantization is to be performed, ranging from the number of desired pitches to different weightings that can alter the selection of notes. Windowing controls are also available to select the region of the reference memory to be used to determine the quantization. A chord output is also provided, which produces a polyphonic signal containing the highest weighted notes.
 
 In one possible use, the Adaptive Quantizer can be used to quantize a live performance on a keyboard to the musical content from another performer. The quantizer is best explained using the following terminology:
 
@@ -216,15 +216,19 @@ The list below presents more details regarding the different controls of the Ada
 
 * **PERSIST**: number of reference notes to use for determining the target pitches (4 to 240).
 
-* **OFFSET**: start position within the reference notes to use for determining the target pitches (0 to 240).
+* **OFFSET**: start position within the reference notes to use for determining the target pitches (0 to 240). When Freeze is not active, adding offset will increase the lag with which the reference material affects quantization; i.e. a large offset means a change in tonality in the reference material will take longer to manifest itself in the quantization.
 
-* **OCTAVE**: a weighting of the 
+* **OCTAVE**: a weighting of the active pitches that will favor high notes (when octave is turned clockwise) or low notes (when octave is turned counter-clockwise). 
+
+* **DURATION**: a weighting of the active pitches that will favor long notes (when duration is turned clockwise) or short notes (when duration is turned counter-clockwise).
+
+* **CHORD**: select the number of voices in the polyphonic chord output (1 to 5). This output produces an
 
 * **THRU**: thru quantization to 12 tone equal temperament. The reference notes are not used and most controls have no effect on the quantizer.
 
 * **S&H**: sample and hold the output pitch according to the gate input. This option can be useful to prevent the quantizer from jumping when the reference material 
 
-
+* **
 
 <a id="big-button-seq"></a>
 ## BigButtonSeq
