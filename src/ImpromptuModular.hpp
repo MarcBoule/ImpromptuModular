@@ -22,6 +22,7 @@ extern Plugin *pluginInstance;
 
 
 // All modules that are part of pluginInstance go here
+extern Model *modelAdaptiveQuantizer;
 extern Model *modelBigButtonSeq;
 extern Model *modelBigButtonSeq2;
 extern Model *modelChordKey;

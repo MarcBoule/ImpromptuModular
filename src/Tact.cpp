@@ -438,10 +438,10 @@ struct TactWidget : ModuleWidget {
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 0), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 365), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 365), mode));
 		
 		
 		static const int rowRuler0 = 34;
@@ -774,10 +774,10 @@ struct Tact1Widget : ModuleWidget {
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 0), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 365), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 365), mode));
 		
 		
 		static const int rowRuler0 = 42;
@@ -1048,10 +1048,10 @@ struct TactGWidget : ModuleWidget {
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 0), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 365), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 365), mode));
 		
 		
 		static constexpr float padY = 12.8f;

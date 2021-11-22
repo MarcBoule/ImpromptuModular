@@ -817,10 +817,10 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 0), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(box.size.x-30, 365), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 0), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 0), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 365), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		
 		

@@ -1,5 +1,5 @@
 Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://library.vcvrack.com/).
-Version 2.0.2
+Version 2.0.4
 
 Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -10,6 +10,8 @@ Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are 
 ## Modules
 
 Each module is available in light or dark panels with contrast adjusment, selectable in the right-click menu of the modules. A global default can be set, which takes effect only when adding new modules to a patch.
+
+* [AdaptiveQuantizer](#adaptive-quantizer): Adaptive reference based quantizer.
 
 * [BigButtonSeq](#big-button-seq): 6-channel 64-step trigger sequencer based on the infamous BigButton by Look Mum No Computer.
 
@@ -194,6 +196,39 @@ Limitations: As a general rule, the Impromptu sequencers are not as expressive a
 The following sections contain more information on how each module works.
 
 
+
+<a id="adaptive-quantizer"></a>
+## AdaptiveQuantizer
+
+![IM](res/img/AdaptiveQuantizer.jpeg)
+
+The Adaptive Quantizer quantizes a pitch CV according to the musical content in a sequence of reference notes. The reference notes sent to the Adaptive Quantizer are stored in an internal buffer, and can be held (frozen) or can continually follow the reference material. The reference memory holds a maximum of 240 notes (events). Multiple controls are available to determine how the quantization is to be performed, ranging from the number of desired pitches to different weightings that can alter the selection of notes. Windowing controls are also available to select the region of the reference memory to be used to determine the quantization. A chord output is also provided, which produces a polyphonic signal containing the highest weighted notes.
+
+In one possible use, the Adaptive Quantizer can be used to quantize a live performance on a keyboard to the musical content from another performer. The quantizer is best explained using the following terminology:
+
+* **Target pitches**: this denotes the separete row of twelve LEDs located at the top of the main LED display area. These indicate the current valid pitches to which the quantization can occur.
+
+* **Pitch matrix**: this denotes the 5x12 array of LEDs located in the center display area. These indicate the current weights for each note type (C through B). When the PERSIST and OFFSET knobs are touched, the LED array instead shows the number of stored notes and the active window being used to determine the target pitches.
+
+The list below presents more details regarding the different controls of the Adaptive Quantizer.
+
+* **PITCHES**: number of target pitches to which the incoming CV can be quantized to (1 to 12).
+
+* **PERSIST**: number of reference notes to use for determining the target pitches (4 to 240).
+
+* **OFFSET**: start position within the reference notes to use for determining the target pitches (0 to 240). When Freeze is not active, adding offset will increase the lag with which the reference material affects quantization; i.e. a large offset means a change in tonality in the reference material will take longer to manifest itself in the quantization.
+
+* **OCTAVE**: a weighting of the active pitches that will favor high notes (when octave is turned clockwise) or low notes (when octave is turned counter-clockwise). 
+
+* **DURATION**: a weighting of the active pitches that will favor long notes (when duration is turned clockwise) or short notes (when duration is turned counter-clockwise).
+
+* **CHORD**: select the number of voices in the polyphonic chord output (1 to 5). This output produces an
+
+* **THRU**: thru quantization to 12 tone equal temperament. The reference notes are not used and most controls have no effect on the quantizer.
+
+* **S&H**: sample and hold the output pitch according to the gate input. This option can be useful to prevent the quantizer from jumping when the reference material 
+
+* **
 
 <a id="big-button-seq"></a>
 ## BigButtonSeq

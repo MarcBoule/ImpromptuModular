@@ -389,8 +389,8 @@ struct HotkeyWidget : ModuleWidget {
 		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
 		
 		// Screws
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 0), mode));
-		svgPanel->fb->addChild(createDynamicWidget<IMScrew>(VecPx(15, 365), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 0), mode));
+		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 365), mode));
 
 
 		static const float centerX = 22.5f;

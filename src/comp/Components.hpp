@@ -28,11 +28,12 @@ static const NVGcolor colBotD = nvgRGB(128 + colDeltaD, 128 + colDeltaD, 128 + c
 // ----------------------------------------
 
 // Dynamic widgets
-template <class TWidget>
-TWidget* createDynamicWidget(Vec pos, int* mode) {
-	TWidget *dynWidget = createWidget<TWidget>(pos);
-	dynWidget->mode = mode;
-	return dynWidget;
+template <class TDynamicScrew>
+TDynamicScrew* createDynamicScrew(Vec pos, int* mode) {
+	TDynamicScrew *dynScrew = createWidget<TDynamicScrew>(pos);
+	dynScrew->mode = mode;
+	dynScrew->refreshForTheme();// all TDynamicScrew must have this
+	return dynScrew;
 }
 
 
@@ -73,6 +74,7 @@ struct DynamicSVGScrew : SvgWidget {
 
     void addFrame(std::shared_ptr<Svg> svg);
     void addFrameAlt(std::string filename) {frameAltName = filename;}
+	void refreshForTheme();
     void step() override;
 };
 
@@ -396,6 +398,15 @@ struct CvPadSvg : SvgWidget {
 		mode = _mode;
 	}
 	void draw(const DrawArgs& args) override;
+};
+
+struct AqLedBg : SvgWidget {
+	int* mode = NULL;
+	AqLedBg(Vec(_pos), int* _mode) {
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/comp/AqLedBg.svg")));
+		box.pos = _pos; 
+		mode = _mode;
+	}
 };
 
 
