@@ -45,6 +45,12 @@ void init(Plugin *p) {
 	p->addModel(modelWriteSeq32);
 	p->addModel(modelWriteSeq64);
 	p->addModel(modelBlankPanel);
+	
+	readThemeAndContrastFromDefault();
+}
+
+void destroy() {
+	writeThemeAndContrastAsDefault();
 }
 
 

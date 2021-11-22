@@ -11,25 +11,21 @@
 using namespace rack;
 
 
+
 static constexpr float panelContrastDefault = 220.0f;
 static constexpr float panelContrastMin = 190.0f;
 static constexpr float panelContrastMax = 240.0f;
 
-void saveThemeAndContrastAsDefault(int themeDefault, float contrastDefault);
 
+void writeThemeAndContrastAsDefault();
+void readThemeAndContrastFromDefault();
+
+bool isDark(int* panelTheme);
+
+void saveThemeAndContrastAsDefault(int panelTheme, float panelContrast);
 void loadThemeAndContrastFromDefault(int* panelTheme, float* panelContrast);
 
 void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast, SvgPanel* mainPanel);
-
-inline bool isDark(int* panelTheme) {
-	if (panelTheme != NULL) {
-		return (*panelTheme != 0);
-	}
-	int themeDefault;
-	float contrastDefault;
-	loadThemeAndContrastFromDefault(&themeDefault, &contrastDefault);
-	return (themeDefault != 0);
-}
 
 
 struct PanelBaseWidget : TransparentWidget {
@@ -50,7 +46,3 @@ struct InverterWidget : TransparentWidget {
 	}
 	void draw(const DrawArgs& args) override;
 };
-
-
-
-

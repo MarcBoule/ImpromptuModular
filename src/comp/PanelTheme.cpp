@@ -8,11 +8,34 @@
 #include "PanelTheme.hpp"
 
 
+int defaultPanelTheme;
+float defaultPanelContrast;
 
-void saveThemeAndContrastAsDefault(int themeDefault = 0, float contrastDefault = panelContrastDefault) {
+
+void saveThemeAndContrastAsDefault(int panelTheme, float panelContrast) {
+	defaultPanelTheme = panelTheme;
+	defaultPanelContrast = panelContrast;
+}
+
+
+void loadThemeAndContrastFromDefault(int* panelTheme, float* panelContrast) {
+	*panelTheme = defaultPanelTheme;
+	*panelContrast = defaultPanelContrast;
+}
+
+
+bool isDark(int* panelTheme) {
+	if (panelTheme != NULL) {
+		return (*panelTheme != 0);
+	}
+	return (defaultPanelTheme != 0);
+}
+
+
+void writeThemeAndContrastAsDefault() {
 	json_t *settingsJ = json_object();
-	json_object_set_new(settingsJ, "themeDefault", json_integer(themeDefault));
-	json_object_set_new(settingsJ, "contrastDefault", json_real(contrastDefault));
+	json_object_set_new(settingsJ, "themeDefault", json_integer(defaultPanelTheme));
+	json_object_set_new(settingsJ, "contrastDefault", json_real(defaultPanelContrast));
 	std::string settingsFilename = asset::user("ImpromptuModular.json");
 	FILE *file = fopen(settingsFilename.c_str(), "w");
 	if (file) {
@@ -23,14 +46,13 @@ void saveThemeAndContrastAsDefault(int themeDefault = 0, float contrastDefault =
 }
 
 
-void loadThemeAndContrastFromDefault(int* panelTheme, float* panelContrast) {
-	*panelTheme = 0;
-	*panelContrast = panelContrastDefault;
-	
+void readThemeAndContrastFromDefault() {
 	std::string settingsFilename = asset::user("ImpromptuModular.json");
 	FILE *file = fopen(settingsFilename.c_str(), "r");
 	if (!file) {
-		saveThemeAndContrastAsDefault();
+		defaultPanelTheme = 0;
+		defaultPanelContrast = panelContrastDefault;
+		writeThemeAndContrastAsDefault();
 		return;
 	}
 	json_error_t error;
@@ -38,18 +60,26 @@ void loadThemeAndContrastFromDefault(int* panelTheme, float* panelContrast) {
 	if (!settingsJ) {
 		// invalid setting json file
 		fclose(file);
-		saveThemeAndContrastAsDefault();
+		defaultPanelTheme = 0;
+		defaultPanelContrast = panelContrastDefault;
+		writeThemeAndContrastAsDefault();
 		return;
 	}
 	
 	json_t *themeDefaultJ = json_object_get(settingsJ, "themeDefault");
 	if (themeDefaultJ) {
-		*panelTheme = json_integer_value(themeDefaultJ);
+		defaultPanelTheme = json_integer_value(themeDefaultJ);
+	}
+	else {
+		defaultPanelTheme = 0;
 	}
 	
 	json_t *contrastDefaultJ = json_object_get(settingsJ, "contrastDefault");
 	if (contrastDefaultJ) {
-		*panelContrast = json_number_value(contrastDefaultJ);
+		defaultPanelContrast = json_number_value(contrastDefaultJ);
+	}
+	else {
+		defaultPanelContrast = panelContrastDefault;
 	}
 	
 	fclose(file);
