@@ -28,11 +28,12 @@ static const NVGcolor colBotD = nvgRGB(128 + colDeltaD, 128 + colDeltaD, 128 + c
 // ----------------------------------------
 
 // Dynamic widgets
-template <class TWidget>
-TWidget* createDynamicWidget(Vec pos, int* mode) {
-	TWidget *dynWidget = createWidget<TWidget>(pos);
-	dynWidget->mode = mode;
-	return dynWidget;
+template <class TDynamicScrew>
+TDynamicScrew* createDynamicScrew(Vec pos, int* mode) {
+	TDynamicScrew *dynScrew = createWidget<TDynamicScrew>(pos);
+	dynScrew->mode = mode;
+	dynScrew->refreshForTheme();// all TDynamicScrew must have this
+	return dynScrew;
 }
 
 
@@ -73,7 +74,7 @@ struct DynamicSVGScrew : SvgWidget {
 
     void addFrame(std::shared_ptr<Svg> svg);
     void addFrameAlt(std::string filename) {frameAltName = filename;}
-	void refreshForTheme();// must be called after resources are set, or first module in module browser will not have proper theme
+	void refreshForTheme();
     void step() override;
 };
 
@@ -82,7 +83,6 @@ struct IMScrew : DynamicSVGScrew {
 	IMScrew() {
 		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/ScrewSilver.svg")));
 		addFrameAlt(asset::system("res/ComponentLibrary/ScrewBlack.svg"));
-		refreshForTheme();
 	}
 };
 
