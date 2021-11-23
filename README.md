@@ -202,6 +202,8 @@ The following sections contain more information on how each module works.
 
 ![IM](res/img/AdaptiveQuantizer.jpeg)
 
+WORK IN PROGRESS!!!
+
 The Adaptive Quantizer quantizes a pitch CV according to the musical content in a sequence of reference notes. The reference notes sent to the Adaptive Quantizer are stored in an internal buffer, and can be held (frozen) or can continually follow the reference material. The reference memory holds a maximum of 240 notes (events). Multiple controls are available to determine how the quantization is to be performed, ranging from the number of desired pitches to different weightings that can alter the selection of notes. Windowing controls are also available to select the region of the reference memory to be used to determine the quantization. A chord output is also provided, which produces a polyphonic signal containing the highest weighted notes.
 
 In one possible use, the Adaptive Quantizer can be used to quantize a live performance on a keyboard to the musical content from another performer. The quantizer is best explained using the following terminology:
