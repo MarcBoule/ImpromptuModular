@@ -1067,6 +1067,17 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 	}
 
 
+	// 4mm LED based on the component library's LEDs
+	template <typename TBase>
+	struct MediumLargeLight : TSvgLight<TBase> {
+		MediumLargeLight() {
+			this->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/MediumLargeLight.svg")));
+			this->box.size = mm2px(Vec(4.177f, 4.177f));// 4 mm LED
+		}
+		void drawHalo(const DrawArgs& args) override {};
+	};
+
+
 	AdaptiveQuantizerWidget(AdaptiveQuantizer *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
@@ -1103,12 +1114,12 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 			float xLeftK = xCenter + dxAll * ((float)k - 5.5f);
 			
 			// target pitch lights
-			addChild(createLightCentered<MediumLight<WhiteBlueLight>>(mm2px(Vec(xLeftK, yTarget)), module, AdaptiveQuantizer::TARGET_LIGHTS + k * 2));	
+			addChild(createLightCentered<MediumLargeLight<WhiteBlueLight>>(mm2px(Vec(xLeftK, yTarget)), module, AdaptiveQuantizer::TARGET_LIGHTS + k * 2));	
 			
 			// pitch matrix lights
 			for (int y = 0; y < 5; y++) {// light index 0 on bottom
 				int lightId = k * (5 * 1) + y * 1 + 0;
-				addChild(pitchLightsWidgets[lightId] = createLightCentered<MediumLight<PitchMatrixLight>>(mm2px(Vec(xLeftK, yPitch + dyPitch * ((5 - 1) - y))), module, AdaptiveQuantizer::WEIGHT_LIGHTS + lightId));
+				addChild(pitchLightsWidgets[lightId] = createLightCentered<MediumLargeLight<PitchMatrixLight>>(mm2px(Vec(xLeftK, yPitch + dyPitch * ((5 - 1) - y))), module, AdaptiveQuantizer::WEIGHT_LIGHTS + lightId));
 				if (module) {
 					pitchLightsWidgets[lightId]->showDataTable = &showDataTable;
 					pitchLightsWidgets[lightId]->qdist = &(module->qdist[k]);

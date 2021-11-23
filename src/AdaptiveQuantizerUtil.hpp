@@ -43,15 +43,6 @@ static const NVGcolor AQ_OTHER_CYAN = nvgRGB(10, 234, 240);// B (a less agressiv
 NVGcolor PitchColors[12] = {AQ_RED_LOW, AQ_DARK_PURPLE, AQ_YELLOW_LOW, AQ_BROWN_RED, AQ_LIGHT_CYAN, AQ_DARK_RED, AQ_BLUE, AQ_ORANGE, AQ_LIGHT_PURPLE, AQ_GREEN, AQ_DARK_BLUE, AQ_OTHER_CYAN};
 
 
-// 4mm LED based on the component library's LEDs
-template <typename TBase>
-struct MediumLargeLight : TSvgLight<TBase> {
-	MediumLargeLight() {
-		this->setSvg(Svg::load(asset::plugin(pluginInstance, "res/comp/complib/MediumLargeLight.svg")));
-		this->box.size = mm2px(Vec(4.177f, 4.177f));// 4 mm LED
-	}
-};
-
 
 struct WhiteBlueLight : GrayModuleLightWidget {
 	WhiteBlueLight() {
