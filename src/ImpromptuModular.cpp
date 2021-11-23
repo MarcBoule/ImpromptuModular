@@ -17,6 +17,8 @@ Plugin *pluginInstance;
 void init(Plugin *p) {
 	pluginInstance = p;
 
+	readThemeAndContrastFromDefault();
+
 	p->addModel(modelAdaptiveQuantizer);
 	p->addModel(modelBigButtonSeq);
 	p->addModel(modelBigButtonSeq2);
@@ -37,7 +39,6 @@ void init(Plugin *p) {
 	p->addModel(modelPhraseSeq32);
 	p->addModel(modelPhraseSeqExpander);
 	p->addModel(modelProbKey);
-	// p->addModel(modelProbKeyExpander);
 	p->addModel(modelSemiModularSynth);
 	p->addModel(modelTact);
 	p->addModel(modelTact1);
@@ -46,8 +47,6 @@ void init(Plugin *p) {
 	p->addModel(modelWriteSeq32);
 	p->addModel(modelWriteSeq64);
 	p->addModel(modelBlankPanel);
-	
-	readThemeAndContrastFromDefault();
 }
 
 void destroy() {
