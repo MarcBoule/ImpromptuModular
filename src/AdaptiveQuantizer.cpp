@@ -1024,7 +1024,7 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 			}
 		};
 		
-		std::string resetLabels[3] = {"None", "Clear all", "Clear with priming"};
+		std::string resetLabels[3] = {"None", "Clear all (default)", "Clear with priming"};
 		
 		Menu *createChildMenu() override {
 			Menu *menu = new Menu;

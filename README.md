@@ -200,37 +200,47 @@ The following sections contain more information on how each module works.
 <a id="adaptive-quantizer"></a>
 ## AdaptiveQuantizer
 
-![IM](res/img/AdaptiveQuantizer.jpeg)
+![IM](res/img/AdaptiveQuantizer.jpg)
 
 WORK IN PROGRESS!!!
 
-The Adaptive Quantizer quantizes a pitch CV according to the musical content in a sequence of reference notes. The reference notes sent to the Adaptive Quantizer are stored in an internal buffer, and can be held (frozen) or can continually follow the reference material. The reference memory holds a maximum of 240 notes (events). Multiple controls are available to determine how the quantization is to be performed, ranging from the number of desired pitches to different weightings that can alter the selection of notes. Windowing controls are also available to select the region of the reference memory to be used to determine the quantization. A chord output is also provided, which produces a polyphonic signal containing the highest weighted notes.
+The Adaptive Quantizer quantizes a pitch CV according to the musical content in a sequence of reference notes (CVs). The reference notes sent to the Adaptive Quantizer are stored in an internal buffer (also called data table), and can be held (frozen) or can continually follow the reference material. The reference memory holds a maximum of 240 notes (events). Multiple controls are available to determine how the quantization is to be performed, ranging from the number of desired pitches to different weightings that can alter the selection of notes. Windowing controls are also available to select the active region of the reference memory to be used to determine the quantization. A chord output is also provided, which produces a polyphonic signal containing the highest weighted notes.
 
 In one possible use, the Adaptive Quantizer can be used to quantize a live performance on a keyboard to the musical content from another performer. The quantizer is best explained using the following terminology:
 
-* **Target pitches**: this denotes the separete row of twelve LEDs located at the top of the main LED display area. These indicate the current valid pitches to which the quantization can occur.
+* **Target pitches**: this denotes the separate row of twelve LEDs located at the top of the main LED display area. These indicate the current valid pitches to which the quantization can occur.
 
-* **Pitch matrix**: this denotes the 5x12 array of LEDs located in the center display area. These indicate the current weights for each note type (C through B). When the PERSIST and OFFSET knobs are touched, the LED array instead shows the number of stored notes and the active window being used to determine the target pitches.
+* **Pitch matrix**: this denotes the 5x12 array of LEDs located in the center display area. These indicate the current weights for each note type (C through B). When the PERSIST and OFFSET knobs are touched, the LED array instead shows the number of stored notes and the active region being used to determine the target pitches (in green).
 
 The list below presents more details regarding the different controls of the Adaptive Quantizer.
 
-* **PITCHES**: number of target pitches to which the incoming CV can be quantized to (1 to 12).
+* **PITCHES**: number of target pitches to which the incoming CV will be quantized to (1 to 12).
 
 * **PERSIST**: number of reference notes to use for determining the target pitches (4 to 240).
 
-* **OFFSET**: start position within the reference notes to use for determining the target pitches (0 to 240). When Freeze is not active, adding offset will increase the lag with which the reference material affects quantization; i.e. a large offset means a change in tonality in the reference material will take longer to manifest itself in the quantization.
+* **OFFSET**: start position within the reference notes to use for determining the target pitches (0 to 240). When Freeze is off, adding offset will increase the lag with which the reference material affects quantization; i.e. a large offset means a change in tonality in the reference material will take longer to manifest itself in the quantization. The small red LED near this control will turn on when an empty active region is selected, in which case no notes are used for quantization and the Adaptive Quantizer reverts to a chromatic scale quantizer.
 
-* **OCTAVE**: a weighting of the active pitches that will favor high notes (when octave is turned clockwise) or low notes (when octave is turned counter-clockwise). 
+* **OCTAVE**: weighting bias of the active pitches that will favor high notes (when Octave is turned clockwise) or low notes (when Octave is turned counter-clockwise). In its full clockwise position, notes in octaves 7 or more will be given a x5 weighting (overweighted) compared to notes in the central octave (octave 4) and note in octave 1 or lower will be given a /5 weighting (underweighted). When the knob is fully counter-clockwise, those weightings are inversed. In its center position, the Octave knob does not apply any weighting to the reference notes.
 
-* **DURATION**: a weighting of the active pitches that will favor long notes (when duration is turned clockwise) or short notes (when duration is turned counter-clockwise).
+* **DURATION**: weighting bias of the active pitches that will favor long notes (when Duration is turned clockwise) or short notes (when Duration is turned counter-clockwise). The following description is a rough indication of how this knob works. In its full clockwise position, notes of the maximum duration within the active window are given a x5 weighting, while notes that match the calculated average duration are not weighted (i.e. x1 weighting), while short notes are given a /5 weighting. When the knob is fully counter-clockwise, those weightings are inversed. In its center position, the Duration knob does not apply any weighting to the reference notes.
 
-* **CHORD**: select the number of voices in the polyphonic chord output (1 to 5). This output produces an
+* **CHORD**: number of voices (N) in the polyphonic chord output (1 to 5). This output produces a polyphonic CV signal with the N-most highest weighted notes.
 
-* **THRU**: thru quantization to 12 tone equal temperament. The reference notes are not used and most controls have no effect on the quantizer.
+* **THRU**: thru quantization to 12 tone equal temperament. The reference notes are not used and most controls have no effect on the quantizer, which acts as a chromatic scale quantizer.
 
-* **S&H**: sample and hold the output pitch according to the gate input. This option can be useful to prevent the quantizer from jumping when the reference material 
+* **S&H**: sample and hold the output pitch according to the gate input. This option can be useful to prevent the quantizer from jumping when the reference material changes. The trigger for the sample and hold is the live gate input (not the reference gate input). This sample and hold also applies to the chord output when it is active.
 
-* **
+* **INTERVAL**: allows the quantizer to output notes that are not necessarily the nearest note in the target pitches. This button has two settings: LAST (yellow) and MOST (green). In LAST mode, the quantizer will quantize to a target pitch whose interval to the given pitch matches the interval of the last note stored in the active window of the reference notes. In MOST mode, the quantizer will do the same but will instead use the most frequent interval observed in the reference material. An interval here is defined as the note difference between a given reference note and the one preceding it.
+
+* **FREEZE**: suspends the capture of any new reference notes. When frozen, the Adaptive Quantizer will simply ignore any reference notes. As an interesting use case, the Adaptive Quantizer can actually hold a fixed sequence of notes and with appropriate use of the Persist and Offset controls, quantization can be performed according to varying positions in the reference material.
+
+* **RESET**: clears the reference note buffer (data table) and turns off Freeze. An option in the module's main menu can be used to select different behaviors upon reset: None (just clear freeze), Clear all (default, as described above), Clear with priming (similar to Clear all but will copy the last four reference notes and place these at the start of the now empty buffer). The last option can be used when a reset is to be performed and quantization is still desired according to the last few reference notes given, which produces a more continuous transition across a reset event.
+
+A menu option is also available in the module's menu to disregard any successive repetitions of identical reference notes given to the Adaptive Quantizer. For example, if the following sequence of reference notes is given: C4, C4, D5, E5, E5, E5, the data table will contain only three notes (C4, D5, E5).
+
+A status LED is also provided in the title of the module, to indicate when quantization is taking place normally (off) or when the active region is empty or when the quantizer is operating chromatically (all 12 notes are being used for quantization).
+
+
 
 <a id="big-button-seq"></a>
 ## BigButtonSeq
