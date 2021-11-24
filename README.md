@@ -240,6 +240,8 @@ A menu option is also available in the module's menu to disregard any successive
 
 A status LED is also provided in the title of the module, to indicate when quantization is taking place normally (off) or when the active region is empty or when the quantizer is operating chromatically (all 12 notes are being used for quantization).
 
+([Back to module list](#modules))
+
 
 
 <a id="big-button-seq"></a>
