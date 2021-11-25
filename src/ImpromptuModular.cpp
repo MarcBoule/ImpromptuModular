@@ -49,9 +49,6 @@ void init(Plugin *p) {
 	p->addModel(modelBlankPanel);
 }
 
-void destroy() {
-	writeThemeAndContrastAsDefault();
-}
 
 
 // General objects

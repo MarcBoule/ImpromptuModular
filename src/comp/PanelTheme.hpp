@@ -17,7 +17,6 @@ static constexpr float panelContrastMin = 190.0f;
 static constexpr float panelContrastMax = 240.0f;
 
 
-void writeThemeAndContrastAsDefault();
 void readThemeAndContrastFromDefault();
 
 bool isDark(int* panelTheme);

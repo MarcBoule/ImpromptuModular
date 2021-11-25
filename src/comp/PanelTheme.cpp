@@ -11,10 +11,24 @@
 int defaultPanelTheme;
 float defaultPanelContrast;
 
+void writeThemeAndContrastAsDefault() {
+	json_t *settingsJ = json_object();
+	json_object_set_new(settingsJ, "themeDefault", json_integer(defaultPanelTheme));
+	json_object_set_new(settingsJ, "contrastDefault", json_real(defaultPanelContrast));
+	std::string settingsFilename = asset::user("ImpromptuModular.json");
+	FILE *file = fopen(settingsFilename.c_str(), "w");
+	if (file) {
+		json_dumpf(settingsJ, file, JSON_INDENT(2) | JSON_REAL_PRECISION(9));
+		fclose(file);
+	}
+	json_decref(settingsJ);
+}
+
 
 void saveThemeAndContrastAsDefault(int panelTheme, float panelContrast) {
 	defaultPanelTheme = panelTheme;
 	defaultPanelContrast = panelContrast;
+	writeThemeAndContrastAsDefault();
 }
 
 
@@ -29,20 +43,6 @@ bool isDark(int* panelTheme) {
 		return (*panelTheme != 0);
 	}
 	return (defaultPanelTheme != 0);
-}
-
-
-void writeThemeAndContrastAsDefault() {
-	json_t *settingsJ = json_object();
-	json_object_set_new(settingsJ, "themeDefault", json_integer(defaultPanelTheme));
-	json_object_set_new(settingsJ, "contrastDefault", json_real(defaultPanelContrast));
-	std::string settingsFilename = asset::user("ImpromptuModular.json");
-	FILE *file = fopen(settingsFilename.c_str(), "w");
-	if (file) {
-		json_dumpf(settingsJ, file, JSON_INDENT(2) | JSON_REAL_PRECISION(9));
-		fclose(file);
-	}
-	json_decref(settingsJ);
 }
 
 
