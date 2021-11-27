@@ -155,9 +155,6 @@ struct GateSeq64 : Module {
 			stepIndexRun[3] = random::u32() % len;
 		}
 	}
-	bool ppsRequirementMet(int gateButtonIndex) {
-		return !( (pulsesPerStep < 2) || (pulsesPerStep == 4 && gateButtonIndex > 2) || (pulsesPerStep == 6 && gateButtonIndex <= 2) ); 
-	}
 		
 
 	GateSeq64() {
@@ -866,7 +863,7 @@ struct GateSeq64 : Module {
 				if (gModeTriggers[i].process(params[GMODE_PARAMS + i].getValue())) {
 					blinkNum = blinkNumInit;
 					if (editingSequence && !lock && attributes[sequence][stepIndexEdit].getGate()) {
-						if (ppsRequirementMet(i)) {
+						if (ppsRequirementMet(i, pulsesPerStep)) {
 							editingPpqn = 0l;
 							attributes[sequence][stepIndexEdit].setGateMode(i);
 						}
@@ -1098,7 +1095,7 @@ struct GateSeq64 : Module {
 			if (pulsesPerStep != 1 && editingSequence && attributes[sequence][stepIndexEdit].getGate()) {
 				if (editingPpqn != 0) {
 					for (int i = 0; i < 8; i++) {
-						if (ppsRequirementMet(i))
+						if (ppsRequirementMet(i, pulsesPerStep))
 							setGreenRed(GMODE_LIGHTS + i * 2, 1.0f, 0.0f);
 						else 
 							setGreenRed(GMODE_LIGHTS + i * 2, 0.0f, 0.0f);

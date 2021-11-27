@@ -66,7 +66,7 @@ class SeqAttributesGS {
 
 //*****************************************************************************
 
-
+/*
 inline int ppsToIndexGS(int pulsesPerStep) {// map 1,4,6,12,24, to 0,1,2,3,4
 	if (pulsesPerStep == 1) return 0;
 	if (pulsesPerStep == 4) return 1; 
@@ -82,6 +82,69 @@ inline int indexToPpsGS(int index) {// inverse map of ppsToIndex()
 	if (index == 3) return 12; 
 	return 24; 
 }
+inline bool ppsRequirementMet(int gateButtonIndex, int pulsesPerStep) {
+	return !( (pulsesPerStep < 2) || 
+			  (pulsesPerStep == 4 && gateButtonIndex > 2) || 
+			  (pulsesPerStep == 6 && gateButtonIndex <= 2) 
+			); 
+}
+*/
+
+
+inline int ppsToIndexGS(int pulsesPerStep) {// map 1,4,6,8,12,16,18,24, to 0,1,2,3,4,5,6,7
+	if (pulsesPerStep == 1) return 0;
+	if (pulsesPerStep == 4) return 1; 
+	if (pulsesPerStep == 6) return 2;
+	if (pulsesPerStep == 8) return 3;
+	if (pulsesPerStep == 12) return 4; 
+	if (pulsesPerStep == 16) return 5; 
+	if (pulsesPerStep == 18) return 6; 
+	return 7; 
+}
+inline int indexToPpsGS(int index) {// inverse map of ppsToIndex()
+	index = clamp(index, 0, 7); 
+	if (index == 0) return 1;
+	if (index == 1) return 4; 
+	if (index == 2) return 6;
+	if (index == 3) return 8;
+	if (index == 4) return 12; 
+	if (index == 5) return 16; 
+	if (index == 6) return 18; 
+	return 24; 
+}
+inline bool ppsRequirementMet(int gateButtonIndex, int pulsesPerStep) {
+	if (pulsesPerStep < 4) {
+		return false;
+	}
+	if (gateButtonIndex <= 2) {
+		return ((pulsesPerStep % 4) == 0);
+	}
+	return ((pulsesPerStep % 6) == 0);
+}
+
+
+/*
+inline int ppsToIndexGS(int pulsesPerStep) {// map 1,2,4,6,8,10,12...24, to 0,1,2,3,4,5,6...12
+	if (pulsesPerStep == 1) return 0;
+	return pulsesPerStep >> 1;
+}
+inline int indexToPpsGS(int index) {// inverse map of ppsToIndex()
+	index = clamp(index, 0, 12);
+	if (index == 0) return 1;
+	return index <<	1;
+}
+inline bool ppsRequirementMet(int gateButtonIndex, int pulsesPerStep) {
+	if (pulsesPerStep < 4) {
+		return false;
+	}
+	// here pulsesPerStep is an even number in [4; 24]
+	if (gateButtonIndex <= 2) {
+		return ((pulsesPerStep % 4) == 0);
+	}
+	return ((pulsesPerStep % 6) == 0);
+}
+*/
+
 
 inline bool calcGate(int gateCode, Trigger clockTrigger) {
 	if (gateCode < 2) 
