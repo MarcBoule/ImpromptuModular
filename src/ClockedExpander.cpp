@@ -38,6 +38,13 @@ struct ClockedExpander : Module {
 		leftExpander.producerMessage = leftMessages[0];
 		leftExpander.consumerMessage = leftMessages[1];
 		
+		configInput(PW_INPUTS + 0, "Master clock pulse width");
+		configInput(SWING_INPUTS + 0, "Master clock swing");
+		for (int i = 1; i < 4; i++) {
+			configInput(PW_INPUTS + i, string::f("Clock %i pulse width", i));
+			configInput(SWING_INPUTS + i, string::f("Clock %i swing", i));
+		}
+
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 

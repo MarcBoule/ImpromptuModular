@@ -119,6 +119,15 @@ struct CvPad : Module {
 		getParamQuantity(AUTOSTEP_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(BANK_PARAM)->randomizeEnabled = false;		
 
+		configInput(BANK_INPUT, "Bank select");
+		configInput(CV_INPUT, "CV");
+		configInput(WRITE_INPUT, "Write");
+
+		for (int i = 0; i < 4; i++) {
+			configOutput(CV_OUTPUTS + i, string::f("CV %i", i + 1));
+			configOutput(GATE_OUTPUTS + i, string::f("Gate %i", i + 1));
+		}
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);

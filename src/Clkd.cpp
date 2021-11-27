@@ -228,6 +228,18 @@ struct Clkd : Module {
 		configParam<BpmParam>(BPM_PARAM, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
 		paramQuantities[BPM_PARAM]->snapEnabled = true;
 		
+		configInput(RESET_INPUT, "Reset");
+		configInput(RUN_INPUT, "Run");
+		configInput(BPM_INPUT, "BPM");
+
+		configOutput(CLK_OUTPUTS + 0, "Master clock");
+		for (int i = 1; i < 4; i++) {
+			configOutput(CLK_OUTPUTS + i, string::f("Clock %i", i));
+		}
+		configOutput(RESET_OUTPUT, "Reset");
+		configOutput(RUN_OUTPUT, "Run");
+		configOutput(BPM_OUTPUT, "BPM");
+
 		clk[0].construct(nullptr, &resetClockOutputsHigh, &trigOuts[0]);
 		for (int i = 1; i < 4; i++) {
 			clk[i].construct(&clk[0], &resetClockOutputsHigh, &trigOuts[i]);		

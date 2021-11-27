@@ -117,6 +117,14 @@ struct ChordKey : Module {
 		
 		getParamQuantity(INDEX_PARAM)->randomizeEnabled = false;		
 		
+		configInput(INDEX_INPUT, "Index");
+		configInput(GATE_INPUT, "Gate");
+
+		for (int i = 0; i < 4; i++) {
+			configOutput(GATE_OUTPUTS + i, string::f("Gate %i", i + 1));
+			configOutput(CV_OUTPUTS + i, string::f("CV %i", i + 1));
+		}
+
 		pkInfo.showMarks = 4;
 		
 		onReset();
@@ -872,7 +880,7 @@ struct ChordKeyWidget : ModuleWidget {
 
 		// ****** Top portion (keys) ******
 
-		static const Vec keyboardPos = mm2px(Vec(1.354f, 11.757f));
+		static const Vec keyboardPos = mm2px(Vec(3.894f, 11.757f));
 		svgPanel->fb->addChild(new KeyboardBig(keyboardPos, mode));
 
 		for (int k = 0; k < 12; k++) {

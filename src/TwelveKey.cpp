@@ -91,9 +91,17 @@ struct TwelveKey : Module {
 		configParam(MAXVEL_PARAM, 0.0, 1.0, 0.0, "Max velocity");
 		configParam(VELPOL_PARAM, 0.0, 1.0, 0.0, "Velocity polarity");
 		
-		#ifdef RACK_V2_PREP
 		getParamQuantity(VELPOL_PARAM)->randomizeEnabled = false;		
-		#endif
+
+		configInput(GATE_INPUT, "Gate");
+		configInput(CV_INPUT, "CV");
+		configInput(OCT_INPUT, "Octave");
+		configInput(VEL_INPUT, "Velocity");
+
+		configOutput(GATE_OUTPUT, "Gate");
+		configOutput(CV_OUTPUT,	"CV");
+		configOutput(OCT_OUTPUT, "Octave");
+		configOutput(VEL_OUTPUT, "Velocity");
 
 		onReset();
 		

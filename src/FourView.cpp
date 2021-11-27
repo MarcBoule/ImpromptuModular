@@ -90,6 +90,12 @@ struct FourView : Module {
 		
 		configParam(MODE_PARAM, 0.0, 1.0, 0.0, "Display mode");// 0.0 is left, notes by default left, chord right
 		
+		for (int i = 0; i < 4; i++) {
+			configInput(CV_INPUTS + i, string::f("CV %i", i + 1));
+			configOutput(CV_OUTPUTS + i, string::f("CV %i thru", i + 1));
+			configBypass(CV_INPUTS + i, CV_OUTPUTS + i);
+		}
+
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 	

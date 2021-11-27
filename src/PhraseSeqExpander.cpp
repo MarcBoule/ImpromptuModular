@@ -41,6 +41,12 @@ struct PhraseSeqExpander : Module {
 		leftExpander.producerMessage = leftMessages[0];
 		leftExpander.consumerMessage = leftMessages[1];
 		
+		configInput(GATE1CV_INPUT, "Gate 1");
+		configInput(GATE2CV_INPUT, "Gate 2");
+		configInput(TIEDCV_INPUT, "Tied");
+		configInput(SLIDECV_INPUT, "Slide");
+		configInput(MODECV_INPUT, "Mode");
+
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 

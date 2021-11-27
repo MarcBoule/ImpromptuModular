@@ -128,6 +128,21 @@ struct BigButtonSeq : Module {
 		getParamQuantity(RND_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(CHAN_PARAM)->randomizeEnabled = false;		
 		
+		configInput(CLK_INPUT, "Clock");
+		configInput(CHAN_INPUT, "Channel select");
+		configInput(BIG_INPUT, "Big button");
+		configInput(LEN_INPUT, "Length");
+		configInput(RND_INPUT, "Random");
+		configInput(RESET_INPUT, "Reset");
+		configInput(CLEAR_INPUT, "Clear");
+		configInput(BANK_INPUT, "Bank select");
+		configInput(DEL_INPUT, "Delete");
+		configInput(FILL_INPUT, "Fill");
+
+		for (int i = 0; i < 6; i++) {
+			configOutput(CHAN_OUTPUTS + i, string::f("Channel %i gate", i + 1));
+		}
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);

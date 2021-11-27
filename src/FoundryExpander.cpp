@@ -52,16 +52,27 @@ struct FoundryExpander : Module {
 
 	FoundryExpander() {
 		config(NUM_PARAMS, NUM_INPUTS, 0, NUM_LIGHTS);
+		
+		leftExpander.producerMessage = leftMessages[0];
+		leftExpander.consumerMessage = leftMessages[1];
 	
 		configParam(SYNC_SEQCV_PARAM, 0.0f, 1.0f, 0.0f, "Sync Seq#");// 1.0f is top position
 		configParam(WRITEMODE_PARAM, 0.0f, 1.0f, 0.0f, "Write mode");
 	
-		#ifdef RACK_V2_PREP
 		getParamQuantity(SYNC_SEQCV_PARAM)->randomizeEnabled = false;		
-		#endif
 
-		leftExpander.producerMessage = leftMessages[0];
-		leftExpander.consumerMessage = leftMessages[1];
+		for (int i = 0; i < Sequencer::NUM_TRACKS; i++) {
+			configInput(VEL_INPUTS + i, string::f("Track %c CV2", i + 'A'));
+			configInput(SEQCV_INPUTS + i, string::f("Track %c seq#", i + 'A'));
+		}
+		configInput(TRKCV_INPUT, "Track select");
+		configInput(GATECV_INPUT, "Gate");
+		configInput(GATEPCV_INPUT, "Gate probability");
+		configInput(TIEDCV_INPUT, "Tied");
+		configInput(SLIDECV_INPUT, "Slide");
+		configInput(WRITE_SRC_INPUT, "Write mode");
+		configInput(LEFTCV_INPUT, "Step left");
+		configInput(RIGHTCV_INPUT, "Step right");
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}

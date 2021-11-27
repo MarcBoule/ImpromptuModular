@@ -235,6 +235,19 @@ struct PhraseSeq16 : Module {
 		getParamQuantity(EDIT_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(AUTOSTEP_PARAM)->randomizeEnabled = false;		
 
+		configInput(WRITE_INPUT, "Write");
+		configInput(CV_INPUT, "CV");
+		configInput(RESET_INPUT, "Reset");
+		configInput(CLOCK_INPUT, "Clock");
+		configInput(LEFTCV_INPUT, "Step left");
+		configInput(RIGHTCV_INPUT, "Step right");
+		configInput(RUNCV_INPUT, "Run");
+		configInput(SEQCV_INPUT, "Seq#");
+
+		configOutput(CV_OUTPUT, "CV");
+		configOutput(GATE1_OUTPUT, "Gate 1");
+		configOutput(GATE2_OUTPUT, "Gate 2");
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);

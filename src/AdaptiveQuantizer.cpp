@@ -170,6 +170,23 @@ struct AdaptiveQuantizer : Module {
 		paramQuantities[CHORD_PARAM]->snapEnabled = true;
 		configParam(INTERVAL_PARAM, 0.0f, 1.0f, 0.0f, "Interval mode", " (none/last/most)");
 		
+		configInput(CV_INPUT, "CV");
+		configInput(GATE_INPUT, "Gate");
+		configInput(REFCV_INPUT, "Reference CV");
+		configInput(REFGATE_INPUT, "Reference Gate");
+		configInput(RESET_INPUT, "Reset");
+		configInput(FREEZE_INPUT, "Freeze");
+		configInput(PITCHES_INPUT, "Number of pitches");
+		configInput(PERSIST_INPUT, "Persistence");
+		configInput(THRU_INPUT, "Thru");
+		configInput(OFFSET_INPUT, "Offset");
+		configInput(OCTW_INPUT, "Octave weighting");
+		configInput(DURW_INPUT, "Duration weighting");
+
+		configOutput(CV_OUTPUT, "CV");
+		configOutput(GATE_OUTPUT, "Gate");
+		configOutput(CHORD_OUTPUT, "Chord");
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);

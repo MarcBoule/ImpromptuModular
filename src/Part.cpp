@@ -60,6 +60,14 @@ struct Part : Module {
 		configParam(SPLIT_PARAM, -10.0f, 10.0f, 0.0f, "Split point", " V");
 		configParam(MODE_PARAM, 0.0f, 1.0f, 0.0f, "Display mode");// default is 0.0f meaning left position (= V)
 		
+		configInput(CV_INPUT, "CV");
+		configInput(GATE_INPUT, "Gate");
+		configInput(SPLIT_INPUT, "Split");
+
+		configOutput(LOW_OUTPUT, "Gate for low notes");
+		configOutput(HIGH_OUTPUT, "Gate for high notes");
+		configOutput(CVTHRU_OUTPUT, "CV thru");
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);

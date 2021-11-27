@@ -134,6 +134,21 @@ struct WriteSeq32 : Module {
 		getParamQuantity(QUANTIZE_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(STEPS_PARAM)->randomizeEnabled = false;		
 
+		configInput(CHANNEL_INPUT, "Unused");
+		configInput(CV_INPUT, "CV");
+		configInput(GATE_INPUT, "Gate");
+		configInput(WRITE_INPUT, "Write");
+		configInput(STEPL_INPUT, "Step left");
+		configInput(STEPR_INPUT, "Step right");
+		configInput(CLOCK_INPUT, "Clock");
+		configInput(RESET_INPUT, "Reset");
+		configInput(RUNCV_INPUT, "Run");
+
+		for (int i = 0; i < 3; i++) {
+			configOutput(CV_OUTPUTS + i, string::f("Channel %i CV", i + 1));
+			configOutput(GATE_OUTPUTS + i, string::f("Channel %i Gate", i + 1));
+		}
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);

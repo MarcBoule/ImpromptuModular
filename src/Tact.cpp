@@ -87,6 +87,16 @@ struct Tact : Module {
 		configParam(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential");			
 		configParam(LINK_PARAM, 0.0f, 1.0f, 0.0f, "Link");		
 		
+		std::string confStr[2] = {"Left pad ", "Right pad "};
+		for (int i = 0; i < 2; i++) {
+			configInput(TOP_INPUTS + i, std::string("goto top").insert(0, confStr[i]));
+			configInput(BOT_INPUTS + i, std::string("goto bottom").insert(0, confStr[i]));
+			configInput(RECALL_INPUTS + i, std::string("recall").insert(0, confStr[i]));
+
+			configOutput(CV_OUTPUTS + i, std::string("CV").insert(0, confStr[i]));
+			configOutput(EOC_OUTPUTS + i, std::string("end of cycle").insert(0, confStr[i]));
+		}
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
@@ -601,6 +611,8 @@ struct Tact1 : Module {
 		configParam(RATE_PARAM, 0.0f, 4.0f, 0.2f, "Rate", " s/V");
 		configParam(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential");			
 		
+		configOutput(CV_OUTPUT, "CV");
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
@@ -876,6 +888,12 @@ struct TactG : Module {
 		configParam(OFFSET2_CV_PARAM,  -1.0f, 1.0f, 0.0f, "Offset2 CV");			
 		configParam(RATE_MULT_PARAM,  0.0f, 1.0f, 0.0f, "Slow (rate knob x3)");			
 		
+		configInput(GATE_INPUT, "Chain gate");
+		configInput(OFFSET2_INPUT, "Offset 2");
+		
+		configOutput(CV_OUTPUT, "CV");
+		configOutput(GATE_OUTPUT, "Gate");
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);

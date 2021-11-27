@@ -374,6 +374,21 @@ struct Clocked : Module {
 			paramQuantities[DELAY_PARAMS + 1 + i]->snapEnabled = true;
 		}
 		
+		for (int i = 0; i < 4; i++) {
+			configInput(PW_INPUTS + i, string::f("Unused %i", i + 1));
+		}
+		configInput(RESET_INPUT, "Reset");
+		configInput(RUN_INPUT, "Run");
+		configInput(BPM_INPUT, "BPM");
+
+		configOutput(CLK_OUTPUTS + 0, "Master clock");
+		for (int i = 1; i < 4; i++) {
+			configOutput(CLK_OUTPUTS + i, string::f("Clock %i", i));
+		}
+		configOutput(RESET_OUTPUT, "Reset");
+		configOutput(RUN_OUTPUT, "Run");
+		configOutput(BPM_OUTPUT, "BPM");
+
 		clk[0].construct(nullptr, &resetClockOutputsHigh);
 		for (int i = 1; i < 4; i++) {
 			clk[i].construct(&clk[0], &resetClockOutputsHigh);		

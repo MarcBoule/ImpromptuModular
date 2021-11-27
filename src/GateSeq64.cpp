@@ -196,12 +196,19 @@ struct GateSeq64 : Module {
 		configParam(CONFIG_PARAM, 0.0f, 2.0f, 0.0f, "Configuration (1, 2, 4 chan)");// 0.0f is top position
 		configParam(CPMODE_PARAM, 0.0f, 2.0f, 2.0f, "Copy-paste mode");		
 		
-		#ifdef RACK_V2_PREP
 		getParamQuantity(CPMODE_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(CONFIG_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(EDIT_PARAM)->randomizeEnabled = false;		
-		#endif
 		
+		configInput(CLOCK_INPUT, "Clock");
+		configInput(RESET_INPUT, "Reset");
+		configInput(RUNCV_INPUT, "Run");
+		configInput(SEQCV_INPUT, "Seq#");
+
+		for (int i = 0; i < 4; i++) {
+			configOutput(GATE_OUTPUTS + i, string::f("Track %i gate", i + 1));
+		}
+
 		for (int i = 0; i < MAX_SEQS; i++) {
 			seqAttribBuffer[i].init(16, MODE_FWD);
 		}

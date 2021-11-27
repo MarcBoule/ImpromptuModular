@@ -228,6 +228,9 @@ struct Hotkey : Module {
 
 		configParam(RECORD_KEY_PARAM, 0.0f, 1.0f, 0.0f, "Record hotkey");
 		configParam(DELAY_PARAM, 0.0f, maxDelay, 0.0f, "Delay");
+		
+		configOutput(TRIG_OUTPUT, "Trigger");
+		
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);

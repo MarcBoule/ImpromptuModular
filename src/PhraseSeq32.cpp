@@ -260,12 +260,26 @@ struct PhraseSeq32 : Module {
 		configParam(SLIDE_KNOB_PARAM, 0.0f, 2.0f, 0.2f, "Slide rate");
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");
 		
-		#ifdef RACK_V2_PREP
 		getParamQuantity(CPMODE_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(CONFIG_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(EDIT_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(AUTOSTEP_PARAM)->randomizeEnabled = false;		
-		#endif
+
+		configInput(WRITE_INPUT, "Write");
+		configInput(CV_INPUT, "CV");
+		configInput(RESET_INPUT, "Reset");
+		configInput(CLOCK_INPUT, "Clock");
+		configInput(LEFTCV_INPUT, "Step left");
+		configInput(RIGHTCV_INPUT, "Step right");
+		configInput(RUNCV_INPUT, "Run");
+		configInput(SEQCV_INPUT, "Seq#");
+
+		configOutput(CVA_OUTPUT, "Track A CV");
+		configOutput(GATE1A_OUTPUT, "Track A Gate 1");
+		configOutput(GATE2A_OUTPUT, "Track A Gate 2");
+		configOutput(CVB_OUTPUT, "Track B CV");
+		configOutput(GATE1B_OUTPUT, "Track B Gate 1");
+		configOutput(GATE2B_OUTPUT, "Track B Gate 2");
 
 		for (int i = 0; i < 32; i++) {
 			seqAttribBuffer[i].init(16, MODE_FWD);

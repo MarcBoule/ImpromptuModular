@@ -382,6 +382,72 @@ struct SemiModularSynth : Module {
 		getParamQuantity(LFO_GAIN_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(LFO_OFFSET_PARAM)->randomizeEnabled = false;		
 		
+
+		// SEQUENCER
+		configInput(WRITE_INPUT, "Write");
+		configInput(CV_INPUT, "CV");
+		configInput(RESET_INPUT, "Reset");
+		configInput(CLOCK_INPUT, "Clock");
+		configInput(LEFTCV_INPUT, "Step left");
+		configInput(RIGHTCV_INPUT, "Step right");
+		configInput(RUNCV_INPUT, "Run");
+		configInput(SEQCV_INPUT, "Seq#");
+		
+		// VCO
+		configInput(VCO_PITCH_INPUT, "VCO pitch");
+		configInput(VCO_FM_INPUT, "VCO FM");
+		configInput(VCO_SYNC_INPUT, "VCO sync");
+		configInput(VCO_PW_INPUT, "VCO PW");
+
+		// CLK
+		// none
+		
+		// VCA
+		configInput(VCA_LIN1_INPUT, "VCA level");
+		configInput(VCA_IN1_INPUT, "VCA");
+		
+		// ADSR
+		configInput(ADSR_GATE_INPUT, "ADSR gate");
+
+		// VCF
+		configInput(VCF_FREQ_INPUT, "VCF cutoff freq");
+		configInput(VCF_RES_INPUT, "VCF resonance");
+		configInput(VCF_DRIVE_INPUT, "VCF drive");
+		configInput(VCF_IN_INPUT, "VCF audio");
+		
+		// LFO
+		configInput(LFO_RESET_INPUT, "LFO reset");
+
+	
+		// SEQUENCER
+		configOutput(CV_OUTPUT, "CV");
+		configOutput(GATE1_OUTPUT, "Gate 1");
+		configOutput(GATE2_OUTPUT, "Gate 2");
+		
+		// VCO
+		configOutput(VCO_SIN_OUTPUT, "VCO sine");
+		configOutput(VCO_TRI_OUTPUT, "VCO triangle");
+		configOutput(VCO_SAW_OUTPUT, "VCO saw");
+		configOutput(VCO_SQR_OUTPUT, "VCO square");
+
+		// CLK
+		configOutput(CLK_OUT_OUTPUT, "CLK");
+		
+		// VCA
+		configOutput(VCA_OUT1_OUTPUT, "VCA");
+		
+		// ADSR
+		configOutput(ADSR_ENVELOPE_OUTPUT, "ADSR envelope");
+		
+		// VCF
+		configOutput(VCF_LPF_OUTPUT, "VCF low pass");
+		configOutput(VCF_HPF_OUTPUT, "VCF high pass");
+		
+		// LFO
+		configOutput(LFO_SIN_OUTPUT, "LFO sine");
+		configOutput(LFO_TRI_OUTPUT, "LFO triangle");
+		
+
 		onReset();
 		
 		// VCO

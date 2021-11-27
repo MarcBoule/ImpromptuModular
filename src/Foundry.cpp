@@ -233,13 +233,26 @@ struct Foundry : Module {
 		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");
 		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");		
 		
-		#ifdef RACK_V2_PREP
 		getParamQuantity(CPMODE_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(EDIT_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(KEY_GATE_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(AUTOSTEP_PARAM)->randomizeEnabled = false;		
-		#endif
-		
+
+		configInput(WRITE_INPUT, "Write");
+		configInput(RESET_INPUT, "Reset");
+		for (int i = 0; i < Sequencer::NUM_TRACKS; i++) {
+			configInput(CV_INPUTS, string::f("Track %c CV", i + 'A'));
+			configInput(CLOCK_INPUTS + i, string::f("Track %c clock", i + 'A'));
+		}
+		configInput(UNUSED1_INPUT, "Unused 1");
+		configInput(UNUSED2_INPUT, "Unused 2");
+		configInput(RUNCV_INPUT, "Run");
+
+		for (int i = 0; i < Sequencer::NUM_TRACKS; i++) {
+			configOutput(CV_OUTPUTS + i, string::f("Track %c CV", i + 'A'));
+			configOutput(VEL_OUTPUTS + i, string::f("Track %c CV2", i + 'A'));
+			configOutput(GATE_OUTPUTS + i, string::f("Track %c gate", i + 'A'));
+		}
 		
 		seq.construct(&holdTiedNotes, &velocityMode, &stopAtEndOfSong);
 		onReset();

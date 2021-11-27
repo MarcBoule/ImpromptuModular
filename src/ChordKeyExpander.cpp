@@ -64,7 +64,13 @@ struct ChordKeyExpander : Module {
 			configParam(OCT_PARAMS + c, -4.0f, 4.0f, 0.0f, strBuf);
 			paramQuantities[OCT_PARAMS + c]->snapEnabled = true;
 		}
-		
+
+		for (int i = 0; i < 4; i++) {
+			configInput(CV_INPUTS + i, string::f("CV %i", i + 1));
+			configOutput(CV_OUTPUTS + i, string::f("CV %i", i + 1));
+			configBypass(CV_INPUTS + i, CV_OUTPUTS + i);
+		}
+
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 	

@@ -40,6 +40,13 @@ struct GateSeq64Expander : Module {
 		leftExpander.producerMessage = leftMessages[0];
 		leftExpander.consumerMessage = leftMessages[1];
 		
+		configInput(GATE_INPUT, "Gate");
+		configInput(PROB_INPUT, "Probability");
+		configInput(WRITE_INPUT, "Write");
+		configInput(WRITE1_INPUT, "Write 1 (on)");
+		configInput(WRITE0_INPUT, "Write 0 (off)");
+		configInput(STEPL_INPUT, "Step left");
+
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 

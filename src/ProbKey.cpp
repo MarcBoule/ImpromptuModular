@@ -707,6 +707,18 @@ struct ProbKey : Module {
 		getParamQuantity(SQUASH_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(OFFSET_PARAM)->randomizeEnabled = false;		
 		
+		configInput(INDEX_INPUT, "Index");
+		configInput(LENGTH_INPUT, "Length");
+		configInput(LOCK_INPUT, "Lock");
+		configInput(OFFSET_INPUT, "Offset");
+		configInput(SQUASH_INPUT, "Squash");
+		configInput(GATE_INPUT, "Gate");
+		configInput(HOLD_INPUT, "Hold");
+		configInput(DENSITY_INPUT, "Density");
+
+		configOutput(GATE_OUTPUT, "Gate");
+		configOutput(CV_OUTPUT, "CV");
+
 		pkInfo.showMarks = 1;
 		
 		onReset();
