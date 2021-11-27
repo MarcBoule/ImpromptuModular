@@ -187,6 +187,9 @@ struct AdaptiveQuantizer : Module {
 		configOutput(GATE_OUTPUT, "Gate");
 		configOutput(CHORD_OUTPUT, "Chord");
 
+		configBypass(CV_INPUT, CV_OUTPUT);
+		configBypass(GATE_INPUT, GATE_OUTPUT);
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);

@@ -68,6 +68,10 @@ struct Part : Module {
 		configOutput(HIGH_OUTPUT, "Gate for high notes");
 		configOutput(CVTHRU_OUTPUT, "CV thru");
 
+		configBypass(CV_INPUT, CVTHRU_OUTPUT);
+		configBypass(GATE_INPUT, LOW_OUTPUT);
+		configBypass(GATE_INPUT, HIGH_OUTPUT);
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);

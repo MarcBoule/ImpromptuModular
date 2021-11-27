@@ -103,6 +103,11 @@ struct TwelveKey : Module {
 		configOutput(OCT_OUTPUT, "Octave");
 		configOutput(VEL_OUTPUT, "Velocity");
 
+		configBypass(GATE_INPUT, GATE_OUTPUT);
+		configBypass(CV_INPUT, CV_OUTPUT);
+		configBypass(OCT_INPUT, OCT_OUTPUT);
+		configBypass(VEL_INPUT, VEL_OUTPUT);
+
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
