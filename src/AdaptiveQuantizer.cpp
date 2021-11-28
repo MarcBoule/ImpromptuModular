@@ -1017,48 +1017,6 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 	float datapic[12 * 5];// this is indexed according like this: [0] = bottom right, [11] = bottom left, [59] = top left
 
 	
-	struct PanelThemeItem : MenuItem {
-		AdaptiveQuantizer *module;
-		void onAction(const event::Action &e) override {
-			module->panelTheme ^= 0x1;
-		}
-	};
-
-
-	struct IgnoreRepetitionsItem : MenuItem {
-		AdaptiveQuantizer *module;
-		void onAction(const event::Action &e) override {
-			module->ignoreRepetitions ^= 0x1;
-		}
-	};
-
-	
-	struct ResetDataTableItem : MenuItem {
-		AdaptiveQuantizer *module;
-		
-		struct ResetDataTableSubItem : MenuItem {
-			AdaptiveQuantizer *module;
-			int setValue = 0;
-			void onAction(const event::Action &e) override {
-				module->resetClearsDataTable = setValue;
-			}
-		};
-		
-		std::string resetLabels[3] = {"None", "Clear all (default)", "Clear with priming"};
-		
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-			for (int i = 0; i < 3; i++) {
-				ResetDataTableSubItem *resetClearsItem = createMenuItem<ResetDataTableSubItem>(resetLabels[i], CHECKMARK(module->resetClearsDataTable == i));
-				resetClearsItem->module = module;
-				resetClearsItem->setValue = i;
-				menu->addChild(resetClearsItem);			
-			}
-			return menu;
-		}
-	};
-
-	
 	void appendContextMenu(Menu *menu) override {
 		AdaptiveQuantizer *module = dynamic_cast<AdaptiveQuantizer*>(this->module);
 		assert(module);
@@ -1077,13 +1035,16 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		IgnoreRepetitionsItem *repsItem = createMenuItem<IgnoreRepetitionsItem>("Skip repeats of same ref note", CHECKMARK(module->ignoreRepetitions));
-		repsItem->module = module;
-		menu->addChild(repsItem);
+		menu->addChild(createCheckMenuItem("Skip repeats of same ref note", "",
+			[=]() {return module->ignoreRepetitions;},
+			[=]() {module->ignoreRepetitions ^= 0x1;}
+		));
 
-		ResetDataTableItem *resetDtItem = createMenuItem<ResetDataTableItem>("Reset of data table", RIGHT_ARROW);
-		resetDtItem->module = module;
-		menu->addChild(resetDtItem);
+		menu->addChild(createIndexSubmenuItem("Reset of data table",
+			{"None", "Clear all (default)", "Clear with priming"},
+			[=]() {return module->resetClearsDataTable;},
+			[=](int mode) {module->resetClearsDataTable = mode;}
+		));
 	}
 
 

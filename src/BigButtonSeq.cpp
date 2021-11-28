@@ -528,18 +528,16 @@ struct BigButtonSeqWidget : ModuleWidget {
 		}
 	};
 	
-	struct NextStepHitsItem : MenuItem {
-		BigButtonSeq *module;
-		void onAction(const event::Action &e) override {
-			module->nextStepHits = !module->nextStepHits;
-		}
-	};
 	struct MetronomeItem : MenuItem {
 		struct MetronomeSubItem : MenuItem {
 			BigButtonSeq *module;
 			int setVal = 1000;
 			void onAction(const event::Action &e) override {
 				module->metronomeDiv = setVal;
+			}
+			void step() override {
+				rightText = module->metronomeDiv == setVal ? CHECKMARK_STRING : "";
+				MenuItem::step();
 			}
 		};
 		BigButtonSeq *module;
@@ -587,13 +585,13 @@ struct BigButtonSeqWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		NextStepHitsItem *nhitsItem = createMenuItem<NextStepHitsItem>("Big and Del on next step", CHECKMARK(module->nextStepHits));
-		nhitsItem->module = module;
-		menu->addChild(nhitsItem);
+		menu->addChild(createBoolPtrMenuItem("Big and Del on next step", "", &module->nextStepHits));
 
 		MetronomeItem *metroItem = createMenuItem<MetronomeItem>("Metronome light", RIGHT_ARROW);
 		metroItem->module = module;
 		menu->addChild(metroItem);
+		
+		
 	}	
 		
 	BigButtonSeqWidget(BigButtonSeq *module) {

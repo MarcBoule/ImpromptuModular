@@ -708,46 +708,6 @@ struct ChordKeyWidget : ModuleWidget {
 		}
 	};	
 
-	struct MergeOutputsItem : MenuItem {
-		struct MergeOutputsSubItem : MenuItem {
-			ChordKey *module;
-			int setVal = 0;
-			void onAction(const event::Action &e) override {
-				module->mergeOutputs = setVal;
-			}
-		};
-		ChordKey *module;
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			MergeOutputsSubItem *merge0Item = createMenuItem<MergeOutputsSubItem>("None", CHECKMARK(module->mergeOutputs == 0));
-			merge0Item->module = this->module;
-			menu->addChild(merge0Item);
-
-			MergeOutputsSubItem *merge1Item = createMenuItem<MergeOutputsSubItem>("Second", CHECKMARK(module->mergeOutputs == 1));
-			merge1Item->module = this->module;
-			merge1Item->setVal = 1;
-			menu->addChild(merge1Item);
-
-			MergeOutputsSubItem *merge2Item = createMenuItem<MergeOutputsSubItem>("Second and third", CHECKMARK(module->mergeOutputs == 2));
-			merge2Item->module = this->module;
-			merge2Item->setVal = 2;
-			menu->addChild(merge2Item);
-
-			MergeOutputsSubItem *merge3Item = createMenuItem<MergeOutputsSubItem>("Second, third and fourth", CHECKMARK(module->mergeOutputs == 3));
-			merge3Item->module = this->module;
-			merge3Item->setVal = 3;
-			menu->addChild(merge3Item);
-
-			return menu;
-		}
-	};
-	struct KeypressEmitGateItem : MenuItem {
-		ChordKey *module;
-		void onAction(const event::Action &e) override {
-			module->keypressEmitGate ^= 0x1;
-		}
-	};
 	struct InteropSeqItem : MenuItem {
 		struct InteropCopySeqItem : MenuItem {
 			ChordKey *module;
@@ -777,6 +737,10 @@ struct ChordKeyWidget : ModuleWidget {
 			ChordKey *module;
 			void onAction(const event::Action &e) override {
 				module->autostepPaste ^= 0x1;
+			}
+			void step() override {
+				rightText = module->autostepPaste != 0 ? CHECKMARK_STRING : "";
+				MenuItem::step();
 			}
 		};
 		ChordKey *module;
@@ -824,13 +788,16 @@ struct ChordKeyWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 
-		KeypressEmitGateItem *keypressMonItem = createMenuItem<KeypressEmitGateItem>("Keypress monitoring", CHECKMARK(module->keypressEmitGate));
-		keypressMonItem->module = module;
-		menu->addChild(keypressMonItem);
+		menu->addChild(createCheckMenuItem("Keypress monitoring", "",
+			[=]() {return module->keypressEmitGate;},
+			[=]() {module->keypressEmitGate ^= 0x1;}
+		));
 		
-		MergeOutputsItem *mergeItem = createMenuItem<MergeOutputsItem>("Poly merge outputs into top note", RIGHT_ARROW);
-		mergeItem->module = module;
-		menu->addChild(mergeItem);
+		menu->addChild(createIndexSubmenuItem("Poly merge outputs into top note",
+			{"None", "Second", "Second and third", "Second, third and fourth"},
+			[=]() {return module->mergeOutputs;},
+			[=](int mode) {module->mergeOutputs = mode;}
+		));
 		
 		menu->addChild(new MenuSeparator());
 
