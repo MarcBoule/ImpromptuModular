@@ -1,6 +1,7 @@
-### 2.0.6
+### 2.0.6 (2021-11-27)
 
 - First v2 library candidate
+- Many changes that are not listed here
 
 
 ### 1.1.12 (in development)
