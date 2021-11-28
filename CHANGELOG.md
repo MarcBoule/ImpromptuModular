@@ -1,3 +1,8 @@
+### 2.0.6
+
+- First v2 library candidate
+
+
 ### 1.1.12 (in development)
 
 - ProbKey: Bumped the lock buffer' maximum length to 32 steps
