@@ -1105,7 +1105,7 @@ struct GateSeq64 : Module {
 					int gmode = attributes[sequence][stepIndexEdit].getGateMode();
 					for (int i = 0; i < 8; i++) {
 						if (i == gmode) {
-							if ( (pulsesPerStep == 4 && i > 2) || (pulsesPerStep == 6 && i <= 2) ) // pps requirement not met
+							if (!ppsRequirementMet(i, pulsesPerStep))
 								setGreenRed(GMODE_LIGHTS + i * 2, 0.0f, 1.0f);
 							else
 								setGreenRed(GMODE_LIGHTS + i * 2, 1.0f, 0.0f);
