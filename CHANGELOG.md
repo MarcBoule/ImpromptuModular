@@ -4,7 +4,7 @@
 - Many changes that are not listed here
 
 
-### 1.1.12 (in development)
+### 1.1.12 (2021-x-x)
 
 - ProbKey: Bumped the lock buffer' maximum length to 32 steps
 - ProbKey: Implemented randomization in module's menu, which randomizes the lock buffer according to the current settings
