@@ -18,7 +18,7 @@
 			"name": "AdaptiveQuantizer",
 			"description": "Adaptive reference based quantizer",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#adaptive-quantizer",
-			"tags": ["Quantizer"],
+			"tags": ["Quantizer"]
 		},
 		{
 			"slug": "Big-Button-Seq",
