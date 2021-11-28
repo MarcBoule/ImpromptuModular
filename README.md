@@ -379,7 +379,7 @@ Clocked: A chainable master clock module with swing, clock delay and pulse width
 
 Clkd: A smaller version of Clocked but without swing, clock delay and pulse width.
 
-For a tutorial on Clocked regarding chaining, clock multiplications and divisions, swing and clock delay features, please see Nigel Sixsmith's [Talking Rackheads episode 12](https://www.youtube.com/watch?v=ymfOh1yCzU4). It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here. 
+It is strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here. 
 
 * **RESET**: Restart all channels' time keeping. The clock outputs are held high when a stopped clock is reset (instead of low). This is required so that when controlling sequential switches (which are assumed to also be reset on the same event) will not get triggered and moved to step 2 when the clock is started again. The right-click menu option "*Outputs high on reset when not running*" can be turned off, to allow the outputs to be held low when resetting a stopped clock.
 
@@ -465,7 +465,7 @@ The following block diagram shows how the different sequencer elements are hiera
  
 ![IM](res/img/FoundryBlockDiag.jpg)
 
-Here are some further details on the different functions of the sequencer. It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here. For an overview of the sequencer's functionality, please see Omri Cohen's [Foundry tutorial](https://www.youtube.com/watch?v=56w_mlNlKE4) (the tutorial was made with a previous version of Foundry wherein the main SEQ/SONG switch had an alternate behavior) and a [quick followup video](https://www.youtube.com/watch?v=ijVg73LH88U) explaining more recent additions to the sequencer.
+Here are some further details on the different functions of the sequencer. It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here.
 
 * **CLK**: The clock inputs for each track. When the input is unconnected in a track, the track automatically uses the clock source of the preceding track (indicated by arrows above each clock input). It is good practice that the clock for track A be connected as directly as possible to the main clock source, and when a chained series of clock modules are used, the clock input of track A should be connected to a clock output from the *first* clock module of the chain.
 
@@ -527,7 +527,7 @@ For chords or polyphonic content, an option in the module's right-click menu can
 
 ![IM](res/img/GateSeq64.jpg)
 
-A 64 step gate sequencer with the ability to define **probabilities** for each step. A configuration switch allows the sequencer to output quad 16 step sequences, dual 32 step sequences or single 64 step sequences. To see the sequencer in action and for a tutorial on how it works, please see [this segment](https://youtu.be/bjqWwTKqERQ?t=4645s) of Nigel Sixsmith's Talking Rackheads episode 10; some of the functionality may have changed since the video was created, however. Song mode is also covered succintly in a [video](https://www.youtube.com/watch?v=XSJsRo688G4) by Circadian Sound. It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here. 
+A 64 step gate sequencer with the ability to define **probabilities** for each step. A configuration switch allows the sequencer to output quad 16 step sequences, dual 32 step sequences or single 64 step sequences. It is strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here. 
 
 When running in the 4x16 configuration, each of the four rows is sent to the four **GATE** output jacks (jacks 1 to 4, with jack 1 being the top-most jack). In the 2x32 configuration, jacks 1 and 3 are used, and in the 1x64 configuration, only jack 1 is used (top-most jack). When activating a given step by clicking it once, it will turn green showing that the step is on. Clicking the _"p"_ button turns it yellow, and the main display shows the probability associated with this step. While the probability remains shown, the probability can be adjusted with the main knob, in 0.02 increments, between 0 and 1. When a yellow step is selected, clicking the _"p"_ button again will turn it off.
 
@@ -592,7 +592,7 @@ The following block diagram shows how sequences and phrases relate to each other
 
 ![IM](res/img/PhraseSeq16BlockDiag.jpg)
 
-Familiarity with the VCV SEQ-3 sequencer is recommended, as some operating principles are similar in both sequencers. It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here. For an in depth review of the sequencer's capabilities, please see Nigel Sixsmith's [Talking Rackheads episode 8](https://www.youtube.com/watch?v=KOpo2oUPTjg) or Omri Cohen's [PhraseSeq tutorial](https://www.youtube.com/watch?v=N8_rMNzsS7w).
+Familiarity with the VCV SEQ-3 sequencer is recommended, as some operating principles are similar in both sequencers. It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here.
 
 * **SEQ / SONG**: This is the main switch that controls the two major modes of the sequencer. Seq mode allows the currently selected sequence to be played/edited. In this mode, all controls are available (run mode, transpose, rotate, copy-paste, gates, slide, octave, notes) and the content of a sequence can be modified even when the sequencer is running. Song mode allows the creation of a series of sequence numbers (called phrases). In this mode, the run mode and length of the song and the sequence index numbers themselves can be modified (whether the sequence is running or not); some of the other aforementioned controls are unavailable and the actual contents of the sequences cannot be modified.
 
@@ -647,8 +647,6 @@ Extra CV inputs are also available via the PhraseSeq [expander module](#expander
 
 <a id="advanced-gate-mode-ps"></a>
 ### Advanced gate mode
-
-For a video introduction to the advanced gate mode, please see Omri Cohen's [advanced gate mode tutorial](https://www.youtube.com/watch?v=B2w0_h5oN6M). As of version 0.6.12, the keyboard mode (used to enter notes vs gate types) can be set explicitly using the two small LED buttons above the keyboard, instead of the temporary editing time that was activated when a gate was turned on (previous versions). 
 
 Holding the MODE button for **two seconds** allows the selection of the clock resolution, in number of pulses per step (PPS). When set to a value greater than 1, which unlocks the advanced gate mode, the sequencer will skip this many clock pulses before advancing to the next step. In such cases, a multiplied clock must be supplied in order to keep the same tempo in the sequencer. In advanced gate mode, the pulse width of the clock is not used and has no effect on the gates.
 
@@ -814,7 +812,7 @@ In Tact-G, two offset controls are added, one is a knob for direct control while
 
 ![IM](res/img/TwelveKey.jpg)
 
-A chainable keyboard controller for your virtual Rack. When multiple TwelveKey modules are connected in series from left to right, only the octave of the left-most module needs to be set, all other down-chain modules' octaves are set automatically. The aggregate output is that of the right-most module. To set up a chain of TwelveKey modules, simply connect the four outputs on the right side of a module to the four inputs of the next module beside it (typically to the right). With creative patching, the velocity output can be used to modulate a filter, to perform pitch bends, etc. The velocity is controlled by pressing the keys at different vertical positions within the guide marks on the keys. For a short introduction to the module, please see Omri Cohen's [TwelveKey video](https://www.youtube.com/watch?v=__LtuPD3y_c).
+A chainable keyboard controller for your virtual Rack. When multiple TwelveKey modules are connected in series from left to right, only the octave of the left-most module needs to be set, all other down-chain modules' octaves are set automatically. The aggregate output is that of the right-most module. To set up a chain of TwelveKey modules, simply connect the four outputs on the right side of a module to the four inputs of the next module beside it (typically to the right). With creative patching, the velocity output can be used to modulate a filter, to perform pitch bends, etc. The velocity is controlled by pressing the keys at different vertical positions within the guide marks on the keys.
 
 * **CV**: The CV output from the keyboard or its CV input, depending on which key was last pressed, i.e. an up-chain key (from a module to the left) or a key of the given keyboard module.
 
