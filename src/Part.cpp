@@ -146,7 +146,7 @@ struct Part : Module {
 		
 		
 		for (int c = 0; c < numChan; c++) {
-			bool isHigh = inputs[CV_INPUT].getVoltage(c) >= params[SPLIT_PARAM].getValue();// unconnected CV_INPUT or insufficient channels will cause 0.0f to be used
+			bool isHigh = inputs[CV_INPUT].getVoltage(c) >= getSplitValue();// unconnected CV_INPUT or insufficient channels will cause 0.0f to be used
 			float inGate = inputs[GATE_INPUT].getVoltage(c);// unconnected GATE_INPUT or insufficient channels will cause 0.0f to be used
 			outputs[LOW_OUTPUT].setVoltage(isHigh ? 0.0f : inGate, c);
 			outputs[HIGH_OUTPUT].setVoltage(isHigh ? inGate : 0.0f, c);
