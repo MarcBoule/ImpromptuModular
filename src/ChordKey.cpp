@@ -793,11 +793,24 @@ struct ChordKeyWidget : ModuleWidget {
 			[=]() {module->keypressEmitGate ^= 0x1;}
 		));
 		
-		menu->addChild(createIndexSubmenuItem("Poly merge outputs into top note",
-			{"None", "Second", "Second and third", "Second, third and fourth"},
-			[=]() {return module->mergeOutputs;},
-			[=](int mode) {module->mergeOutputs = mode;}
-		));
+		menu->addChild(createSubmenuItem("Poly merge outputs into top note", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("None", "",
+				[=]() {return module->mergeOutputs == 0;},
+				[=]() {module->mergeOutputs = 0;}
+			));
+			menu->addChild(createCheckMenuItem("Second", "",
+				[=]() {return module->mergeOutputs == 1;},
+				[=]() {module->mergeOutputs = 1;}
+			));
+			menu->addChild(createCheckMenuItem("Second and third", "",
+				[=]() {return module->mergeOutputs == 2;},
+				[=]() {module->mergeOutputs = 2;}
+			));
+			menu->addChild(createCheckMenuItem("Second, third and fourth", "",
+				[=]() {return module->mergeOutputs == 3;},
+				[=]() {module->mergeOutputs = 3;}
+			));
+		}));			
 		
 		menu->addChild(new MenuSeparator());
 

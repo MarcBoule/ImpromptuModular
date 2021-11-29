@@ -528,49 +528,6 @@ struct BigButtonSeqWidget : ModuleWidget {
 		}
 	};
 	
-	struct MetronomeItem : MenuItem {
-		struct MetronomeSubItem : MenuItem {
-			BigButtonSeq *module;
-			int setVal = 1000;
-			void onAction(const event::Action &e) override {
-				module->metronomeDiv = setVal;
-			}
-			void step() override {
-				rightText = module->metronomeDiv == setVal ? CHECKMARK_STRING : "";
-				MenuItem::step();
-			}
-		};
-		BigButtonSeq *module;
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			MetronomeSubItem *metro1Item = createMenuItem<MetronomeSubItem>("Every clock", CHECKMARK(module->metronomeDiv == 1));
-			metro1Item->module = this->module;
-			metro1Item->setVal = 1;
-			menu->addChild(metro1Item);
-
-			MetronomeSubItem *metro2Item = createMenuItem<MetronomeSubItem>("/2", CHECKMARK(module->metronomeDiv == 2));
-			metro2Item->module = this->module;
-			metro2Item->setVal = 2;
-			menu->addChild(metro2Item);
-
-			MetronomeSubItem *metro4Item = createMenuItem<MetronomeSubItem>("/4", CHECKMARK(module->metronomeDiv == 4));
-			metro4Item->module = this->module;
-			metro4Item->setVal = 4;
-			menu->addChild(metro4Item);
-
-			MetronomeSubItem *metro8Item = createMenuItem<MetronomeSubItem>("/8", CHECKMARK(module->metronomeDiv == 8));
-			metro8Item->module = this->module;
-			metro8Item->setVal = 8;
-			menu->addChild(metro8Item);
-
-			MetronomeSubItem *metroFItem = createMenuItem<MetronomeSubItem>("Full length", CHECKMARK(module->metronomeDiv == 1000));
-			metroFItem->module = this->module;
-			menu->addChild(metroFItem);
-
-			return menu;
-		}
-	};
 	void appendContextMenu(Menu *menu) override {
 		BigButtonSeq *module = dynamic_cast<BigButtonSeq*>(this->module);
 		assert(module);
@@ -587,12 +544,29 @@ struct BigButtonSeqWidget : ModuleWidget {
 		
 		menu->addChild(createBoolPtrMenuItem("Big and Del on next step", "", &module->nextStepHits));
 
-		MetronomeItem *metroItem = createMenuItem<MetronomeItem>("Metronome light", RIGHT_ARROW);
-		metroItem->module = module;
-		menu->addChild(metroItem);
-		
-		
-	}	
+		menu->addChild(createSubmenuItem("Metronome light", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("Every clock", "",
+				[=]() {return module->metronomeDiv == 1;},
+				[=]() {module->metronomeDiv = 1;}
+			));
+			menu->addChild(createCheckMenuItem("/2", "",
+				[=]() {return module->metronomeDiv == 2;},
+				[=]() {module->metronomeDiv = 2;}
+			));
+			menu->addChild(createCheckMenuItem("/4", "",
+				[=]() {return module->metronomeDiv == 4;},
+				[=]() {module->metronomeDiv = 4;}
+			));
+			menu->addChild(createCheckMenuItem("/8", "",
+				[=]() {return module->metronomeDiv == 8;},
+				[=]() {module->metronomeDiv = 8;}
+			));
+			menu->addChild(createCheckMenuItem("Full length", "",
+				[=]() {return module->metronomeDiv == 1000;},
+				[=]() {module->metronomeDiv = 1000;}
+			));
+		}));	
+	}
 		
 	BigButtonSeqWidget(BigButtonSeq *module) {
 		setModule(module);

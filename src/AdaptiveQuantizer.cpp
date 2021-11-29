@@ -1040,11 +1040,20 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 			[=]() {module->ignoreRepetitions ^= 0x1;}
 		));
 
-		menu->addChild(createIndexSubmenuItem("Reset of data table",
-			{"None", "Clear all (default)", "Clear with priming"},
-			[=]() {return module->resetClearsDataTable;},
-			[=](int mode) {module->resetClearsDataTable = mode;}
-		));
+		menu->addChild(createSubmenuItem("Reset of data table", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("None", "",
+				[=]() {return module->resetClearsDataTable == 0;},
+				[=]() {module->resetClearsDataTable = 0;}
+			));
+			menu->addChild(createCheckMenuItem("Clear all (default)", "",
+				[=]() {return module->resetClearsDataTable == 1;},
+				[=]() {module->resetClearsDataTable = 1;}
+			));
+			menu->addChild(createCheckMenuItem("Clear with priming", "",
+				[=]() {return module->resetClearsDataTable == 2;},
+				[=]() {module->resetClearsDataTable = 2;}
+			));
+		}));	
 	}
 
 
