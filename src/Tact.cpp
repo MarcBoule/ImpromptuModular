@@ -368,21 +368,6 @@ struct Tact : Module {
 
 
 struct TactWidget : ModuleWidget {
-	struct ExtendRateItem : MenuItem {
-		Tact *module;
-		void onAction(const event::Action &e) override {
-			if (module->rateMultiplier < 2.0f)
-				module->rateMultiplier = 3.0f;
-			else
-				module->rateMultiplier = 1.0f;
-		}
-	};
-	struct LevelSensitiveItem : MenuItem {
-		Tact *module;
-		void onAction(const event::Action &e) override {
-			module->levelSensitiveTopBot = !module->levelSensitiveTopBot;
-		}
-	};
 	void appendContextMenu(Menu *menu) override {
 		Tact *module = dynamic_cast<Tact*>(this->module);
 		assert(module);
@@ -397,13 +382,19 @@ struct TactWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		ExtendRateItem *extRateItem = createMenuItem<ExtendRateItem>("Rate knob x3 (max 12 s/V)", CHECKMARK(module->rateMultiplier > 2.0f));
-		extRateItem->module = module;
-		menu->addChild(extRateItem);
+		menu->addChild(createCheckMenuItem("Rate knob x3 (max 12 s/V)", "",
+			[=]() {
+				return module->rateMultiplier > 2.0f;
+			},
+			[=]() {
+				if (module->rateMultiplier < 2.0f)
+					module->rateMultiplier = 3.0f;
+				else
+					module->rateMultiplier = 1.0f;
+			}
+		));
 
-		LevelSensitiveItem *levelSensItem = createMenuItem<LevelSensitiveItem>("Level sensitive arrow CV inputs", CHECKMARK(module->levelSensitiveTopBot));
-		levelSensItem->module = module;
-		menu->addChild(levelSensItem);
+		menu->addChild(createBoolPtrMenuItem("Level sensitive arrow CV inputs", "", &module->levelSensitiveTopBot));
 		
 		AutoReturnItem *autoRetLItem = createMenuItem<AutoReturnItem>("Auto-return (left pad)", RIGHT_ARROW);
 		autoRetLItem->autoReturnSrc = &(module->autoReturn[0]);
@@ -739,17 +730,7 @@ struct Tact1 : Module {
 	}
 };
 
-struct Tact1Widget : ModuleWidget {
-	struct ExtendRateItem : MenuItem {
-		Tact1 *module;
-		void onAction(const event::Action &e) override {
-			if (module->rateMultiplier < 2.0f)
-				module->rateMultiplier = 3.0f;
-			else
-				module->rateMultiplier = 1.0f;
-		}
-	};
-	
+struct Tact1Widget : ModuleWidget {	
 	void appendContextMenu(Menu *menu) override {
 		Tact1 *module = dynamic_cast<Tact1*>(this->module);
 		assert(module);
@@ -764,9 +745,17 @@ struct Tact1Widget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		ExtendRateItem *extRateItem = createMenuItem<ExtendRateItem>("Rate knob x3 (max 12 s/V)", CHECKMARK(module->rateMultiplier > 2.0f));
-		extRateItem->module = module;
-		menu->addChild(extRateItem);
+		menu->addChild(createCheckMenuItem("Rate knob x3 (max 12 s/V)", "",
+			[=]() {
+				return module->rateMultiplier > 2.0f;
+			},
+			[=]() {
+				if (module->rateMultiplier < 2.0f)
+					module->rateMultiplier = 3.0f;
+				else
+					module->rateMultiplier = 1.0f;
+			}
+		));
 
 		AutoReturnItem *autoRetItem = createMenuItem<AutoReturnItem>("Auto-return", RIGHT_ARROW);
 		autoRetItem->autoReturnSrc = &(module->autoReturn);
@@ -1019,17 +1008,7 @@ struct TactG : Module {
 	}
 };
 
-struct TactGWidget : ModuleWidget {
-	struct ExtendRateItem : MenuItem {
-		TactG *module;
-		void onAction(const event::Action &e) override {
-			if (module->params[TactG::RATE_MULT_PARAM].getValue() < 0.5f)
-				module->params[TactG::RATE_MULT_PARAM].setValue(1.0f);
-			else
-				module->params[TactG::RATE_MULT_PARAM].setValue(0.0f);
-		}
-	};
-	
+struct TactGWidget : ModuleWidget {	
 	void appendContextMenu(Menu *menu) override {
 		TactG *module = dynamic_cast<TactG*>(this->module);
 		assert(module);
@@ -1044,9 +1023,17 @@ struct TactGWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 			
-		ExtendRateItem *extRateItem = createMenuItem<ExtendRateItem>("Rate knob x3 (max 12 s/V)", CHECKMARK(module->params[TactG::RATE_MULT_PARAM].getValue() >= 0.5f));
-		extRateItem->module = module;
-		menu->addChild(extRateItem);
+		menu->addChild(createCheckMenuItem("Rate knob x3 (max 12 s/V)", "",
+			[=]() {
+				return module->params[TactG::RATE_MULT_PARAM].getValue() >= 0.5f;
+			},
+			[=]() {
+				if (module->params[TactG::RATE_MULT_PARAM].getValue() < 0.5f)
+					module->params[TactG::RATE_MULT_PARAM].setValue(1.0f);
+				else
+					module->params[TactG::RATE_MULT_PARAM].setValue(0.0f);
+			}
+		));
 
 		AutoReturnItem *autoRetItem = createMenuItem<AutoReturnItem>("Auto-return", RIGHT_ARROW);
 		autoRetItem->autoReturnSrc = &(module->autoReturn);

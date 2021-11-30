@@ -447,23 +447,10 @@ struct TwelveKeyWidget : ModuleWidget {
 		void onAction(const event::Action &e) override {
 			module->invertVel = !module->invertVel;
 		}
-	};
-	struct LinkVelItem : MenuItem {
-		TwelveKey *module;
-		void onAction(const event::Action &e) override {
-			module->linkVelSettings = !module->linkVelSettings;
-		}
-	};
-	struct TracerItem : MenuItem {
-		TwelveKey *module;
-		void onAction(const event::Action &e) override {
-			module->tracer ^= 0x1;
-		}
-	};
-	struct KeyViewItem : MenuItem {
-		TwelveKey *module;
-		void onAction(const event::Action &e) override {
-			module->keyView ^= 0x1;
+		void step() override {
+			rightText = CHECKMARK(module->invertVel);
+			disabled = (module->linkVelSettings && module->leftExpander.module && module->leftExpander.module->model == modelTwelveKey);
+			MenuItem::step();
 		}
 	};
 	void appendContextMenu(Menu *menu) override {
@@ -480,22 +467,22 @@ struct TwelveKeyWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		LinkVelItem *linkItem = createMenuItem<LinkVelItem>("Link velocity settings from left", CHECKMARK(module->linkVelSettings));
-		linkItem->module = module;
-		menu->addChild(linkItem);	
+		menu->addChild(createBoolPtrMenuItem("Link velocity settings from left", "", &module->linkVelSettings));
 		
 		InvertVelItem *invertItem = createMenuItem<InvertVelItem>("Inverted velocity range", CHECKMARK(module->invertVel));
 		invertItem->module = module;
 		invertItem->disabled = (module->linkVelSettings && module->leftExpander.module && module->leftExpander.module->model == modelTwelveKey);
-		menu->addChild(invertItem);	
+		menu->addChild(invertItem);			
 
-		TracerItem *traceItem = createMenuItem<TracerItem>("Tracer", CHECKMARK(module->tracer != 0));
-		traceItem->module = module;
-		menu->addChild(traceItem);	
+		menu->addChild(createCheckMenuItem("Tracer", "",
+			[=]() {return module->tracer != 0;},
+			[=]() {module->tracer ^= 0x1;}
+		));
 
-		KeyViewItem *keyvItem = createMenuItem<KeyViewItem>("CV input viewer", CHECKMARK(module->keyView != 0));
-		keyvItem->module = module;
-		menu->addChild(keyvItem);	
+		menu->addChild(createCheckMenuItem("CV input viewer", "",
+			[=]() {return module->keyView != 0;},
+			[=]() {module->keyView ^= 0x1;}
+		));
 	}	
 	
 	

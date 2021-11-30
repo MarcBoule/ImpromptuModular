@@ -49,6 +49,10 @@ struct AutoReturnItem : MenuItem {
 				tactParamSrc->setValue(autoreturnVoltages[setVal]);
 			}
 		}
+		void step() override {
+			rightText = CHECKMARK(*autoReturnSrc == setVal);
+			MenuItem::step();
+		}
 	};
 	
 	Menu *createChildMenu() override {
