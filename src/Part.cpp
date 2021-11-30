@@ -43,6 +43,7 @@ struct Part : Module {
 	// Need to save, with reset
 	bool showSharp;
 	bool showPlusMinus;
+	bool applyEpsilonForSplit;
 
 	// No need to save, with reset
 	// none
@@ -81,6 +82,7 @@ struct Part : Module {
 	void onReset() override {
 		showSharp = true;
 		showPlusMinus = true;
+		applyEpsilonForSplit = true;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -105,6 +107,9 @@ struct Part : Module {
 		
 		// showPlusMinus
 		json_object_set_new(rootJ, "showPlusMinus", json_boolean(showPlusMinus));
+		
+		// applyEpsilonForSplit
+		json_object_set_new(rootJ, "applyEpsilonForSplit", json_boolean(applyEpsilonForSplit));
 		
 		return rootJ;
 	}
@@ -131,6 +136,13 @@ struct Part : Module {
 		if (showPlusMinusJ)
 			showPlusMinus = json_is_true(showPlusMinusJ);
 		
+		// applyEpsilonForSplit
+		json_t *applyEpsilonForSplitJ = json_object_get(rootJ, "applyEpsilonForSplit");
+		if (applyEpsilonForSplitJ)
+			applyEpsilonForSplit = json_is_true(applyEpsilonForSplitJ);
+		else 
+			applyEpsilonForSplit = false;
+		
 		resetNonJson();
 	}
 
@@ -145,8 +157,9 @@ struct Part : Module {
 		}// userInputs refresh
 		
 		
+		float splitPoint = getSplitValue() - (applyEpsilonForSplit ? 0.001f : 0.0f);// unconnected CV_INPUT or insufficient channels will cause 0.0f to be used
 		for (int c = 0; c < numChan; c++) {
-			bool isHigh = inputs[CV_INPUT].getVoltage(c) >= getSplitValue();// unconnected CV_INPUT or insufficient channels will cause 0.0f to be used
+			bool isHigh = inputs[CV_INPUT].getVoltage(c) >= splitPoint;
 			float inGate = inputs[GATE_INPUT].getVoltage(c);// unconnected GATE_INPUT or insufficient channels will cause 0.0f to be used
 			outputs[LOW_OUTPUT].setVoltage(isHigh ? 0.0f : inGate, c);
 			outputs[HIGH_OUTPUT].setVoltage(isHigh ? inGate : 0.0f, c);
@@ -254,18 +267,6 @@ struct PartWidget : ModuleWidget {
 		}
 	};
 
-	struct SharpItem : MenuItem {
-		Part *module;
-		void onAction(const event::Action &e) override {
-			module->showSharp = !module->showSharp;
-		}
-	};
-	struct PlusMinusItem : MenuItem {
-		Part *module;
-		void onAction(const event::Action &e) override {
-			module->showPlusMinus = !module->showPlusMinus;
-		}
-	};
 	void appendContextMenu(Menu *menu) override {
 		Part *module = dynamic_cast<Part*>(this->module);
 		assert(module);
@@ -280,13 +281,11 @@ struct PartWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		SharpItem *shrpItem = createMenuItem<SharpItem>("Sharp (unchecked is flat)", CHECKMARK(module->showSharp));
-		shrpItem->module = module;
-		menu->addChild(shrpItem);
+		menu->addChild(createBoolPtrMenuItem("Sharp (unchecked is flat)", "", &module->showSharp));
 		
-		PlusMinusItem *plusMinusItem = createMenuItem<PlusMinusItem>("Show +/- for notes", CHECKMARK(module->showPlusMinus));
-		plusMinusItem->module = module;
-		menu->addChild(plusMinusItem);
+		menu->addChild(createBoolPtrMenuItem("Show +/- for notes", "", &module->showPlusMinus));
+		
+		menu->addChild(createBoolPtrMenuItem("Apply -1mV epsilon to split point", "", &module->applyEpsilonForSplit));
 	}	
 	
 	
