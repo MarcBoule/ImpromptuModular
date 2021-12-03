@@ -83,11 +83,6 @@ The table below shows a comparison of the features available in the Impromptu se
 For sequencers and clock modules, it is advisable to have a Audio module added to your patch and assigned to a sound device in order for the timing and response delays in the user interface to be of the proper duration.
 
 
-## License
-
-Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics from the Component Library by Wes Milholen. See [LICENSE.md](LICENSE.md) for licenses (and ./res/fonts/ for font licenses).
-
-
 ## Acknowledgements
 Impromptu Modular is not a single-person endeavor. Many people have taken the time to suggest improvements and to collaborate on module concepts, graphics, testing, etc. This list of acknowledgements is too large to maintain properly, and so in place of a detailed list of names and participations, I would simply like to extend a big thank you to all that have helped and contributed to the project. The Dark-valor graphic theme was graciously provided by Xavier Belmont.
 
