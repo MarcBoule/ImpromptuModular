@@ -13,32 +13,6 @@ inline float quantize(float cv, bool enable) {
 };
 
 
-struct ArrowModeItem : MenuItem {
-	int* stepRotatesSrc;
-
-	struct ArrowModeSubItem : MenuItem {
-		int* stepRotatesSrc;
-		void onAction(const event::Action &e) override {
-			*stepRotatesSrc ^= 0x1;
-		}
-	};
-
-	Menu *createChildMenu() override {
-		Menu *menu = new Menu;
-		
-		ArrowModeSubItem *step0Item = createMenuItem<ArrowModeSubItem>("Step", CHECKMARK(*stepRotatesSrc == 0));
-		step0Item->stepRotatesSrc = stepRotatesSrc;
-		menu->addChild(step0Item);
-
-		ArrowModeSubItem *step1Item = createMenuItem<ArrowModeSubItem>("Rotate", CHECKMARK(*stepRotatesSrc != 0));
-		step1Item->stepRotatesSrc = stepRotatesSrc;
-		menu->addChild(step1Item);
-
-		return menu;
-	}
-};	
-
-
 inline void rotateSeq(int delta, int numSteps, float *cv, int *gates) {
 	float rotCV;
 	int rotGate;

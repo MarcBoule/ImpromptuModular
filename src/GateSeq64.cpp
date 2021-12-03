@@ -1356,59 +1356,6 @@ struct GateSeq64Widget : ModuleWidget {
 		}
 	};	
 		
-	struct ResetOnRunItem : MenuItem {
-		GateSeq64 *module;
-		void onAction(const event::Action &e) override {
-			module->resetOnRun = !module->resetOnRun;
-		}
-	};
-	struct StopAtEndOfSongItem : MenuItem {
-		GateSeq64 *module;
-		void onAction(const event::Action &e) override {
-			module->stopAtEndOfSong = !module->stopAtEndOfSong;
-		}
-	};
-	struct LockItem : MenuItem {
-		GateSeq64 *module;
-		void onAction(const event::Action &e) override {
-			module->lock = !module->lock;
-		}
-	};
-	struct AutoseqItem : MenuItem {
-		GateSeq64 *module;
-		void onAction(const event::Action &e) override {
-			module->autoseq = !module->autoseq;
-		}
-	};
-	struct SeqCVmethodItem : MenuItem {
-		struct SeqCVmethodSubItem : MenuItem {
-			GateSeq64 *module;
-			int setVal = 2;
-			void onAction(const event::Action &e) override {
-				module->seqCVmethod = setVal;
-			}
-		};
-		GateSeq64 *module;
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			SeqCVmethodSubItem *seqcv0Item = createMenuItem<SeqCVmethodSubItem>("0-10V", CHECKMARK(module->seqCVmethod == 0));
-			seqcv0Item->module = this->module;
-			seqcv0Item->setVal = 0;
-			menu->addChild(seqcv0Item);
-
-			SeqCVmethodSubItem *seqcv1Item = createMenuItem<SeqCVmethodSubItem>("C4-G6", CHECKMARK(module->seqCVmethod == 1));
-			seqcv1Item->module = this->module;
-			seqcv1Item->setVal = 1;
-			menu->addChild(seqcv1Item);
-
-			SeqCVmethodSubItem *seqcv2Item = createMenuItem<SeqCVmethodSubItem>("Trig-Incr", CHECKMARK(module->seqCVmethod == 2));
-			seqcv2Item->module = this->module;
-			menu->addChild(seqcv2Item);
-
-			return menu;
-		}
-	};
 	void appendContextMenu(Menu *menu) override {
 		GateSeq64 *module = dynamic_cast<GateSeq64*>(this->module);
 		assert(module);
@@ -1423,26 +1370,29 @@ struct GateSeq64Widget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		ResetOnRunItem *rorItem = createMenuItem<ResetOnRunItem>("Reset on run", CHECKMARK(module->resetOnRun));
-		rorItem->module = module;
-		menu->addChild(rorItem);
+		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 
-		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot song", CHECKMARK(module->stopAtEndOfSong));
-		loopItem->module = module;
-		menu->addChild(loopItem);
+		menu->addChild(createBoolPtrMenuItem("Single shot song", "", &module->stopAtEndOfSong));
 
-		SeqCVmethodItem *seqcvItem = createMenuItem<SeqCVmethodItem>("Seq CV in level", RIGHT_ARROW);
-		seqcvItem->module = module;
-		menu->addChild(seqcvItem);
+		menu->addChild(createSubmenuItem("Seq CV in level", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("0-10V", "",
+				[=]() {return module->seqCVmethod == 0;},
+				[=]() {module->seqCVmethod = 0;}
+			));
+			menu->addChild(createCheckMenuItem("C4-G6", "",
+				[=]() {return module->seqCVmethod == 1;},
+				[=]() {module->seqCVmethod = 1;}
+			));
+			menu->addChild(createCheckMenuItem("Trig-Incr", "",
+				[=]() {return module->seqCVmethod == 2;},
+				[=]() {module->seqCVmethod = 2;}
+			));
+		}));			
 		
-		AutoseqItem *aseqItem = createMenuItem<AutoseqItem>("AutoSeq when writing via CV inputs", CHECKMARK(module->autoseq));
-		aseqItem->module = module;
-		menu->addChild(aseqItem);
-
-		LockItem *lockItem = createMenuItem<LockItem>("Lock steps, gates and gate p", CHECKMARK(module->lock));
-		lockItem->module = module;
-		menu->addChild(lockItem);
+		menu->addChild(createBoolPtrMenuItem("AutoSeq when writing via CV inputs", "", &module->autoseq));
 		
+		menu->addChild(createBoolPtrMenuItem("Lock steps, gates and gate p", "", &module->lock));
+
 		menu->addChild(new MenuSeparator());
 
 		MenuLabel *actionsLabel = new MenuLabel();

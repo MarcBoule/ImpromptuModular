@@ -1440,11 +1440,6 @@ struct ProbKeyWidget : ModuleWidget {
 				MenuItem::step();
 			}
 		};
-		// struct StepLockDoneItem : MenuItem {
-			// ProbKey *module;
-			// void onAction(const event::Action &e) override {
-			// }
-		// };
 		
 		ProbKey *module;
 		Menu *createChildMenu() override {

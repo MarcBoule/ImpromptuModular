@@ -620,13 +620,6 @@ struct CvPadWidget : ModuleWidget {
 	// Menu
 	// --------------------------------
 	
-	struct HighSensitivityCvKnobItem : MenuItem {
-		CvPad *module;
-		void onAction(const event::Action &e) override {
-			module->highSensitivityCvKnob = !module->highSensitivityCvKnob;
-		}
-	};
-	
 	
 	struct OffsetDeciQuantity : Quantity {
 		CvPad::cvsArray* cvSrc;
@@ -882,9 +875,7 @@ struct CvPadWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		HighSensitivityCvKnobItem *hscItem = createMenuItem<HighSensitivityCvKnobItem>("High sensitivity CV knob", CHECKMARK(module->highSensitivityCvKnob));
-		hscItem->module = module;
-		menu->addChild(hscItem);
+		menu->addChild(createBoolPtrMenuItem("High sensitivity CV knob", "", &module->highSensitivityCvKnob));
 
 		menu->addChild(new MenuSeparator());
 		

@@ -1784,170 +1784,8 @@ struct FoundryWidget : ModuleWidget {
 			return 0;
 		}
 	};
-	
 
-	struct ResetOnRunItem : MenuItem {
-		Foundry *module;
-		void onAction(const event::Action &e) override {
-			module->resetOnRun = !module->resetOnRun;
-		}
-	};
-	struct AutoStepLenItem : MenuItem {
-		Foundry *module;
-		void onAction(const event::Action &e) override {
-			module->autostepLen = !module->autostepLen;
-		}
-	};
-	struct AutoseqItem : MenuItem {
-		Foundry *module;
-		void onAction(const event::Action &e) override {
-			module->autoseq = !module->autoseq;
-		}
-	};
-	struct SeqCVmethodItem : MenuItem {
-		struct SeqCVmethodSubItem : MenuItem {
-			Foundry *module;
-			int setVal = 2;
-			void onAction(const event::Action &e) override {
-				module->seqCVmethod = setVal;
-			}
-		};
-		Foundry *module;
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
 
-			SeqCVmethodSubItem *seqcv0Item = createMenuItem<SeqCVmethodSubItem>("0-10V", CHECKMARK(module->seqCVmethod == 0));
-			seqcv0Item->module = this->module;
-			seqcv0Item->setVal = 0;
-			menu->addChild(seqcv0Item);
-
-			SeqCVmethodSubItem *seqcv1Item = createMenuItem<SeqCVmethodSubItem>("C2-D7#", CHECKMARK(module->seqCVmethod == 1));
-			seqcv1Item->module = this->module;
-			seqcv1Item->setVal = 1;
-			menu->addChild(seqcv1Item);
-
-			SeqCVmethodSubItem *seqcv2Item = createMenuItem<SeqCVmethodSubItem>("Trig-Incr", CHECKMARK(module->seqCVmethod == 2));
-			seqcv2Item->module = this->module;
-			menu->addChild(seqcv2Item);
-
-			return menu;
-		}
-	};
-	struct VelModeItem : MenuItem {
-		struct VelModeSubItem : MenuItem {
-			Foundry *module;
-			int setVal = 2;
-			void onAction(const event::Action &e) override {
-				module->velocityMode = setVal;
-			}
-		};
-		Foundry *module;
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			VelModeSubItem *velMode0Item = createMenuItem<VelModeSubItem>("Volts", CHECKMARK(module->velocityMode == 0));
-			velMode0Item->module = this->module;
-			velMode0Item->setVal = 0;
-			menu->addChild(velMode0Item);
-
-			VelModeSubItem *velMode1Item = createMenuItem<VelModeSubItem>("0-127", CHECKMARK(module->velocityMode == 1));
-			velMode1Item->module = this->module;
-			velMode1Item->setVal = 1;
-			menu->addChild(velMode1Item);
-
-			VelModeSubItem *velMode2Item = createMenuItem<VelModeSubItem>("Notes", CHECKMARK(module->velocityMode == 2));
-			velMode2Item->module = this->module;
-			menu->addChild(velMode2Item);
-
-			return menu;
-		}
-	};
-	struct VelBipolItem : MenuItem {
-		Foundry *module;
-		void onAction(const event::Action &e) override {
-			module->velocityBipol = !module->velocityBipol;
-		}
-	};
-	struct HoldTiedItem : MenuItem {
-		Foundry *module;
-		void onAction(const event::Action &e) override {
-			module->holdTiedNotes = !module->holdTiedNotes;
-		}
-	};
-	
-	struct StopAtEndOfSongItem : MenuItem {
-		struct StopAtEndOfSongSubItem : MenuItem {
-			Foundry *module;
-			int setVal = 4;
-			void onAction(const event::Action &e) override {
-				module->stopAtEndOfSong = setVal;
-			}
-		};
-		Foundry *module;
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			StopAtEndOfSongSubItem *stopOItem = createMenuItem<StopAtEndOfSongSubItem>("Off", CHECKMARK(module->stopAtEndOfSong == 4));
-			stopOItem->module = this->module;
-			menu->addChild(stopOItem);
-
-			StopAtEndOfSongSubItem *stopAItem = createMenuItem<StopAtEndOfSongSubItem>("Track A", CHECKMARK(module->stopAtEndOfSong == 0));
-			stopAItem->module = this->module;
-			stopAItem->setVal = 0;
-			menu->addChild(stopAItem);
-			
-			StopAtEndOfSongSubItem *stopBItem = createMenuItem<StopAtEndOfSongSubItem>("Track B", CHECKMARK(module->stopAtEndOfSong == 1));
-			stopBItem->module = this->module;
-			stopBItem->setVal = 1;
-			menu->addChild(stopBItem);
-
-			StopAtEndOfSongSubItem *stopCItem = createMenuItem<StopAtEndOfSongSubItem>("Track C", CHECKMARK(module->stopAtEndOfSong == 2));
-			stopCItem->module = this->module;
-			stopCItem->setVal = 2;
-			menu->addChild(stopCItem);
-
-			StopAtEndOfSongSubItem *stopDItem = createMenuItem<StopAtEndOfSongSubItem>("Track D", CHECKMARK(module->stopAtEndOfSong == 3));
-			stopDItem->module = this->module;
-			stopDItem->setVal = 3;
-			menu->addChild(stopDItem);
-
-			return menu;
-		}
-	};
-	struct MergeTracksItem : MenuItem {
-		struct MergeTracksSubItem : MenuItem {
-			Foundry *module;
-			int setVal = 0;
-			void onAction(const event::Action &e) override {
-				module->mergeTracks = setVal;
-			}
-		};
-		Foundry *module;
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			MergeTracksSubItem *merge0Item = createMenuItem<MergeTracksSubItem>("None", CHECKMARK(module->mergeTracks == 0));
-			merge0Item->module = this->module;
-			menu->addChild(merge0Item);
-
-			MergeTracksSubItem *merge1Item = createMenuItem<MergeTracksSubItem>("Track B", CHECKMARK(module->mergeTracks == 1));
-			merge1Item->module = this->module;
-			merge1Item->setVal = 1;
-			menu->addChild(merge1Item);
-
-			MergeTracksSubItem *merge2Item = createMenuItem<MergeTracksSubItem>("Tracks B and C", CHECKMARK(module->mergeTracks == 2));
-			merge2Item->module = this->module;
-			merge2Item->setVal = 2;
-			menu->addChild(merge2Item);
-
-			MergeTracksSubItem *merge3Item = createMenuItem<MergeTracksSubItem>("Tracks B, C and D", CHECKMARK(module->mergeTracks == 3));
-			merge3Item->module = this->module;
-			merge3Item->setVal = 3;
-			menu->addChild(merge3Item);
-
-			return menu;
-		}
-	};
 	struct InteropSeqItem : MenuItem {
 		struct InteropCopySeqItem : MenuItem {
 			Foundry *module;
@@ -2006,41 +1844,87 @@ struct FoundryWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		ResetOnRunItem *rorItem = createMenuItem<ResetOnRunItem>("Reset on run", CHECKMARK(module->resetOnRun));
-		rorItem->module = module;
-		menu->addChild(rorItem);
+		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 
-		HoldTiedItem *holdItem = createMenuItem<HoldTiedItem>("Hold tied notes", CHECKMARK(module->holdTiedNotes));
-		holdItem->module = module;
-		menu->addChild(holdItem);
+		menu->addChild(createBoolPtrMenuItem("Hold tied notes", "", &module->holdTiedNotes));		
 
-		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot song", RIGHT_ARROW);
-		loopItem->module = module;
-		menu->addChild(loopItem);
-
-		VelBipolItem *bipolItem = createMenuItem<VelBipolItem>("CV2 bipolar", CHECKMARK(module->velocityBipol));
-		bipolItem->module = module;
-		menu->addChild(bipolItem);
+		menu->addChild(createSubmenuItem("Single shot song", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("Off", "",
+				[=]() {return module->stopAtEndOfSong == 4;},
+				[=]() {module->stopAtEndOfSong = 4;}
+			));
+			menu->addChild(createCheckMenuItem("Track A", "",
+				[=]() {return module->stopAtEndOfSong == 0;},
+				[=]() {module->stopAtEndOfSong = 0;}
+			));
+			menu->addChild(createCheckMenuItem("Track B", "",
+				[=]() {return module->stopAtEndOfSong == 1;},
+				[=]() {module->stopAtEndOfSong = 1;}
+			));
+			menu->addChild(createCheckMenuItem("Track C", "",
+				[=]() {return module->stopAtEndOfSong == 2;},
+				[=]() {module->stopAtEndOfSong = 2;}
+			));
+			menu->addChild(createCheckMenuItem("Track D", "",
+				[=]() {return module->stopAtEndOfSong == 3;},
+				[=]() {module->stopAtEndOfSong = 3;}
+			));
+		}));	
 		
-		VelModeItem *velItem = createMenuItem<VelModeItem>("CV2 mode", RIGHT_ARROW);
-		velItem->module = module;
-		menu->addChild(velItem);
+		menu->addChild(createBoolPtrMenuItem("CV2 bipolar", "", &module->velocityBipol));
 		
-		SeqCVmethodItem *seqcvItem = createMenuItem<SeqCVmethodItem>("Seq CV in level", RIGHT_ARROW);
-		seqcvItem->module = module;
-		menu->addChild(seqcvItem);
+		menu->addChild(createSubmenuItem("CV2 mode", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("Volts", "",
+				[=]() {return module->velocityMode  == 0;},
+				[=]() {module->velocityMode  = 0;}
+			));
+			menu->addChild(createCheckMenuItem("0-127", "",
+				[=]() {return module->velocityMode  == 1;},
+				[=]() {module->velocityMode  = 1;}
+			));
+			menu->addChild(createCheckMenuItem("Notes", "",
+				[=]() {return module->velocityMode  == 2;},
+				[=]() {module->velocityMode  = 2;}
+			));
+		}));			
 
-		AutoStepLenItem *astlItem = createMenuItem<AutoStepLenItem>("AutoStep write bounded by seq length", CHECKMARK(module->autostepLen));
-		astlItem->module = module;
-		menu->addChild(astlItem);
+		menu->addChild(createSubmenuItem("Seq CV in level", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("0-10V", "",
+				[=]() {return module->seqCVmethod == 0;},
+				[=]() {module->seqCVmethod = 0;}
+			));
+			menu->addChild(createCheckMenuItem("C2-D7#", "",
+				[=]() {return module->seqCVmethod == 1;},
+				[=]() {module->seqCVmethod = 1;}
+			));
+			menu->addChild(createCheckMenuItem("Trig-Incr", "",
+				[=]() {return module->seqCVmethod == 2;},
+				[=]() {module->seqCVmethod = 2;}
+			));
+		}));			
 
-		AutoseqItem *aseqItem = createMenuItem<AutoseqItem>("AutoSeq when writing via CV inputs", CHECKMARK(module->autoseq));
-		aseqItem->module = module;
-		menu->addChild(aseqItem);
-
-		MergeTracksItem *mergeItem = createMenuItem<MergeTracksItem>("Poly merge into track A outputs", RIGHT_ARROW);
-		mergeItem->module = module;
-		menu->addChild(mergeItem);
+		menu->addChild(createBoolPtrMenuItem("AutoStep write bounded by seq length", "", &module->autostepLen));
+		
+		menu->addChild(createBoolPtrMenuItem("AutoSeq when writing via CV inputs", "", &module->autoseq));
+	
+		menu->addChild(createSubmenuItem("Poly merge into track A outputs", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("None", "",
+				[=]() {return module->mergeTracks == 0;},
+				[=]() {module->mergeTracks = 0;}
+			));
+			menu->addChild(createCheckMenuItem("Track B", "",
+				[=]() {return module->mergeTracks == 1;},
+				[=]() {module->mergeTracks = 1;}
+			));
+			menu->addChild(createCheckMenuItem("Tracks B and C", "",
+				[=]() {return module->mergeTracks == 2;},
+				[=]() {module->mergeTracks = 2;}
+			));
+			menu->addChild(createCheckMenuItem("Tracks B, C and D", "",
+				[=]() {return module->mergeTracks == 3;},
+				[=]() {module->mergeTracks = 3;}
+			));
+		}));			
 		
 		menu->addChild(new MenuSeparator());
 

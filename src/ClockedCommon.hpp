@@ -122,47 +122,6 @@ struct ResetModeBitToggleItem : MenuItem {
 	}
 };
 
-struct OnStartItem : MenuItem {
-	unsigned int *resetOnStartStopPtr;
-
-	Menu *createChildMenu() override {
-		Menu *menu = new Menu;
-
-		ResetModeBitToggleItem *startIntItem = createMenuItem<ResetModeBitToggleItem>("Do internal reset", CHECKMARK(*resetOnStartStopPtr & ON_START_INT_RST_MSK));
-		startIntItem->resetOnStartStopPtr = resetOnStartStopPtr;
-		startIntItem->mask = ON_START_INT_RST_MSK;
-		menu->addChild(startIntItem);
-
-		ResetModeBitToggleItem *startExtItem = createMenuItem<ResetModeBitToggleItem>("Send reset pulse", CHECKMARK(*resetOnStartStopPtr & ON_START_EXT_RST_MSK));
-		startExtItem->resetOnStartStopPtr = resetOnStartStopPtr;
-		startExtItem->mask = ON_START_EXT_RST_MSK;
-		menu->addChild(startExtItem);
-
-		return menu;
-	}
-};	
-
-struct OnStopItem : MenuItem {
-	unsigned int *resetOnStartStopPtr;
-
-	Menu *createChildMenu() override {
-		Menu *menu = new Menu;
-
-		ResetModeBitToggleItem *stopIntItem = createMenuItem<ResetModeBitToggleItem>("Do internal reset", CHECKMARK(*resetOnStartStopPtr & ON_STOP_INT_RST_MSK));
-		stopIntItem->resetOnStartStopPtr = resetOnStartStopPtr;
-		stopIntItem->mask = ON_STOP_INT_RST_MSK;
-		menu->addChild(stopIntItem);
-
-		ResetModeBitToggleItem *stopExtItem = createMenuItem<ResetModeBitToggleItem>("Send reset pulse", CHECKMARK(*resetOnStartStopPtr & ON_STOP_EXT_RST_MSK));
-		stopExtItem->resetOnStartStopPtr = resetOnStartStopPtr;
-		stopExtItem->mask = ON_STOP_EXT_RST_MSK;
-		menu->addChild(stopExtItem);
-
-		return menu;
-	}
-};	
-
-
 
 // must have done validateClockModule() before calling this
 static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveResetClockOutputsHighPtr) {

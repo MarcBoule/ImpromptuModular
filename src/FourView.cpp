@@ -559,19 +559,6 @@ struct FourViewWidget : ModuleWidget {
 		}
 	};
 
-
-	struct PolyIn1Item : MenuItem {
-		FourView *module;
-		void onAction(const event::Action &e) override {
-			module->allowPolyOverride ^= 0x1;
-		}
-	};
-	struct SharpItem : MenuItem {
-		FourView *module;
-		void onAction(const event::Action &e) override {
-			module->showSharp = !module->showSharp;
-		}
-	};
 	struct InteropSeqItem : MenuItem {
 		struct InteropCopySeqItem : MenuItem {
 			FourView *module;
@@ -619,13 +606,12 @@ struct FourViewWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		PolyIn1Item *poly1Item = createMenuItem<PolyIn1Item>("Allow poly in 1 to override", CHECKMARK(module->allowPolyOverride == 1));
-		poly1Item->module = module;
-		menu->addChild(poly1Item);
+		menu->addChild(createCheckMenuItem("Allow poly in 1 to override", "",
+			[=]() {return module->allowPolyOverride == 1;},
+			[=]() {module->allowPolyOverride ^= 0x1;}
+		));
 		
-		SharpItem *shrpItem = createMenuItem<SharpItem>("Sharp (unchecked is flat)", CHECKMARK(module->showSharp));
-		shrpItem->module = module;
-		menu->addChild(shrpItem);
+		menu->addChild(createBoolPtrMenuItem("Sharp (unchecked is flat)", "", &module->showSharp));
 	}	
 	
 	

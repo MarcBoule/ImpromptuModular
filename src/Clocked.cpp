@@ -965,25 +965,6 @@ struct ClockedWidget : ModuleWidget {
 		}
 	};		
 	
-	struct DelayDisplayNoteItem : MenuItem {
-		Clocked *module;
-		void onAction(const event::Action &e) override {
-			module->displayDelayNoteMode = !module->displayDelayNoteMode;
-		}
-	};
-	struct MomentaryRunInputItem : MenuItem {
-		Clocked *module;
-		void onAction(const event::Action &e) override {
-			module->momentaryRunInput = !module->momentaryRunInput;
-		}
-	};
-	struct ResetHighItem : MenuItem {
-		Clocked *module;
-		void onAction(const event::Action &e) override {
-			module->resetClockOutputsHigh = !module->resetClockOutputsHigh;
-			module->resetClocked(true);
-		}
-	};	
 	void appendContextMenu(Menu *menu) override {
 		Clocked *module = dynamic_cast<Clocked*>(this->module);
 		assert(module);
@@ -998,26 +979,41 @@ struct ClockedWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		OnStartItem *onStartItem = createMenuItem<OnStartItem>("On Start", RIGHT_ARROW);
-		onStartItem->resetOnStartStopPtr = &module->resetOnStartStop;
-		menu->addChild(onStartItem);
+		menu->addChild(createSubmenuItem("On Start", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("Do internal reset", "",
+				[=]() {return module->resetOnStartStop & ON_START_INT_RST_MSK;},
+				[=]() {module->resetOnStartStop ^= ON_START_INT_RST_MSK;}
+			));
+			menu->addChild(createCheckMenuItem("Send reset pulse", "",
+				[=]() {return module->resetOnStartStop & ON_START_EXT_RST_MSK;},
+				[=]() {module->resetOnStartStop ^= ON_START_EXT_RST_MSK;}
+			));
+		}));	
 		
-		OnStopItem *onStopItem = createMenuItem<OnStopItem>("On Stop", RIGHT_ARROW);
-		onStopItem->resetOnStartStopPtr = &module->resetOnStartStop;
-		menu->addChild(onStopItem);
+		menu->addChild(createSubmenuItem("On Stop", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("Do internal reset", "",
+				[=]() {return module->resetOnStartStop & ON_STOP_INT_RST_MSK;},
+				[=]() {module->resetOnStartStop ^= ON_STOP_INT_RST_MSK;}
+			));
+			menu->addChild(createCheckMenuItem("Send reset pulse", "",
+				[=]() {return module->resetOnStartStop & ON_STOP_EXT_RST_MSK;},
+				[=]() {module->resetOnStartStop ^= ON_STOP_EXT_RST_MSK;}
+			));
+		}));	
 
-		ResetHighItem *rhItem = createMenuItem<ResetHighItem>("Outputs high on reset when not running", CHECKMARK(module->resetClockOutputsHigh));
-		rhItem->module = module;
-		menu->addChild(rhItem);
+		menu->addChild(createCheckMenuItem("Outputs high on reset when not running", "",
+			[=]() {return module->resetClockOutputsHigh;},
+			[=]() {module->resetClockOutputsHigh = !module->resetClockOutputsHigh;
+				   module->resetClocked(true);}
+		));
 		
-		DelayDisplayNoteItem *ddnItem = createMenuItem<DelayDisplayNoteItem>("Display delay values in notes", CHECKMARK(module->displayDelayNoteMode));
-		ddnItem->module = module;
-		menu->addChild(ddnItem);
+		menu->addChild(createBoolPtrMenuItem("Display delay values in notes", "", &module->displayDelayNoteMode));
 
-		MomentaryRunInputItem *runInItem = createMenuItem<MomentaryRunInputItem>("Run CV input is level sensitive", CHECKMARK(!module->momentaryRunInput));
-		runInItem->module = module;
-		menu->addChild(runInItem);
-
+		menu->addChild(createBoolMenuItem("Run CV input is level sensitive", "",
+			[=]() {return !module->momentaryRunInput;},
+			[=](bool loop) {module->momentaryRunInput = !module->momentaryRunInput;}
+		));
+		
 		menu->addChild(new MenuSeparator());
 
 		MenuLabel *actionsLabel = new MenuLabel();

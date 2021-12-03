@@ -727,13 +727,6 @@ struct WriteSeq32Widget : ModuleWidget {
 	};
 
 	
-	struct ResetOnRunItem : MenuItem {
-		WriteSeq32 *module;
-		void onAction(const event::Action &e) override {
-			module->resetOnRun = !module->resetOnRun;
-		}
-	};
-	
 	struct InteropSeqItem : MenuItem {
 		struct InteropCopySeqItem : MenuItem {
 			WriteSeq32 *module;
@@ -791,13 +784,18 @@ struct WriteSeq32Widget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		ArrowModeItem *arrowItem = createMenuItem<ArrowModeItem>("Arrow controls", RIGHT_ARROW);
-		arrowItem->stepRotatesSrc = &(module->stepRotates);
-		menu->addChild(arrowItem);
-
-		ResetOnRunItem *rorItem = createMenuItem<ResetOnRunItem>("Reset on run", CHECKMARK(module->resetOnRun));
-		rorItem->module = module;
-		menu->addChild(rorItem);
+		menu->addChild(createSubmenuItem("Arrow controls", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("Step", "",
+				[=]() {return module->stepRotates == 0;},
+				[=]() {module->stepRotates = 0x0;}
+			));
+			menu->addChild(createCheckMenuItem("Rotate", "",
+				[=]() {return module->stepRotates != 0;},
+				[=]() {module->stepRotates = 0x1;}
+			));
+		}));	
+		
+		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 	}	
 	
 	

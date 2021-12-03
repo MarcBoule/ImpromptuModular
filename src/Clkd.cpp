@@ -799,44 +799,6 @@ struct ClkdWidget : ModuleWidget {
 		}
 	};		
 	
-	struct MomentaryRunInputItem : MenuItem {
-		Clkd *module;
-		void onAction(const event::Action &e) override {
-			module->momentaryRunInput = !module->momentaryRunInput;
-		}
-	};
-	struct ResetHighItem : MenuItem {
-		Clkd *module;
-		void onAction(const event::Action &e) override {
-			module->resetClockOutputsHigh = !module->resetClockOutputsHigh;
-			module->resetClkd(true);
-		}
-	};	
-	struct TrigOutsItem : MenuItem {
-		struct TrigOutsSubItem : MenuItem {
-			Clkd *module;
-			int clkIndex = 0;
-			void onAction(const event::Action &e) override {
-				module->trigOuts[clkIndex] = !module->trigOuts[clkIndex];
-			}
-		};
-		
-		Clkd *module;
-		std::string trigOutNames[4] = {"Master clk", "Clock 1", "Clock 2", "Clock 3"};
-		
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			for (int i = 0; i < 4; i++) {
-				TrigOutsSubItem *trigItem = createMenuItem<TrigOutsSubItem>(trigOutNames[i], CHECKMARK(module->trigOuts[i]));
-				trigItem->module = this->module;
-				trigItem->clkIndex = i;
-				menu->addChild(trigItem);
-			}
-
-			return menu;
-		}
-	};	
 	void appendContextMenu(Menu *menu) override {
 		Clkd *module = dynamic_cast<Clkd*>(this->module);
 		assert(module);
@@ -851,25 +813,45 @@ struct ClkdWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		OnStartItem *onStartItem = createMenuItem<OnStartItem>("On Start", RIGHT_ARROW);
-		onStartItem->resetOnStartStopPtr = &module->resetOnStartStop;
-		menu->addChild(onStartItem);
+		menu->addChild(createSubmenuItem("On Start", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("Do internal reset", "",
+				[=]() {return module->resetOnStartStop & ON_START_INT_RST_MSK;},
+				[=]() {module->resetOnStartStop ^= ON_START_INT_RST_MSK;}
+			));
+			menu->addChild(createCheckMenuItem("Send reset pulse", "",
+				[=]() {return module->resetOnStartStop & ON_START_EXT_RST_MSK;},
+				[=]() {module->resetOnStartStop ^= ON_START_EXT_RST_MSK;}
+			));
+		}));	
 		
-		OnStopItem *onStopItem = createMenuItem<OnStopItem>("On Stop", RIGHT_ARROW);
-		onStopItem->resetOnStartStopPtr = &module->resetOnStartStop;
-		menu->addChild(onStopItem);
+		menu->addChild(createSubmenuItem("On Stop", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("Do internal reset", "",
+				[=]() {return module->resetOnStartStop & ON_STOP_INT_RST_MSK;},
+				[=]() {module->resetOnStartStop ^= ON_STOP_INT_RST_MSK;}
+			));
+			menu->addChild(createCheckMenuItem("Send reset pulse", "",
+				[=]() {return module->resetOnStartStop & ON_STOP_EXT_RST_MSK;},
+				[=]() {module->resetOnStartStop ^= ON_STOP_EXT_RST_MSK;}
+			));
+		}));	
 
-		ResetHighItem *rhItem = createMenuItem<ResetHighItem>("Outputs high on reset when not running", CHECKMARK(module->resetClockOutputsHigh));
-		rhItem->module = module;
-		menu->addChild(rhItem);
+		menu->addChild(createCheckMenuItem("Outputs high on reset when not running", "",
+			[=]() {return module->resetClockOutputsHigh;},
+			[=]() {module->resetClockOutputsHigh = !module->resetClockOutputsHigh;
+				   module->resetClkd(true);}
+		));
 		
-		MomentaryRunInputItem *runInItem = createMenuItem<MomentaryRunInputItem>("Run CV input is level sensitive", CHECKMARK(!module->momentaryRunInput));
-		runInItem->module = module;
-		menu->addChild(runInItem);
+		menu->addChild(createBoolMenuItem("Run CV input is level sensitive", "",
+			[=]() {return !module->momentaryRunInput;},
+			[=](bool loop) {module->momentaryRunInput = !module->momentaryRunInput;}
+		));
 		
-		TrigOutsItem *trigItem = createMenuItem<TrigOutsItem>("Send triggers (instead of gates)", RIGHT_ARROW);
-		trigItem->module = module;
-		menu->addChild(trigItem);
+		menu->addChild(createSubmenuItem("Send triggers (instead of gates)", "", [=](Menu* menu) {
+			menu->addChild(createBoolPtrMenuItem("Master clk", "", &(module->trigOuts[0])));
+			menu->addChild(createBoolPtrMenuItem("Clock 1", "", &(module->trigOuts[1])));
+			menu->addChild(createBoolPtrMenuItem("Clock 2", "", &(module->trigOuts[2])));
+			menu->addChild(createBoolPtrMenuItem("Clock 3", "", &(module->trigOuts[3])));
+		}));		
 
 		menu->addChild(new MenuSeparator());
 

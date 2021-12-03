@@ -1918,65 +1918,6 @@ struct PhraseSeq32Widget : ModuleWidget {
 		}
 	};		
 	
-	struct ResetOnRunItem : MenuItem {
-		PhraseSeq32 *module;
-		void onAction(const event::Action &e) override {
-			module->resetOnRun = !module->resetOnRun;
-		}
-	};
-	struct AutoStepLenItem : MenuItem {
-		PhraseSeq32 *module;
-		void onAction(const event::Action &e) override {
-			module->autostepLen = !module->autostepLen;
-		}
-	};
-	struct AutoseqItem : MenuItem {
-		PhraseSeq32 *module;
-		void onAction(const event::Action &e) override {
-			module->autoseq = !module->autoseq;
-		}
-	};
-	struct HoldTiedItem : MenuItem {
-		PhraseSeq32 *module;
-		void onAction(const event::Action &e) override {
-			module->holdTiedNotes = !module->holdTiedNotes;
-		}
-	};
-	struct StopAtEndOfSongItem : MenuItem {
-		PhraseSeq32 *module;
-		void onAction(const event::Action &e) override {
-			module->stopAtEndOfSong = !module->stopAtEndOfSong;
-		}
-	};
-	struct SeqCVmethodItem : MenuItem {
-		struct SeqCVmethodSubItem : MenuItem {
-			PhraseSeq32 *module;
-			int setVal = 2;
-			void onAction(const event::Action &e) override {
-				module->seqCVmethod = setVal;
-			}
-		};
-		PhraseSeq32 *module;
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-
-			SeqCVmethodSubItem *seqcv0Item = createMenuItem<SeqCVmethodSubItem>("0-10V", CHECKMARK(module->seqCVmethod == 0));
-			seqcv0Item->module = this->module;
-			seqcv0Item->setVal = 0;
-			menu->addChild(seqcv0Item);
-
-			SeqCVmethodSubItem *seqcv1Item = createMenuItem<SeqCVmethodSubItem>("C4-G6", CHECKMARK(module->seqCVmethod == 1));
-			seqcv1Item->module = this->module;
-			seqcv1Item->setVal = 1;
-			menu->addChild(seqcv1Item);
-
-			SeqCVmethodSubItem *seqcv2Item = createMenuItem<SeqCVmethodSubItem>("Trig-Incr", CHECKMARK(module->seqCVmethod == 2));
-			seqcv2Item->module = this->module;
-			menu->addChild(seqcv2Item);
-
-			return menu;
-		}
-	};
 	struct InteropSeqItem : MenuItem {
 		struct InteropCopySeqItem : MenuItem {
 			PhraseSeq32 *module;
@@ -2035,29 +1976,30 @@ struct PhraseSeq32Widget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		ResetOnRunItem *rorItem = createMenuItem<ResetOnRunItem>("Reset on run", CHECKMARK(module->resetOnRun));
-		rorItem->module = module;
-		menu->addChild(rorItem);
+		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 
-		HoldTiedItem *holdItem = createMenuItem<HoldTiedItem>("Hold tied notes", CHECKMARK(module->holdTiedNotes));
-		holdItem->module = module;
-		menu->addChild(holdItem);
+		menu->addChild(createBoolPtrMenuItem("Hold tied notes", "", &module->holdTiedNotes));		
 
-		StopAtEndOfSongItem *loopItem = createMenuItem<StopAtEndOfSongItem>("Single shot song", CHECKMARK(module->stopAtEndOfSong));
-		loopItem->module = module;
-		menu->addChild(loopItem);
+		menu->addChild(createBoolPtrMenuItem("Single shot song", "", &module->stopAtEndOfSong));
 
-		SeqCVmethodItem *seqcvItem = createMenuItem<SeqCVmethodItem>("Seq CV in level", RIGHT_ARROW);
-		seqcvItem->module = module;
-		menu->addChild(seqcvItem);
+		menu->addChild(createSubmenuItem("Seq CV in level", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("0-10V", "",
+				[=]() {return module->seqCVmethod == 0;},
+				[=]() {module->seqCVmethod = 0;}
+			));
+			menu->addChild(createCheckMenuItem("C4-G6", "",
+				[=]() {return module->seqCVmethod == 1;},
+				[=]() {module->seqCVmethod = 1;}
+			));
+			menu->addChild(createCheckMenuItem("Trig-Incr", "",
+				[=]() {return module->seqCVmethod == 2;},
+				[=]() {module->seqCVmethod = 2;}
+			));
+		}));			
+		
+		menu->addChild(createBoolPtrMenuItem("AutoStep write bounded by seq length", "", &module->autostepLen));
 
-		AutoStepLenItem *astlItem = createMenuItem<AutoStepLenItem>("AutoStep write bounded by seq length", CHECKMARK(module->autostepLen));
-		astlItem->module = module;
-		menu->addChild(astlItem);
-
-		AutoseqItem *aseqItem = createMenuItem<AutoseqItem>("AutoSeq when writing via CV inputs", CHECKMARK(module->autoseq));
-		aseqItem->module = module;
-		menu->addChild(aseqItem);
+		menu->addChild(createBoolPtrMenuItem("AutoSeq when writing via CV inputs", "", &module->autoseq));
 
 		menu->addChild(new MenuSeparator());
 
