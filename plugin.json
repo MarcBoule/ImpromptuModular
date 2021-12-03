@@ -2,7 +2,7 @@
 	"slug": "ImpromptuModular",
 	"name": "Impromptu",
 	"version": "2.0.6",
-	"license": "GPL-3.0-only",
+	"license": "GPL-3.0-or-later",
 	"author": "Marc Boul\u00e9",
 	"brand": "Impromptu",
 	"authorEmail": "m_boule@hotmail.com",

@@ -1,11 +1,11 @@
-#### FUNDAMENTAL ####
+#### FUNDAMENTAL and VCVRACK ####
 
-All source code is copyright © 2016-2021 Andrew Belt and is licensed under the GNU General Public License v3.0 (see [LICENSE](LICENSE)).
+All Fundamental and VCV Rack source code excerpts used in Impromptu Modular are copyright © 2016-2021 Andrew Belt and are licensed under the GNU General Public License v3.0 or later.
 
 
 #### AUDIBLE INSTRUMENTS ####
 
-All source code in the src/ folder is copyright © 2016-2020 Andrew Belt and Audible Instruments contributers and is licensed under the GNU General Public License v3.0 (see [LICENSE](LICENSE)).
+All Audible Instruments source code excerpts used in Impromptu Modular are copyright © 2016-2021 Andrew Belt and Audible Instruments contributers and are licensed under the GNU General Public License v3.0 or later.
 
 
 #### BLANK PANEL ####
