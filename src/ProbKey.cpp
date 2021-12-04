@@ -1239,19 +1239,6 @@ struct ProbKey : Module {
 
 
 struct ProbKeyWidget : ModuleWidget {
-	struct IndexCvCap12Item : MenuItem {
-		ProbKey *module;
-		void onAction(const event::Action &e) override {
-			module->indexCvCap12 ^= 0x1;
-		}
-	};
-	
-	struct ShowTracerItem : MenuItem {
-		ProbKey *module;
-		void onAction(const event::Action &e) override {
-			module->showTracer ^= 0x1;
-		}
-	};
 	
 	struct OverlapQuantity : Quantity {
 		float *overlapSrc = NULL;
@@ -1385,113 +1372,26 @@ struct ProbKeyWidget : ModuleWidget {
 		}
 	};	
 	
-	
-	struct StepLockItem : MenuItem {
-		struct StepLockSubItem : MenuItem {
-			ProbKey *module;
-			int stepNum;
-			int index;
-			void onAction(const event::Action &e) override {
-				module->toggleStepLock(stepNum, index);
-				if (module->perIndexManualLocks != 0 && module->getStepLock(stepNum, index)) {
-					module->stepLocksCvs[index][stepNum] = module->outputKernels[0].getBuf(stepNum);
-				}
-				e.unconsume();
-			}
-			void step() override {
-				rightText = CHECKMARK(module->getStepLock(stepNum, index));
-				if (module->perIndexManualLocks != 0 && module->getStepLock(stepNum, index)) {
-					if (module->stepLocksCvs[index][stepNum] != module->outputKernels[0].getBuf(stepNum)) {
-						rightText.insert(0, "*");
-					}
-				}
-				MenuItem::step();
-			}
-		};
-		struct StepLockClearAllItem : MenuItem {
-			ProbKey *module;
-			int index;
-			void onAction(const event::Action &e) override {
-				if (module->perIndexManualLocks != 0) {
-					module->clearStepLocks(index);
-				}
-				else {
-					module->clearStepLock();
-				}
-				e.unconsume();
-			}
-		};
-		struct ResetPlayheadsItem : MenuItem {
-			ProbKey *module;
-			void onAction(const event::Action &e) override {
-				for (int c = 0; c < PORT_MAX_CHANNELS; c++) {
-					module->outputKernels[c].resetPlayHead();
-				}
-			}
-		};
-		struct PerIndexManualLocksItem : MenuItem {
-			ProbKey *module;
-			void onAction(const event::Action &e) override {
-				module->perIndexManualLocks ^= 0x1;
-				e.unconsume();
-			}
-			void step() override {
-				rightText = CHECKMARK(module->perIndexManualLocks != 0);
-				MenuItem::step();
-			}
-		};
-		
+	struct StepLockSubItem : MenuItem {
 		ProbKey *module;
-		Menu *createChildMenu() override {
-			Menu *menu = new Menu;
-			char buf[8];
-			int index = module->getIndex();
-
-			StepLockClearAllItem *clearItem = createMenuItem<StepLockClearAllItem>("Clear all locks", "");
-			clearItem->module = module;
-			clearItem->index = index;
-			menu->addChild(clearItem);
-			
-			ResetPlayheadsItem *resetPlayheadsItem = createMenuItem<ResetPlayheadsItem>("Reset playhead", "");
-			resetPlayheadsItem->module = module;
-			menu->addChild(resetPlayheadsItem);
-			
-			PerIndexManualLocksItem *perIndexLockItem = createMenuItem<PerIndexManualLocksItem>("Per index manual locks", CHECKMARK(module->perIndexManualLocks != 0));
-			perIndexLockItem->module = module;
-			menu->addChild(perIndexLockItem);
-			
-			// StepLockDoneItem *doneItem = createMenuItem<StepLockDoneItem>("Done", "");
-			// doneItem->module = module;
-			// menu->addChild(doneItem);
-			
-			menu->addChild(new MenuSeparator());
-			
-			for (int s = 0; s < module->getLength(); s++) {
-				float cv = module->outputKernels[0].getBuf(s);
-				if (cv == ProbKernel::IDEM_CV) {
-					buf[0] = 0;
-				}
-				else {
-					printNote(cv, buf, true);
-				}
-				std::string noteStr(buf);
-				std::replace(noteStr.begin(), noteStr.end(), '\"', '#');
-				
-				int oct = eucDiv((int)std::round(cv * 12.0f), 12);
-				oct = clamp(oct + 4, 0, 9);
-				noteStr.insert(0, std::string(oct, ' '));
-				noteStr.insert(0, std::string(oct, ' '));
-				noteStr.insert(0, std::string("-"));
-				
-				StepLockSubItem *slockItem = createMenuItem<StepLockSubItem>(noteStr, CHECKMARK(module->getStepLock(s, index)));
-				slockItem->module = module;
-				slockItem->stepNum = s;
-				slockItem->index = index;
-				menu->addChild(slockItem);
+		int stepNum;
+		int index;
+		void onAction(const event::Action &e) override {
+			module->toggleStepLock(stepNum, index);
+			if (module->perIndexManualLocks != 0 && module->getStepLock(stepNum, index)) {
+				module->stepLocksCvs[index][stepNum] = module->outputKernels[0].getBuf(stepNum);
 			}
-			
-			return menu;
-		}	
+			e.unconsume();
+		}
+		void step() override {
+			rightText = CHECKMARK(module->getStepLock(stepNum, index));
+			if (module->perIndexManualLocks != 0 && module->getStepLock(stepNum, index)) {
+				if (module->stepLocksCvs[index][stepNum] != module->outputKernels[0].getBuf(stepNum)) {
+					rightText.insert(0, "*");
+				}
+			}
+			MenuItem::step();
+		}
 	};
 
 	
@@ -1513,21 +1413,68 @@ struct ProbKeyWidget : ModuleWidget {
 		settingsLabel->text = "Settings";
 		menu->addChild(settingsLabel);
 		
-		StepLockItem *stepLockItem = createMenuItem<StepLockItem>("Manual step lock", RIGHT_ARROW);
-		stepLockItem->module = module;
-		menu->addChild(stepLockItem);
+		menu->addChild(createSubmenuItem("Manual step lock", "", [=](Menu* menu) {
+			menu->addChild(createMenuItem("Clear all locks", "",
+				[=]() {if (module->perIndexManualLocks != 0) {
+						module->clearStepLocks(module->getIndex());
+					}
+					else {
+						module->clearStepLock();
+					}
+				}
+			));
+			menu->addChild(createMenuItem("Reset playhead", "",
+				[=]() {for (int c = 0; c < PORT_MAX_CHANNELS; c++) {
+						module->outputKernels[c].resetPlayHead();
+					}
+				}
+			));
+			menu->addChild(createCheckMenuItem("Per index manual locks", "",
+				[=]() {return module->perIndexManualLocks != 0;},
+				[=]() {module->perIndexManualLocks ^= 0x1;}
+			));
+			
+			menu->addChild(new MenuSeparator());
+			
+			char buf[8];
+			int index = module->getIndex();
+			for (int s = 0; s < module->getLength(); s++) {
+				float cv = module->outputKernels[0].getBuf(s);
+				if (cv == ProbKernel::IDEM_CV) {
+					buf[0] = 0;
+				}
+				else {
+					printNote(cv, buf, true);
+				}
+				std::string noteStr(buf);
+				std::replace(noteStr.begin(), noteStr.end(), '\"', '#');
+				
+				int oct = eucDiv((int)std::round(cv * 12.0f), 12);
+				oct = clamp(oct + 4, 0, 9);
+				noteStr.insert(0, std::string(oct * 2, ' '));
+				noteStr.insert(0, std::string("-"));
+				
+				StepLockSubItem *slockItem = createMenuItem<StepLockSubItem>(noteStr, CHECKMARK(module->getStepLock(s, index)));
+				slockItem->module = module;
+				slockItem->stepNum = s;
+				slockItem->index = index;
+				menu->addChild(slockItem);
+			}
+		}));			
 
 		OverlapSlider *ovlpSlider = new OverlapSlider(&(module->overlap));
 		ovlpSlider->box.size.x = 200.0f;
 		menu->addChild(ovlpSlider);
 		
-		IndexCvCap12Item *cv12Item = createMenuItem<IndexCvCap12Item>("Index mode 12", CHECKMARK(module->indexCvCap12));
-		cv12Item->module = module;
-		menu->addChild(cv12Item);
-		
-		ShowTracerItem *tracerItem = createMenuItem<ShowTracerItem>("Show generated note", CHECKMARK(module->showTracer));
-		tracerItem->module = module;
-		menu->addChild(tracerItem);
+		menu->addChild(createCheckMenuItem("Index mode 12", "",
+			[=]() {return module->indexCvCap12;},
+			[=]() {module->indexCvCap12 ^= 0x1;}
+		));
+
+		menu->addChild(createCheckMenuItem("Show generated note", "",
+			[=]() {return module->showTracer;},
+			[=]() {module->showTracer ^= 0x1;}
+		));
 	}
 
 
