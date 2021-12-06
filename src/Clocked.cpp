@@ -379,7 +379,7 @@ struct Clocked : Module {
 		}
 		configInput(RESET_INPUT, "Reset");
 		configInput(RUN_INPUT, "Run");
-		configInput(BPM_INPUT, "BPM");
+		configInput(BPM_INPUT, "BPM CV / Ext clock");
 
 		configOutput(CLK_OUTPUTS + 0, "Master clock");
 		for (int i = 1; i < 4; i++) {
