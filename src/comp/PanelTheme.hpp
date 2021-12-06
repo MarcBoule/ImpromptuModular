@@ -15,7 +15,8 @@ using namespace rack;
 static constexpr float panelContrastDefault = 220.0f;
 static constexpr float panelContrastMin = 190.0f;
 static constexpr float panelContrastMax = 240.0f;
-
+extern NVGcolor SCHEME_RED_IM;
+extern NVGcolor SCHEME_GREEN_IM;
 
 void readThemeAndContrastFromDefault();
 

@@ -316,8 +316,8 @@ struct OrangeLight : GrayModuleLightWidget {
 
 struct GreenRedWhiteLight : GrayModuleLightWidget {
 	GreenRedWhiteLight() {
-		addBaseColor(SCHEME_GREEN);
-		addBaseColor(SCHEME_RED);
+		addBaseColor(SCHEME_GREEN_IM);
+		addBaseColor(SCHEME_RED_IM);
 		addBaseColor(SCHEME_WHITE);
 	}
 };

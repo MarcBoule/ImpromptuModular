@@ -7,14 +7,36 @@
 
 #include "PanelTheme.hpp"
 
+NVGcolor SCHEME_RED_IM = SCHEME_RED;
+NVGcolor SCHEME_GREEN_IM = SCHEME_GREEN;
+
 
 int defaultPanelTheme;
 float defaultPanelContrast;
 
 void writeThemeAndContrastAsDefault() {
 	json_t *settingsJ = json_object();
+	
+	// defaultPanelTheme
 	json_object_set_new(settingsJ, "themeDefault", json_integer(defaultPanelTheme));
+	
+	// defaultPanelContrast
 	json_object_set_new(settingsJ, "contrastDefault", json_real(defaultPanelContrast));
+	
+	// SCHEME_RED_IM
+	json_t *redImJ = json_array();
+	for (int c = 0; c < 3; c++) {
+		json_array_insert_new(redImJ, c, json_real(SCHEME_RED_IM.rgba[c]));
+	}
+	json_object_set_new(settingsJ, "redLED_RGB", redImJ);
+	
+	// SCHEME_GREEN_IM
+	json_t *greenImJ = json_array();
+	for (int c = 0; c < 3; c++) {
+		json_array_insert_new(greenImJ, c, json_real(SCHEME_GREEN_IM.rgba[c]));
+	}
+	json_object_set_new(settingsJ, "greenLED_RGB", greenImJ);
+	
 	std::string settingsFilename = asset::user("ImpromptuModular.json");
 	FILE *file = fopen(settingsFilename.c_str(), "w");
 	if (file) {
@@ -66,6 +88,7 @@ void readThemeAndContrastFromDefault() {
 		return;
 	}
 	
+	// defaultPanelTheme
 	json_t *themeDefaultJ = json_object_get(settingsJ, "themeDefault");
 	if (themeDefaultJ) {
 		defaultPanelTheme = json_integer_value(themeDefaultJ);
@@ -74,12 +97,33 @@ void readThemeAndContrastFromDefault() {
 		defaultPanelTheme = 0;
 	}
 	
+	// defaultPanelContrast
 	json_t *contrastDefaultJ = json_object_get(settingsJ, "contrastDefault");
 	if (contrastDefaultJ) {
 		defaultPanelContrast = json_number_value(contrastDefaultJ);
 	}
 	else {
 		defaultPanelContrast = panelContrastDefault;
+	}
+	
+	// SCHEME_RED_IM
+	json_t *redImJ = json_object_get(settingsJ, "redLED_RGB");
+	if (redImJ) {
+		for (int c = 0; c < 3; c++) {
+			json_t *redImArrayJ = json_array_get(redImJ, c);
+			if (redImArrayJ)
+				SCHEME_RED_IM.rgba[c] = json_number_value(redImArrayJ);
+		}
+	}
+
+	// SCHEME_GREEN_IM
+	json_t *greenImJ = json_object_get(settingsJ, "greenLED_RGB");
+	if (greenImJ) {
+		for (int c = 0; c < 3; c++) {
+			json_t *greenImArrayJ = json_array_get(greenImJ, c);
+			if (greenImArrayJ)
+				SCHEME_GREEN_IM.rgba[c] = json_number_value(greenImArrayJ);
+		}
 	}
 	
 	fclose(file);
