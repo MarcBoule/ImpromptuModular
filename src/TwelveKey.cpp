@@ -515,7 +515,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		for (int k = 0; k < 12; k++) {
 			Vec keyPos = keyboardPos + mm2px(bigKeysPos[k]);
 			addChild(createPianoKey<PianoKeyBig>(keyPos, k, module ? &module->pkInfo : NULL));
-			addChild(createLightCentered<MediumLight<GreenLight>>(keyPos + offsetLeds, module, TwelveKey::KEY_LIGHTS + k));
+			addChild(createLightCentered<MediumLight<GreenLightIM>>(keyPos + offsetLeds, module, TwelveKey::KEY_LIGHTS + k));
 		}
 
 		
@@ -555,7 +555,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		// Max velocity button and lights
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerL2, rowRuler1), module, TwelveKey::MAXVEL_PARAM, mode));
 		for (int i = 0; i < 5; i++) {
-			addChild(createLightCentered<MediumLight<GreenLight>>(VecPx(colRulerCenter - 15 + 19 * i, rowRuler1), module, TwelveKey::MAXVEL_LIGHTS + i));	
+			addChild(createLightCentered<MediumLight<GreenLightIM>>(VecPx(colRulerCenter - 15 + 19 * i, rowRuler1), module, TwelveKey::MAXVEL_LIGHTS + i));	
 		}		
 
 

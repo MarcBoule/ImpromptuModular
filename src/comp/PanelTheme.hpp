@@ -18,6 +18,7 @@ static constexpr float panelContrastMax = 240.0f;
 extern NVGcolor SCHEME_RED_IM;
 extern NVGcolor SCHEME_GREEN_IM;
 
+
 void readThemeAndContrastFromDefault();
 
 bool isDark(int* panelTheme);

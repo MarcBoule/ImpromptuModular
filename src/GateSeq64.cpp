@@ -1518,7 +1518,7 @@ struct GateSeq64Widget : ModuleWidget {
 			int posX = col0;
 			for (int x = 0; x < 16; x++) {
 				addParam(createParamCentered<LEDButtonGS>(VecPx(posX, row0 + y * spacingRows), module, GateSeq64::STEP_PARAMS + y * 16 + x));
-				addChild(createLightCentered<MediumLight<GreenRedWhiteLight>>(VecPx(posX, row0 + y * spacingRows), module, GateSeq64::STEP_LIGHTS + (y * 16 + x) * 3));
+				addChild(createLightCentered<MediumLight<GreenRedWhiteLightIM>>(VecPx(posX, row0 + y * spacingRows), module, GateSeq64::STEP_LIGHTS + (y * 16 + x) * 3));
 				posX += spacingSteps;
 				if ((x + 1) % 4 == 0)
 					posX += spacingSteps4;
@@ -1534,17 +1534,17 @@ struct GateSeq64Widget : ModuleWidget {
 		static const int colSpacingG = 56;
 		
 		addParam(createParamCentered<LEDButton>(VecPx(col1, row1 + rowSpacingG * 2), module, GateSeq64::GMODE_PARAMS + 2));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(col1, row1 + rowSpacingG * 2), module, GateSeq64::GMODE_LIGHTS + 2 * 2));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(col1, row1 + rowSpacingG * 2), module, GateSeq64::GMODE_LIGHTS + 2 * 2));
 		
 		addParam(createParamCentered<LEDButton>(VecPx(col1, row1 + rowSpacingG), module, GateSeq64::GMODE_PARAMS + 1));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(col1, row1 + rowSpacingG), module, GateSeq64::GMODE_LIGHTS + 1 * 2));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(col1, row1 + rowSpacingG), module, GateSeq64::GMODE_LIGHTS + 1 * 2));
 
 		addParam(createParamCentered<LEDButton>(VecPx(col1, row1), module, GateSeq64::GMODE_PARAMS + 0));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(col1, row1), module, GateSeq64::GMODE_LIGHTS + 0 * 2));		
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(col1, row1), module, GateSeq64::GMODE_LIGHTS + 0 * 2));		
 		
 		for (int x = 1; x < 6; x++) {
 			addParam(createParamCentered<LEDButton>(VecPx(col1 + colSpacingG * x, row1), module, GateSeq64::GMODE_PARAMS + 2 + x));
-			addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(col1 + colSpacingG * x, row1), module, GateSeq64::GMODE_LIGHTS + (2 + x) * 2));
+			addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(col1 + colSpacingG * x, row1), module, GateSeq64::GMODE_LIGHTS + (2 + x) * 2));
 		}
 		
 		
@@ -1572,7 +1572,7 @@ struct GateSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colC1, rowC0), module, GateSeq64::PROB_PARAM, mode));
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colC1, rowC1), module, GateSeq64::RESET_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colC1, rowC1), module, GateSeq64::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(colC1, rowC1), module, GateSeq64::RESET_LIGHT));
 		// Seq CV
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colC1, rowC2), true, module, GateSeq64::SEQCV_INPUT, mode));
 		
@@ -1580,7 +1580,7 @@ struct GateSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(colC2 + 1, rowC0), module, GateSeq64::SEQUENCE_PARAM, mode));		
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colC2, rowC1), module, GateSeq64::RUN_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colC2, rowC1), module, GateSeq64::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(colC2, rowC1), module, GateSeq64::RUN_LIGHT));
 		// Run CV
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colC2, rowC2), true, module, GateSeq64::RUNCV_INPUT, mode));
 

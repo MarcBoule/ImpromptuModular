@@ -902,7 +902,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addChild(displayStep);
 		svgPanel->fb->addChild(new DisplayBackground(displayStep->box.pos, displayStep->box.size, mode));
 		// Gate LED
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colT2, rowT0), module, WriteSeq64::GATE_LIGHT));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colT2, rowT0), module, WriteSeq64::GATE_LIGHT));
 		// Note display
 		NoteDisplayWidget *displayNote = new NoteDisplayWidget();
 		displayNote->box.size = VecPx(98, 30);// 6 characters (ex.: "-1,234")
@@ -934,7 +934,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(colT2 + 110, rowT1 + 6), module, WriteSeq64::QUANTIZE_PARAM, mode, svgPanel));
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(colT2 + 164, rowT1 + 6), module, WriteSeq64::RESET_LIGHT));
 		// Steps knob
 		addParam(createDynamicParamCentered<IMBigKnobInf>(VecPx(colT4, rowT1), module, WriteSeq64::STEPS_PARAM, mode));		
 	
@@ -964,7 +964,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col0 + 15, row0), module, WriteSeq64::PASTE_PARAM, mode));
 		// Paste sync (and light)
 		addParam(createDynamicSwitchCentered<IMSwitch3VInv>(VecPx(col0, row1), module, WriteSeq64::PASTESYNC_PARAM, mode, svgPanel));	
-		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(col0 + 32, row1 + 5), module, WriteSeq64::PENDING_LIGHT));
+		addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(col0 + 32, row1 + 5), module, WriteSeq64::PENDING_LIGHT));
 		// Gate input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0, row2), true, module, WriteSeq64::GATE_INPUT, mode));				
 		// Run CV input
@@ -976,7 +976,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col1, row0), module, WriteSeq64::STEPL_PARAM, mode));
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(col1, row1), module, WriteSeq64::RUN_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col1, row1), module, WriteSeq64::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(col1, row1), module, WriteSeq64::RUN_LIGHT));
 		// CV input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col1, row2), true, module, WriteSeq64::CV_INPUT, mode));
 		// Step L input
@@ -988,7 +988,7 @@ struct WriteSeq64Widget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row0), module, WriteSeq64::STEPR_PARAM, mode));	
 		// Write button and light
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(col2, row1), module, WriteSeq64::WRITE_PARAM, mode));
-		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(col2 - 21, row1 - 21), module, WriteSeq64::WRITE_LIGHT));
+		addChild(createLightCentered<SmallLight<GreenRedLightIM>>(VecPx(col2 - 21, row1 - 21), module, WriteSeq64::WRITE_LIGHT));
 		// Monitor
 		addParam(createDynamicSwitchCentered<IMSwitch2H>(VecPx(col2, row2), module, WriteSeq64::MONITOR_PARAM, mode, svgPanel));
 		// Step R input

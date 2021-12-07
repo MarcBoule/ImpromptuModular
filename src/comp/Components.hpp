@@ -24,6 +24,64 @@ static const NVGcolor colBotD = nvgRGB(128 + colDeltaD, 128 + colDeltaD, 128 + c
 
 
 
+// Lights
+// ----------
+
+struct OrangeLightIM : GrayModuleLightWidget {
+	OrangeLightIM() {
+		addBaseColor(SCHEME_ORANGE);
+	}
+};
+
+struct WhiteLightIM : GrayModuleLightWidget {
+	WhiteLightIM() {
+		addBaseColor(SCHEME_WHITE);
+	}
+};
+
+struct GreenLightIM : GrayModuleLightWidget {
+	GreenLightIM() {
+		addBaseColor(SCHEME_GREEN_IM);
+	}
+};
+
+struct RedLightIM : GrayModuleLightWidget {
+	RedLightIM() {
+		addBaseColor(SCHEME_RED_IM);
+	}
+};
+
+struct GreenRedLightIM : GrayModuleLightWidget {
+	GreenRedLightIM() {
+		addBaseColor(SCHEME_GREEN_IM);
+		addBaseColor(SCHEME_RED_IM);
+	}
+};
+
+struct WhiteBlueLight : GrayModuleLightWidget {
+	WhiteBlueLight() {
+		addBaseColor(SCHEME_WHITE);
+		addBaseColor(SCHEME_BLUE);
+	}
+};
+
+struct YellowGreenLightIM : GrayModuleLightWidget {
+	YellowGreenLightIM() {
+		addBaseColor(SCHEME_YELLOW);
+		addBaseColor(SCHEME_GREEN_IM);
+	}
+};
+
+struct GreenRedWhiteLightIM : GrayModuleLightWidget {
+	GreenRedWhiteLightIM() {
+		addBaseColor(SCHEME_GREEN_IM);
+		addBaseColor(SCHEME_RED_IM);
+		addBaseColor(SCHEME_WHITE);
+	}
+};
+
+
+
 // Helpers
 // ----------------------------------------
 
@@ -102,7 +160,7 @@ struct IMPort : PJ301MPort  {
 // Buttons and switches
 // ----------
 
-struct LEDLightBezelBig : LEDLightBezel<RedLight> {
+struct LEDLightBezelBig : LEDLightBezel<RedLightIM> {
 	TransformWidget *tw;
 	LEDLightBezelBig();
 };
@@ -299,26 +357,6 @@ struct IMSixPosBigKnob : IMBigKnob {
 		speed = 1.3f;
 		minAngle = -0.4 * float(M_PI);
 		maxAngle = 0.4 * float(M_PI);
-	}
-};
-
-
-
-// Lights
-// ----------
-
-struct OrangeLight : GrayModuleLightWidget {
-	OrangeLight() {
-		addBaseColor(SCHEME_ORANGE);
-	}
-};
-
-
-struct GreenRedWhiteLight : GrayModuleLightWidget {
-	GreenRedWhiteLight() {
-		addBaseColor(SCHEME_GREEN_IM);
-		addBaseColor(SCHEME_RED_IM);
-		addBaseColor(SCHEME_WHITE);
 	}
 };
 

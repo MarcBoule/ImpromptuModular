@@ -2101,10 +2101,10 @@ struct PhraseSeq32Widget : ModuleWidget {
 		for (int x = 0; x < 16; x++) {
 			// First row
 			addParam(createParamCentered<LEDButton>(VecPx(posX, rowT0 - 10 + 3 - 4.4f), module, PhraseSeq32::STEP_PHRASE_PARAMS + x));
-			addChild(createLightCentered<MediumLight<GreenRedWhiteLight>>(VecPx(posX, rowT0 - 10 + 3 - 4.4f), module, PhraseSeq32::STEP_PHRASE_LIGHTS + (x * 3)));
+			addChild(createLightCentered<MediumLight<GreenRedWhiteLightIM>>(VecPx(posX, rowT0 - 10 + 3 - 4.4f), module, PhraseSeq32::STEP_PHRASE_LIGHTS + (x * 3)));
 			// Second row
 			addParam(createParamCentered<LEDButton>(VecPx(posX, rowT0 + 10 + 3 - 4.4f), module, PhraseSeq32::STEP_PHRASE_PARAMS + x + 16));
-			addChild(createLightCentered<MediumLight<GreenRedWhiteLight>>(VecPx(posX, rowT0 + 10 + 3 - 4.4f), module, PhraseSeq32::STEP_PHRASE_LIGHTS + ((x + 16) * 3)));
+			addChild(createLightCentered<MediumLight<GreenRedWhiteLightIM>>(VecPx(posX, rowT0 + 10 + 3 - 4.4f), module, PhraseSeq32::STEP_PHRASE_LIGHTS + ((x + 16) * 3)));
 			// step position to next location and handle groups of four
 			posX += spacingSteps;
 			if ((x + 1) % 4 == 0)
@@ -2112,7 +2112,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		}
 		// Attach button and light
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnT3 - 8, rowT0 - 1), module, PhraseSeq32::ATTACH_PARAM, mode));
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnT3 - 8 + 22, rowT0 - 1), module, PhraseSeq32::ATTACH_LIGHT));		
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(columnT3 - 8 + 22, rowT0 - 1), module, PhraseSeq32::ATTACH_LIGHT));		
 		// Config switch
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(columnT4 + 1, rowT0 - 3), module, PhraseSeq32::CONFIG_PARAM, mode, svgPanel));
 
@@ -2124,7 +2124,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		static const float octLightsIntY = 20.0f;
 		for (int i = 0; i < 7; i++) {
 			addParam(createParamCentered<LEDButton>(VecPx(27, 110.6f + i * octLightsIntY), module, PhraseSeq32::OCTAVE_PARAM + i));
-			addChild(createLightCentered<MediumLight<RedLight>>(VecPx(27, 110.6f + i * octLightsIntY), module, PhraseSeq32::OCTAVE_LIGHTS + i));
+			addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(27, 110.6f + i * octLightsIntY), module, PhraseSeq32::OCTAVE_LIGHTS + i));
 		}
 		
 		// Keys and Key lights
@@ -2135,7 +2135,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		for (int k = 0; k < 12; k++) {
 			Vec keyPos = keyboardPos + mm2px(smaKeysPos[k]);
 			addChild(createPianoKey<PianoKeySmall>(keyPos, k, module ? &module->pkInfo : NULL));
-			addChild(createLightCentered<MediumLight<GreenRedLight>>(keyPos + offsetLeds, module, PhraseSeq32::KEY_LIGHTS + k * 2));
+			addChild(createLightCentered<MediumLight<GreenRedLightIM>>(keyPos + offsetLeds, module, PhraseSeq32::KEY_LIGHTS + k * 2));
 		}
 
 		
@@ -2145,9 +2145,9 @@ struct PhraseSeq32Widget : ModuleWidget {
 		static const int colRulerKM = 276;
 		static const int offsetKeyLEDy = 16;
 		addParam(createParamCentered<LEDButton>(VecPx(colRulerKM, KeyBlackY + offsetKeyLEDy + 4.4f), module, PhraseSeq32::KEYNOTE_PARAM));
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colRulerKM,  KeyBlackY + offsetKeyLEDy + 4.4f), module, PhraseSeq32::KEYNOTE_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(colRulerKM,  KeyBlackY + offsetKeyLEDy + 4.4f), module, PhraseSeq32::KEYNOTE_LIGHT));
 		addParam(createParamCentered<LEDButton>(VecPx(colRulerKM, KeyWhiteY + offsetKeyLEDy + 4.4f), module, PhraseSeq32::KEYGATE_PARAM));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerKM,  KeyWhiteY + offsetKeyLEDy + 4.4f), module, PhraseSeq32::KEYGATE_LIGHT));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerKM,  KeyWhiteY + offsetKeyLEDy + 4.4f), module, PhraseSeq32::KEYGATE_LIGHT));
 
 		
 		
@@ -2181,10 +2181,10 @@ struct PhraseSeq32Widget : ModuleWidget {
 		
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(columnMK0 - 43, rowMK2 + 5), module, PhraseSeq32::RESET_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(columnMK0 - 43, rowMK2 + 5), module, PhraseSeq32::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(columnMK0 - 43, rowMK2 + 5), module, PhraseSeq32::RESET_LIGHT));
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(columnMK0 + 3, rowMK2 + 5), module, PhraseSeq32::RUN_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(columnMK0 + 3, rowMK2 + 5), module, PhraseSeq32::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(columnMK0 + 3, rowMK2 + 5), module, PhraseSeq32::RUN_LIGHT));
 		// Copy/paste buttons
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnMK1 - 15, rowMK2 + 5), module, PhraseSeq32::COPY_PARAM, mode));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnMK1 + 15, rowMK2 + 5), module, PhraseSeq32::PASTE_PARAM, mode));
@@ -2205,13 +2205,13 @@ struct PhraseSeq32Widget : ModuleWidget {
 		
 		
 		// Gate 1 light and button
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnMB1 + ledVsButtonDX, rowMB0), module, PhraseSeq32::GATE1_LIGHT));		
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(columnMB1 + ledVsButtonDX, rowMB0), module, PhraseSeq32::GATE1_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMB1, rowMB0), module, PhraseSeq32::GATE1_PARAM, mode));
 		// Gate 2 light and button
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnMB2 + ledVsButtonDX, rowMB0), module, PhraseSeq32::GATE2_LIGHT));		
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(columnMB2 + ledVsButtonDX, rowMB0), module, PhraseSeq32::GATE2_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMB2, rowMB0), module, PhraseSeq32::GATE2_PARAM, mode));
 		// Tie light and button
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnMB3 + ledVsButtonDX, rowMB0), module, PhraseSeq32::TIE_LIGHT));		
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(columnMB3 + ledVsButtonDX, rowMB0), module, PhraseSeq32::TIE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnMB3, rowMB0), module, PhraseSeq32::TIE_PARAM, mode));
 
 						
@@ -2234,12 +2234,12 @@ struct PhraseSeq32Widget : ModuleWidget {
 
 		
 		// Gate 1 probability light and button
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnB0 + ledVsButtonDX, rowB1), module, PhraseSeq32::GATE1_PROB_LIGHT));		
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(columnB0 + ledVsButtonDX, rowB1), module, PhraseSeq32::GATE1_PROB_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnB0, rowB1), module, PhraseSeq32::GATE1_PROB_PARAM, mode));
 		// Gate 1 probability knob
 		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(columnB1, rowB1), module, PhraseSeq32::GATE1_KNOB_PARAM, mode));
 		// Slide light and button
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnB2 + ledVsButtonDX, rowB1), module, PhraseSeq32::SLIDE_LIGHT));		
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(columnB2 + ledVsButtonDX, rowB1), module, PhraseSeq32::SLIDE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnB2, rowB1), module, PhraseSeq32::SLIDE_BTN_PARAM, mode));
 		// Slide knob
 		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(columnB3, rowB1), module, PhraseSeq32::SLIDE_KNOB_PARAM, mode));

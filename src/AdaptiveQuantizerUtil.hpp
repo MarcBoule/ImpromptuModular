@@ -34,34 +34,16 @@ static const NVGcolor AQ_BROWN_RED = nvgRGB(173, 61, 127);// D#
 static const NVGcolor AQ_LIGHT_CYAN = nvgRGB(81, 199, 61);// E
 static const NVGcolor AQ_DARK_RED = nvgRGB(175, 54, 43);// F
 static const NVGcolor AQ_BLUE = nvgRGB(0x29, 0x82, 0xef);// F#
-static const NVGcolor AQ_ORANGE = SCHEME_ORANGE;// G
+static const NVGcolor AQ_ORANGE = nvgRGB(0xf2, 0xb1, 0x20);// G
 static const NVGcolor AQ_LIGHT_PURPLE = nvgRGB(178, 106, 252);// G#
-static const NVGcolor AQ_GREEN = SCHEME_GREEN;// A
+static const NVGcolor AQ_GREEN = nvgRGB(0x90, 0xc7, 0x3e);;// A
 static const NVGcolor AQ_DARK_BLUE = nvgRGB(15, 102, 203);// A#
 static const NVGcolor AQ_OTHER_CYAN = nvgRGB(10, 234, 240);// B (a less agressive cyan)
 
 NVGcolor PitchColors[12] = {AQ_RED_LOW, AQ_DARK_PURPLE, AQ_YELLOW_LOW, AQ_BROWN_RED, AQ_LIGHT_CYAN, AQ_DARK_RED, AQ_BLUE, AQ_ORANGE, AQ_LIGHT_PURPLE, AQ_GREEN, AQ_DARK_BLUE, AQ_OTHER_CYAN};
 
 
-
-struct WhiteBlueLight : GrayModuleLightWidget {
-	WhiteBlueLight() {
-		addBaseColor(SCHEME_WHITE);
-		addBaseColor(SCHEME_BLUE);
-	}
-};
-typedef WhiteBlueLight TargetPitchLight;
-
-
-struct IntervalLight : GrayModuleLightWidget {
-	IntervalLight() {
-		addBaseColor(SCHEME_YELLOW);
-		addBaseColor(SCHEME_GREEN);
-	}
-};
-
-
-struct PitchMatrixLight : WhiteLight {
+struct PitchMatrixLight : WhiteLightIM {
 	bool* showDataTable = NULL;
 	int* qdist;
 	float* weight;
@@ -101,7 +83,7 @@ struct PitchMatrixLight : WhiteLight {
 				}
 			}
 		}
-		WhiteLight::step();
+		WhiteLightIM::step();
 	}
 };
 

@@ -2083,10 +2083,10 @@ struct FoundryWidget : ModuleWidget {
 		for (int x = 0; x < numX; x++) {
 			// First row
 			addParam(createParamCentered<LEDButton>(VecPx(posX, rowRulerT0 - stepsOffsetY), module, Foundry::STEP_PHRASE_PARAMS + x));
-			addChild(createLightCentered<MediumLight<GreenRedWhiteLight>>(VecPx(posX, rowRulerT0 - stepsOffsetY), module, Foundry::STEP_PHRASE_LIGHTS + (x * 3)));
+			addChild(createLightCentered<MediumLight<GreenRedWhiteLightIM>>(VecPx(posX, rowRulerT0 - stepsOffsetY), module, Foundry::STEP_PHRASE_LIGHTS + (x * 3)));
 			// Second row
 			addParam(createParamCentered<LEDButton>(VecPx(posX, rowRulerT0 + stepsOffsetY), module, Foundry::STEP_PHRASE_PARAMS + x + numX));
-			addChild(createLightCentered<MediumLight<GreenRedWhiteLight>>(VecPx(posX, rowRulerT0 + stepsOffsetY), module, Foundry::STEP_PHRASE_LIGHTS + ((x + numX) * 3)));
+			addChild(createLightCentered<MediumLight<GreenRedWhiteLightIM>>(VecPx(posX, rowRulerT0 + stepsOffsetY), module, Foundry::STEP_PHRASE_LIGHTS + ((x + numX) * 3)));
 			// step position to next location and handle groups of four
 			posX += spacingSteps;
 			if ((x + 1) % 4 == 0)
@@ -2113,7 +2113,7 @@ struct FoundryWidget : ModuleWidget {
 		static const int rowRulerOct = 111;
 		for (int i = 0; i < 7; i++) {
 			addParam(createParamCentered<LEDButton>(VecPx(columnRulerT0, rowRulerOct + i * octLightsIntY), module, Foundry::OCTAVE_PARAM + i));
-			addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnRulerT0, rowRulerOct + i * octLightsIntY), module, Foundry::OCTAVE_LIGHTS + i));
+			addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(columnRulerT0, rowRulerOct + i * octLightsIntY), module, Foundry::OCTAVE_LIGHTS + i));
 		}
 		
 		// Keys and Key lights
@@ -2124,7 +2124,7 @@ struct FoundryWidget : ModuleWidget {
 		for (int k = 0; k < 12; k++) {
 			Vec keyPos = keyboardPos + mm2px(smaKeysPos[k]);
 			addChild(createPianoKey<PianoKeySmall>(keyPos, k, module ? &module->pkInfo : NULL));
-			addChild(createLightCentered<MediumLight<GreenRedLight>>(keyPos + offsetLeds, module, Foundry::KEY_LIGHTS + k * 2));
+			addChild(createLightCentered<MediumLight<GreenRedLightIM>>(keyPos + offsetLeds, module, Foundry::KEY_LIGHTS + k * 2));
 		}
 
 
@@ -2149,8 +2149,8 @@ struct FoundryWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<VelocityKnob>(VecPx(colRulerVel, rowRulerKnobs), module, Foundry::VEL_KNOB_PARAM, mode));	
 		// Veocity mode button and lights
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerVel - trkButtonsOffsetX - 2, rowRulerSmallButtons), module, Foundry::VEL_EDIT_PARAM, mode));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerVel + 4, rowRulerSmallButtons), module, Foundry::VEL_PROB_LIGHT));
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colRulerVel + 20, rowRulerSmallButtons), module, Foundry::VEL_SLIDE_LIGHT));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerVel + 4, rowRulerSmallButtons), module, Foundry::VEL_PROB_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(colRulerVel + 20, rowRulerSmallButtons), module, Foundry::VEL_SLIDE_LIGHT));
 		
 
 		// Seq edit display 
@@ -2193,7 +2193,7 @@ struct FoundryWidget : ModuleWidget {
 	
 		// Attach button and light
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(columnRulerT5 - 10, rowRulerDisp + 14), module, Foundry::ATTACH_PARAM, mode));
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnRulerT5 + 10, rowRulerDisp + 14), module, Foundry::ATTACH_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(columnRulerT5 + 10, rowRulerDisp + 14), module, Foundry::ATTACH_LIGHT));
 	
 	
 		// ****** Gate and slide section ******
@@ -2208,17 +2208,17 @@ struct FoundryWidget : ModuleWidget {
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(VecPx(colRulerKM, rowRulerMB0), module, Foundry::KEY_GATE_PARAM, mode, svgPanel));
 		
 		// Gate 1 light and button
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnRulerMB1 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_LIGHT));		
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(columnRulerMB1 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerMB1, rowRulerMB0), module, Foundry::GATE_PARAM, mode));
 		// Tie light and button
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(columnRulerMB2 + posLEDvsButton, rowRulerMB0), module, Foundry::TIE_LIGHT));		
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(columnRulerMB2 + posLEDvsButton, rowRulerMB0), module, Foundry::TIE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerMB2, rowRulerMB0), module, Foundry::TIE_PARAM, mode));
 		// Gate 1 probability light and button
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(columnRulerMB3 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_PROB_LIGHT));		
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(columnRulerMB3 + posLEDvsButton, rowRulerMB0), module, Foundry::GATE_PROB_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(columnRulerMB3, rowRulerMB0), module, Foundry::GATE_PROB_PARAM, mode));
 		
 		// Slide light and button
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colRulerVel + posLEDvsButton, rowRulerMB0), module, Foundry::SLIDE_LIGHT));		
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(colRulerVel + posLEDvsButton, rowRulerMB0), module, Foundry::SLIDE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerVel, rowRulerMB0), module, Foundry::SLIDE_BTN_PARAM, mode));
 		// Mode button
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colRulerEditPhr, rowRulerMB0), module, Foundry::MODE_PARAM, mode));
@@ -2231,10 +2231,10 @@ struct FoundryWidget : ModuleWidget {
 		static const int colRulerResetRun = columnRulerT5;
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colRulerResetRun, rowRulerSmallButtons - 6), module, Foundry::RUN_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colRulerResetRun, rowRulerSmallButtons - 6), module, Foundry::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(colRulerResetRun, rowRulerSmallButtons - 6), module, Foundry::RUN_LIGHT));
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colRulerResetRun, rowRulerMB0), module, Foundry::RESET_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colRulerResetRun, rowRulerMB0), module, Foundry::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(colRulerResetRun, rowRulerMB0), module, Foundry::RESET_LIGHT));
 		
 
 
@@ -2268,16 +2268,16 @@ struct FoundryWidget : ModuleWidget {
 		static const int writeLEDoffsetX = 16;
 		static const int writeLEDoffsetY = 18;
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB1, rowRulerBHigh), true, module, Foundry::CV_INPUTS + 0, mode));
-		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(columnRulerB1 + writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 0));
+		addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(columnRulerB1 + writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 0));
 		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB2, rowRulerBHigh), true, module, Foundry::CV_INPUTS + 2, mode));
-		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(columnRulerB2 - writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 2));
+		addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(columnRulerB2 - writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 2));
 
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB1, rowRulerBLow), true, module, Foundry::CV_INPUTS + 1, mode));
-		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(columnRulerB1 + writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 1));
+		addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(columnRulerB1 + writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 1));
 
 		addInput(createDynamicPortCentered<IMPort>(VecPx(columnRulerB2, rowRulerBLow), true, module, Foundry::CV_INPUTS + 3, mode));
-		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(columnRulerB2 - writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 3));
+		addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(columnRulerB2 - writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, Foundry::WRITECV_LIGHTS + 3));
 		
 		// Clock+CV+Gate+Vel outputs
 		// Track A

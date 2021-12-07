@@ -403,7 +403,7 @@ struct HotkeyWidget : ModuleWidget {
 		SvgSwitch *ledBez;
 		addParam(ledBez = createParamCentered<LEDBezel>(VecPx(centerX, buttonY), module, Hotkey::RECORD_KEY_PARAM));
 		ledBez->momentary = false;
-		addChild(createLightCentered<LEDBezelLight<GreenRedLight>>(VecPx(centerX, buttonY), module, Hotkey::RECORD_KEY_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenRedLightIM>>(VecPx(centerX, buttonY), module, Hotkey::RECORD_KEY_LIGHT));
 		
 		// Delay knob
 		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(centerX, 220.0f), module, Hotkey::DELAY_PARAM, mode));

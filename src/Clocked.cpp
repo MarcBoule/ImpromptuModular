@@ -1128,15 +1128,15 @@ struct ClockedWidget : ModuleWidget {
 		// Row 1
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(col0, row1), module, Clocked::RESET_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col0, row1), module, Clocked::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(col0, row1), module, Clocked::RESET_LIGHT));
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(col1, row1), module, Clocked::RUN_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(col1, row1), module, Clocked::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(col1, row1), module, Clocked::RUN_LIGHT));
 		// BPM mode buttons
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col2 - 12, row1), module, Clocked::BPMMODE_DOWN_PARAM, mode));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(col2 + 12, row1), module, Clocked::BPMMODE_UP_PARAM, mode));
 		// BPM mode light
-		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(col2, row1 + 15), module, Clocked::BPMSYNC_LIGHT));		
+		addChild(createLightCentered<SmallLight<GreenRedLightIM>>(VecPx(col2, row1 + 15), module, Clocked::BPMSYNC_LIGHT));		
 		// Swing master knob
 		addParam(createDynamicParamCentered<IMSmallKnobNotify>(VecPx(col3, row1), module, Clocked::SWING_PARAMS + 0, mode));
 		// PW master knob
@@ -1158,7 +1158,7 @@ struct ClockedWidget : ModuleWidget {
 			addChild(displayRatios[i + 1]);
 			svgPanel->fb->addChild(new DisplayBackground(displayRatios[i + 1]->box.pos, displayRatios[i + 1]->box.size, mode));
 			// Sync light
-			addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colM1 + 54, row2 + i * rowSpacingClks), module, Clocked::CLK_LIGHTS + i + 1));		
+			addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(colM1 + 54, row2 + i * rowSpacingClks), module, Clocked::CLK_LIGHTS + i + 1));		
 			// Swing knobs
 			addParam(createDynamicParamCentered<IMSmallKnobNotify>(VecPx(colM2, row2 + i * rowSpacingClks), module, Clocked::SWING_PARAMS + 1 + i, mode));
 			// PW knobs

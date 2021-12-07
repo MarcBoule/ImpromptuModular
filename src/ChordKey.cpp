@@ -868,13 +868,13 @@ struct ChordKeyWidget : ModuleWidget {
 			addChild(createPianoKey<PianoKeyBig>(keyPos, k, module ? &module->pkInfo : NULL));
 			
 			Vec offsetLeds = Vec(PianoKeyBig::sizeX * 0.5f, PianoKeyBig::sizeY * 1.0f / 8.0f);
-			addChild(createLightCentered<SmallLight<RedLight>>(keyPos + offsetLeds, module, ChordKey::KEY_LIGHTS + k * 4 + 0));
+			addChild(createLightCentered<SmallLight<RedLightIM>>(keyPos + offsetLeds, module, ChordKey::KEY_LIGHTS + k * 4 + 0));
 			offsetLeds.y = PianoKeyBig::sizeY * 3.0f / 8.0f;
-			addChild(createLightCentered<SmallLight<OrangeLight>>(keyPos + offsetLeds, module, ChordKey::KEY_LIGHTS + k * 4 + 1));
+			addChild(createLightCentered<SmallLight<OrangeLightIM>>(keyPos + offsetLeds, module, ChordKey::KEY_LIGHTS + k * 4 + 1));
 			offsetLeds.y = PianoKeyBig::sizeY * 5.0f / 8.0f;
 			addChild(createLightCentered<SmallLight<YellowLight>>(keyPos + offsetLeds, module, ChordKey::KEY_LIGHTS + k * 4 + 2));
 			offsetLeds.y = PianoKeyBig::sizeY * 7.0f / 8.0f;
-			addChild(createLightCentered<SmallLight<GreenLight>>(keyPos + offsetLeds, module, ChordKey::KEY_LIGHTS + k * 4 + 3));
+			addChild(createLightCentered<SmallLight<GreenLightIM>>(keyPos + offsetLeds, module, ChordKey::KEY_LIGHTS + k * 4 + 3));
 		
 		}
 

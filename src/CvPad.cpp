@@ -930,7 +930,7 @@ struct CvPadWidget : ModuleWidget {
 				// pad
 				addParam(createParamCentered<Pad>(VecPx(padX + padXd * x, padY + padYd * y), module, CvPad::PAD_PARAMS + y * 4 + x));
 				// light
-				addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(padX + padXd * x, padY + padYd * y - ledOffsetY), module, CvPad::PAD_LIGHTS + (y * 4 + x) * 2 + 0));
+				addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(padX + padXd * x, padY + padYd * y - ledOffsetY), module, CvPad::PAD_LIGHTS + (y * 4 + x) * 2 + 0));
 			}
 		}
 		

@@ -176,21 +176,21 @@ struct FoundryExpanderWidget : ModuleWidget {
 		
 		// before-last row
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBHigh), true, module, FoundryExpander::VEL_INPUTS + 0, mode));
-		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp - colOffsetX + writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 0));
+		addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(colRulerExp - colOffsetX + writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 0));
 		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBHigh), true, module, FoundryExpander::VEL_INPUTS + 2, mode));
-		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp - writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 2));
+		addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(colRulerExp - writeLEDoffsetX, rowRulerBHigh + writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 2));
 
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerExp + colOffsetX, rowRulerBHigh + 18), module, FoundryExpander::WRITEMODE_PARAM, mode));
-		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp + colOffsetX - 12, rowRulerBHigh + 3), module, FoundryExpander::WRITE_SEL_LIGHTS + 0));
-		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp + colOffsetX + 12, rowRulerBHigh + 3), module, FoundryExpander::WRITE_SEL_LIGHTS + 1));
+		addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(colRulerExp + colOffsetX - 12, rowRulerBHigh + 3), module, FoundryExpander::WRITE_SEL_LIGHTS + 0));
+		addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(colRulerExp + colOffsetX + 12, rowRulerBHigh + 3), module, FoundryExpander::WRITE_SEL_LIGHTS + 1));
 		
 		// last row
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp - colOffsetX, rowRulerBLow), true, module, FoundryExpander::VEL_INPUTS + 1, mode));
-		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp - colOffsetX + writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 1));
+		addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(colRulerExp - colOffsetX + writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 1));
 
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerBLow), true, module, FoundryExpander::VEL_INPUTS + 3, mode));
-		addChild(createLightCentered<SmallLight<RedLight>>(VecPx(colRulerExp - writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 3));
+		addChild(createLightCentered<SmallLight<RedLightIM>>(VecPx(colRulerExp - writeLEDoffsetX, rowRulerBLow - writeLEDoffsetY), module, FoundryExpander::WRITECV2_LIGHTS + 3));
 		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp + colOffsetX, rowRulerBLow), true, module, FoundryExpander::WRITE_SRC_INPUT, mode));
 	}

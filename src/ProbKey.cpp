@@ -1507,13 +1507,13 @@ struct ProbKeyWidget : ModuleWidget {
 			addChild(createPianoKey<PianoKeyBig>(keyPos, k, module ? &module->pkInfo : NULL));
 		
 			Vec offsetLeds = Vec(PianoKeyBig::sizeX * 0.5f, PianoKeyBig::sizeY * 7.0f / 8.0f);
-			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(keyPos + offsetLeds, module, ProbKey::KEY_LIGHTS + k * (4 * 3) + 0 * 3));
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLightIM>>(keyPos + offsetLeds, module, ProbKey::KEY_LIGHTS + k * (4 * 3) + 0 * 3));
 			offsetLeds.y = PianoKeyBig::sizeY * 5.0f / 8.0f;
-			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(keyPos + offsetLeds, module, ProbKey::KEY_LIGHTS + k * (4 * 3) + 1 * 3)); \
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLightIM>>(keyPos + offsetLeds, module, ProbKey::KEY_LIGHTS + k * (4 * 3) + 1 * 3)); \
 			offsetLeds.y = PianoKeyBig::sizeY * 3.0f / 8.0f;
-			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(keyPos + offsetLeds, module, ProbKey::KEY_LIGHTS + k * (4 * 3) + 2 * 3)); \
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLightIM>>(keyPos + offsetLeds, module, ProbKey::KEY_LIGHTS + k * (4 * 3) + 2 * 3)); \
 			offsetLeds.y = PianoKeyBig::sizeY * 1.0f / 8.0f;
-			addChild(createLightCentered<SmallLight<GreenRedWhiteLight>>(keyPos + offsetLeds, module, ProbKey::KEY_LIGHTS + k * (4 * 3) + 3 * 3));
+			addChild(createLightCentered<SmallLight<GreenRedWhiteLightIM>>(keyPos + offsetLeds, module, ProbKey::KEY_LIGHTS + k * (4 * 3) + 3 * 3));
 		}
 
 		
@@ -1549,7 +1549,7 @@ struct ProbKeyWidget : ModuleWidget {
 
 		// density knob, led and input
 		addParam(createDynamicParamCentered<IMMediumKnob>(mm2px(Vec(col1, row0)), module, ProbKey::DENSITY_PARAM, mode));	
-		addChild(createLightCentered<SmallLight<GreenRedLight>>(mm2px(Vec(col1 - 4.5f, row1 - 6.3f)), module, ProbKey::DENSITY_LIGHT));			
+		addChild(createLightCentered<SmallLight<GreenRedLightIM>>(mm2px(Vec(col1 - 4.5f, row1 - 6.3f)), module, ProbKey::DENSITY_LIGHT));			
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row1)), true, module, ProbKey::DENSITY_INPUT, mode));
 
 		// Hold input
@@ -1582,7 +1582,7 @@ struct ProbKeyWidget : ModuleWidget {
 
 		// Lock knob, led, button and input
 		addParam(createDynamicParamCentered<IMBigKnob>(mm2px(Vec(col4, row0 + 1.0f)), module, ProbKey::LOCK_KNOB_PARAM, mode));
-		addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(col4 - 5.0f, row1 + 4.0f - 6.8f)), module, ProbKey::LOCK_LIGHT));	
+		addChild(createLightCentered<SmallLight<RedLightIM>>(mm2px(Vec(col4 - 5.0f, row1 + 4.0f - 6.8f)), module, ProbKey::LOCK_LIGHT));	
 		addParam(createDynamicParamCentered<IMBigPushButton>(mm2px(Vec(col4, row1 + 4.0f)), module, ProbKey::LOCK_BUTTON_PARAM, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col4, row2)), true, module, ProbKey::LOCK_INPUT, mode));
 
@@ -1611,15 +1611,15 @@ struct ProbKeyWidget : ModuleWidget {
 
 		// Mode led-button - MODE_PROB
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col6, rowm1 - 2.0f * r6dy)), module, ProbKey::MODE_PARAMS + ProbKey::MODE_PROB));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(mm2px(Vec(col6, rowm1 - 2.0f * r6dy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_PROB * 2));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(mm2px(Vec(col6, rowm1 - 2.0f * r6dy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_PROB * 2));
 
 		// Mode led-button - MODE_ANCHOR
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col6, rowm1 - 1.0f * r6dy)), module, ProbKey::MODE_PARAMS + ProbKey::MODE_ANCHOR));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(mm2px(Vec(col6, rowm1 - 1.0f * r6dy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_ANCHOR * 2));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(mm2px(Vec(col6, rowm1 - 1.0f * r6dy)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_ANCHOR * 2));
 
 		// Mode led-button - MODE_RANGE
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col6, rowm1)), module, ProbKey::MODE_PARAMS + ProbKey::MODE_RANGE));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(mm2px(Vec(col6, rowm1)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_RANGE * 2));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(mm2px(Vec(col6, rowm1)), module, ProbKey::MODE_LIGHTS + ProbKey::MODE_RANGE * 2));
 
 		// Copy-paste buttons
 		addParam(createDynamicParamCentered<IMPushButton>(mm2px(Vec(col6, row0)), module, ProbKey::COPY_PARAM, mode));		

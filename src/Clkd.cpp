@@ -933,10 +933,10 @@ struct ClkdWidget : ModuleWidget {
 		// Row 1
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colL, row1), module, Clkd::RESET_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colL, row1), module, Clkd::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(colL, row1), module, Clkd::RESET_LIGHT));
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colC, row1), module, Clkd::RUN_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colC, row1), module, Clkd::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(colC, row1), module, Clkd::RUN_LIGHT));
 		// Master BPM knob
 		BpmKnob *bpmKnob;
 		addParam(bpmKnob = createDynamicParamCentered<BpmKnob>(VecPx(colR, row1), module, Clkd::BPM_PARAM, mode));// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)
@@ -947,9 +947,9 @@ struct ClkdWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colL, row2), false, module, Clkd::CLK_OUTPUTS + 0, mode));
 		// Display index lights
 		static const int delY = 10;
-		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(colC - 10.5f, row2  -2 * delY - 4 ), module, Clkd::CLK_LIGHTS + 0 * 2));		
+		addChild(createLightCentered<SmallLight<GreenRedLightIM>>(VecPx(colC - 10.5f, row2  -2 * delY - 4 ), module, Clkd::CLK_LIGHTS + 0 * 2));		
 		for (int y = 1; y < 4; y++) {
-			addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(colC - 10.5f, row2 + delY * (y - 2) ), module, Clkd::CLK_LIGHTS + y * 2));		
+			addChild(createLightCentered<SmallLight<GreenRedLightIM>>(VecPx(colC - 10.5f, row2 + delY * (y - 2) ), module, Clkd::CLK_LIGHTS + y * 2));		
 		}
 		// BPM display
 		BpmRatioDisplayWidget *bpmRatioDisplay = new BpmRatioDisplayWidget();
@@ -966,7 +966,7 @@ struct ClkdWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colL - 4, row3), module, Clkd::DISPLAY_DOWN_PARAM, mode));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colL + bspaceX - 4, row3), module, Clkd::DISPLAY_UP_PARAM, mode));
 		// BPM mode light
-		addChild(createLightCentered<SmallLight<GreenRedLight>>(VecPx(colC, row3), module, Clkd::BPMSYNC_LIGHT));		
+		addChild(createLightCentered<SmallLight<GreenRedLightIM>>(VecPx(colC, row3), module, Clkd::BPMSYNC_LIGHT));		
 		// BPM mode buttons
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colR - bspaceX + 4, row3), module, Clkd::BPMMODE_DOWN_PARAM, mode));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colR + 4, row3), module, Clkd::BPMMODE_UP_PARAM, mode));

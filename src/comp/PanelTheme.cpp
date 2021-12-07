@@ -26,14 +26,14 @@ void writeThemeAndContrastAsDefault() {
 	// SCHEME_RED_IM
 	json_t *redImJ = json_array();
 	for (int c = 0; c < 3; c++) {
-		json_array_insert_new(redImJ, c, json_real(SCHEME_RED_IM.rgba[c]));
+		json_array_insert_new(redImJ, c, json_integer(std::round(SCHEME_RED_IM.rgba[c] * 255.0f)));
 	}
 	json_object_set_new(settingsJ, "redLED_RGB", redImJ);
 	
 	// SCHEME_GREEN_IM
 	json_t *greenImJ = json_array();
 	for (int c = 0; c < 3; c++) {
-		json_array_insert_new(greenImJ, c, json_real(SCHEME_GREEN_IM.rgba[c]));
+		json_array_insert_new(greenImJ, c, json_integer(std::round(SCHEME_GREEN_IM.rgba[c] * 255.0f)));
 	}
 	json_object_set_new(settingsJ, "greenLED_RGB", greenImJ);
 	
@@ -112,7 +112,7 @@ void readThemeAndContrastFromDefault() {
 		for (int c = 0; c < 3; c++) {
 			json_t *redImArrayJ = json_array_get(redImJ, c);
 			if (redImArrayJ)
-				SCHEME_RED_IM.rgba[c] = json_number_value(redImArrayJ);
+				SCHEME_RED_IM.rgba[c] = ((float)json_integer_value(redImArrayJ)) / 255.0f;
 		}
 	}
 
@@ -122,7 +122,7 @@ void readThemeAndContrastFromDefault() {
 		for (int c = 0; c < 3; c++) {
 			json_t *greenImArrayJ = json_array_get(greenImJ, c);
 			if (greenImArrayJ)
-				SCHEME_GREEN_IM.rgba[c] = json_number_value(greenImArrayJ);
+				SCHEME_GREEN_IM.rgba[c] = ((float)json_integer_value(greenImArrayJ)) / 255.0f;
 		}
 	}
 	

@@ -865,10 +865,10 @@ struct BigButtonSeq2Widget : ModuleWidget {
 
 
 		// Metronome light
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT0, rowRuler2), module, BigButtonSeq2::METRONOME_LIGHT + 0));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerT0, rowRuler2), module, BigButtonSeq2::METRONOME_LIGHT + 0));
 		// Mem fill LED button
 		addParam(createParamCentered<LEDButton>(VecPx(colRulerT5, rowRuler2), module, BigButtonSeq2::WRITEFILL_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLight>>(VecPx(colRulerT5, rowRuler2), module, BigButtonSeq2::WRITEFILL_LIGHT));
+		addChild(createLightCentered<MediumLight<GreenLightIM>>(VecPx(colRulerT5, rowRuler2), module, BigButtonSeq2::WRITEFILL_LIGHT));
 		// CV Input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerT6, rowRuler2), true, module, BigButtonSeq2::CV_INPUT, mode));		
 
@@ -890,13 +890,13 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerT5, rowRuler5 + knobCVjackOffsetY), true, module, BigButtonSeq2::FILL_INPUT, mode));
 
 		// And now time for... BIG BUTTON!
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colRulerCenter, rowRuler5 - 11), module, BigButtonSeq2::BIG_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(colRulerCenter, rowRuler5 - 11), module, BigButtonSeq2::BIG_LIGHT));
 		addParam(createLightParamCentered<LEDLightBezelBig>(VecPx(colRulerCenter, rowRuler5 + 26), module, BigButtonSeq2::BIG_PARAM, BigButtonSeq2::BIGC_LIGHT));
 		// Big CV input
 		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerCenter - clearAndDelButtonOffsetX, rowRuler5 + knobCVjackOffsetY), true, module, BigButtonSeq2::BIG_INPUT, mode));
 		// Big snap
 		addParam(createParamCentered<LEDButton>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler5 + knobCVjackOffsetY), module, BigButtonSeq2::QUANTIZEBIG_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLight>>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler5 + knobCVjackOffsetY), module, BigButtonSeq2::QUANTIZEBIG_LIGHT));
+		addChild(createLightCentered<MediumLight<GreenLightIM>>(VecPx(colRulerCenter + clearAndDelButtonOffsetX, rowRuler5 + knobCVjackOffsetY), module, BigButtonSeq2::QUANTIZEBIG_LIGHT));
 
 		// Clear button and jack
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colRulerT6, rowRuler5), module, BigButtonSeq2::CLEAR_PARAM, mode));	
@@ -907,12 +907,12 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		static const int rowRuler10 = 288;
 		static const int ledOffsetY = -28;
 		static const int gateOffsetY = 42;
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT0, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 0));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT1, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 2));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT2, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 4));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT3, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 6));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT4, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 8));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerT5, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 10));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerT0, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 0));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerT1, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 2));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerT2, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 4));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerT3, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 6));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerT4, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 8));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerT5, rowRuler10 + ledOffsetY), module, BigButtonSeq2::CHAN_LIGHTS + 10));
 		// CV Outputs
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT0, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 0, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(colRulerT1, rowRuler10), false, module, BigButtonSeq2::CV_OUTPUTS + 1, mode));
@@ -930,7 +930,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		
 		// S&H LED button
 		addParam(createParamCentered<LEDButton>(VecPx(colRulerT6 + 2, rowRuler10 + gateOffsetY / 2), module, BigButtonSeq2::SAMPLEHOLD_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLight>>(VecPx(colRulerT6 + 2, rowRuler10 + gateOffsetY / 2), module, BigButtonSeq2::SAMPLEHOLD_LIGHT));
+		addChild(createLightCentered<MediumLight<GreenLightIM>>(VecPx(colRulerT6 + 2, rowRuler10 + gateOffsetY / 2), module, BigButtonSeq2::SAMPLEHOLD_LIGHT));
 	}
 };
 

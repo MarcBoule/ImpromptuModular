@@ -2256,7 +2256,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		for (int x = 0; x < 16; x++) {
 			// First row
 			addParam(createParamCentered<LEDButton>(VecPx(posX, rowT0 + 2), module, SemiModularSynth::STEP_PHRASE_PARAMS + x));
-			addChild(createLightCentered<MediumLight<GreenRedWhiteLight>>(VecPx(posX, rowT0 + 2), module, SemiModularSynth::STEP_PHRASE_LIGHTS + (x * 3)));
+			addChild(createLightCentered<MediumLight<GreenRedWhiteLightIM>>(VecPx(posX, rowT0 + 2), module, SemiModularSynth::STEP_PHRASE_LIGHTS + (x * 3)));
 			// step position to next location and handle groups of four
 			posX += spacingSteps;
 			if ((x + 1) % 4 == 0)
@@ -2264,15 +2264,15 @@ struct SemiModularSynthWidget : ModuleWidget {
 		}
 		// Attach button and light
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colT3, rowT0 + 7.4f), module, SemiModularSynth::ATTACH_PARAM, mode));
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colT3 + 22, rowT0 + 7.4f), module, SemiModularSynth::ATTACH_LIGHT));		
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(colT3 + 22, rowT0 + 7.4f), module, SemiModularSynth::ATTACH_LIGHT));		
 
 		
 		// Key mode LED buttons	
 		static const float rowKM = 78.6f + 4.0f;
 		addParam(createParamCentered<LEDButton>(VecPx(252 + 4, rowKM), module, SemiModularSynth::KEYNOTE_PARAM));
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(252 + 4, rowKM), module, SemiModularSynth::KEYNOTE_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(252 + 4, rowKM), module, SemiModularSynth::KEYNOTE_LIGHT));
 		addParam(createParamCentered<LEDButton>(VecPx(140 + 4, rowKM), module, SemiModularSynth::KEYGATE_PARAM));
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(140 + 4, rowKM), module, SemiModularSynth::KEYGATE_LIGHT));
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(140 + 4, rowKM), module, SemiModularSynth::KEYGATE_LIGHT));
 		
 		
 		
@@ -2282,7 +2282,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		static const float octLightsIntY = 20.0f;
 		for (int i = 0; i < 7; i++) {
 			addParam(createParamCentered<LEDButton>(VecPx(27 + 4, 110.6f + 4 + i * octLightsIntY), module, SemiModularSynth::OCTAVE_PARAM + i));
-			addChild(createLightCentered<MediumLight<RedLight>>(VecPx(27 + 4, 110.6f + 4 + i * octLightsIntY), module, SemiModularSynth::OCTAVE_LIGHTS + i));
+			addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(27 + 4, 110.6f + 4 + i * octLightsIntY), module, SemiModularSynth::OCTAVE_LIGHTS + i));
 		}
 		
 		// Keys and Key lights
@@ -2293,7 +2293,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		for (int k = 0; k < 12; k++) {
 			Vec keyPos = keyboardPos + mm2px(smaKeysPos[k]);
 			addChild(createPianoKey<PianoKeySmall>(keyPos, k, module ? &module->pkInfo : NULL));
-			addChild(createLightCentered<MediumLight<GreenRedLight>>(keyPos + offsetLeds, module, SemiModularSynth::KEY_LIGHTS + k * 2));
+			addChild(createLightCentered<MediumLight<GreenRedLightIM>>(keyPos + offsetLeds, module, SemiModularSynth::KEY_LIGHTS + k * 2));
 		}
 
 		
@@ -2323,7 +2323,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		
 		// Run LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colMK0, rowMK1 + 7), module, SemiModularSynth::RUN_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colMK0, rowMK1 + 7), module, SemiModularSynth::RUN_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(colMK0, rowMK1 + 7), module, SemiModularSynth::RUN_LIGHT));
 		// Sequence knob
 		addParam(createDynamicParamCentered<SequenceKnob>(VecPx(colMK1 + 1, rowMK0 + 55), module, SemiModularSynth::SEQUENCE_PARAM, mode));		
 		// Transpose/rotate button
@@ -2331,7 +2331,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(VecPx(colMK0, rowMK2 + 5), module, SemiModularSynth::RESET_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(VecPx(colMK0, rowMK2 + 5), module, SemiModularSynth::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(VecPx(colMK0, rowMK2 + 5), module, SemiModularSynth::RESET_LIGHT));
 		// Copy/paste buttons
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 - 15, rowMK2 + 5), module, SemiModularSynth::COPY_PARAM, mode));
 		addParam(createDynamicParamCentered<IMPushButton>(VecPx(colMK1 + 15, rowMK2 + 5), module, SemiModularSynth::PASTE_PARAM, mode));
@@ -2350,13 +2350,13 @@ struct SemiModularSynthWidget : ModuleWidget {
 		static const int ledVsButtonDX = 27;
 		
 		// Gate 1 light and button
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colMB1 + ledVsButtonDX, rowMB0), module, SemiModularSynth::GATE1_LIGHT));		
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colMB1 + ledVsButtonDX, rowMB0), module, SemiModularSynth::GATE1_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colMB1, rowMB0), module, SemiModularSynth::GATE1_PARAM, mode));
 		// Gate 2 light and button
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colMB2 + ledVsButtonDX, rowMB0), module, SemiModularSynth::GATE2_LIGHT));		
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colMB2 + ledVsButtonDX, rowMB0), module, SemiModularSynth::GATE2_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colMB2, rowMB0), module, SemiModularSynth::GATE2_PARAM, mode));
 		// Tie light and button
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colMB3 + ledVsButtonDX, rowMB0), module, SemiModularSynth::TIE_LIGHT));		
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(colMB3 + ledVsButtonDX, rowMB0), module, SemiModularSynth::TIE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colMB3, rowMB0), module, SemiModularSynth::TIE_PARAM, mode));
 
 						
@@ -2378,12 +2378,12 @@ struct SemiModularSynthWidget : ModuleWidget {
 
 		
 		// Gate 1 probability light and button
-		addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colB0 + ledVsButtonDX, rowB1), module, SemiModularSynth::GATE1_PROB_LIGHT));		
+		addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colB0 + ledVsButtonDX, rowB1), module, SemiModularSynth::GATE1_PROB_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colB0, rowB1), module, SemiModularSynth::GATE1_PROB_PARAM, mode));
 		// Gate 1 probability knob
 		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(colB1, rowB1), module, SemiModularSynth::GATE1_KNOB_PARAM, mode));
 		// Slide light and button
-		addChild(createLightCentered<MediumLight<RedLight>>(VecPx(colB2 + ledVsButtonDX, rowB1), module, SemiModularSynth::SLIDE_LIGHT));		
+		addChild(createLightCentered<MediumLight<RedLightIM>>(VecPx(colB2 + ledVsButtonDX, rowB1), module, SemiModularSynth::SLIDE_LIGHT));		
 		addParam(createDynamicParamCentered<IMBigPushButton>(VecPx(colB2, rowB1), module, SemiModularSynth::SLIDE_BTN_PARAM, mode));
 		// Slide knob
 		addParam(createDynamicParamCentered<IMSmallKnob>(VecPx(colB3, rowB1), module, SemiModularSynth::SLIDE_KNOB_PARAM, mode));

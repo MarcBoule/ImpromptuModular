@@ -471,8 +471,8 @@ struct TactWidget : ModuleWidget {
 				
 		// Tactile lights
 		for (int i = 0 ; i < Tact::numLights; i++) {
-			addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerLedL, rowRuler0 + lightsOffsetY + i * lightsSpacingY), module, Tact::TACT_LIGHTS + i * 2));
-			addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerLedR, rowRuler0 + lightsOffsetY + i * lightsSpacingY), module, Tact::TACT_LIGHTS + (Tact::numLights + i) * 2));
+			addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerLedL, rowRuler0 + lightsOffsetY + i * lightsSpacingY), module, Tact::TACT_LIGHTS + i * 2));
+			addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerLedR, rowRuler0 + lightsOffsetY + i * lightsSpacingY), module, Tact::TACT_LIGHTS + (Tact::numLights + i) * 2));
 		}
 
 		
@@ -545,8 +545,8 @@ struct TactWidget : ModuleWidget {
 
 		
 		// Lights
-		addChild(createLightCentered<SmallLight<GreenLight>>(VecPx(colC - 48, row2 - 21), module, Tact::CVIN_LIGHTS + 0 * 2));		
-		addChild(createLightCentered<SmallLight<GreenLight>>(VecPx(colC + 48, row2 - 21), module, Tact::CVIN_LIGHTS + 1 * 2));		
+		addChild(createLightCentered<SmallLight<GreenLightIM>>(VecPx(colC - 48, row2 - 21), module, Tact::CVIN_LIGHTS + 0 * 2));		
+		addChild(createLightCentered<SmallLight<GreenLightIM>>(VecPx(colC + 48, row2 - 21), module, Tact::CVIN_LIGHTS + 1 * 2));		
 	}
 };
 
@@ -798,7 +798,7 @@ struct Tact1Widget : ModuleWidget {
 				
 		// Tactile lights
 		for (int i = 0 ; i < Tact1::numLights; i++) {
-			addChild(createLightCentered<MediumLight<GreenRedLight>>(VecPx(colRulerLed, rowRuler0 + lightsOffsetY + i * lightsSpacingY), module, Tact1::TACT_LIGHTS + i * 2));
+			addChild(createLightCentered<MediumLight<GreenRedLightIM>>(VecPx(colRulerLed, rowRuler0 + lightsOffsetY + i * lightsSpacingY), module, Tact1::TACT_LIGHTS + i * 2));
 		}
 
 		static const int rowRuler2 = 275;// rate and exp
@@ -1076,7 +1076,7 @@ struct TactGWidget : ModuleWidget {
 				
 		// Tactile lights
 		for (int i = 0 ; i < TactG::numLights; i++) {
-			addChild(createLightCentered<MediumLight<GreenRedLight>>(mm2px(Vec(colRulerLed, padY + 7.8f + i * lightsSpacingY)), module, TactG::TACT_LIGHTS + i * 2));
+			addChild(createLightCentered<MediumLight<GreenRedLightIM>>(mm2px(Vec(colRulerLed, padY + 7.8f + i * lightsSpacingY)), module, TactG::TACT_LIGHTS + i * 2));
 		}
 
 

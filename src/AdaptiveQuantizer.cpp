@@ -1086,7 +1086,7 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		// title led
-		addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(85.38f, 6.32f)), module, AdaptiveQuantizer::TITLE_LIGHT));					
+		addChild(createLightCentered<SmallLight<RedLightIM>>(mm2px(Vec(85.38f, 6.32f)), module, AdaptiveQuantizer::TITLE_LIGHT));					
 		static const Vec ledBgPos = mm2px(Vec(21.42f, 12.0f));
 		svgPanel->fb->addChild(new AqLedBg(ledBgPos, mode));
 
@@ -1151,18 +1151,18 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 		
 		// Thru LED Button
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col0, rowT0l)), module, AdaptiveQuantizer::THRU_PARAM));
-		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(col0, rowT0l)), module, AdaptiveQuantizer::THRU_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLightIM>>(mm2px(Vec(col0, rowT0l)), module, AdaptiveQuantizer::THRU_LIGHT));
 
 		// Thru CV
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col0, rowT1l)), true, module, AdaptiveQuantizer::THRU_INPUT, module ? &module->panelTheme : NULL));
 		
 		// S&H LED Button
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col0, 44.5f)), module, AdaptiveQuantizer::SH_PARAM));
-		addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(col0, 44.5f)), module, AdaptiveQuantizer::SH_LIGHT));
+		addChild(createLightCentered<MediumLight<RedLightIM>>(mm2px(Vec(col0, 44.5f)), module, AdaptiveQuantizer::SH_LIGHT));
 		
 		// Interval LED Button
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col0, rowT3)), module, AdaptiveQuantizer::INTERVAL_PARAM));
-		addChild(createLightCentered<MediumLight<IntervalLight>>(mm2px(Vec(col0, rowT3)), module, AdaptiveQuantizer::INTERVAL_LIGHT));
+		addChild(createLightCentered<MediumLight<YellowGreenLightIM>>(mm2px(Vec(col0, rowT3)), module, AdaptiveQuantizer::INTERVAL_LIGHT));
 
 		
 		
@@ -1177,7 +1177,7 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 
 		// Reset LED bezel and light
 		addParam(createParamCentered<LEDBezel>(mm2px(Vec(col5, rowT2)), module, AdaptiveQuantizer::RESET_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLight>>(mm2px(Vec(col5, rowT2)), module, AdaptiveQuantizer::RESET_LIGHT));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(Vec(col5, rowT2)), module, AdaptiveQuantizer::RESET_LIGHT));
 		
 		// Reset CV
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col5, rowT3)), true, module, AdaptiveQuantizer::RESET_INPUT, module ? &module->panelTheme : NULL));
@@ -1197,7 +1197,7 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 		addParam(persistenceKnob = createDynamicParamCentered<PersistenceKnob>(mm2px(Vec(col1, rowKnob + 1.35f)), module, AdaptiveQuantizer::PERSIST_PARAM, module ? &module->panelTheme : NULL));	
 		// offset and led
 		addParam(offsetKnob = createDynamicParamCentered<OffsetKnob>(mm2px(Vec(col2, rowKnob)), module, AdaptiveQuantizer::OFFSET_PARAM, module ? &module->panelTheme : NULL));	
-		addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(col2 + 8.1f, rowKnob - 8.6f)), module, AdaptiveQuantizer::OFFSET_LIGHT));					
+		addChild(createLightCentered<SmallLight<RedLightIM>>(mm2px(Vec(col2 + 8.1f, rowKnob - 8.6f)), module, AdaptiveQuantizer::OFFSET_LIGHT));					
 		// oct weighting
 		addParam(octaveKnob = createDynamicParamCentered<WeightingKnob>(mm2px(Vec(col3, rowKnob)), module, AdaptiveQuantizer::OCTW_PARAM, module ? &module->panelTheme : NULL));	
 		// duration weighting
