@@ -1,3 +1,9 @@
+### 2.0.7 (in development)
+
+- Expose red and green led colors in ImpromptuModular.json for improved accessibility tweaking
+- Re-code menus so that cmd-click can be used to change options without closing the menus
+
+
 ### 2.0.6 (2021-11-27)
 
 - First v2 library candidate
