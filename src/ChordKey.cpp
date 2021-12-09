@@ -111,7 +111,7 @@ struct ChordKey : Module {
 		}
 		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		paramQuantities[INDEX_PARAM]->snapEnabled = true;
-		configParam(FORCE_PARAM, 0.0f, 1.0f, 0.0f, "Force gate on");
+		configSwitch(FORCE_PARAM, 0.0f, 1.0f, 0.0f, "Force gate on", {"No", "Yes"});
 		configParam(TRANSPOSEUP_PARAM, 0.0f, 1.0f, 0.0f, "Transpose up");
 		configParam(TRANSPOSEDOWN_PARAM, 0.0f, 1.0f, 0.0f, "Transpose down");
 		

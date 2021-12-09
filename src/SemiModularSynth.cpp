@@ -309,7 +309,7 @@ struct SemiModularSynth : Module {
 			configParam(OCTAVE_PARAM + i, 0.0f, 1.0f, 0.0f, strBuf);
 		}
 
-		configParam(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode");
+		configSwitch(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode", {"Song", "Sequence"});// 1.0f is top position
 		configParam(RUNMODE_PARAM, 0.0f, 1.0f, 0.0f, "Length / run mode");
 		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
 		configParam(SEQUENCE_PARAM, -INFINITY, INFINITY, 0.0f, "Sequence");		
@@ -318,7 +318,7 @@ struct SemiModularSynth : Module {
 		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");
 		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy");
 		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste");
-		configParam(CPMODE_PARAM, 0.0f, 2.0f, 2.0f, "Copy-paste mode");	// 0.0f is top position
+		configSwitch(CPMODE_PARAM, 0.0f, 2.0f, 0.0f, "Copy-paste mode", {"4 steps", "8 steps", "All steps"});// 0.0f is top position
 
 		configParam(GATE1_PARAM, 0.0f, 1.0f, 0.0f, "Gate 1");
 		configParam(GATE2_PARAM, 0.0f, 1.0f, 0.0f, "Gate 2");
@@ -328,14 +328,14 @@ struct SemiModularSynth : Module {
 		configParam(GATE1_KNOB_PARAM, 0.0f, 1.0f, 1.0f, "Probability");
 		configParam(SLIDE_BTN_PARAM, 0.0f, 1.0f, 0.0f, "CV slide");
 		configParam(SLIDE_KNOB_PARAM, 0.0f, 2.0f, 0.2f, "Slide rate");
-		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");		
+		configSwitch(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep when write", {"No", "Yes"});		
 		
 		configParam(VCO_FREQ_PARAM, -54.0f, 54.0f, 0.0f, "VCO freq", " Hz", std::pow(2.0f, 1.0f/12.f), dsp::FREQ_C4);// https://community.vcvrack.com/t/rack-v1-development-blog/1149/230 or src/engine/ParamQuantity.cpp ParamQuantity::getDisplayValue()
 		configParam(VCO_FINE_PARAM, -1.0f, 1.0f, 0.0f, "VCO freq fine");
 		configParam(VCO_PW_PARAM, 0.0f, 1.0f, 0.5f, "VCO pulse width", "%", 0.f, 100.f);
 		configParam(VCO_FM_PARAM, 0.0f, 1.0f, 0.0f, "VCO FM");
 		configParam(VCO_PWM_PARAM, 0.0f, 1.0f, 0.0f, "VCO PWM", "%", 0.f, 100.f);
-		configParam(VCO_MODE_PARAM, 0.0f, 1.0f, 1.0f, "VCO mode");
+		configSwitch(VCO_MODE_PARAM, 0.0f, 1.0f, 1.0f, "VCO mode", {"Digital", "Analog"});
 		configParam(VCO_OCT_PARAM, -2.0f, 2.0f, 0.0f, "VCO octave");
 		
 		configParam(CLK_FREQ_PARAM, -2.0f, 4.0f, 1.0f, "CLK freq", " BPM", 2.0f, 60.0f);// 120 BMP when default value  (120 = 60*2^1) diplay params are: base, mult, offset

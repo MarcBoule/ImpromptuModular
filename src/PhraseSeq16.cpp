@@ -210,7 +210,7 @@ struct PhraseSeq16 : Module {
 			configParam(OCTAVE_PARAM + i, 0.0f, 1.0f, 0.0f, strBuf);
 		}
 		
-		configParam(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode");
+		configSwitch(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode", {"Song", "Sequence"});// 1.0f is top position
 		configParam(RUNMODE_PARAM, 0.0f, 1.0f, 0.0f, "Length / run mode");
 		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
 		configParam(SEQUENCE_PARAM, -INFINITY, INFINITY, 0.0f, "Sequence");		
@@ -219,7 +219,7 @@ struct PhraseSeq16 : Module {
 		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");
 		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy");
 		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste");
-		configParam(CPMODE_PARAM, 0.0f, 2.0f, 2.0f, "Copy-paste mode");	// 0.0f is top position
+		configSwitch(CPMODE_PARAM, 0.0f, 2.0f, 0.0f, "Copy-paste mode", {"4 steps", "8 steps", "All steps"});// 0.0f is top position
 
 		configParam(GATE1_PARAM, 0.0f, 1.0f, 0.0f, "Gate 1");
 		configParam(GATE2_PARAM, 0.0f, 1.0f, 0.0f, "Gate 2");
@@ -229,7 +229,7 @@ struct PhraseSeq16 : Module {
 		configParam(GATE1_KNOB_PARAM, 0.0f, 1.0f, 1.0f, "Probability");
 		configParam(SLIDE_BTN_PARAM, 0.0f, 1.0f, 0.0f, "CV slide");
 		configParam(SLIDE_KNOB_PARAM, 0.0f, 2.0f, 0.2f, "Slide rate");
-		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");						
+		configSwitch(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep when write", {"No", "Yes"});						
 		
 		getParamQuantity(CPMODE_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(EDIT_PARAM)->randomizeEnabled = false;		

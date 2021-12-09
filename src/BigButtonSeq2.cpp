@@ -136,7 +136,7 @@ struct BigButtonSeq2 : Module {
 		paramQuantities[CHAN_PARAM]->snapEnabled = true;
 		configParam(LEN_PARAM, 0.0f, 128.0f - 1.0f, 32.0f - 1.0f, "Length", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		paramQuantities[LEN_PARAM]->snapEnabled = true;
-		configParam(DISPMODE_PARAM, 0.0f, 1.0f, 0.0f, "Display mode");		
+		configSwitch(DISPMODE_PARAM, 0.0, 1.0f, 0.0f, "Display mode", {"Length", "Current step"});		
 		configParam(WRITEFILL_PARAM, 0.0f, 1.0f, 0.0f, "Write fill");
 		configParam(BANK_PARAM, 0.0f, 1.0f, 0.0f, "Bank");	
 		configParam(CLOCK_PARAM, 0.0f, 1.0f, 0.0f, "Clock step");	

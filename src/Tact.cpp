@@ -76,16 +76,16 @@ struct Tact : Module {
 		
 		configParam(TACT_PARAMS + 0, 0.0f, 10.0f, 0.0f, "Tact pad (left)");
 		configParam(TACT_PARAMS + 1, 0.0f, 10.0f, 0.0f, "Tact pad (right)");
-		configParam(SLIDE_PARAMS + 0, 0.0f, 1.0f, 0.0f, "Slide (left)");		
-		configParam(SLIDE_PARAMS + 1, 0.0f, 1.0f, 0.0f, "Slide (right)");		
+		configSwitch(SLIDE_PARAMS + 0, 0.0f, 1.0f, 0.0f, "Slide when recall (left)", {"No", "Yes"});		
+		configSwitch(SLIDE_PARAMS + 1, 0.0f, 1.0f, 0.0f, "Slide when recall (right)", {"No", "Yes"});		
 		configParam(STORE_PARAMS + 0, 0.0f, 1.0f, 0.0f, "Store (left)");
 		configParam(STORE_PARAMS + 1, 0.0f, 1.0f, 0.0f, "Store (right)");
 		configParam(ATTV_PARAMS + 0, -1.0f, 1.0f, 1.0f, "Attenuverter (left)");
 		configParam(ATTV_PARAMS + 1, -1.0f, 1.0f, 1.0f, "Attenuverter (right)");
 		configParam(RATE_PARAMS + 0, 0.0f, 4.0f, 0.2f, "Rate (left)", " s/V");
 		configParam(RATE_PARAMS + 1, 0.0f, 4.0f, 0.2f, "Rate (right)", " s/V");
-		configParam(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential");			
-		configParam(LINK_PARAM, 0.0f, 1.0f, 0.0f, "Link");		
+		configSwitch(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential", {"No (linear)", "Yes"});			
+		configSwitch(LINK_PARAM, 0.0f, 1.0f, 0.0f, "Link both channels", {"No", "Yes"});		
 		
 		std::string confStr[2] = {"Left pad ", "Right pad "};
 		for (int i = 0; i < 2; i++) {
@@ -597,7 +597,7 @@ struct Tact1 : Module {
 		configParam(TACT_PARAM, 0.0f, 10.0f, 0.0f, "Tact pad");
 		configParam(ATTV_PARAM, -1.0f, 1.0f, 1.0f, "Attenuverter");
 		configParam(RATE_PARAM, 0.0f, 4.0f, 0.2f, "Rate", " s/V");
-		configParam(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential");			
+		configSwitch(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential", {"No (linear)", "Yes"});			
 		
 		configOutput(CV_OUTPUT, "CV");
 
@@ -866,10 +866,10 @@ struct TactG : Module {
 		configParam(TACT_PARAM, 0.0f, 10.0f, 0.0f, "Tact pad");
 		configParam(ATTV_PARAM, -1.0f, 1.0f, 1.0f, "Attenuverter");
 		configParam(RATE_PARAM, 0.0f, 4.0f, 0.2f, "Rate", " s/V");
-		configParam(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential");			
+		configSwitch(EXP_PARAM, 0.0f, 1.0f, 0.0f, "Exponential", {"No (linear)", "Yes"});			
 		configParam(OFFSET_PARAM,  -10.0f, 10.0f, 0.0f, "Offset", " V");			
 		configParam(OFFSET2_CV_PARAM,  -1.0f, 1.0f, 0.0f, "Offset2 CV");			
-		configParam(RATE_MULT_PARAM,  0.0f, 1.0f, 0.0f, "Slow (rate knob x3)");			
+		configSwitch(RATE_MULT_PARAM,  0.0f, 1.0f, 0.0f, "Slow (rate knob x3)", {"No", "Yes"});			
 		
 		configInput(GATE_INPUT, "Chain gate");
 		configInput(OFFSET2_INPUT, "Offset 2");

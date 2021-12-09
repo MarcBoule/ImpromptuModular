@@ -189,9 +189,9 @@ struct GateSeq64 : Module {
 		configParam(MODES_PARAM, 0.0f, 1.0f, 0.0f, "Length / run mode");
 		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy");
 		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste");
-		configParam(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode");
-		configParam(CONFIG_PARAM, 0.0f, 2.0f, 0.0f, "Configuration (1, 2, 4 chan)");// 0.0f is top position
-		configParam(CPMODE_PARAM, 0.0f, 2.0f, 2.0f, "Copy-paste mode");		
+		configSwitch(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode", {"Song", "Sequence"});// 1.0f is top position
+		configSwitch(CONFIG_PARAM, 0.0f, 2.0f, 0.0f, "Configuration", {"4x16", "2x32", "1x64"});// 0.0f is top position
+		configSwitch(CPMODE_PARAM, 0.0f, 2.0f, 0.0f, "Copy-paste mode", {"4 steps", "8 steps", "All steps"});// 0.0f is top position	
 		
 		getParamQuantity(CPMODE_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(CONFIG_PARAM)->randomizeEnabled = false;		

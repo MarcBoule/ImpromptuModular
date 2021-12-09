@@ -102,9 +102,9 @@ struct WriteSeq32 : Module {
 	WriteSeq32() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");
-		configParam(SHARP_PARAM, 0.0f, 1.0f, 1.0f, "Sharp notation");
-		configParam(QUANTIZE_PARAM, 0.0f, 1.0f, 1.0f, "Quantize"); 
+		configSwitch(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep when write", {"No", "Yes"});
+		configSwitch(SHARP_PARAM, 0.0f, 1.0f, 1.0f, "Display mode", {"Flat", "Sharp"});
+		configSwitch(QUANTIZE_PARAM, 0.0f, 1.0f, 1.0f, "Quantize", {"No", "Yes"}); 
 		
 		char strBuf[32];
 		for (int i = 0; i < 4; i++) {
@@ -118,14 +118,14 @@ struct WriteSeq32 : Module {
 		configParam(CHANNEL_PARAM, 0.0f, 1.0f, 0.0f, "Channel");
 		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy");
 		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste");
-		configParam(PASTESYNC_PARAM, 0.0f, 2.0f, 0.0f, "Paste Sync");	
+		configSwitch(PASTESYNC_PARAM, 0.0f, 2.0f, 0.0f, "Paste sync", {"Real-time (immediate)", "On next clock", "On end of sequence"});
 		configParam(STEPL_PARAM, 0.0f, 1.0f, 0.0f, "Step left");
 		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
 		configParam(STEPR_PARAM, 0.0f, 1.0f, 0.0f, "Step right");	
 		configParam(WRITE_PARAM, 0.0f, 1.0f, 0.0f, "Write");
 		configParam(STEPS_PARAM, 1.0f, 32.0f, 32.0f, "Number of steps");
 		paramQuantities[STEPS_PARAM]->snapEnabled = true;		
-		configParam(MONITOR_PARAM, 0.0f, 1.0f, 1.0f, "Monitor");		
+		configSwitch(MONITOR_PARAM, 0.0f, 1.0f, 1.0f, "Monitor", {"CV input", "Sequencer"});		
 		
 		getParamQuantity(PASTESYNC_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(MONITOR_PARAM)->randomizeEnabled = false;		

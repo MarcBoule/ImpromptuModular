@@ -89,7 +89,7 @@ struct TwelveKey : Module {
 		configParam(OCTDEC_PARAM, 0.0, 1.0, 0.0, "Oct down");
 		configParam(OCTINC_PARAM, 0.0, 1.0, 0.0, "Oct up");
 		configParam(MAXVEL_PARAM, 0.0, 1.0, 0.0, "Max velocity");
-		configParam(VELPOL_PARAM, 0.0, 1.0, 0.0, "Velocity polarity");
+		configSwitch(VELPOL_PARAM, 0.0, 1.0, 0.0, "Velocity polarity", {"Unipolar", "Bipolar"});
 		
 		getParamQuantity(VELPOL_PARAM)->randomizeEnabled = false;		
 

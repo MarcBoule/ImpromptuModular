@@ -201,8 +201,8 @@ struct Foundry : Module {
 			configParam(STEP_PHRASE_PARAMS + x + numX, 0.0f, 1.0f, 0.0f, strBuf);
 		}
 		configParam(SEL_PARAM, 0.0f, 1.0f, 0.0f, "Select multi steps");
-		configParam(CPMODE_PARAM, 0.0f, 2.0f, 0.0f, "Copy-paste mode");	// 0.0f is top position
-		configParam(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode");// 1.0f is top position
+		configSwitch(CPMODE_PARAM, 0.0f, 2.0f, 0.0f, "Copy-paste mode", {"4 steps", "8 steps", "Custom"});// 0.0f is top position
+		configSwitch(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode", {"Song", "Sequence"});// 1.0f is top position
 		for (int i = 0; i < 7; i++) {
 			snprintf(strBuf, 32, "Octave %i", i + 1);
 			configParam(OCTAVE_PARAM + i, 0.0f, 1.0f, 0.0f, strBuf);
@@ -221,7 +221,7 @@ struct Foundry : Module {
 		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy");
 		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste");
 		configParam(ATTACH_PARAM, 0.0f, 1.0f, 0.0f, "Attach");
-		configParam(KEY_GATE_PARAM, 0.0f, 1.0f, 1.0f, "Keyboard mode");
+		configSwitch(KEY_GATE_PARAM, 0.0f, 1.0f, 1.0f, "Keyboard mode", {"Gate type", "Note"});
 		configParam(GATE_PARAM, 0.0f, 1.0f, 0.0f, "Gate");
 		configParam(TIE_PARAM, 0.0f, 1.0f, 0.0f, "Tied");
 		configParam(GATE_PROB_PARAM, 0.0f, 1.0f, 0.0f, "Gate probability");
@@ -231,7 +231,7 @@ struct Foundry : Module {
 		configParam(CLKRES_PARAM, 0.0f, 1.0f, 0.0f, "Clock resolution / delay");
 		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
 		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");
-		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");		
+		configSwitch(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep when write", {"No", "Yes"});		
 		
 		getParamQuantity(CPMODE_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(EDIT_PARAM)->randomizeEnabled = false;		

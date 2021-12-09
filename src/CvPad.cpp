@@ -106,11 +106,11 @@ struct CvPad : Module {
 		paramQuantities[BANK_PARAM]->snapEnabled = true;
 		configParam(WRITE_PARAM, 0.0f, 1.0f, 0.0f, "Write");				
 		configParam(CV_PARAM, -INFINITY, INFINITY, 0.0f, "CV");		
-		configParam(SHARP_PARAM, 0.0f, 2.0f, 0.0f, "Volts / Notation");// 0 is top position
-		configParam(QUANTIZE_PARAM, 0.0f, 1.0f, 0.0f, "Quantize");
-		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 0.0f, "Autostep when write");
-		configParam(ATTACH_PARAM, 0.0f, 1.0f, 1.0f, "Attach");
-		configParam(CONFIG_PARAM, 0.0f, 2.0f, 0.0f, "Configuration");// 0 is top position (4x4), 1 is middle (2x8), 2 is bot (1x16)
+		configSwitch(SHARP_PARAM, 0.0f, 2.0f, 0.0f, "Display mode", {"Volts", "Sharp", "Flat"});// 0 is top position
+		configSwitch(QUANTIZE_PARAM, 0.0f, 1.0f, 0.0f, "Quantize", {"No", "Yes"});
+		configSwitch(AUTOSTEP_PARAM, 0.0f, 1.0f, 0.0f, "Autostep when write", {"No", "Yes"});
+		configSwitch(ATTACH_PARAM, 0.0f, 1.0f, 1.0f, "Attach", {"No", "Yes"});
+		configSwitch(CONFIG_PARAM, 0.0f, 2.0f, 0.0f, "Configuration", {"4x4", "2x8", "1x16"});// 0 is top position (4x4), 1 is middle (2x8), 2 is bot (1x16)
 		
 		getParamQuantity(SHARP_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(CONFIG_PARAM)->randomizeEnabled = false;		

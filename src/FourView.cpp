@@ -88,7 +88,7 @@ struct FourView : Module {
 		leftExpander.producerMessage = leftMessages[0];
 		leftExpander.consumerMessage = leftMessages[1];
 		
-		configParam(MODE_PARAM, 0.0, 1.0, 0.0, "Display mode");// 0.0 is left, notes by default left, chord right
+		configSwitch(MODE_PARAM, 0.0, 1.0, 0.0, "Display mode", {"Notes", "Chord"});// 0.0 is left, notes by default left, chord right
 		
 		for (int i = 0; i < 4; i++) {
 			configInput(CV_INPUTS + i, string::f("CV %i", i + 1));

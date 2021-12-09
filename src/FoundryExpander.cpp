@@ -56,7 +56,7 @@ struct FoundryExpander : Module {
 		leftExpander.producerMessage = leftMessages[0];
 		leftExpander.consumerMessage = leftMessages[1];
 	
-		configParam(SYNC_SEQCV_PARAM, 0.0f, 1.0f, 0.0f, "Sync Seq#");// 1.0f is top position
+		configSwitch(SYNC_SEQCV_PARAM, 0.0f, 1.0f, 0.0f, "Synchronize Seq# changes", {"No", "Yes"});// 1.0f is top position
 		configParam(WRITEMODE_PARAM, 0.0f, 1.0f, 0.0f, "Write mode");
 	
 		getParamQuantity(SYNC_SEQCV_PARAM)->randomizeEnabled = false;		

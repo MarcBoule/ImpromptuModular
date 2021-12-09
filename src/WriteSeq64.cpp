@@ -109,22 +109,22 @@ struct WriteSeq64 : Module {
 	WriteSeq64() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
-		configParam(SHARP_PARAM, 0.0f, 2.0f, 1.0f, "Sharp notation");
+		configSwitch(SHARP_PARAM, 0.0f, 2.0f, 1.0f, "Display mode", {"Volts", "Sharp", "Flat"});// 0 is top position
 		configParam(CHANNEL_PARAM, 0.0f, 4.0f, 0.0f, "Channel", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		configParam(STEP_PARAM, -INFINITY, INFINITY, 0.0f, "Step");		
 		configParam(GATE_PARAM, 0.0f, 1.0f, 0.0f, "Gate");
-		configParam(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep");
-		configParam(QUANTIZE_PARAM, 0.0f, 1.0f, 1.0f, "Quantize");
+		configSwitch(AUTOSTEP_PARAM, 0.0f, 1.0f, 1.0f, "Autostep when write", {"No", "Yes"});
+		configSwitch(QUANTIZE_PARAM, 0.0f, 1.0f, 1.0f, "Quantize", {"No", "Yes"});
 		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");
 		configParam(STEPS_PARAM, -INFINITY, INFINITY, 0.0f, "Number of steps");		
 		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy");
 		configParam(PASTE_PARAM, 0.0f, 1.0f, 0.0f, "Paste");
-		configParam(PASTESYNC_PARAM, 0.0f, 2.0f, 0.0f, "Paste sync");	
+		configSwitch(PASTESYNC_PARAM, 0.0f, 2.0f, 0.0f, "Paste sync", {"Real-time (immediate)", "On next clock", "On end of sequence"});
 		configParam(STEPL_PARAM, 0.0f, 1.0f, 0.0f, "Step left");
 		configParam(RUN_PARAM, 0.0f, 1.0f, 0.0f, "Run");
 		configParam(STEPR_PARAM, 0.0f, 1.0f, 0.0f, "Step right");	
 		configParam(WRITE_PARAM, 0.0f, 1.0f, 0.0f, "Write");
-		configParam(MONITOR_PARAM, 0.0f, 1.0f, 1.0f, "Monitor");	
+		configSwitch(MONITOR_PARAM, 0.0f, 1.0f, 1.0f, "Monitor", {"CV input", "Sequencer"});
 		
 		getParamQuantity(SHARP_PARAM)->randomizeEnabled = false;		
 		getParamQuantity(PASTESYNC_PARAM)->randomizeEnabled = false;		
