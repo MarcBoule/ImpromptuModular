@@ -238,7 +238,7 @@ struct Clkd : Module {
 		}
 		configOutput(RESET_OUTPUT, "Reset");
 		configOutput(RUN_OUTPUT, "Run");
-		configOutput(BPM_OUTPUT, "BPM");
+		configOutput(BPM_OUTPUT, "BPM CV / Ext clock thru");
 
 		clk[0].construct(nullptr, &resetClockOutputsHigh, &trigOuts[0]);
 		for (int i = 1; i < 4; i++) {
@@ -808,10 +808,7 @@ struct ClkdWidget : ModuleWidget {
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createSubmenuItem("On Start", "", [=](Menu* menu) {
 			menu->addChild(createCheckMenuItem("Do internal reset", "",
@@ -854,10 +851,7 @@ struct ClkdWidget : ModuleWidget {
 		}));		
 
 		menu->addChild(new MenuSeparator());
-
-		MenuLabel *expLabel = new MenuLabel();
-		expLabel->text = "Actions";
-		menu->addChild(expLabel);
+		menu->addChild(createMenuLabel("Actions"));
 		
 		AutopatchItem *apItem = createMenuItem<AutopatchItem>("Auto-patch", RIGHT_ARROW);
 		apItem->idPtr = &module->id;

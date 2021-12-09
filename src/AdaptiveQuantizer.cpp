@@ -1021,19 +1021,14 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 		AdaptiveQuantizer *module = dynamic_cast<AdaptiveQuantizer*>(this->module);
 		assert(module);
 			
-		MenuLabel *samLabel = new MenuLabel();
-		samLabel->text = "Concept and design by Sam Burford";
-		menu->addChild(samLabel);
+		menu->addChild(createMenuLabel("Concept and design by Sam Burford"));
 
 		menu->addChild(new MenuSeparator());
 
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createCheckMenuItem("Skip repeats of same ref note", "",
 			[=]() {return module->ignoreRepetitions;},

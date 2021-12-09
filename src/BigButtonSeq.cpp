@@ -537,10 +537,7 @@ struct BigButtonSeqWidget : ModuleWidget {
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createBoolPtrMenuItem("Big and Del on next step", "", &module->nextStepHits));
 

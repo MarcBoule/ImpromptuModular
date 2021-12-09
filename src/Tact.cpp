@@ -377,10 +377,7 @@ struct TactWidget : ModuleWidget {
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createCheckMenuItem("Rate knob x3 (max 12 s/V)", "",
 			[=]() {
@@ -740,10 +737,7 @@ struct Tact1Widget : ModuleWidget {
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createCheckMenuItem("Rate knob x3 (max 12 s/V)", "",
 			[=]() {
@@ -1018,10 +1012,7 @@ struct TactGWidget : ModuleWidget {
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 			
 		menu->addChild(createCheckMenuItem("Rate knob x3 (max 12 s/V)", "",
 			[=]() {

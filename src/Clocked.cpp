@@ -387,7 +387,7 @@ struct Clocked : Module {
 		}
 		configOutput(RESET_OUTPUT, "Reset");
 		configOutput(RUN_OUTPUT, "Run");
-		configOutput(BPM_OUTPUT, "BPM");
+		configOutput(BPM_OUTPUT, "BPM CV / Ext clock thru");
 
 		clk[0].construct(nullptr, &resetClockOutputsHigh);
 		for (int i = 1; i < 4; i++) {
@@ -974,10 +974,7 @@ struct ClockedWidget : ModuleWidget {
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createSubmenuItem("On Start", "", [=](Menu* menu) {
 			menu->addChild(createCheckMenuItem("Do internal reset", "",
@@ -1015,10 +1012,7 @@ struct ClockedWidget : ModuleWidget {
 		));
 		
 		menu->addChild(new MenuSeparator());
-
-		MenuLabel *actionsLabel = new MenuLabel();
-		actionsLabel->text = "Actions";
-		menu->addChild(actionsLabel);
+		menu->addChild(createMenuLabel("Actions"));
 		
 		AutopatchItem *apItem = createMenuItem<AutopatchItem>("Auto-patch", RIGHT_ARROW);
 		apItem->idPtr = &module->id;

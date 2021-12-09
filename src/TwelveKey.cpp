@@ -462,10 +462,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 		
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createBoolPtrMenuItem("Link velocity settings from left", "", &module->linkVelSettings));
 		

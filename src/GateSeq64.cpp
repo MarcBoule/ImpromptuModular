@@ -1365,10 +1365,7 @@ struct GateSeq64Widget : ModuleWidget {
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 
@@ -1394,10 +1391,7 @@ struct GateSeq64Widget : ModuleWidget {
 		menu->addChild(createBoolPtrMenuItem("Lock steps, gates and gate p", "", &module->lock));
 
 		menu->addChild(new MenuSeparator());
-
-		MenuLabel *actionsLabel = new MenuLabel();
-		actionsLabel->text = "Actions";
-		menu->addChild(actionsLabel);
+		menu->addChild(createMenuLabel("Actions"));
 		
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (4HP right side)", "");
 		expItem->module = module;

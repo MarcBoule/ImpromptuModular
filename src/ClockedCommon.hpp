@@ -189,9 +189,7 @@ struct AutopatchItem : MenuItem {
 		
 		if (clockMaster.id == *idPtr) {
 			// the module is the clock master
-			MenuLabel *thismLabel = new MenuLabel();
-			thismLabel->text = "This is the current master";
-			menu->addChild(thismLabel);
+			menu->addChild(createMenuLabel("This is the current master"));
 		}
 		else {
 			// the module is not the master
@@ -207,9 +205,7 @@ struct AutopatchItem : MenuItem {
 				menu->addChild(connItem);
 			}
 			else {
-				MenuLabel *nomLabel = new MenuLabel();
-				nomLabel->text = "No valid master to auto-patch to";
-				menu->addChild(nomLabel);
+				menu->addChild(createMenuLabel("No valid master to auto-patch to"));
 			}
 		}
 

@@ -783,10 +783,7 @@ struct ChordKeyWidget : ModuleWidget {
 		menu->addChild(interopSeqItem);		
 				
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 
 		menu->addChild(createCheckMenuItem("Keypress monitoring", "",
 			[=]() {return module->keypressEmitGate;},
@@ -813,10 +810,7 @@ struct ChordKeyWidget : ModuleWidget {
 		}));			
 		
 		menu->addChild(new MenuSeparator());
-
-		MenuLabel *actionsLabel = new MenuLabel();
-		actionsLabel->text = "Actions";
-		menu->addChild(actionsLabel);
+		menu->addChild(createMenuLabel("Actions"));
 
 		CopyChordItem *cvCopyItem = createMenuItem<CopyChordItem>("Copy chord (internal)");
 		cvCopyItem->module = module;

@@ -2141,10 +2141,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		menu->addChild(interopSeqItem);		
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 

@@ -594,9 +594,7 @@ struct CvPadWidget : ModuleWidget {
 		void createContextMenu() {
 			ui::Menu* menu = createMenu();
 
-			MenuLabel *cvLabel = new MenuLabel();
-			cvLabel->text = "Voltage (V)";
-			menu->addChild(cvLabel);
+			menu->addChild(createMenuLabel("Voltage (V)"));
 			
 			CvParamField* paramField = new CvParamField;
 			paramField->box.size.x = 100;
@@ -870,18 +868,12 @@ struct CvPadWidget : ModuleWidget {
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 		
 		menu->addChild(new MenuSeparator());
-
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createBoolPtrMenuItem("High sensitivity CV knob", "", &module->highSensitivityCvKnob));
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *actionsLabel = new MenuLabel();
-		actionsLabel->text = "Actions";
-		menu->addChild(actionsLabel);
+		menu->addChild(createMenuLabel("Actions"));
 
 		CopyPadItem *cvCopyItem = createMenuItem<CopyPadItem>("Copy selected pad");
 		cvCopyItem->module = module;

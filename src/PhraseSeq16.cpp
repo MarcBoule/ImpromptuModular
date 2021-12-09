@@ -1868,10 +1868,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		menu->addChild(interopSeqItem);		
 				
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 
@@ -1899,10 +1896,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		menu->addChild(createBoolPtrMenuItem("AutoSeq when writing via CV inputs", "", &module->autoseq));
 
 		menu->addChild(new MenuSeparator());
-
-		MenuLabel *actionsLabel = new MenuLabel();
-		actionsLabel->text = "Actions";
-		menu->addChild(actionsLabel);
+		menu->addChild(createMenuLabel("Actions"));
 		
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (4HP right side)", "");
 		expItem->module = module;

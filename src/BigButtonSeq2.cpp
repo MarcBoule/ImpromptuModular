@@ -761,10 +761,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		menu->addChild(interopSeqItem);		
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createBoolPtrMenuItem("Big and Del on next step", "", &module->nextStepHits));
 

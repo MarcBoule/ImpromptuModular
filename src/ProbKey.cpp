@@ -1408,10 +1408,7 @@ struct ProbKeyWidget : ModuleWidget {
 		menu->addChild(interopSeqItem);
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createSubmenuItem("Manual step lock", "", [=](Menu* menu) {
 			menu->addChild(createMenuItem("Clear all locks", "",

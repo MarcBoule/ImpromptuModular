@@ -366,17 +366,12 @@ struct HotkeyWidget : ModuleWidget {
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 
 		menu->addChild(new MenuSeparator());
+		menu->addChild(createMenuLabel("Current hotkey:"));
 		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Current hotkey:";
-		menu->addChild(settingsLabel);
-		
-		MenuLabel *hotkeyLabel = new MenuLabel();
 		get_mods_name(strBuf, module->hotkeyMods);
 		if (strBuf[0] != '\0') strcat(strBuf, "+");
 		strcat(strBuf, get_key_name(module->hotkey));
-		hotkeyLabel->text = strBuf;
-		menu->addChild(hotkeyLabel);
+		menu->addChild(createMenuLabel(strBuf));
 	}	
 
 	

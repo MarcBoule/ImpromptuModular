@@ -779,10 +779,7 @@ struct WriteSeq32Widget : ModuleWidget {
 		menu->addChild(interopSeqItem);		
 
 		menu->addChild(new MenuSeparator());
-		
-		MenuLabel *settingsLabel = new MenuLabel();
-		settingsLabel->text = "Settings";
-		menu->addChild(settingsLabel);
+		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createSubmenuItem("Arrow controls", "", [=](Menu* menu) {
 			menu->addChild(createCheckMenuItem("Step", "",
