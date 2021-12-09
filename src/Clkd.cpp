@@ -155,6 +155,7 @@ struct Clkd : Module {
 	int ppqn;
 	bool resetClockOutputsHigh;
 	bool momentaryRunInput;// true = trigger (original rising edge only version), false = level sensitive (emulated with rising and falling detection)
+	bool forceCvOnBpmOut;
 	int displayIndex;
 	bool trigOuts[4];// output triggers when true, one for each clock output, master is index 0. 
 
@@ -239,6 +240,10 @@ struct Clkd : Module {
 		configOutput(RESET_OUTPUT, "Reset");
 		configOutput(RUN_OUTPUT, "Run");
 		configOutput(BPM_OUTPUT, "BPM CV / Ext clock thru");
+		
+		configBypass(RESET_INPUT, RESET_OUTPUT);
+		configBypass(RUN_INPUT, RUN_OUTPUT);
+		configBypass(BPM_INPUT, BPM_OUTPUT);
 
 		clk[0].construct(nullptr, &resetClockOutputsHigh, &trigOuts[0]);
 		for (int i = 1; i < 4; i++) {
@@ -257,6 +262,7 @@ struct Clkd : Module {
 		ppqn = 4;
 		resetClockOutputsHigh = true;
 		momentaryRunInput = true;
+		forceCvOnBpmOut = false;
 		displayIndex = 0;// show BPM (knob 0) by default
 		for (int i = 0; i < 4; i++) {
 			trigOuts[i] = false;
@@ -335,6 +341,9 @@ struct Clkd : Module {
 		
 		// momentaryRunInput
 		json_object_set_new(rootJ, "momentaryRunInput", json_boolean(momentaryRunInput));
+		
+		// forceCvOnBpmOut
+		json_object_set_new(rootJ, "forceCvOnBpmOut", json_boolean(forceCvOnBpmOut));
 		
 		// displayIndex
 		json_object_set_new(rootJ, "displayIndex", json_integer(displayIndex));
@@ -415,6 +424,11 @@ struct Clkd : Module {
 		json_t *momentaryRunInputJ = json_object_get(rootJ, "momentaryRunInput");
 		if (momentaryRunInputJ)
 			momentaryRunInput = json_is_true(momentaryRunInputJ);
+
+		// forceCvOnBpmOut
+		json_t *forceCvOnBpmOutJ = json_object_get(rootJ, "forceCvOnBpmOut");
+		if (forceCvOnBpmOutJ)
+			forceCvOnBpmOut = json_is_true(forceCvOnBpmOutJ);
 
 		// displayIndex
 		json_t *displayIndexJ = json_object_get(rootJ, "displayIndex");
@@ -691,7 +705,7 @@ struct Clkd : Module {
 		}
 		outputs[RESET_OUTPUT].setVoltage((resetPulse.process((float)sampleTime) ? 10.0f : 0.0f));
 		outputs[RUN_OUTPUT].setVoltage((runPulse.process((float)sampleTime) ? 10.0f : 0.0f));
-		outputs[BPM_OUTPUT].setVoltage( inputs[BPM_INPUT].isConnected() ? inputs[BPM_INPUT].getVoltage() : log2f(0.5f / masterLength));
+		outputs[BPM_OUTPUT].setVoltage( (inputs[BPM_INPUT].isConnected() && !forceCvOnBpmOut) ? inputs[BPM_INPUT].getVoltage() : log2f(0.5f / masterLength));
 			
 		
 		// lights
@@ -842,7 +856,9 @@ struct ClkdWidget : ModuleWidget {
 			[=]() {return !module->momentaryRunInput;},
 			[=](bool loop) {module->momentaryRunInput = !module->momentaryRunInput;}
 		));
-		
+
+		menu->addChild(createBoolPtrMenuItem("BPM out is CV when ext sync", "", &module->forceCvOnBpmOut));
+
 		menu->addChild(createSubmenuItem("Send triggers (instead of gates)", "", [=](Menu* menu) {
 			menu->addChild(createBoolPtrMenuItem("Master clk", "", &(module->trigOuts[0])));
 			menu->addChild(createBoolPtrMenuItem("Clock 1", "", &(module->trigOuts[1])));

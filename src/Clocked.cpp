@@ -252,7 +252,7 @@ struct Clocked : Module {
 	int ppqn;
 	bool resetClockOutputsHigh;
 	bool momentaryRunInput;// true = trigger (original rising edge only version), false = level sensitive (emulated with rising and falling detection)
-
+	bool forceCvOnBpmOut;
 
 	// No need to save, with reset
 	long editingBpmMode;// 0 when no edit bpmMode, downward step counter timer when edit, negative upward when show can't edit ("--") 
@@ -388,6 +388,10 @@ struct Clocked : Module {
 		configOutput(RESET_OUTPUT, "Reset");
 		configOutput(RUN_OUTPUT, "Run");
 		configOutput(BPM_OUTPUT, "BPM CV / Ext clock thru");
+		
+		configBypass(RESET_INPUT, RESET_OUTPUT);
+		configBypass(RUN_INPUT, RUN_OUTPUT);
+		configBypass(BPM_INPUT, BPM_OUTPUT);
 
 		clk[0].construct(nullptr, &resetClockOutputsHigh);
 		for (int i = 1; i < 4; i++) {
@@ -407,6 +411,7 @@ struct Clocked : Module {
 		ppqn = 4;
 		resetClockOutputsHigh = true;
 		momentaryRunInput = true;
+		forceCvOnBpmOut = false;
 		resetNonJson(false);
 	}
 	void resetNonJson(bool delayed) {// delay thread sensitive parts (i.e. schedule them so that process() will do them)
@@ -485,6 +490,9 @@ struct Clocked : Module {
 		
 		// momentaryRunInput
 		json_object_set_new(rootJ, "momentaryRunInput", json_boolean(momentaryRunInput));
+		
+		// forceCvOnBpmOut
+		json_object_set_new(rootJ, "forceCvOnBpmOut", json_boolean(forceCvOnBpmOut));
 		
 		// clockMaster
 		json_object_set_new(rootJ, "clockMaster", json_boolean(clockMaster.id == id));
@@ -571,6 +579,11 @@ struct Clocked : Module {
 		json_t *momentaryRunInputJ = json_object_get(rootJ, "momentaryRunInput");
 		if (momentaryRunInputJ)
 			momentaryRunInput = json_is_true(momentaryRunInputJ);
+
+		// forceCvOnBpmOut
+		json_t *forceCvOnBpmOutJ = json_object_get(rootJ, "forceCvOnBpmOut");
+		if (forceCvOnBpmOutJ)
+			forceCvOnBpmOut = json_is_true(forceCvOnBpmOutJ);
 
 		resetNonJson(true);
 		
@@ -823,7 +836,7 @@ struct Clocked : Module {
 		}
 		outputs[RESET_OUTPUT].setVoltage((resetPulse.process((float)sampleTime) ? 10.0f : 0.0f));
 		outputs[RUN_OUTPUT].setVoltage((runPulse.process((float)sampleTime) ? 10.0f : 0.0f));
-		outputs[BPM_OUTPUT].setVoltage( inputs[BPM_INPUT].isConnected() ? inputs[BPM_INPUT].getVoltage() : log2f(1.0f / masterLength));
+		outputs[BPM_OUTPUT].setVoltage( (inputs[BPM_INPUT].isConnected() && !forceCvOnBpmOut) ? inputs[BPM_INPUT].getVoltage() : log2f(1.0f / masterLength));
 			
 		
 		// lights
@@ -1011,6 +1024,8 @@ struct ClockedWidget : ModuleWidget {
 			[=](bool loop) {module->momentaryRunInput = !module->momentaryRunInput;}
 		));
 		
+		menu->addChild(createBoolPtrMenuItem("BPM out is CV when ext sync", "", &module->forceCvOnBpmOut));
+
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Actions"));
 		
