@@ -1451,7 +1451,7 @@ struct ProbKeyWidget : ModuleWidget {
 				noteStr.insert(0, std::string(oct * 2, ' '));
 				noteStr.insert(0, std::string("-"));
 				
-				StepLockSubItem *slockItem = createMenuItem<StepLockSubItem>(noteStr, CHECKMARK(module->getStepLock(s, index)));
+				StepLockSubItem *slockItem = createMenuItem<StepLockSubItem>(noteStr, "");
 				slockItem->module = module;
 				slockItem->stepNum = s;
 				slockItem->index = index;

@@ -30,30 +30,12 @@ struct TactPad : ParamWidget {
 	void onDragEnd(const event::DragEnd &e) override;
 	void onButton(const event::Button &e) override;
 	void setTactParam(float posY);
-	// void reset() override;
-	// void randomize() override;
 };
 
 
 struct AutoReturnItem : MenuItem {
 	int8_t *autoReturnSrc;
 	Param* tactParamSrc;
-	
-	struct AutoReturnSubItem : MenuItem {
-		int8_t *autoReturnSrc;
-		Param* tactParamSrc;
-		int8_t setVal;
-		void onAction(const event::Action &e) override {
-			*autoReturnSrc = setVal;
-			if (setVal >= 0) {
-				tactParamSrc->setValue(autoreturnVoltages[setVal]);
-			}
-		}
-		void step() override {
-			rightText = CHECKMARK(*autoReturnSrc == setVal);
-			MenuItem::step();
-		}
-	};
 	
 	Menu *createChildMenu() override {
 		Menu *menu = new Menu;
@@ -78,11 +60,14 @@ struct AutoReturnItem : MenuItem {
 		};
 			
 		for (int i = 0; i < (NUM_AUTORETURN + 1); i++) {
-			AutoReturnSubItem *aretItem = createMenuItem<AutoReturnSubItem>(autoReturnNames[i], CHECKMARK(*autoReturnSrc == (i - 1)));
-			aretItem->autoReturnSrc = autoReturnSrc;
-			aretItem->tactParamSrc = tactParamSrc;
-			aretItem->setVal = i - 1;
-			menu->addChild(aretItem);
+			menu->addChild(createCheckMenuItem(autoReturnNames[i], "",
+				[=]() {return *autoReturnSrc == (i - 1);},
+				[=]() {*autoReturnSrc = i - 1;
+						if ((i - 1) >= 0) {
+							tactParamSrc->setValue(autoreturnVoltages[i - 1]);
+						}
+					}
+			));
 		}
 		
 		return menu;

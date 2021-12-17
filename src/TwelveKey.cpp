@@ -466,7 +466,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		
 		menu->addChild(createBoolPtrMenuItem("Link velocity settings from left", "", &module->linkVelSettings));
 		
-		InvertVelItem *invertItem = createMenuItem<InvertVelItem>("Inverted velocity range", CHECKMARK(module->invertVel));
+		InvertVelItem *invertItem = createMenuItem<InvertVelItem>("Inverted velocity range", "");
 		invertItem->module = module;
 		invertItem->disabled = (module->linkVelSettings && module->leftExpander.module && module->leftExpander.module->model == modelTwelveKey);
 		menu->addChild(invertItem);			

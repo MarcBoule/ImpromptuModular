@@ -733,16 +733,6 @@ struct ChordKeyWidget : ModuleWidget {
 				module->interopPasteChord();
 			}
 		};
-		struct AutostepPasteItem : MenuItem {
-			ChordKey *module;
-			void onAction(const event::Action &e) override {
-				module->autostepPaste ^= 0x1;
-			}
-			void step() override {
-				rightText = module->autostepPaste != 0 ? CHECKMARK_STRING : "";
-				MenuItem::step();
-			}
-		};
 		ChordKey *module;
 		Menu *createChildMenu() override {
 			Menu *menu = new Menu;
@@ -763,10 +753,11 @@ struct ChordKeyWidget : ModuleWidget {
 			interopPasteSeqItem->module = module;
 			menu->addChild(interopPasteSeqItem);		
 
-			AutostepPasteItem *autostepItem = createMenuItem<AutostepPasteItem>("Autostep after paste", CHECKMARK(module->autostepPaste));
-			autostepItem->module = module;
-			menu->addChild(autostepItem);
-		
+			menu->addChild(createCheckMenuItem("Autostep after paste", "",
+				[=]() {return module->autostepPaste;},
+				[=]() {module->autostepPaste ^= 0x1;}
+			));
+
 			return menu;
 		}
 	};	
