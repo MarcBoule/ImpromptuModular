@@ -667,9 +667,20 @@ struct ProbKey : Module {
 	void toggleStepLock(uint32_t s, int i) {
 		if (perIndexManualLocks != 0) {
 			stepLocks[i] ^= (0x1ul << s);
+			if (getStepLock(s, i)) {
+				stepLocksCvs[i][s] = outputKernels[0].getBuf(s);
+			}
 		}
 		else {
 			stepLock ^= (0x1ul << s);
+		}
+	}
+	void setStepLocksForAllActive(int i) {
+		for (int s = 0; s < getLength(); s++) {
+			float cv = outputKernels[0].getBuf(s);
+			if (cv != ProbKernel::IDEM_CV && !getStepLock(s, i)) {
+				toggleStepLock(s, i);
+			}
 		}
 	}
 	void clearStepLock() {
@@ -1378,9 +1389,6 @@ struct ProbKeyWidget : ModuleWidget {
 		int index;
 		void onAction(const event::Action &e) override {
 			module->toggleStepLock(stepNum, index);
-			if (module->perIndexManualLocks != 0 && module->getStepLock(stepNum, index)) {
-				module->stepLocksCvs[index][stepNum] = module->outputKernels[0].getBuf(stepNum);
-			}
 			e.unconsume();
 		}
 		void step() override {
@@ -1419,6 +1427,9 @@ struct ProbKeyWidget : ModuleWidget {
 						module->clearStepLock();
 					}
 				}
+			));
+			menu->addChild(createMenuItem("Set locks of active steps", "",
+				[=]() {module->setStepLocksForAllActive(module->getIndex());}
 			));
 			menu->addChild(createMenuItem("Reset playhead", "",
 				[=]() {for (int c = 0; c < PORT_MAX_CHANNELS; c++) {
