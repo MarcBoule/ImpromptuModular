@@ -1,7 +1,7 @@
-### 2.0.7 (in development)
+### 2.0.7 (2021-12-26)
 
 - Expose red and green led colors in ImpromptuModular.json for improved accessibility tweaking
-- Re-code menus so that cmd-click can be used to change options without closing the menus
+- Re-code menus so that cmd/ctrl-click can be used to change options without closing the menus
 - Clkd/Clocked: add menu option to force BPM out to be a BPM CV when using an external clock on the BPM input (sync mode)
 
 
