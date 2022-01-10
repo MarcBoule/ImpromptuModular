@@ -667,7 +667,7 @@ struct WriteSeq32Widget : ModuleWidget {
 				}
 				else {
 					float cvVal = module->cv[module->indexChannel][index8|(index&0x18)];
-					printNote(cvVal, text, module->params[WriteSeq32::SHARP_PARAM].getValue() > 0.5f);
+					printNoteOrig(cvVal, text, module->params[WriteSeq32::SHARP_PARAM].getValue() > 0.5f);
 				}
 			}
 		}

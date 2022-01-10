@@ -230,6 +230,7 @@ inline void calcNoteAndOct(float cv, int* note12, int* oct0) {
 }
 void printNoteNoOct(int note, char* text, bool sharp);
 int printNote(float cvVal, char* text, bool sharp);
+int printNoteOrig(float cvVal, char* text, bool sharp);
 
 int moveIndex(int index, int indexNext, int numSteps);
 

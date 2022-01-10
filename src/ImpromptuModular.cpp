@@ -72,6 +72,35 @@ void printNoteNoOct(int note, char* text, bool sharp) {// text must be at least 
 }
 
 
+int printNoteOrig(float cvVal, char* text, bool sharp) {// text must be at least 4 chars long (three displayed chars plus end of string)
+	// return cursor position of eos
+	
+	int indexNote;
+	int octave;
+	calcNoteAndOct(cvVal, &indexNote, &octave);
+	
+	// note letter
+	text[0] = sharp ? noteLettersSharp[indexNote] : noteLettersFlat[indexNote];
+	int cursor = 1;
+	
+	// octave number
+	octave += 4;
+	if (octave >= 0 && octave <= 9) {
+		text[cursor] = (char) ( 0x30 + octave);
+		cursor++;
+	}
+	
+	// sharp/flat
+	if (isBlackKey[indexNote] == 1) {
+		text[cursor] = (sharp ? '\"' : 'b' );
+		cursor++;
+	}
+	
+	text[cursor] = 0;
+	return cursor;
+}
+
+
 int printNote(float cvVal, char* text, bool sharp) {// text must be at least 4 chars long (three displayed chars plus end of string)
 	// return cursor position of eos
 	
