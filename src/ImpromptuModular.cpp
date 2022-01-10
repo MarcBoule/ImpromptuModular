@@ -81,18 +81,18 @@ int printNote(float cvVal, char* text, bool sharp) {// text must be at least 4 c
 	
 	// note letter
 	text[0] = sharp ? noteLettersSharp[indexNote] : noteLettersFlat[indexNote];
-	
-	// octave number
 	int cursor = 1;
-	octave += 4;
-	if (octave >= 0 && octave <= 9) {
-		text[1] = (char) ( 0x30 + octave);
-		cursor++;
-	}
 	
 	// sharp/flat
 	if (isBlackKey[indexNote] == 1) {
 		text[cursor] = (sharp ? '\"' : 'b' );
+		cursor++;
+	}
+	
+	// octave number
+	octave += 4;
+	if (octave >= 0 && octave <= 9) {
+		text[cursor] = (char) ( 0x30 + octave);
 		cursor++;
 	}
 	

@@ -1,3 +1,8 @@
+### 2.0.8 (in development)
+
+- Swap accidental and octave characters in displays that can print notes (FourView, Part, CVPad, WriteSeq32/64, etc.)
+
+
 ### 2.0.7 (2021-12-26)
 
 - Expose red and green led colors in ImpromptuModular.json for improved accessibility tweaking
