@@ -993,6 +993,26 @@ struct CvPadWidget : ModuleWidget {
 		// bank knob
 		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(padX + padXd * 3, topY), module, CvPad::BANK_PARAM, mode));
 	}
+	
+	void onHoverKey(const event::HoverKey& e) override {
+		if (e.action == GLFW_PRESS) {
+			if (e.key == GLFW_KEY_C) {
+				if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
+					((CvPad*)module)->cvCpBuf = ((CvPad*)module)->cvs[((CvPad*)module)->calcBank()][((CvPad*)module)->writeHead];
+					e.consume(this);
+					return;
+				}
+			}
+			else if (e.key == GLFW_KEY_V) {
+				if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
+					((CvPad*)module)->cvs[((CvPad*)module)->calcBank()][((CvPad*)module)->writeHead] = ((CvPad*)module)->cvCpBuf;
+					e.consume(this);
+					return;
+				}
+			}
+		}
+		ModuleWidget::onHoverKey(e);
+	}
 };
 
 
