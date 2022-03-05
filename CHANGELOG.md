@@ -1,6 +1,7 @@
 ### 2.0.8 (in development)
 
-- Swap accidental and octave characters in displays that can print notes (FourView, Part, CVPad, WriteSeq64, Foundry, but not WriteSeq32 to keep its display more readable)
+- Swaped accidental and octave characters in displays that can print notes (FourView, Part, CVPad, WriteSeq64, Foundry, but not WriteSeq32 to keep its display more readable)
+- Added new module called Var (Variations)
 
 
 ### 2.0.7 (2021-12-26)

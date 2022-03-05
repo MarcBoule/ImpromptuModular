@@ -189,6 +189,12 @@
 			"tags": ["Controller"]
 		},
 		{
+			"slug": "Variations",
+			"name": "Variations",
+			"description": "Adds a new random noise value to a CV on every gate",
+			"tags": ["Sample and hold", "Random", "Noise"]
+		},
+		{
 			"slug": "Write-Seq-32",
 			"name": "WriteSeq32",
 			"description": "3-channel, 32-step sequencer",

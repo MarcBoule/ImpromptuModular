@@ -44,6 +44,7 @@ void init(Plugin *p) {
 	p->addModel(modelTact1);
 	p->addModel(modelTactG);
 	p->addModel(modelTwelveKey);
+	p->addModel(modelVariations);
 	p->addModel(modelWriteSeq32);
 	p->addModel(modelWriteSeq64);
 	p->addModel(modelBlankPanel);
