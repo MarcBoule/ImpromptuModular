@@ -43,7 +43,7 @@ struct Variations : Module {
 	float panelContrast;
 	
 	// Need to save, with reset
-	float noise;
+	float cvHold[PORT_MAX_CHANNELS];
 	float lowClamp;
 	float highClamp;
 	bool lowRangeSpread;
@@ -54,7 +54,7 @@ struct Variations : Module {
 	
 	// No need to save, no reset
 	RefreshCounter refresh;
-	Trigger gateTrigger;
+	Trigger gateTriggers[PORT_MAX_CHANNELS];
 
 
 	bool isNormalDist() {
@@ -62,18 +62,22 @@ struct Variations : Module {
 	}
 	
 	float getNewNoise() {
-		float _noise = isNormalDist() ? (0.2f * random::normal()) : (random::uniform() * 2.0f - 1.0f);// all calibrated for +-1 V noise
-		return _noise * 5.0f;// returns a +- 5V noise without clamping
+		float _noise = isNormalDist() ? (0.2f * random::normal()) : (random::uniform() * 2.0f - 1.0f);
+		// all calibrated for +-1 V noise
+		return _noise * 5.0f;
+		// returns a +- 5V noise without clamping
 	}
 	
 	float getSpreadValue() {
 		float _spread = params[SPREAD_PARAM].getValue() + inputs[SPREAD_INPUT].getVoltage();
-		return lowRangeSpread ? _spread * 0.2f : _spread;// +-1V noise in low range, else +-5V noise
+		return lowRangeSpread ? _spread * 0.2f : _spread;
+		// +-1V noise in low range, else +-5V noise
 	}
 
 	float getOffsetValue() {
 		float _offset = params[OFFSET_PARAM].getValue() + inputs[OFFSET_INPUT].getVoltage();
-		return lowRangeOffset ? _offset * 0.333f : _offset;// +- 3.33V offset in low range, else +-10V offset
+		return lowRangeOffset ? _offset * 0.333f : _offset;
+		// +- 3.33V offset in low range, else +-10V offset
 	}
 
 
@@ -81,8 +85,8 @@ struct Variations : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
 		configSwitch(MODE_PARAM, 0.0f, 1.0f, 0.0f, "Noise mode", {"Normal", "Uniform"});// default is 0.0f meaning left position (= V)
-		configParam(SPREAD_PARAM, 0.0f, 1.0f, 0.2f, "Spread", " %", 0.0f, 100.0f, 0.0f);// diplay params are: base, mult, offset
-		configParam(OFFSET_PARAM, -10.0f, 10.0f, 0.0f, "Offset", " V");
+		configParam(SPREAD_PARAM, 0.0f, 1.0f, 0.0f, "Spread", " %", 0.0f, 100.0f, 0.0f);// diplay params are: base, mult, offset
+		configParam(OFFSET_PARAM, -10.0f, 10.0f, 0.0f, "Offset", " %", 0.0f, 10.0f, 0.0f);// diplay params are: base, mult, offset
 		
 		configInput(CV_INPUT, "CV");
 		configInput(GATE_INPUT, "Gate");
@@ -102,7 +106,9 @@ struct Variations : Module {
 
 	
 	void onReset() override {
-		noise = 0.0f;
+		for (int c = 0; c < PORT_MAX_CHANNELS; c++) {
+			cvHold[c] = 0.0f;
+		}
 		lowClamp = -10.0f;
 		highClamp = 10.0f;
 		lowRangeSpread = false;
@@ -126,8 +132,12 @@ struct Variations : Module {
 		// panelContrast
 		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
 
-		// noise
-		json_object_set_new(rootJ, "noise", json_real(noise));
+		// cvHold
+		json_t *cvHoldJ = json_array();
+		for (int c = 0; c < PORT_MAX_CHANNELS; c++) {
+			json_array_insert_new(cvHoldJ, c, json_real(cvHold[c]));
+		}
+		json_object_set_new(rootJ, "cvHold", cvHoldJ);
 
 		// lowClamp
 		json_object_set_new(rootJ, "lowClamp", json_real(lowClamp));
@@ -156,10 +166,16 @@ struct Variations : Module {
 		if (panelContrastJ)
 			panelContrast = json_number_value(panelContrastJ);
 		
-		// noise
-		json_t *noiseJ = json_object_get(rootJ, "noise");
-		if (noiseJ)
-			noise = json_number_value(noiseJ);
+		// cvHold
+		json_t *cvHoldJ = json_object_get(rootJ, "cvHold");
+		if (cvHoldJ && json_is_array(cvHoldJ)) {
+			for (int c = 0; c < PORT_MAX_CHANNELS; c++) {
+				json_t *cvHoldArrayJ = json_array_get(cvHoldJ, c);
+				if (cvHoldArrayJ) {
+					cvHold[c] = json_number_value(cvHoldArrayJ);
+				}
+			}
+		}
 
 		// lowClamp
 		json_t *lowClampJ = json_object_get(rootJ, "lowClamp");
@@ -186,36 +202,37 @@ struct Variations : Module {
 
 	
 	void process(const ProcessArgs &args) override {		
-		// int numChan = inputs[GATE_INPUT].getChannels();
+		int numChan = inputs[GATE_INPUT].getChannels();
 		
 		if (refresh.processInputs()) {
-			// outputs[GATE_OUTPUT].setChannels(numChan);
-			// outputs[CV_OUTPUT].setChannels(inputs[CV_INPUT].getChannels());
+			outputs[GATE_OUTPUT].setChannels(numChan);
+			outputs[CV_OUTPUT].setChannels(numChan);
 		}// userInputs refresh
 				
-		if (gateTrigger.process(inputs[GATE_INPUT].getVoltage()) || !inputs[GATE_INPUT].isConnected()) {
-			noise = getNewNoise();
+		for (int c = 0; c < numChan; c++) {
+			// gate trigger
+			if (gateTriggers[c].process(inputs[GATE_INPUT].getVoltage(c) || !inputs[GATE_INPUT].isConnected())) {
+				cvHold[c] = inputs[CV_INPUT].getVoltage(c);
+				// spread and offset
+				cvHold[c] += getSpreadValue() * getNewNoise();
+				cvHold[c] += getOffsetValue();
+				// clamper and its led
+				if (cvHold[c] < lowClamp) {
+					lights[CLAMP_LIGHT].setBrightness(1.0f);
+					cvHold[c] = lowClamp;
+				}
+				else if (cvHold[c] > highClamp) {
+					lights[CLAMP_LIGHT].setBrightness(1.0f);
+					cvHold[c] = highClamp;
+				}
+				else {
+					lights[CLAMP_LIGHT].setBrightness(0.0f);
+				}
+			}
+			// outputs
+			outputs[CV_OUTPUT].setVoltage(cvHold[c], c);
+			outputs[GATE_OUTPUT].setVoltage(inputs[GATE_INPUT].getVoltage(c), c);// thru but with same sample delay as CV
 		}
-		
-		float outCv = inputs[CV_INPUT].getVoltage();
-		// spread and offset
-		outCv += getSpreadValue() * noise;
-		outCv += getOffsetValue();
-		// clamper and its led
-		if (outCv < lowClamp) {
-			lights[CLAMP_LIGHT].setBrightness(1.0f);
-			outCv = lowClamp;
-		}
-		else if (outCv > highClamp) {
-			lights[CLAMP_LIGHT].setBrightness(1.0f);
-			outCv = highClamp;
-		}
-		else {
-			lights[CLAMP_LIGHT].setBrightness(0.0f);
-		}
-		// outputs
-		outputs[CV_OUTPUT].setVoltage(outCv);
-		outputs[GATE_OUTPUT].setVoltage(inputs[GATE_INPUT].getVoltage());// thru but with same sample delay as CV
 		
 		// lights
 		if (refresh.processLights()) {
