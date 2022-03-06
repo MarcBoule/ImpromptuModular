@@ -192,7 +192,7 @@
 			"slug": "Variations",
 			"name": "Variations",
 			"description": "Adds a new random noise value to a CV on every gate",
-			"tags": ["Sample and hold", "Random", "Noise"]
+			"tags": ["Sample and hold", "Random", "Noise", "Polyphonic"]
 		},
 		{
 			"slug": "Write-Seq-32",

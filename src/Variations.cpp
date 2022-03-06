@@ -50,7 +50,7 @@ struct Variations : Module {
 	bool lowRangeOffset;
 
 	// No need to save, with reset
-	// none
+	uint16_t clamped;// bit 0 is chan 0
 	
 	// No need to save, no reset
 	RefreshCounter refresh;
@@ -68,15 +68,23 @@ struct Variations : Module {
 		// returns a +- 5V noise without clamping
 	}
 	
-	float getSpreadValue() {
-		float _spread = params[SPREAD_PARAM].getValue() + inputs[SPREAD_INPUT].getVoltage();
-		return lowRangeSpread ? _spread * 0.2f : _spread;
+	float getSpreadValue(int c) {
+		float _spread = params[SPREAD_PARAM].getValue();
+		int _numCvIn = inputs[SPREAD_INPUT].getChannels();
+		if (_numCvIn > 0) {
+			_spread += inputs[SPREAD_INPUT].getVoltage(std::min(c, _numCvIn - 1)) * 0.1f;
+		}
+		return lowRangeSpread ? (_spread * 0.2f) : _spread;
 		// +-1V noise in low range, else +-5V noise
 	}
 
-	float getOffsetValue() {
-		float _offset = params[OFFSET_PARAM].getValue() + inputs[OFFSET_INPUT].getVoltage();
-		return lowRangeOffset ? _offset * 0.333f : _offset;
+	float getOffsetValue(int c) {
+		float _offset = params[OFFSET_PARAM].getValue();
+		int _numCvIn = inputs[OFFSET_INPUT].getChannels();
+		if (_numCvIn > 0) {
+			_offset += inputs[OFFSET_INPUT].getVoltage(std::min(c, _numCvIn - 1));
+		}
+		return lowRangeOffset ? (_offset * 0.333f) : _offset;
 		// +- 3.33V offset in low range, else +-10V offset
 	}
 
@@ -116,6 +124,7 @@ struct Variations : Module {
 		resetNonJson();
 	}
 	void resetNonJson() {
+		clamped = 0;
 	}
 	
 	
@@ -202,7 +211,10 @@ struct Variations : Module {
 
 	
 	void process(const ProcessArgs &args) override {		
-		int numChan = inputs[GATE_INPUT].getChannels();
+		int numChan = inputs[CV_INPUT].getChannels();
+		if (inputs[GATE_INPUT].isConnected()) {
+			numChan = std::max(numChan, inputs[GATE_INPUT].getChannels());
+		}
 		
 		if (refresh.processInputs()) {
 			outputs[GATE_OUTPUT].setChannels(numChan);
@@ -211,22 +223,22 @@ struct Variations : Module {
 				
 		for (int c = 0; c < numChan; c++) {
 			// gate trigger
-			if (gateTriggers[c].process(inputs[GATE_INPUT].getVoltage(c) || !inputs[GATE_INPUT].isConnected())) {
+			if (gateTriggers[c].process(inputs[GATE_INPUT].getVoltage(c)) || !inputs[GATE_INPUT].isConnected()) {
 				cvHold[c] = inputs[CV_INPUT].getVoltage(c);
 				// spread and offset
-				cvHold[c] += getSpreadValue() * getNewNoise();
-				cvHold[c] += getOffsetValue();
+				cvHold[c] += getSpreadValue(c) * getNewNoise();
+				cvHold[c] += getOffsetValue(c);
 				// clamper and its led
 				if (cvHold[c] < lowClamp) {
-					lights[CLAMP_LIGHT].setBrightness(1.0f);
+					clamped |= (0x1 << c);
 					cvHold[c] = lowClamp;
 				}
 				else if (cvHold[c] > highClamp) {
-					lights[CLAMP_LIGHT].setBrightness(1.0f);
+					clamped |= (0x1 << c);
 					cvHold[c] = highClamp;
 				}
 				else {
-					lights[CLAMP_LIGHT].setBrightness(0.0f);
+					clamped &= ~(0x1 << c);
 				}
 			}
 			// outputs
@@ -236,7 +248,7 @@ struct Variations : Module {
 		
 		// lights
 		if (refresh.processLights()) {
-			// none, but need this since refresh counter is stepped in processLights()
+			lights[CLAMP_LIGHT].setBrightness((clamped != 0 && numChan > 0) ? 1.0f : 0.0f);
 		}
 	}
 };
