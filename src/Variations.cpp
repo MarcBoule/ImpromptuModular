@@ -275,7 +275,7 @@ struct VariationsWidget : ModuleWidget {
 		float getDefaultValue() override {return isMaxClamper ? getMaxValue() : getMinValue();}
 		float getDisplayValue() override {return *clampPtr;}
 		std::string getDisplayValueString() override {
-			return string::f("%.1f", *clampPtr);
+			return string::f("%.2f", *clampPtr);
 		}
 		void setDisplayValue(float displayValue) override {setValue(displayValue);}
 		std::string getLabel() override {return isMaxClamper ? "Max CV out" : "Min CV out";}
