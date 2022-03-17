@@ -2,6 +2,7 @@
 
 - Swaped accidental and octave characters in displays that can print notes (FourView, Part, CVPad, WriteSeq64, Foundry, but not WriteSeq32 to keep its display more readable)
 - Added new module called Var (Variations)
+- Added new module called Sygen (Synchronous gate enable)
 
 
 ### 2.0.7 (2021-12-26)

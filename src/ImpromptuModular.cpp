@@ -40,6 +40,7 @@ void init(Plugin *p) {
 	p->addModel(modelPhraseSeqExpander);
 	p->addModel(modelProbKey);
 	p->addModel(modelSemiModularSynth);
+	p->addModel(modelSygen);
 	p->addModel(modelTact);
 	p->addModel(modelTact1);
 	p->addModel(modelTactG);

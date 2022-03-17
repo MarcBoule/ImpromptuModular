@@ -161,6 +161,12 @@
 			"tags": ["Synth voice", "Sequencer"]
 		},
 		{
+			"slug": "Sygen",
+			"name": "Sygen",
+			"description": "Synchronous gate enable",
+			"tags": ["Utility"]
+		},
+		{
 			"slug": "Tact",
 			"name": "Tact",
 			"description": "Dual-channel tactile-inspired controller",
