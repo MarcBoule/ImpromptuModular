@@ -37,6 +37,7 @@ struct Sygen : Module {
 	// Need to save, with reset
 	bool syncEnabled[4];
 	bool pending[4];
+	int fastToogleWhenGateLow;
 
 	// No need to save, with reset
 	// none
@@ -67,6 +68,7 @@ struct Sygen : Module {
 			syncEnabled[i] = true;
 			pending[i] = false;
 		}
+		fastToogleWhenGateLow = 0x1;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -97,6 +99,9 @@ struct Sygen : Module {
 		for (int i = 0; i < 4; i++)
 			json_array_insert_new(pendingJ, i, json_boolean(pending[i]));
 		json_object_set_new(rootJ, "pending", pendingJ);
+
+		// fastToogleWhenGateLow
+		json_object_set_new(rootJ, "fastToogleWhenGateLow", json_integer(fastToogleWhenGateLow));
 
 		return rootJ;
 	}
@@ -133,6 +138,11 @@ struct Sygen : Module {
 			}
 		}
 		
+		// fastToogleWhenGateLow
+		json_t *fastToogleWhenGateLowJ = json_object_get(rootJ, "fastToogleWhenGateLow");
+		if (fastToogleWhenGateLowJ)
+			fastToogleWhenGateLow = json_integer_value(fastToogleWhenGateLowJ);
+		
 		resetNonJson();
 	}
 
@@ -142,7 +152,13 @@ struct Sygen : Module {
 		if (refresh.processInputs()) {
 			for (int i = 0; i < 4; i++) {
 				if (buttonTriggers[i].process(params[ENABLE_PARAMS + i].getValue())) {
-					pending[i] = !pending[i];
+					if (gateInTriggers[i].isHigh()) {
+						pending[i] = !pending[i];
+					}
+					else {
+						pending[i] = false;
+						syncEnabled[i] = !syncEnabled[i];
+					}
 				}
 			}
 		}// userInputs refresh
@@ -178,8 +194,14 @@ struct SygenWidget : ModuleWidget {
 
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
 		
-		// menu->addChild(new MenuSeparator());
-		// menu->addChild(createMenuLabel("Settings"));
+		menu->addChild(new MenuSeparator());
+		menu->addChild(createMenuLabel("Settings"));
+		
+		menu->addChild(createCheckMenuItem("Fast toggle when gate input is low", "",
+			[=]() {return module->fastToogleWhenGateLow != 0;},
+			[=]() {module->fastToogleWhenGateLow ^= 0x1;}
+		));
+
 	}	
 	
 	
