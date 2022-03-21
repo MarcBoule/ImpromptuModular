@@ -41,11 +41,15 @@ Each module is available in light or dark panels with contrast adjusment, select
 
 * [SMS16](#sms-16): Internally pre-patched all-in-one semi-modular synthesizer for quickly getting sounds and learning the basics of modular synthesis.
 
+* [Sygen](#sygen): Synchronous gate enable.
+
 * [Tact/Tact1/TactG](#tact): Touch-like CV controller modules.
 
 * [TwelveKey](#twelve-key): Chainable one-octave keyboard controller.
 
 * [WriteSeq32/64](#write-seq): Multi-channel 32/64-step sequencers with CV inputs for easy sequence programming.
+
+* [Variations](#variations): Sample and hold a CV with addition of a random noise value.
 
 Recommended reading:
 
@@ -517,6 +521,17 @@ For chords or polyphonic content, an option in the module's right-click menu can
 
 
 
+<a id="four-view"></a>
+## FourView
+
+![IM](res/img/FourView.jpg)
+
+A chord viewer module that shows the note names of up to 4 CVs, or the name of the chord represented by these CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs. FourView can also function as an expander for ChordKey or CVPad by placing it to the right of either of those two modules; in this case: a) no cables need to be connected in order to view the note names of the chord notes or pad voltages and b) the through outputs are not used. The FourView module also allows the copying of the displayed notes via the Portable sequence format for pasting as a chord in ChordKey or other modules. For more information, please see the [ChordKey](#chord-key) manual, as the two available copy options are the same as in that module.
+
+([Back to module list](#modules))
+
+
+
 <a id="gate-seq-64"></a>
 ## GateSeq64
 
@@ -571,6 +586,34 @@ ALL    CLR       Clears (initializes) the song (all 1s)
 ```
 
 In cross paste operation, the copied content is actually irrelevant and unused.
+
+([Back to module list](#modules))
+
+
+
+<a id="hotkey"></a>
+## Hotkey
+
+![IM](res/img/Hotkey.jpg)
+
+Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize audio recording using VCV Recorder with video recording (using OBS Studio for example). Set a hotkey in OBS to automatically have it start/stop recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same key in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press. Send the trig output of Hotkey into the trig input of VCV Recorder.
+
+* **SET**: The hotkey can be programmed using the SET button. When armed, any key press will be captured and used as the hotkey. For key combinations, like ALT+K for example, all modifiers (ALT, CTRL/CMD, SHIFT) must be pressed before arming the SET button. Once armed the next key is automatically taken, along with any modifyers that are pressed. This allows the CTRL key itself to be used as a hotkey (when pressed after arming).
+
+* **DELAY**: Delay the trigger output by an amount of time between 0 and 1 second. To enter an amout of time more precisely, use Rack's parameter right-click to enter a value directly. 
+
+The current hotkey is visible in the right-click menu of the module and is automatically saved. 
+
+([Back to module list](#modules))
+
+
+
+<a id="part"></a>
+## Part
+
+![IM](res/img/Part.jpg)
+
+A gate splitter module based on a CV input and a split point. One use for this module is to split a polyphonic gate signal from a keyboard into two different polyphonic gate signals, such that the left and right hand parts can be sent to different voices. In such a case, the polyphonic CV should also be sent directly to each voice, and only the gates below/above the split point will produce sound in their respective voices. The module can also be used with monophonic signals. When chaining two Part modules to select a range of notes (with an upper and lower bound), it is important that the CV input of the second Part module be connected to the THRU output of the first Part module, to ensure gates and CVs have identical propagation delays. This is necessary to avoid glitches that can occur when gates are held continually high and the CV changes from a value above the upper bound to below the lower bound in two succesive Rack samples (or vice-versa). An option called **Apply -1mV epsilon to split point**, which is on by default, subtracts 1mV to the split point in order to produce consistent splitting given the small imprecisions often found in the CV input's V/Oct levels; this option can be deactivated in the module's right click menu.
 
 ([Back to module list](#modules))
 
@@ -802,6 +845,17 @@ In Tact-G, two offset controls are added, one is a knob for direct control while
 
 
 
+<a id="sygen"></a>
+## Sygen
+
+![IM](res/img/Sygen.jpg)
+
+Sygen allows the user to enable or disable up to four independant gate signals without interrupting the high pulses of the gates. When a gate input is low for a given channel, its enable status can be toggled instanly (using that channel's push-button), and when the gate input is high, the change is pending until the gate input goes low again, in order to not cut the gate pulse. 
+
+([Back to module list](#modules))
+
+
+
 <a id="twelve-key"></a>
 ## TwelveKey
 
@@ -834,7 +888,6 @@ Options available in the right-click menu include:
 * **Tracer**: Keep the last key pressed faintly lit. Because multiple TwelveKey modules do not communicate bi-directionally when making a mutli-octave keyboard, it is not possible to have a single bright light showing the last unique key pressed across all modules.
 
 * **CV input viewer**: When this option is activated, the module will not respond to key presses but will instead show which  key the CV input corresponds to, provided that the given CV is within in the selected octave. In this manner, a chain of TwelveKey modules, each having the option activated, will serve as a keyboard note indicator. When a note is outside of the octave intervals of the chain, no key will light up. When using this setup, the Octave, CV and Gate connections should be made between all TwelveKey modules. The CV is simply a pass through, the Octave automatically sets up consecutive octaves as usual, and the gate is used as an enable for the key light. When the left-most module's Gate input is unconnected, a selected key's light will stay continually on.
-
 
 ([Back to module list](#modules))
 
@@ -881,29 +934,12 @@ WriteSeq64 has dual clock inputs, where each controls a pair of channels. When n
 
 
 
-<a id="utilities"></a>
-## Utilities
+<a id="variations"></a>
+## Variations
 
-![IM](res/img/Utilities.jpg)
+![IM](res/img/Variations.jpg)
 
-<a id="part"></a>
-### Part
-
-A gate splitter module based on a CV input and a split point. One use for this module is to split a polyphonic gate signal from a keyboard into two different polyphonic gate signals, such that the left and right hand parts can be sent to different voices. In such a case, the polyphonic CV should also be sent directly to each voice, and only the gates below/above the split point will produce sound in their respective voices. The module can also be used with monophonic signals. When chaining two Part modules to select a range of notes (with an upper and lower bound), it is important that the CV input of the second Part module be connected to the THRU output of the first Part module, to ensure gates and CVs have identical propagation delays. This is necessary to avoid glitches that can occur when gates are held continually high and the CV changes from a value above the upper bound to below the lower bound in two succesive Rack samples (or vice-versa). An option called **Apply -1mV epsilon to split point**, which is on by default, subtracts 1mV to the split point in order to produce consistent splitting given the small imprecisions often found in the CV input's V/Oct levels; this option can be deactivated in the module's right click menu.
-
-<a id="four-view"></a>
-### FourView
-A chord viewer module that shows the note names of up to 4 CVs, or the name of the chord represented by these CVs. Sharp or flat notation is selectable in the right-click menu. Bottom jacks are through outputs. FourView can also function as an expander for ChordKey or CVPad by placing it to the right of either of those two modules; in this case: a) no cables need to be connected in order to view the note names of the chord notes or pad voltages and b) the through outputs are not used. The FourView module also allows the copying of the displayed notes via the Portable sequence format for pasting as a chord in ChordKey or other modules. For more information, please see the [ChordKey](#chord-key) manual, as the two available copy options are the same as in that module.
-
-<a id="hotkey"></a>
-### Hotkey
-Sends a trigger when a given keyboard key is pressed. The mouse cursor must be over the module. This module was made to synchronize audio recording using VCV Recorder with video recording (using OBS Studio for example). Set a hotkey in OBS to automatically have it start/stop recording upon a given keypress (works even when OBS is not in focus), then maximize Rack and set the same key in Hotkey; both recorders can then be started and stopped simultaneously on the same key-press. Send the trig output of Hotkey into the trig input of VCV Recorder.
-
-* **SET**: The hotkey can be programmed using the SET button. When armed, any key press will be captured and used as the hotkey. For key combinations, like ALT+K for example, all modifiers (ALT, CTRL/CMD, SHIFT) must be pressed before arming the SET button. Once armed the next key is automatically taken, along with any modifyers that are pressed. This allows the CTRL key itself to be used as a hotkey (when pressed after arming).
-
-* **DELAY**: Delay the trigger output by an amount of time between 0 and 1 second. To enter an amout of time more precisely, use Rack's parameter right-click to enter a value directly. 
-
-The current hotkey is visible in the right-click menu of the module and is automatically saved. 
+Variations is a polyphonic sample and hold designed to add a random noise value to a control voltage. Two noise profiles are selectable via a switch at the top of the module: normal (gaussian) or uniform distribution. The spread knob controls how much variation to add, and is akin to a gain knob for the noise. The offset is a constant voltage that is added to the CV input. Both these knobs' tooltips are percentages, in order to account for the low range modes available in the module's right-click menu; stated otherwise, the rightmost tooltip values are always displayed as 100% regardless of whether low ranges are enabled or not. Both knobs are also included in the sample and hold mechanism that is triggered by the gate signal. The module also features hard limiting in the right-click menu, to constrain the CV ouput if desired (the red LED at the bottom will light up when limiting is occurring). The gate output is a copy of the gate input, but has the same one-sample delay as the CV signal, in order to keep sample-accurate timing between the two, if needed. When the gate input is unconnected, the module essentially functions as a noise generator via the CV output.
 
 ([Back to module list](#modules))
 

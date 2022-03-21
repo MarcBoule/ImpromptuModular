@@ -211,7 +211,7 @@ struct Variations : Module {
 
 	
 	void process(const ProcessArgs &args) override {		
-		int numChan = inputs[CV_INPUT].getChannels();
+		int numChan = std::max(1, inputs[CV_INPUT].getChannels());
 		if (inputs[GATE_INPUT].isConnected()) {
 			numChan = std::max(numChan, inputs[GATE_INPUT].getChannels());
 		}
@@ -302,8 +302,8 @@ struct VariationsWidget : ModuleWidget {
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
 		
-		menu->addChild(createBoolPtrMenuItem("Low range spread", "", &module->lowRangeSpread));
-		menu->addChild(createBoolPtrMenuItem("Low range offset", "", &module->lowRangeOffset));
+		menu->addChild(createBoolPtrMenuItem("Low range spread (1/5)", "", &module->lowRangeSpread));
+		menu->addChild(createBoolPtrMenuItem("Low range offset (1/3)", "", &module->lowRangeOffset));
 		
 		CvClampSlider *maxCvSlider = new CvClampSlider(&module->highClamp, true);
 		maxCvSlider->box.size.x = 200.0f;

@@ -152,12 +152,17 @@ struct Sygen : Module {
 		if (refresh.processInputs()) {
 			for (int i = 0; i < 4; i++) {
 				if (buttonTriggers[i].process(params[ENABLE_PARAMS + i].getValue())) {
-					if (gateInTriggers[i].isHigh()) {
-						pending[i] = !pending[i];
+					if (fastToogleWhenGateLow) {
+						if (gateInTriggers[i].isHigh()) {
+							pending[i] = !pending[i];
+						}
+						else {
+							pending[i] = false;
+							syncEnabled[i] = !syncEnabled[i];
+						}
 					}
 					else {
-						pending[i] = false;
-						syncEnabled[i] = !syncEnabled[i];
+						pending[i] = !pending[i];
 					}
 				}
 			}

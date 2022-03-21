@@ -164,6 +164,7 @@
 			"slug": "Sygen",
 			"name": "Sygen",
 			"description": "Synchronous gate enable",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#sygen",
 			"tags": ["Utility"]
 		},
 		{
@@ -195,12 +196,6 @@
 			"tags": ["Controller"]
 		},
 		{
-			"slug": "Variations",
-			"name": "Variations",
-			"description": "Adds a new random noise value to a CV on every gate",
-			"tags": ["Sample and hold", "Random", "Noise", "Polyphonic"]
-		},
-		{
 			"slug": "Write-Seq-32",
 			"name": "WriteSeq32",
 			"description": "3-channel, 32-step sequencer",
@@ -213,6 +208,13 @@
 			"description": "4-channel, 64-step sequencer",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#write-seq",
 			"tags": ["Sequencer"]
+		},
+		{
+			"slug": "Variations",
+			"name": "Variations",
+			"description": "Sample and hold a CV with addition of a random noise value",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#variations",
+			"tags": ["Sample and hold", "Random", "Noise", "Polyphonic"]
 		},
 		{
 			"slug": "Blank-Panel",
