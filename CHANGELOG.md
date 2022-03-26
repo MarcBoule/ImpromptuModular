@@ -1,4 +1,4 @@
-### 2.0.8 (in development)
+### 2.1.0 (2022-03-26)
 
 - Swaped accidental and octave characters in displays that can print notes (FourView, Part, CVPad, WriteSeq64, Foundry, but not WriteSeq32 to keep its display more readable)
 - Added new module called Var (Variations)
