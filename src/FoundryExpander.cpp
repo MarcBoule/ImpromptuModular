@@ -79,31 +79,32 @@ struct FoundryExpander : Module {
 
 
 	void process(const ProcessArgs &args) override {		
-		expanderRefreshCounter++;
+		// done outside expanderRefresh so that SEQ CV inputs are more responsive (issue #51)
+		bool motherPresent = leftExpander.module && leftExpander.module->model == modelFoundry;
+		float *messagesFromMother = (float*)leftExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
+		if (motherPresent) {
+			// To Mother
+			float *messagesToMother = (float*)leftExpander.module->rightExpander.producerMessage;
+			int i = 0;
+			for (; i < GATECV_INPUT; i++) {
+				messagesToMother[i] = (inputs[i].isConnected() ? inputs[i].getVoltage() : std::numeric_limits<float>::quiet_NaN());
+			}
+			for (; i < NUM_INPUTS; i++) {
+				messagesToMother[i] = inputs[i].getVoltage();
+			}
+			messagesToMother[i++] = params[SYNC_SEQCV_PARAM].getValue();
+			messagesToMother[i++] = params[WRITEMODE_PARAM].getValue();
+			leftExpander.module->rightExpander.messageFlipRequested = true;
+
+			// From Mother
+			panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 1);
+			panelContrast = clamp(messagesFromMother[1], 0.0f, 255.0f);
+		}		
+
+		expanderRefreshCounter++; 
 		if (expanderRefreshCounter >= expanderRefreshStepSkips) {
 			expanderRefreshCounter = 0;
-			
-			bool motherPresent = leftExpander.module && leftExpander.module->model == modelFoundry;
-			float *messagesFromMother = (float*)leftExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
-			if (motherPresent) {
-				// To Mother
-				float *messagesToMother = (float*)leftExpander.module->rightExpander.producerMessage;
-				int i = 0;
-				for (; i < GATECV_INPUT; i++) {
-					messagesToMother[i] = (inputs[i].isConnected() ? inputs[i].getVoltage() : std::numeric_limits<float>::quiet_NaN());
-				}
-				for (; i < NUM_INPUTS; i++) {
-					messagesToMother[i] = inputs[i].getVoltage();
-				}
-				messagesToMother[i++] = params[SYNC_SEQCV_PARAM].getValue();
-				messagesToMother[i++] = params[WRITEMODE_PARAM].getValue();
-				leftExpander.module->rightExpander.messageFlipRequested = true;
-
-				// From Mother
-				panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 1);
-				panelContrast = clamp(messagesFromMother[1], 0.0f, 255.0f);
-			}		
-
+		
 			// From Mother (done outside since turn off leds with no mother; has its own motherPresent guards)
 			lights[WRITE_SEL_LIGHTS + 0].setBrightness(motherPresent ? messagesFromMother[2] : 0.0f);
 			lights[WRITE_SEL_LIGHTS + 1].setBrightness(motherPresent ? messagesFromMother[3] : 0.0f);			
