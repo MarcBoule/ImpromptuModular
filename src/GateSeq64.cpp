@@ -599,23 +599,7 @@ struct GateSeq64 : Module {
 					sequences[i].setLength(16 * stepConfig);
 				initRun();
 			}
-			
-			// Seq CV input
-			if (inputs[SEQCV_INPUT].isConnected()) {
-				if (seqCVmethod == 0) {// 0-10 V
-					int newSeq = (int)( inputs[SEQCV_INPUT].getVoltage() * (((float)MAX_SEQS) - 1.0f) / 10.0f + 0.5f );
-					sequence = clamp(newSeq, 0, MAX_SEQS - 1);
-				}
-				else if (seqCVmethod == 1) {// C4-G6
-					int newSeq = (int)std::round(inputs[SEQCV_INPUT].getVoltage() * 12.0f);
-					sequence = clamp(newSeq, 0, MAX_SEQS - 1);
-				}
-				else {// TrigIncr
-					if (seqCVTrigger.process(inputs[SEQCV_INPUT].getVoltage()))
-						sequence = clamp(sequence + 1, 0, MAX_SEQS - 1);
-				}	
-			}
-			
+						
 			// Copy button
 			if (copyTrigger.process(params[COPY_PARAM].getValue())) {
 				startCP = editingSequence ? stepIndexEdit : phraseIndexEdit;
@@ -937,7 +921,23 @@ struct GateSeq64 : Module {
 				sequenceKnob = newSequenceKnob;
 			}		
 		}// userInputs refresh
-		
+	
+	
+		// Seq CV input
+		if (inputs[SEQCV_INPUT].isConnected()) {
+			if (seqCVmethod == 0) {// 0-10 V
+				int newSeq = (int)( inputs[SEQCV_INPUT].getVoltage() * (((float)MAX_SEQS) - 1.0f) / 10.0f + 0.5f );
+				sequence = clamp(newSeq, 0, MAX_SEQS - 1);
+			}
+			else if (seqCVmethod == 1) {// C4-G6
+				int newSeq = (int)std::round(inputs[SEQCV_INPUT].getVoltage() * 12.0f);
+				sequence = clamp(newSeq, 0, MAX_SEQS - 1);
+			}
+			else {// TrigIncr
+				if (seqCVTrigger.process(inputs[SEQCV_INPUT].getVoltage()))
+					sequence = clamp(sequence + 1, 0, MAX_SEQS - 1);
+			}	
+		}
 		
 		
 		//********** Clock and reset **********

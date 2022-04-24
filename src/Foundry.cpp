@@ -560,33 +560,6 @@ struct Foundry : Module {
 				}
 			}
 			
-			// Seq CV input
-			for (int trkn = 0; trkn < Sequencer::NUM_TRACKS; trkn++) {
-				if (expanderPresent) {
-					float seqCVin = messagesFromExpander[Sequencer::NUM_TRACKS + trkn];
-					if (!std::isnan(seqCVin)) {
-						int newSeq = -1;
-						if (seqCVmethod == 0) {// 0-10 V
-							newSeq = (int)(seqCVin * ((float)SequencerKernel::MAX_SEQS - 1.0f) / 10.0f + 0.5f );
-							newSeq = clamp(newSeq, 0, SequencerKernel::MAX_SEQS - 1);
-						}
-						else if (seqCVmethod == 1) {// C2-D7#
-							newSeq = (int)std::round((seqCVin + 2.0f) * 12.0f);
-							newSeq = clamp(newSeq, 0, SequencerKernel::MAX_SEQS - 1);
-						}
-						else if (seqCVTriggers[trkn].process(seqCVin)) {// TrigIncr
-							newSeq = clamp(seq.getSeqIndexEdit(trkn) + 1, 0, SequencerKernel::MAX_SEQS - 1);
-						}
-						if (newSeq >= 0) {
-							if (messagesFromExpander[Sequencer::NUM_TRACKS * 2 + 1 + 7] > 0.5f && running)
-								seq.requestDelayedSeqChange(trkn, newSeq);
-							else
-								seq.setSeqIndexEdit(newSeq, trkn);				
-						}
-					}
-				}
-			}
-			
 			// Attach button
 			if (attachedTrigger.process(params[ATTACH_PARAM].getValue())) {
 				attached = !attached;
@@ -1053,7 +1026,34 @@ struct Foundry : Module {
 		}// userInputs refresh
 		
 		
-		
+		// Seq CV input
+		if (expanderPresent) {
+			for (int trkn = 0; trkn < Sequencer::NUM_TRACKS; trkn++) {
+				float seqCVin = messagesFromExpander[Sequencer::NUM_TRACKS + trkn];
+				if (!std::isnan(seqCVin)) {
+					int newSeq = -1;
+					if (seqCVmethod == 0) {// 0-10 V
+						newSeq = (int)(seqCVin * ((float)SequencerKernel::MAX_SEQS - 1.0f) / 10.0f + 0.5f );
+						newSeq = clamp(newSeq, 0, SequencerKernel::MAX_SEQS - 1);
+					}
+					else if (seqCVmethod == 1) {// C2-D7#
+						newSeq = (int)std::round((seqCVin + 2.0f) * 12.0f);
+						newSeq = clamp(newSeq, 0, SequencerKernel::MAX_SEQS - 1);
+					}
+					else if (seqCVTriggers[trkn].process(seqCVin)) {// TrigIncr
+						newSeq = clamp(seq.getSeqIndexEdit(trkn) + 1, 0, SequencerKernel::MAX_SEQS - 1);
+					}
+					if (newSeq >= 0) {
+						if (messagesFromExpander[Sequencer::NUM_TRACKS * 2 + 1 + 7] > 0.5f && running)
+							seq.requestDelayedSeqChange(trkn, newSeq);
+						else
+							seq.setSeqIndexEdit(newSeq, trkn);				
+					}
+				}
+			}
+		}
+
+			
 		//********** Clock and reset **********
 		
 		// Clock

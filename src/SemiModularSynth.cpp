@@ -953,23 +953,7 @@ struct SemiModularSynth : Module {
 			displayState = DISP_NORMAL;
 		}
 
-		if (refresh.processInputs()) {
-			// Seq CV input
-			if (inputs[SEQCV_INPUT].isConnected()) {
-				if (seqCVmethod == 0) {// 0-10 V
-					int newSeq = (int)( inputs[SEQCV_INPUT].getVoltage() * (16.0f - 1.0f) / 10.0f + 0.5f );
-					seqIndexEdit = clamp(newSeq, 0, 16 - 1);
-				}
-				else if (seqCVmethod == 1) {// C4-D5#
-					int newSeq = (int)std::round(inputs[SEQCV_INPUT].getVoltage() * 12.0f);
-					seqIndexEdit = clamp(newSeq, 0, 16 - 1);
-				}
-				else {// TrigIncr
-					if (seqCVTrigger.process(inputs[SEQCV_INPUT].getVoltage()))
-						seqIndexEdit = clamp(seqIndexEdit + 1, 0, 16 - 1);
-				}	
-			}
-			
+		if (refresh.processInputs()) {			
 			// Attach button
 			if (attachedTrigger.process(params[ATTACH_PARAM].getValue())) {
 				attached = !attached;	
@@ -1403,6 +1387,22 @@ struct SemiModularSynth : Module {
 			}		
 		}// userInputs refresh
 
+
+		// Seq CV input
+		if (inputs[SEQCV_INPUT].isConnected()) {
+			if (seqCVmethod == 0) {// 0-10 V
+				int newSeq = (int)( inputs[SEQCV_INPUT].getVoltage() * (16.0f - 1.0f) / 10.0f + 0.5f );
+				seqIndexEdit = clamp(newSeq, 0, 16 - 1);
+			}
+			else if (seqCVmethod == 1) {// C4-D5#
+				int newSeq = (int)std::round(inputs[SEQCV_INPUT].getVoltage() * 12.0f);
+				seqIndexEdit = clamp(newSeq, 0, 16 - 1);
+			}
+			else {// TrigIncr
+				if (seqCVTrigger.process(inputs[SEQCV_INPUT].getVoltage()))
+					seqIndexEdit = clamp(seqIndexEdit + 1, 0, 16 - 1);
+			}	
+		}
 
 		
 		//********** Clock and reset **********
