@@ -1,3 +1,8 @@
+### 2.1.1 (in development)
+
+- Improved SEQ CV input responsiveness in all phrase sequencers
+
+
 ### 2.1.0 (2022-03-26)
 
 - Swaped accidental and octave characters in displays that can print notes (FourView, Part, CVPad, WriteSeq64, Foundry, but not WriteSeq32 to keep its display more readable)
