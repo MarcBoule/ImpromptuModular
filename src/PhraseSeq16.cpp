@@ -103,6 +103,7 @@ struct PhraseSeq16 : Module {
 	bool autoseq;
 	bool autostepLen;
 	bool holdTiedNotes;
+	bool keepCVTiedNotes;
 	int seqCVmethod;// 0 is 0-10V, 1 is C4-D5#, 2 is TrigIncr
 	int pulsesPerStep;// 1 means normal gate mode, alt choices are 4, 6, 12, 24 PPS (Pulses per step)
 	bool running;
@@ -258,6 +259,7 @@ struct PhraseSeq16 : Module {
 		autoseq = false;
 		autostepLen = false;
 		holdTiedNotes = true;
+		keepCVTiedNotes = false;
 		seqCVmethod = 0;
 		pulsesPerStep = 1;
 		running = true;
@@ -347,6 +349,9 @@ struct PhraseSeq16 : Module {
 		
 		// holdTiedNotes
 		json_object_set_new(rootJ, "holdTiedNotes", json_boolean(holdTiedNotes));
+		
+		// keepCVTiedNotes
+		json_object_set_new(rootJ, "keepCVTiedNotes", json_boolean(keepCVTiedNotes));
 		
 		// seqCVmethod
 		json_object_set_new(rootJ, "seqCVmethod", json_integer(seqCVmethod));
@@ -440,6 +445,11 @@ struct PhraseSeq16 : Module {
 		else
 			holdTiedNotes = false;// legacy
 		
+		// keepCVTiedNotes
+		json_t *keepCVTiedNotesJ = json_object_get(rootJ, "keepCVTiedNotes");
+		if (keepCVTiedNotesJ)
+			keepCVTiedNotes = json_is_true(keepCVTiedNotesJ);
+
 		// seqCVmethod
 		json_t *seqCVmethodJ = json_object_get(rootJ, "seqCVmethod");
 		if (seqCVmethodJ)
@@ -1601,8 +1611,11 @@ struct PhraseSeq16 : Module {
 
 	void activateTiedStep(int seqn, int stepn) {
 		attributes[seqn][stepn].setTied(true);
-		if (stepn > 0) 
-			propagateCVtoTied(seqn, stepn - 1);
+		if (stepn > 0) {
+			if (!keepCVTiedNotes) {
+				propagateCVtoTied(seqn, stepn - 1);
+			}
+		}
 		
 		if (holdTiedNotes) {// new method
 			attributes[seqn][stepn].setGate1(true);
@@ -1873,6 +1886,8 @@ struct PhraseSeq16Widget : ModuleWidget {
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 
 		menu->addChild(createBoolPtrMenuItem("Hold tied notes", "", &module->holdTiedNotes));		
+		
+		menu->addChild(createBoolPtrMenuItem("Keep CV tied notes", "", &module->keepCVTiedNotes));
 
 		menu->addChild(createBoolPtrMenuItem("Single shot song", "", &module->stopAtEndOfSong));
 
