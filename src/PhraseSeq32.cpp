@@ -102,6 +102,8 @@ struct PhraseSeq32 : Module {
 	bool autoseq;
 	bool autostepLen;
 	bool holdTiedNotes;
+	bool keepCVTiedNotes;
+	bool allowSlideTies;
 	int seqCVmethod;// 0 is 0-10V, 1 is C4-G6, 2 is TrigIncr
 	int pulsesPerStep;// 1 means normal gate mode, alt choices are 4, 6, 12, 24 PPS (Pulses per step)
 	bool running;
@@ -294,6 +296,8 @@ struct PhraseSeq32 : Module {
 		autoseq = false;
 		autostepLen = false;
 		holdTiedNotes = true;
+		keepCVTiedNotes = true;
+		allowSlideTies = true;
 		seqCVmethod = 0;// 0 is 0-10V, 1 is C4-G6, 2 is TrigIncr
 		pulsesPerStep = 1;
 		running = true;
@@ -394,6 +398,12 @@ struct PhraseSeq32 : Module {
 		// holdTiedNotes
 		json_object_set_new(rootJ, "holdTiedNotes", json_boolean(holdTiedNotes));
 		
+		// keepCVTiedNotes
+		json_object_set_new(rootJ, "keepCVTiedNotes", json_boolean(keepCVTiedNotes));
+		
+		// allowSlideTies
+		json_object_set_new(rootJ, "allowSlideTies", json_boolean(allowSlideTies));
+
 		// seqCVmethod
 		json_object_set_new(rootJ, "seqCVmethod", json_integer(seqCVmethod));
 
@@ -487,6 +497,16 @@ struct PhraseSeq32 : Module {
 		else
 			holdTiedNotes = false;// legacy
 		
+		// keepCVTiedNotes
+		json_t *keepCVTiedNotesJ = json_object_get(rootJ, "keepCVTiedNotes");
+		if (keepCVTiedNotesJ)
+			keepCVTiedNotes = json_is_true(keepCVTiedNotesJ);
+
+		// allowSlideTies
+		json_t *allowSlideTiesJ = json_object_get(rootJ, "allowSlideTies");
+		if (allowSlideTiesJ)
+			allowSlideTies = json_is_true(allowSlideTiesJ);
+
 		// seqCVmethod
 		json_t *seqCVmethodJ = json_object_get(rootJ, "seqCVmethod");
 		if (seqCVmethodJ)
@@ -1156,7 +1176,7 @@ struct PhraseSeq32 : Module {
 				if (octTriggers[i].process(params[OCTAVE_PARAM + i].getValue())) {
 					if (editingSequence) {
 						displayState = DISP_NORMAL;
-						if (attributes[seqIndexEdit][stepIndexEdit].getTied())
+						if (attributes[seqIndexEdit][stepIndexEdit].getTied() && !allowSlideTies)
 							tiedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 						else {			
 							cv[seqIndexEdit][stepIndexEdit] = applyNewOct(cv[seqIndexEdit][stepIndexEdit], 3 - i);
@@ -1190,7 +1210,7 @@ struct PhraseSeq32 : Module {
 						else
 							editingPpqn = (long) (editGateLengthTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 					}
-					else if (attributes[seqIndexEdit][stepIndexEdit].getTied()) {
+					else if (attributes[seqIndexEdit][stepIndexEdit].getTied() && !allowSlideTies) {
 						if (pkInfo.isRightClick)
 							stepIndexEdit = moveIndex(stepIndexEdit, stepIndexEdit + 1, 32);
 						else
@@ -1253,7 +1273,7 @@ struct PhraseSeq32 : Module {
 			if (slideTrigger.process(params[SLIDE_BTN_PARAM].getValue() + (expanderPresent ? messagesFromExpander[3] : 0.0f))) {
 				if (editingSequence) {
 					displayState = DISP_NORMAL;
-					if (attributes[seqIndexEdit][stepIndexEdit].getTied())
+					if (attributes[seqIndexEdit][stepIndexEdit].getTied() && !allowSlideTies)
 						tiedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 					else
 						attributes[seqIndexEdit][stepIndexEdit].toggleSlide();
@@ -1704,8 +1724,11 @@ struct PhraseSeq32 : Module {
 
 	void activateTiedStep(int seqn, int stepn) {
 		attributes[seqn][stepn].setTied(true);
-		if (stepn > 0) 
-			propagateCVtoTied(seqn, stepn - 1);
+		if (stepn > 0) {
+			if (!keepCVTiedNotes) {
+				propagateCVtoTied(seqn, stepn - 1);
+			}
+		}
 		
 		if (holdTiedNotes) {// new method
 			attributes[seqn][stepn].setGate1(true);
@@ -1974,6 +1997,10 @@ struct PhraseSeq32Widget : ModuleWidget {
 		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
+		
+		menu->addChild(createBoolPtrMenuItem("Keep CV tied notes", "", &module->keepCVTiedNotes));
+		
+		menu->addChild(createBoolPtrMenuItem("Allow to slide tied notes", "", &module->allowSlideTies));
 
 		menu->addChild(createBoolPtrMenuItem("Hold tied notes", "", &module->holdTiedNotes));		
 
