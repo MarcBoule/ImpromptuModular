@@ -104,6 +104,7 @@ struct PhraseSeq16 : Module {
 	bool autostepLen;
 	bool holdTiedNotes;
 	bool keepCVTiedNotes;
+	bool allowSlideTies;
 	int seqCVmethod;// 0 is 0-10V, 1 is C4-D5#, 2 is TrigIncr
 	int pulsesPerStep;// 1 means normal gate mode, alt choices are 4, 6, 12, 24 PPS (Pulses per step)
 	bool running;
@@ -259,7 +260,8 @@ struct PhraseSeq16 : Module {
 		autoseq = false;
 		autostepLen = false;
 		holdTiedNotes = true;
-		keepCVTiedNotes = false;
+		keepCVTiedNotes = true;
+		allowSlideTies = true;
 		seqCVmethod = 0;
 		pulsesPerStep = 1;
 		running = true;
@@ -352,6 +354,9 @@ struct PhraseSeq16 : Module {
 		
 		// keepCVTiedNotes
 		json_object_set_new(rootJ, "keepCVTiedNotes", json_boolean(keepCVTiedNotes));
+		
+		// allowSlideTies
+		json_object_set_new(rootJ, "allowSlideTies", json_boolean(allowSlideTies));
 		
 		// seqCVmethod
 		json_object_set_new(rootJ, "seqCVmethod", json_integer(seqCVmethod));
@@ -449,6 +454,11 @@ struct PhraseSeq16 : Module {
 		json_t *keepCVTiedNotesJ = json_object_get(rootJ, "keepCVTiedNotes");
 		if (keepCVTiedNotesJ)
 			keepCVTiedNotes = json_is_true(keepCVTiedNotesJ);
+
+		// allowSlideTies
+		json_t *allowSlideTiesJ = json_object_get(rootJ, "allowSlideTies");
+		if (allowSlideTiesJ)
+			allowSlideTies = json_is_true(allowSlideTiesJ);
 
 		// seqCVmethod
 		json_t *seqCVmethodJ = json_object_get(rootJ, "seqCVmethod");
@@ -1141,7 +1151,7 @@ struct PhraseSeq16 : Module {
 				if (octTriggers[i].process(params[OCTAVE_PARAM + i].getValue())) {
 					if (editingSequence) {
 						displayState = DISP_NORMAL;
-						if (attributes[seqIndexEdit][stepIndexEdit].getTied())
+						if (attributes[seqIndexEdit][stepIndexEdit].getTied() && !allowSlideTies)
 							tiedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 						else {			
 							cv[seqIndexEdit][stepIndexEdit] = applyNewOct(cv[seqIndexEdit][stepIndexEdit], 3 - i);
@@ -1174,7 +1184,7 @@ struct PhraseSeq16 : Module {
 						else
 							editingPpqn = (long) (editGateLengthTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
 					}
-					else if (attributes[seqIndexEdit][stepIndexEdit].getTied()) {
+					else if (attributes[seqIndexEdit][stepIndexEdit].getTied() && !allowSlideTies) {
 						if (pkInfo.isRightClick)
 							stepIndexEdit = moveIndex(stepIndexEdit, stepIndexEdit + 1, 16);
 						else
@@ -1236,10 +1246,14 @@ struct PhraseSeq16 : Module {
 			if (slideTrigger.process(params[SLIDE_BTN_PARAM].getValue() + (expanderPresent ? messagesFromExpander[3] : 0.0f))) {
 				if (editingSequence) {
 					displayState = DISP_NORMAL;
-					if (attributes[seqIndexEdit][stepIndexEdit].getTied())
-						tiedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
-					else
+					if (allowSlideTies) {
 						attributes[seqIndexEdit][stepIndexEdit].toggleSlide();
+					} else {
+						if (attributes[seqIndexEdit][stepIndexEdit].getTied())
+							tiedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
+						else
+							attributes[seqIndexEdit][stepIndexEdit].toggleSlide();
+					}
 				}
 			}		
 			if (tiedTrigger.process(params[TIE_PARAM].getValue() + (expanderPresent ? messagesFromExpander[2] : 0.0f))) {
@@ -1888,6 +1902,8 @@ struct PhraseSeq16Widget : ModuleWidget {
 		menu->addChild(createBoolPtrMenuItem("Hold tied notes", "", &module->holdTiedNotes));		
 		
 		menu->addChild(createBoolPtrMenuItem("Keep CV tied notes", "", &module->keepCVTiedNotes));
+		
+		menu->addChild(createBoolPtrMenuItem("Allow to slide tied notes", "", &module->allowSlideTies));
 
 		menu->addChild(createBoolPtrMenuItem("Single shot song", "", &module->stopAtEndOfSong));
 
