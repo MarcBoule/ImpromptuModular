@@ -501,11 +501,15 @@ struct PhraseSeq32 : Module {
 		json_t *keepCVTiedNotesJ = json_object_get(rootJ, "keepCVTiedNotes");
 		if (keepCVTiedNotesJ)
 			keepCVTiedNotes = json_is_true(keepCVTiedNotesJ);
+		else
+			keepCVTiedNotes = false;// legacy
 
 		// allowSlideTies
 		json_t *allowSlideTiesJ = json_object_get(rootJ, "allowSlideTies");
 		if (allowSlideTiesJ)
 			allowSlideTies = json_is_true(allowSlideTiesJ);
+		else
+			allowSlideTies = false;// legacy
 
 		// seqCVmethod
 		json_t *seqCVmethodJ = json_object_get(rootJ, "seqCVmethod");
