@@ -1,6 +1,7 @@
 ### 2.1.1 (in development)
 
-- Improved SEQ CV input responsiveness in all phrase sequencers
+- All phrase sequencers: improved SEQ CV input responsiveness
+- Clocked expander: added missing PW3 and SWING3 CV inputs
 
 
 ### 2.1.0 (2022-03-26)

@@ -93,15 +93,13 @@ struct ClockedExpanderWidget : ModuleWidget {
 		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 		// Expansion module
-		static const int rowRulerExpTop = 72;
-		static const int rowSpacingExp = 50;
+		static const int rowRulerExpTop = 66;
+		static const int rowSpacingExp = 35;
 		static const int colRulerExp = 30;
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 0), true, module, ClockedExpander::PW_INPUTS + 0, mode));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 1), true, module, ClockedExpander::PW_INPUTS + 1, mode));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 2), true, module, ClockedExpander::PW_INPUTS + 2, mode));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 3), true, module, ClockedExpander::SWING_INPUTS + 0, mode));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 4), true, module, ClockedExpander::SWING_INPUTS + 1, mode));
-		addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * 5), true, module, ClockedExpander::SWING_INPUTS + 2, mode));
+		for (int i = 0; i < 4; i++) {
+			addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, rowRulerExpTop + rowSpacingExp * i), true, module, ClockedExpander::PW_INPUTS + i, mode));
+			addInput(createDynamicPortCentered<IMPort>(VecPx(colRulerExp, 327 - rowSpacingExp * (3 - i)), true, module, ClockedExpander::SWING_INPUTS + i, mode));
+		}
 	}
 	
 	void step() override {

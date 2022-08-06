@@ -316,14 +316,14 @@ struct Clocked : Module {
 		for (int i = 0; i < 4; i++) {
 			// Pulse Width
 			pulseWidth[i] = params[PW_PARAMS + i].getValue();
-			if (i < 3 && expanderPresent) {
+			if (expanderPresent) {
 				pulseWidth[i] += (messagesFromExpander[i] / 10.0f);
 				pulseWidth[i] = clamp(pulseWidth[i], 0.0f, 1.0f);
 			}
 			
 			// Swing
 			swingAmount[i] = params[SWING_PARAMS + i].getValue();
-			if (i < 3 && expanderPresent) {
+			if (expanderPresent) {
 				swingAmount[i] += (messagesFromExpander[i + 4] / 5.0f);
 				swingAmount[i] = clamp(swingAmount[i], -1.0f, 1.0f);
 			}
