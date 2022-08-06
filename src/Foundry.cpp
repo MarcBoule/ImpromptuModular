@@ -241,7 +241,7 @@ struct Foundry : Module {
 		configInput(WRITE_INPUT, "Write");
 		configInput(RESET_INPUT, "Reset");
 		for (int i = 0; i < Sequencer::NUM_TRACKS; i++) {
-			configInput(CV_INPUTS, string::f("Track %c CV", i + 'A'));
+			configInput(CV_INPUTS + i, string::f("Track %c CV", i + 'A'));
 			configInput(CLOCK_INPUTS + i, string::f("Track %c clock", i + 'A'));
 		}
 		configInput(UNUSED1_INPUT, "Unused 1");
