@@ -179,7 +179,7 @@ Further information for developpers is available in a short summary of the [code
 <a id="portable_seq"></a>
 ### Portable sequence
 
-The [Portable sequence standard](https://github.com/squinkylabs/SquinkyVCV/blob/master/docs/clipboard-format.md) is supported in the following Impromptu sequencers: PhraseSeq16/32, SMS16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence". 
+The [Portable sequence standard](https://github.com/squinkylabs/Demo/blob/main/docs/clipboard-format.md) is supported in the following Impromptu sequencers: PhraseSeq16/32, SMS16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence". 
 
 The Portable sequence standard can also be used to copy small sequences of up to four notes into/from ChordKey, in order to make a chord out of a sequence of notes, or vice versa. The FourView module also allows the copying of the displayed notes for then pasting as a small sequence in a sequencer, or as a chord in ChordKey.
 
