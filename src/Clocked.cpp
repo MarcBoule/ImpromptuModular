@@ -264,7 +264,7 @@ struct Clocked : Module {
 	bool syncRatios[4];// 0 index unused
 	int ratiosDoubled[4];
 	int extPulseNumber;// 0 to ppqn * 2 - 1
-	double extIntervalTime;
+	double extIntervalTime;// also used for auto mode change to P24 (2nd use of this member variable)
 	double timeoutTime;
 	float pulseWidth[4];
 	float swingAmount[4];
@@ -443,7 +443,7 @@ struct Clocked : Module {
 		}
 		updatePulseSwingDelay();
 		extPulseNumber = -1;
-		extIntervalTime = 0.0;
+		extIntervalTime = 0.0;// also used for auto mode change to P24 (2nd use of this member variable)
 		timeoutTime = 2.0 / ppqn + 0.1;// worst case. This is a double period at 30 BPM (4s), divided by the expected number of edges in the double period 
 									   //   which is 2*ppqn, plus epsilon. This timeoutTime is only used for timingout the 2nd clock edge
 		if (inputs[BPM_INPUT].isConnected()) {
@@ -707,6 +707,7 @@ struct Clocked : Module {
 							else ppqn = 16;
 						}
 					}
+					extIntervalTime = 0.0;// this is for auto mode change to P24
 				}
 				editingBpmMode = (long) (3.0 * sampleRate / RefreshCounter::displayRefreshStepSkips);
 			}
@@ -769,6 +770,32 @@ struct Clocked : Module {
 			else {// bpmDetectionMode not active
 				newMasterLength = clamp(1.0f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage()), masterLengthMin, masterLengthMax);// bpm = 120*2^V, 2T = 120/bpm = 120/(120*2^V) = 1/2^V
 				// no need to round since this clocked's master's BPM knob is a snap knob thus already rounded, and with passthru approach, no cumul error
+				
+				// detect two quick pulses to automatically change the mode to P24
+				//   re-uses same variable as in bpmDetectionMode
+				if (extIntervalTime != 0.0) {
+					extIntervalTime += sampleTime;
+				}
+				if (trigBpmInValue) {
+					// rising edge
+					if (extIntervalTime == 0.0) {
+						// this is the first pulse, so start interval timer 
+						extIntervalTime = sampleTime;
+					}
+					else {
+						// this is a second pulse
+						if (extIntervalTime > ((60.0 / 300.0) / 24.0) && extIntervalTime < ((60.0 / 30.0) / 4.0)) {
+							// this is the second of two quick successive pulses, so switch to P24
+							extIntervalTime = 0.0;
+							bpmDetectionMode = true;
+							ppqn = 24;
+						}
+						else {
+							// too long or too short, so restart and treat this as the first pulse for another check
+							extIntervalTime = sampleTime;
+						}
+					}	
+				}
 			}
 		}
 		else {// BPM_INPUT not active

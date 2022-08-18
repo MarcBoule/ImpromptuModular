@@ -2,6 +2,7 @@
 
 - All phrase sequencers: improved SEQ CV input responsiveness
 - Clocked expander: added missing PW3 and SWING3 CV inputs
+- Clocked/Clkd: added automatic switching to P24 mode when detection of pulses on BPM input in CV mode
 
 
 ### 2.1.0 (2022-03-26)
