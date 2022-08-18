@@ -830,10 +830,10 @@ struct AdaptiveQuantizer : Module {
 			}
 
 			// calc sum and max of weighted freqs
-			float sum = 0.0f;
+			// float sum = 0.0f;
 			float maxWeightedFreq = 0.0f;
 			for (int i = 0; i < 12; i++) {
-				sum += weightedFreq[i];
+				// sum += weightedFreq[i];
 				maxWeightedFreq = std::max(maxWeightedFreq, weightedFreq[i]);
 			}
 			
