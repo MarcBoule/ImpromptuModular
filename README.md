@@ -84,10 +84,18 @@ The table below shows a comparison of the features available in the Impromptu se
 
 <a id="known-issues"></a>
 ## Known issues
+
 For sequencers and clock modules, it is advisable to have a Audio module added to your patch and assigned to a sound device in order for the timing and response delays in the user interface to be of the proper duration.
 
 
+<a id="accessibility"></a>
+## Accessibility
+
+The RGB values used in the green and red colors in the various LEDs can be tweaked and made more accessible for the color-challenged. This can be done via the `ImpromptuModular.json` settings file that gets created in the Rack user directory.
+
+
 ## Acknowledgements
+
 Impromptu Modular is not a single-person endeavor. Many people have taken the time to suggest improvements and to collaborate on module concepts, graphics, testing, etc. This list of acknowledgements is too large to maintain properly, and so in place of a detailed list of names and participations, I would simply like to extend a big thank you to all that have helped and contributed to the project. The Dark-valor graphic theme was graciously provided by Xavier Belmont.
 
 
