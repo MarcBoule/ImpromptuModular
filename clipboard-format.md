@@ -46,7 +46,7 @@ In many cases the first **_note_** will have a **_start_** of 0.0. But this need
 
 **_note_** objects also have two optional properties: **_velocity_** and **_playProbability_**. These properties may be set on note objects, or they may not. Parsers should be prepared to handle either case. **_velocity_** has a range of 0 to 10. **_velocity_** might be patched to a VCA to control volume, but it could be used for anything. Think of it as a unipolar CV that has a constant value for the duration of a note.
 
-**_playProbabilty_** has a value of 0 to 1, and represents the probably that the note in question will play.
+**_playProbability_** has a value of 0 to 1, and represents the probability that the note in question will play.
 
 ## A note on polyphony
 
@@ -74,7 +74,7 @@ A module may put anything it likes on the clipboard this way. With the obvious r
 
 ### Writing to the clipboard
 
-Write all the required properties, even if your module may not user them. For example, you are required to set a length on each note. If your sequencer doesn’t  have a length for a note, put in some plausible value like 1.
+Write all the required properties, even if your module may not use them. For example, you are required to set a length on each note. If your sequencer doesn’t have a length for a note, put in some plausible value like 1.
 
 Don’t write optional properties if your module can’t provide a valid value. For example if your sequencer doesn’t have a concept of **_velocity_**, don’t write out 5.0. Just omit it and hope the reader knows a reasonable default.
 
@@ -88,7 +88,7 @@ The other is what to do if there is malformed data on the clipboard. Most develo
 
 * Make sure you can handle the case where the JSON parser can’t parse the clipboard. This will be a very common case in the real world. The clipboard might just have text on it.
 * If you find a missing required property, you might either ignore it and skip over, or refuse to paste the entire thing.
-* When you find something wrong in the clipboard data, it is a nice courtesy to log a message to help others debug their modules. Like WARN(“no notes property in clipboard”) or WARN(“notes is not an array”).
+* When you find something wrong in the clipboard data, it is a nice courtesy to log a message to help others debug their modules. Like WARN("no notes property in clipboard") or WARN("notes is not an array").
 
 ### Documentation
 
