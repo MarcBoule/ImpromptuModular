@@ -17,7 +17,7 @@ SOURCES += $(wildcard src/comp/*.cpp) $(wildcard src/*.cpp)
 
 # Add files to the ZIP package when running `make dist`
 # The compiled plugin and "plugin.json" are automatically added.
-DISTRIBUTABLES += res
+DISTRIBUTABLES += res/comp res/fonts res/panels
 DISTRIBUTABLES += $(wildcard LICENSE*)
 
 # Include the Rack plugin Makefile framework
