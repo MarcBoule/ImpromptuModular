@@ -1,3 +1,8 @@
+### in development
+
+- Clkd/Clocked: when autopatching to a master in Px modes, force slave to CV mode
+
+
 ### 2.1.1 (2022-09-13)
 
 - All phrase sequencers: improved SEQ CV input responsiveness

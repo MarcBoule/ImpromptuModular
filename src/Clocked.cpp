@@ -1060,6 +1060,7 @@ struct ClockedWidget : ModuleWidget {
 		apItem->idPtr = &module->id;
 		apItem->resetClockOutputsHighPtr = &module->resetClockOutputsHigh;
 		apItem->slaveResetRunBpmInputs = slaveResetRunBpmInputs;
+		apItem->slaveBpmDetectionMode = &module->bpmDetectionMode;
 		menu->addChild(apItem);
 		
 		InstantiateExpanderItem *expItem = createMenuItem<InstantiateExpanderItem>("Add expander (4HP right side)", "");
@@ -1227,7 +1228,7 @@ struct ClockedWidget : ModuleWidget {
 			if ( e.key == GLFW_KEY_M && ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) ) {
 				Clocked *module = dynamic_cast<Clocked*>(this->module);
 				if (clockMaster.id != module->id && clockMaster.validateClockModule()) {
-					autopatch(slaveResetRunBpmInputs, &module->resetClockOutputsHigh);
+					autopatch(slaveResetRunBpmInputs, &module->bpmDetectionMode, &module->resetClockOutputsHigh);
 				}
 				e.consume(this);
 				return;

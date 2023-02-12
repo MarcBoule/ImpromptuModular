@@ -124,7 +124,7 @@ struct ResetModeBitToggleItem : MenuItem {
 
 
 // must have done validateClockModule() before calling this
-static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveResetClockOutputsHighPtr) {
+static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveBpmDetectionMode, bool *slaveResetClockOutputsHighPtr) {
 	for (Widget* widget : APP->scene->rack->getModuleContainer()->children) {
 		ModuleWidget* moduleWidget = dynamic_cast<ModuleWidget *>(widget);
 		if (moduleWidget) {
@@ -154,6 +154,7 @@ static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveResetClock
 					}
 				}
 				*slaveResetClockOutputsHighPtr = clockMaster.resetClockOutputsHigh;
+				*slaveBpmDetectionMode = false;
 				return;
 			}
 		}
@@ -166,6 +167,7 @@ struct AutopatchItem : MenuItem {
 	int64_t* idPtr;
 	bool *resetClockOutputsHighPtr;
 	PortWidget **slaveResetRunBpmInputs;
+	bool* slaveBpmDetectionMode;
 		
 	struct AutopatchMakeMasterItem : MenuItem {
 		int64_t* idPtr;
@@ -176,10 +178,12 @@ struct AutopatchItem : MenuItem {
 	};
 
 	struct AutopatchToMasterItem : MenuItem {// must have done validateClockModule() before allowing this onAction to execute
-		PortWidget **slaveResetRunBpmInputs;
 		bool *resetClockOutputsHighPtr;
+		PortWidget **slaveResetRunBpmInputs;
+		bool* slaveBpmDetectionMode; 
+		
 		void onAction(const event::Action &e) override {
-			autopatch(slaveResetRunBpmInputs, resetClockOutputsHighPtr);
+			autopatch(slaveResetRunBpmInputs, slaveBpmDetectionMode, resetClockOutputsHighPtr);
 		}
 	};
 
@@ -200,8 +204,9 @@ struct AutopatchItem : MenuItem {
 			
 			if (clockMaster.validateClockModule()) {
 				AutopatchToMasterItem *connItem = createMenuItem<AutopatchToMasterItem>("Connect to master (Ctrl/Cmd + M)", "");
-				connItem->slaveResetRunBpmInputs = slaveResetRunBpmInputs;
 				connItem->resetClockOutputsHighPtr = resetClockOutputsHighPtr;
+				connItem->slaveResetRunBpmInputs = slaveResetRunBpmInputs;
+				connItem->slaveBpmDetectionMode = slaveBpmDetectionMode;
 				menu->addChild(connItem);
 			}
 			else {
