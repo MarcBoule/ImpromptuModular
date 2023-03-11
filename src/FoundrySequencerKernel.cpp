@@ -6,7 +6,7 @@
 #include "FoundrySequencerKernel.hpp"
 
 
-const std::string SequencerKernel::modeLabels[NUM_MODES] = {"FWD", "REV", "PPG", "PEN", "BRN", "RND", "TKA"};
+const std::string SequencerKernel::modeLabels[NUM_MODES] = {"FWD", "REV", "PPG", "PEN", "BRN", "RND", "TKA", "RNS"};
 
 
 const uint64_t SequencerKernel::advGateHitMaskLow[NUM_GATES] = 
@@ -608,8 +608,10 @@ bool SequencerKernel::moveStepIndexRun(bool init, bool editingSequence) {
 	
 	bool crossBoundary = false;
 	
-	if (init)
+	if (init) {
 		stepIndexRunHistory = 0;
+		singleStepRandom.init();
+	}
 	
 	switch (runMode) {
 	
@@ -724,6 +726,20 @@ bool SequencerKernel::moveStepIndexRun(bool init, bool editingSequence) {
 				stepIndexRunHistory = 0x7000;
 				stepIndexRun = masterKernel->getStepIndexRun();
 				break;
+			}
+		break;
+			
+		case MODE_RNS :// random single step; history base is 0x8000
+			// (play each step only once per seq, and play all before restart anew)
+			if (stepIndexRunHistory < 0x8001 || stepIndexRunHistory > 0x8FFF)
+				stepIndexRunHistory = 0x8000 + (endStep + 1) * reps;
+			if (init)
+				stepIndexRun = 0;
+			else {
+				stepIndexRun = singleStepRandom.getNext(endStep + 1);//(random::u32() % (endStep + 1));
+				stepIndexRunHistory--;
+				if (stepIndexRunHistory <= 0x8000)
+					crossBoundary = true;
 			}
 			[[fallthrough]];
 		default :// MODE_FWD  forward; history base is 0x1000

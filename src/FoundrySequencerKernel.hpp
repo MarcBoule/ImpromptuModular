@@ -138,6 +138,43 @@ class SeqAttributes {
 
 
 //*****************************************************************************
+
+
+class SingleStepRandom {
+	uint32_t played;// bit field that says if a given step was already played
+	std::vector<uint8_t> candidates;
+	
+	public:
+	
+	void init() {played = 0;}
+	
+	int getNext(int length) {
+		// get a random unplayed step with (random::u32() % (length);
+		int retStep = 0;
+		
+		candidates.clear();
+		for (int i = 0; i < length; i++) {
+			if ( (played & (0x1 << i)) == 0) {
+				candidates.push_back(i);
+			}
+		}
+		if (candidates.empty()) {
+			init();
+			retStep = random::u32() % length;
+		}
+		else {
+			retStep = candidates[random::u32() % candidates.size()];
+		}
+		played |= (0x1 << retStep);
+		
+		return retStep;
+	}
+
+};// class SingleStepRandom
+
+
+
+//*****************************************************************************
 // SequencerKernel
 //*****************************************************************************
 
@@ -154,7 +191,7 @@ class SequencerKernel {
 	static const int MAX_PHRASES = 99;// maximum value is 99 (index value is 0 to 98; disp will be 1 to 99)
 
 	// Run modes
-	enum RunModeIds {MODE_FWD, MODE_REV, MODE_PPG, MODE_PEN, MODE_BRN, MODE_RND, MODE_TKA, NUM_MODES};
+	enum RunModeIds {MODE_FWD, MODE_REV, MODE_PPG, MODE_PEN, MODE_BRN, MODE_RND, MODE_TKA, MODE_RNS, NUM_MODES};
 	static const std::string modeLabels[NUM_MODES];
 	
 	
@@ -189,6 +226,7 @@ class SequencerKernel {
 	bool moveStepIndexRunIgnore;
 	int stepIndexRun;
 	unsigned long stepIndexRunHistory;
+	SingleStepRandom singleStepRandom;
 	int ppqnCount;
 	int ppqnLeftToSkip;// used in clock delay
 	int gateCode;// 0 = Low for current pulse of step, 1 = High for current pulse of step, 2 = Clk high pulse, 3 = 1ms trig

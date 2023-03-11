@@ -1,6 +1,7 @@
 ### in development
 
 - Clkd/Clocked: when autopatching to a master in Px modes, force slave to CV mode
+- Foundry: add new run mode called RNS, which plays steps randomly but without repeating until all steps are played
 
 
 ### 2.1.1 (2022-09-13)
