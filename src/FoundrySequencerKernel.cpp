@@ -720,15 +720,7 @@ bool SequencerKernel::moveStepIndexRun(bool init, bool editingSequence) {
 					crossBoundary = true;
 			}
 		break;
-		
-		case MODE_TKA :// use track A's stepIndexRun; base is 0x7000
-			if (masterKernel != nullptr) {
-				stepIndexRunHistory = 0x7000;
-				stepIndexRun = masterKernel->getStepIndexRun();
-				break;
-			}
-		break;
-			
+
 		case MODE_RNS :// random single step; history base is 0x8000
 			// (play each step only once per seq, and play all before restart anew)
 			if (stepIndexRunHistory < 0x8001 || stepIndexRunHistory > 0x8FFF)
@@ -741,7 +733,15 @@ bool SequencerKernel::moveStepIndexRun(bool init, bool editingSequence) {
 				if (stepIndexRunHistory <= 0x8000)
 					crossBoundary = true;
 			}
-			[[fallthrough]];
+		break;
+		
+		case MODE_TKA :// use track A's stepIndexRun; base is 0x7000
+			if (masterKernel != nullptr) {
+				stepIndexRunHistory = 0x7000;
+				stepIndexRun = masterKernel->getStepIndexRun();
+				break;
+			}
+			[[fallthrough]];// TKA defaults to FWD for track A
 		default :// MODE_FWD  forward; history base is 0x1000
 			if (stepIndexRunHistory < 0x1001 || stepIndexRunHistory > 0x1FFF)
 				stepIndexRunHistory = 0x1000 + reps;
@@ -791,7 +791,7 @@ bool SequencerKernel::movePhraseIndexForeward(bool init, bool rollover) {
 	int phrn = 0;
 	bool crossBoundary = false;
 	
-	// search fowrard for next non 0-rep seq, ends up in same phrase if all reps in the song are 0
+	// search forward for next non 0-rep seq, ends up in same phrase if all reps in the song are 0
 	if (init) {
 		phraseIndexRun = songBeginIndex;
 		phrn = phraseIndexRun;
@@ -813,10 +813,29 @@ bool SequencerKernel::movePhraseIndexForeward(bool init, bool rollover) {
 
 
 void SequencerKernel::movePhraseIndexRandom(bool init, uint32_t randomValue) {
-	int phrn = songBeginIndex;
 	int tpi = 0;
 	
-	for (;phrn <= songEndIndex; phrn++) {
+	for (int phrn = songBeginIndex; phrn <= songEndIndex; phrn++) {
+		if (phrases[phrn].getReps() != 0) {
+			tempPhraseIndexes[tpi] = phrn;
+			tpi++;
+			if (init) break;
+		}
+	}
+	
+	if (init) {
+		phraseIndexRun = (tpi == 0 ? songBeginIndex : tempPhraseIndexes[0]);
+	}
+	else {
+		phraseIndexRun = tempPhraseIndexes[randomValue % tpi];
+	}
+}
+
+
+void SequencerKernel::movePhraseIndexRandomSingle(bool init, uint32_t randomValue) {
+	int tpi = 0;
+	
+	for (int phrn = songBeginIndex; phrn <= songEndIndex; phrn++) {
 		if (phrases[phrn].getReps() != 0) {
 			tempPhraseIndexes[tpi] = phrn;
 			tpi++;
@@ -855,8 +874,10 @@ void SequencerKernel::movePhraseIndexBrownian(bool init, uint32_t randomValue) {
 bool SequencerKernel::movePhraseIndexRun(bool init) {
 	bool crossBoundary = false;
 	
-	if (init)
+	if (init) {
 		phraseIndexRunHistory = 0;
+		singlePhraseRandom.init();
+	}
 	
 	switch (runModeSong) {
 	
@@ -901,6 +922,11 @@ bool SequencerKernel::movePhraseIndexRun(bool init) {
 		case MODE_RND :// random; history base is 0x6000
 			phraseIndexRunHistory = 0x6000;
 			movePhraseIndexRandom(init, random::u32());// no crossBoundary
+		break;
+		
+		case MODE_RNS :// random single phrase; history base is 0x8000
+			phraseIndexRunHistory = 0x8000;
+			movePhraseIndexRandomSingle(init, random::u32());// no crossBoundary
 		break;
 		
 		case MODE_TKA:// use track A's phraseIndexRun; base is 0x7000

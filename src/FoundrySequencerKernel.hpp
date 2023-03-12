@@ -140,22 +140,29 @@ class SeqAttributes {
 //*****************************************************************************
 
 
-class SingleStepRandom {
-	uint32_t played;// bit field that says if a given step was already played
+class SinglePlayRandom {
+	uint64_t played0, played1;// bit field that says if a given item was already played, max 128 steps or phrases
 	std::vector<uint8_t> candidates;
 	
 	public:
 	
-	void init() {played = 0;}
+	void init() {played0 = 0, played1 = 0;}
 	
 	int getNext(int length) {
-		// get a random unplayed step with (random::u32() % (length);
+		// get a random unplayed step within length, if none, reset all and choose one randomly
 		int retStep = 0;
 		
 		candidates.clear();
 		for (int i = 0; i < length; i++) {
-			if ( (played & (0x1 << i)) == 0) {
-				candidates.push_back(i);
+			if (i < 64) {
+				if ( (played0 & (0x1 << i)) == 0) {
+					candidates.push_back(i);
+				}
+			}
+			else {
+				if ( (played1 & (0x1 << (i - 64))) == 0) {
+					candidates.push_back(i);
+				}
 			}
 		}
 		if (candidates.empty()) {
@@ -165,12 +172,17 @@ class SingleStepRandom {
 		else {
 			retStep = candidates[random::u32() % candidates.size()];
 		}
-		played |= (0x1 << retStep);
+		if (retStep < 64) {
+			played0 |= (0x1 << retStep);
+		}
+		else {
+			played1 |= (0x1 << (retStep - 64));
+		}
 		
 		return retStep;
 	}
 
-};// class SingleStepRandom
+};// class SinglePlayRandom
 
 
 
@@ -223,10 +235,11 @@ class SequencerKernel {
 	unsigned long clockPeriod;// counts number of step() calls upward from last clock (reset after clock processed)
 	int phraseIndexRun;
 	unsigned long phraseIndexRunHistory;
+	SinglePlayRandom singlePhraseRandom;
 	bool moveStepIndexRunIgnore;
 	int stepIndexRun;
 	unsigned long stepIndexRunHistory;
-	SingleStepRandom singleStepRandom;
+	SinglePlayRandom singleStepRandom;
 	int ppqnCount;
 	int ppqnLeftToSkip;// used in clock delay
 	int gateCode;// 0 = Low for current pulse of step, 1 = High for current pulse of step, 2 = Clk high pulse, 3 = 1ms trig
@@ -440,6 +453,7 @@ class SequencerKernel {
 	bool movePhraseIndexForeward(bool init, bool rollover);
 	int tempPhraseIndexes[MAX_PHRASES];// used only in next method	
 	void movePhraseIndexRandom(bool init, uint32_t randomValue);	
+	void movePhraseIndexRandomSingle(bool init, uint32_t randomValue);	
 	void movePhraseIndexBrownian(bool init, uint32_t randomValue);	
 	bool movePhraseIndexRun(bool init);
 };// class SequencerKernel 
