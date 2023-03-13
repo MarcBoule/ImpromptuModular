@@ -832,7 +832,7 @@ void SequencerKernel::movePhraseIndexRandom(bool init, uint32_t randomValue) {
 }
 
 
-void SequencerKernel::movePhraseIndexRandomSingle(bool init, uint32_t randomValue) {
+void SequencerKernel::movePhraseIndexRandomSingle(bool init) {
 	int tpi = 0;
 	
 	for (int phrn = songBeginIndex; phrn <= songEndIndex; phrn++) {
@@ -846,8 +846,8 @@ void SequencerKernel::movePhraseIndexRandomSingle(bool init, uint32_t randomValu
 	if (init) {
 		phraseIndexRun = (tpi == 0 ? songBeginIndex : tempPhraseIndexes[0]);
 	}
-	else {
-		phraseIndexRun = tempPhraseIndexes[randomValue % tpi];
+	else {	
+		phraseIndexRun = tempPhraseIndexes[singlePhraseRandom.getNext(tpi)];// tempPhraseIndexes[randomValue % tpi];
 	}
 }
 
@@ -926,7 +926,7 @@ bool SequencerKernel::movePhraseIndexRun(bool init) {
 		
 		case MODE_RNS :// random single phrase; history base is 0x8000
 			phraseIndexRunHistory = 0x8000;
-			movePhraseIndexRandomSingle(init, random::u32());// no crossBoundary
+			movePhraseIndexRandomSingle(init);// no crossBoundary
 		break;
 		
 		case MODE_TKA:// use track A's phraseIndexRun; base is 0x7000
