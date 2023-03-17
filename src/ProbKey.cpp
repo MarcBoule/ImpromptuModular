@@ -119,6 +119,9 @@ class ProbKernel {
 	float getNoteProb(int note) {
 		return noteProbs[note];
 	}
+	float* getNoteProbArray() {
+		return noteProbs;
+	}
 	float getNoteAnchor(int note) {
 		return noteAnchors[note];
 	}
@@ -1382,6 +1385,35 @@ struct ProbKeyWidget : ModuleWidget {
 			return menu;
 		}
 	};	
+
+	struct NormalizedFloat12Item : MenuItem {
+		// struct NormalizedFloat12CopyItem : MenuItem {
+			// float* floats12;
+			// void onAction(const event::Action &e) override {
+				// NormalizedFloat12Copy(floats12);
+			// }
+		// };
+		struct NormalizedFloat12PasteItem : MenuItem {
+			float* floats12;
+			void onAction(const event::Action &e) override {
+				NormalizedFloat12Paste(floats12);
+			}
+		};
+		// float* floats12;
+		// Menu *createChildMenu() override {
+			// Menu *menu = new Menu;
+
+			// NormalizedFloat12CopyItem *float12CopyItem = createMenuItem<NormalizedFloat12CopyItem>("Copy probabilities/weights", "");
+			// float12CopyItem->floats12 = floats12;
+			// menu->addChild(float12CopyItem);		
+			
+			// NormalizedFloat12PasteItem *float12PasteItem = createMenuItem<NormalizedFloat12PasteItem>("Paste probabilities/weights", "");
+			// float12PasteItem->floats12 = floats12;
+			// menu->addChild(float12PasteItem);		
+
+			// return menu;
+		// }
+	};	
 	
 	struct StepLockSubItem : MenuItem {
 		ProbKey *module;
@@ -1414,6 +1446,14 @@ struct ProbKeyWidget : ModuleWidget {
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
 		menu->addChild(interopSeqItem);
+
+		NormalizedFloat12Item::NormalizedFloat12PasteItem *float12PasteItem = createMenuItem<NormalizedFloat12Item::NormalizedFloat12PasteItem>("Paste weights from Adaptive Quantizer", "");
+		float12PasteItem->floats12 = module->probKernels[module->getIndex()].getNoteProbArray();
+		menu->addChild(float12PasteItem);		
+
+		// NormalizedFloat12Item *probs12Item = createMenuItem<NormalizedFloat12Item>("To/From Adaptive Quantizer", RIGHT_ARROW);
+		// probs12Item->floats12 = module->probKernels[module->getIndex()].getNoteProbArray();
+		// menu->addChild(probs12Item);
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));

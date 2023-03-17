@@ -59,6 +59,7 @@ ClockMaster clockMaster;
 
 
 
+
 // General functions
 
 static const char noteLettersSharp[12] = {'C', 'C', 'D', 'D', 'E', 'F', 'F', 'G', 'G', 'A', 'A', 'B'};
@@ -171,4 +172,53 @@ void InstantiateExpanderItem::onAction(const event::Action &e) {
 		h->setModule(mw);
 		APP->history->push(h);
 	}
+}
+
+
+void NormalizedFloat12Copy(float* float12) {
+	json_t* normFloats12J = json_object();
+	json_t *normFloats12ArrayJ = json_array();
+	for (int i = 0; i < 12; i++) {
+		json_array_insert_new(normFloats12ArrayJ, i, json_real(float12[i]));
+	}
+	json_object_set_new(normFloats12J, "normalizedFloats", normFloats12ArrayJ);
+
+	json_t* clipboardJ = json_object();		
+	json_object_set_new(clipboardJ, "Impromptu normalized float12", normFloats12J);
+	char* float12Clip = json_dumps(clipboardJ, JSON_INDENT(2) | JSON_REAL_PRECISION(9));
+	json_decref(clipboardJ);
+	glfwSetClipboardString(APP->window->win, float12Clip);
+	free(float12Clip);
+}
+
+void NormalizedFloat12Paste(float* float12) { 
+	const char* float12Clip = glfwGetClipboardString(APP->window->win);
+	if (!float12Clip) {
+		WARN("Normalized float12 error getting clipboard string");
+	}
+	else {
+		json_error_t error;
+		json_t* clipboardJ = json_loads(float12Clip, 0, &error);
+		if (!clipboardJ) {
+			WARN("Normalized float12 error json parsing clipboard");
+		}
+		else {
+			DEFER({json_decref(clipboardJ);});
+			json_t* normFloats12J = json_object_get(clipboardJ, "Impromptu normalized float12");
+			if (!normFloats12J) {
+				WARN("Error no Impromptu normalized float12 values present in clipboard");
+			}
+			else {
+				json_t *normFloats12ArrayJ = json_object_get(normFloats12J, "normalizedFloats");
+				if (normFloats12ArrayJ && json_is_array(normFloats12ArrayJ)) {
+					for (int i = 0; i < 12; i++) {
+						json_t *normFloatsItemJ = json_array_get(normFloats12ArrayJ, i);
+						if (normFloatsItemJ) {
+							float12[i] = json_number_value(normFloatsItemJ);
+						}
+					}
+				}
+			}
+		}	
+	}	
 }

@@ -1015,7 +1015,37 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 	uint64_t route = 0;
 	bool showDataTable = false;
 	float datapic[12 * 5];// this is indexed according like this: [0] = bottom right, [11] = bottom left, [59] = top left
+	
+	
+	struct NormalizedFloat12Item : MenuItem {
+		struct NormalizedFloat12CopyItem : MenuItem {
+			AdaptiveQuantizer* module;
+			void onAction(const event::Action &e) override {
+				NormalizedFloat12Copy(module->weights);
+			}
+		};
+		// struct NormalizedFloat12PasteItem : MenuItem {
+			// AdaptiveQuantizer* module;
+			// void onAction(const event::Action &e) override {
+				// NormalizedFloat12Paste(module->weights);
+				// module->updateTargets();
+			// }
+		// };
+		// AdaptiveQuantizer* module;
+		// Menu *createChildMenu() override {
+			// Menu *menu = new Menu;
 
+			// NormalizedFloat12CopyItem *float12CopyItem = createMenuItem<NormalizedFloat12CopyItem>("Copy probabilities/weights", "");
+			// float12CopyItem->module = module;
+			// menu->addChild(float12CopyItem);		
+			
+			// NormalizedFloat12PasteItem *float12PasteItem = createMenuItem<NormalizedFloat12PasteItem>("Paste probabilities/weights", "");
+			// float12PasteItem->module = module;
+			// menu->addChild(float12PasteItem);		
+
+			// return menu;
+		// }
+	};	
 	
 	void appendContextMenu(Menu *menu) override {
 		AdaptiveQuantizer *module = dynamic_cast<AdaptiveQuantizer*>(this->module);
@@ -1026,7 +1056,16 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 		menu->addChild(new MenuSeparator());
 
 		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		
+		NormalizedFloat12Item::NormalizedFloat12CopyItem *float12CopyItem = createMenuItem<NormalizedFloat12Item::NormalizedFloat12CopyItem>("Copy weights for ProbKey", "");
+		float12CopyItem->module = module;
+		menu->addChild(float12CopyItem);		
+		
+		// NormalizedFloat12Item *probs12Item = createMenuItem<NormalizedFloat12Item>("To/From ProbKey", RIGHT_ARROW);
+		// probs12Item->module = module;
+		// menu->addChild(probs12Item);
 
+		
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
 		

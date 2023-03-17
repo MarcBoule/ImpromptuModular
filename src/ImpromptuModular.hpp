@@ -215,6 +215,7 @@ struct HoldDetect {
 
 
 
+
 // General functions
 
 
@@ -242,3 +243,6 @@ struct InstantiateExpanderItem : MenuItem {
 	Vec posit;
 	void onAction(const event::Action &e) override;
 };
+
+void NormalizedFloat12Copy(float* float12);
+void NormalizedFloat12Paste(float* float12);
