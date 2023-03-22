@@ -1,5 +1,5 @@
 Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://library.vcvrack.com/).
-Version 2.1.1
+Version 2.1.2
 
 Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -490,7 +490,7 @@ Here are some further details on the different functions of the sequencer. It is
 
 * **LEN / REP**: Sequence lengths can be set by clicking the button when in SEQ mode, and then either turning the main knob below the main display or clicking the desired length directly in the steps (the second method is the recommended way since the display will automatically return to its default state afterwards). The sequences can have different lengths. When in Song mode, the same button instead serves to set the number of repetitions of the current phrase; this allows the repetition of a sequence up to 99 times, for any run mode selected. To skip the given phrase when the song plays, set the number of repetitions to 0.
 
-* **RUN MODE**: Used to set the run mode of the selected sequence when in SEQ mode, or of the song (selected track) when in SONG mode. The modes are: FWD (forward), REV (reverse), PPG (ping-pong, also called forward-reverse), PEN (pendulum, like PPG but the first and last steps are not played twice), BRN (Brownian random), RND (random), TKA (use the step/phrase run positions of track A). The TKA mode can be used to ensure chord notes are randomized together across tracks. For track A, the TKA mode is equivalent to FWD.
+* **RUN MODE**: Used to set the run mode of the selected sequence when in SEQ mode, or of the song (selected track) when in SONG mode. The modes are: FWD (forward), REV (reverse), PPG (ping-pong, also called forward-reverse), PEN (pendulum, like PPG but the first and last steps are not played twice), BRN (Brownian random), RND (random), TKA (use the step/phrase run positions of track A), RNS (random single, which plays each step/phrase once before restarting). The TKA mode can be used to ensure chord notes are randomized together across tracks. For track A, the TKA mode is equivalent to FWD.
 
 * **CV2**: These secondary CV outputs can be used for accents, velocities or any other auxiliary control voltage. CV2 is a 0V to 10V control voltage by defaut, but by checking the Bipolar option in the right-click menu, they can be -5V to 5V outputs. Three modes are available in the right-click menu:
     * Volts: direct control of the CV2 output voltages, with 0.05V resolution;
