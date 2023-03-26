@@ -1,5 +1,10 @@
 ### in development
 
+- todo
+
+
+### 2.1.2 (2023-03-26)
+
 - Clkd/Clocked: when autopatching to a master in Px modes, force slave to CV mode
 - Foundry: added new run mode called RNS, for seq and song modes, which plays steps/phrases randomly but without repeating until all steps/phrases are played
 - ProbKey + AdaptiveQuantizer: added menu item to copy weights in AdaptiveQuantizer and paste the weights in ProbKey
