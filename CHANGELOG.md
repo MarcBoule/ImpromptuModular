@@ -1,4 +1,4 @@
-### in development
+### 2.1.3 (2023-04-11)
 
 - Fix issue with Schmitt trigger
 
