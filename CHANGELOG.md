@@ -1,6 +1,6 @@
 ### in development
 
-- todo
+- Fix issue with Schmitt trigger
 
 
 ### 2.1.2 (2023-03-26)
