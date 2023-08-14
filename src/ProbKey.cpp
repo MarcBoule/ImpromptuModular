@@ -1535,7 +1535,7 @@ struct ProbKeyWidget : ModuleWidget {
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/ProbKey.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
-		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
+		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		
 		// Screws
 		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 0), mode));

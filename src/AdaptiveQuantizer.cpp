@@ -1010,7 +1010,6 @@ struct AdaptiveQuantizer : Module {
 
 
 struct AdaptiveQuantizerWidget : ModuleWidget {
-	SvgPanel* darkPanel;
 	PitchMatrixLight* pitchLightsWidgets[12 * 5];
 	uint64_t route = 0;
 	bool showDataTable = false;
@@ -1111,7 +1110,7 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/AdaptiveQuantizer.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
-		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
+		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		
 		// Screws
 		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(15, 0), mode));
@@ -1273,7 +1272,6 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col5, rowBot)), false, module, AdaptiveQuantizer::GATE_OUTPUT, module ? &module->panelTheme : NULL));
 	}
 	
-	
 	void step() override {
 		if (module) {
 			AdaptiveQuantizer *module = dynamic_cast<AdaptiveQuantizer*>(this->module);
@@ -1343,6 +1341,7 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 				showDataTable = false;
 			}
 		}
+
 		Widget::step();
 	}
 };

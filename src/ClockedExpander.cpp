@@ -86,7 +86,7 @@ struct ClockedExpanderWidget : ModuleWidget {
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/ClockedExpander.svg")));
 		SvgPanel* svgPanel = (SvgPanel*)getPanel();
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
-		svgPanel->fb->addChild(new InverterWidget(svgPanel->box.size, mode));	
+		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		
 		// Screws
 		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 0), mode));

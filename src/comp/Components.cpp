@@ -142,6 +142,7 @@ IMSwitch2H::IMSwitch2H() {
 // Svg Widgets
 // ----------
 
+
 void DisplayBackground::draw(const DrawArgs& args) {
 	if (isDark(mode)) {
 		nvgBeginPath(args.vg);

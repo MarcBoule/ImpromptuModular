@@ -11,14 +11,14 @@ NVGcolor SCHEME_RED_IM = SCHEME_RED;
 NVGcolor SCHEME_GREEN_IM = SCHEME_GREEN;
 
 
-int defaultPanelTheme;
+// int defaultPanelTheme;
 float defaultPanelContrast;
 
 void writeThemeAndContrastAsDefault() {
 	json_t *settingsJ = json_object();
 	
 	// defaultPanelTheme
-	json_object_set_new(settingsJ, "themeDefault", json_integer(defaultPanelTheme));
+	// json_object_set_new(settingsJ, "themeDefault", json_integer(defaultPanelTheme));
 	
 	// defaultPanelContrast
 	json_object_set_new(settingsJ, "contrastDefault", json_real(defaultPanelContrast));
@@ -48,23 +48,26 @@ void writeThemeAndContrastAsDefault() {
 
 
 void saveThemeAndContrastAsDefault(int panelTheme, float panelContrast) {
-	defaultPanelTheme = panelTheme;
+	// defaultPanelTheme = panelTheme;
 	defaultPanelContrast = panelContrast;
 	writeThemeAndContrastAsDefault();
 }
 
 
 void loadThemeAndContrastFromDefault(int* panelTheme, float* panelContrast) {
-	*panelTheme = defaultPanelTheme;
+	*panelTheme = 0x2;// bit 0 means white for when not use rack default, bit 1 means use rack default  //defaultPanelTheme;
 	*panelContrast = defaultPanelContrast;
 }
 
 
 bool isDark(int* panelTheme) {
 	if (panelTheme != NULL) {
-		return (*panelTheme != 0);
+		if ((*panelTheme & 0x2) != 0) {
+			return settings::preferDarkPanels;
+		}
+		return ((*panelTheme & 0x1) != 0);
 	}
-	return (defaultPanelTheme != 0);
+	return settings::preferDarkPanels;
 }
 
 
@@ -72,7 +75,7 @@ void readThemeAndContrastFromDefault() {
 	std::string settingsFilename = asset::user("ImpromptuModular.json");
 	FILE *file = fopen(settingsFilename.c_str(), "r");
 	if (!file) {
-		defaultPanelTheme = 0;
+		// defaultPanelTheme = 0;
 		defaultPanelContrast = panelContrastDefault;
 		writeThemeAndContrastAsDefault();
 		return;
@@ -82,20 +85,20 @@ void readThemeAndContrastFromDefault() {
 	if (!settingsJ) {
 		// invalid setting json file
 		fclose(file);
-		defaultPanelTheme = 0;
+		// defaultPanelTheme = 0;
 		defaultPanelContrast = panelContrastDefault;
 		writeThemeAndContrastAsDefault();
 		return;
 	}
 	
 	// defaultPanelTheme
-	json_t *themeDefaultJ = json_object_get(settingsJ, "themeDefault");
-	if (themeDefaultJ) {
-		defaultPanelTheme = json_integer_value(themeDefaultJ);
-	}
-	else {
-		defaultPanelTheme = 0;
-	}
+	// json_t *themeDefaultJ = json_object_get(settingsJ, "themeDefault");
+	// if (themeDefaultJ) {
+		// defaultPanelTheme = json_integer_value(themeDefaultJ);
+	// }
+	// else {
+		// defaultPanelTheme = 0;
+	// }
 	
 	// defaultPanelContrast
 	json_t *contrastDefaultJ = json_object_get(settingsJ, "contrastDefault");
@@ -178,11 +181,16 @@ void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast,
 		
 			Menu *menu = new Menu;
 			
-			menu->addChild(createCheckMenuItem("Dark", "",
-				[=]() {return *panelTheme;},
-				[=]() {*panelTheme ^= 0x1;  mainPanel->fb->dirty = true;}
+			menu->addChild(createCheckMenuItem("Use Rack global theme", "",
+				[=]() {return (*panelTheme & 0x2) != 0;},
+				[=]() {*panelTheme ^= 0x2;  /*mainPanel->fb->dirty = true;*/}
 			));
 			
+			menu->addChild(createCheckMenuItem("Dark", "",
+				[=]() {return (*panelTheme & 0x1);},
+				[=]() {*panelTheme ^= 0x1;  /*mainPanel->fb->dirty = true;*/},
+				disabled = (*panelTheme & 0x2) != 0
+			));
 			
 			PanelContrastSlider *cSlider = new PanelContrastSlider(panelContrast, mainPanel);
 			cSlider->box.size.x = 200.0f;
@@ -190,7 +198,7 @@ void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast,
 
 			menu->addChild(new MenuSeparator());
 
-			menu->addChild(createMenuItem("Set as default", "",
+			menu->addChild(createMenuItem("Set contrast as default", "",
 				[=]() {saveThemeAndContrastAsDefault(*panelTheme, *panelContrast);}
 			));
 		
@@ -224,6 +232,20 @@ void PanelBaseWidget::draw(const DrawArgs& args) {
 	TransparentWidget::draw(args);
 }
 
+
+
+void InverterWidget::refreshForTheme() {
+	int newMode = isDark(panelThemeSrc) ? 1 : 0;
+	if (newMode != oldMode) {
+        mainPanel->fb->dirty = true;
+        oldMode = newMode;
+    }
+}
+
+void InverterWidget::step() {
+	refreshForTheme();
+	TransparentWidget::step();
+}
 
 void InverterWidget::draw(const DrawArgs& args) {
 	TransparentWidget::draw(args);

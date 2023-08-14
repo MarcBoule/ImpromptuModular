@@ -40,10 +40,22 @@ struct PanelBaseWidget : TransparentWidget {
 
 
 struct InverterWidget : TransparentWidget {
-	int* panelThemeSrc = NULL;
-	InverterWidget(Vec _size, int* _panelThemeSrc) {
-		box.size = _size;
+	// this method also has the main theme refresh stepper for the main panel's frame buffer
+	// it automatically makes DisplayBackground, SwitchOutlineWidget, etc. redraw when isDark() changes since
+	//   they are children to the main panel's frame buffer
+	// but components such as port and screws have their own steppers (TODO optimize this since screws are also children?)
+	// TODO make theme menu work properly when control clicking
+	SvgPanel* mainPanel;
+	int* panelThemeSrc = NULL;// aka mode
+	int oldMode = -1;
+	InverterWidget(SvgPanel* _mainPanel, int* _panelThemeSrc) {
+		mainPanel = _mainPanel;
+		box.size = mainPanel->box.size;
 		panelThemeSrc = _panelThemeSrc;
 	}
+	void refreshForTheme();
+    void step() override;
 	void draw(const DrawArgs& args) override;
 };
+
+
