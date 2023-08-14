@@ -149,9 +149,23 @@ struct IMScrew : DynamicSVGScrew {
 // Ports
 // ----------
 
-struct IMPort : PJ301MPort  {
-	int* mode = NULL;
+struct DynamicSVGPort : SvgPort {
+    int* mode = NULL;
+    int oldMode = -1;
+    std::vector<std::shared_ptr<Svg>> frames;
+	std::string frameAltName;
+
+    void addFrame(std::shared_ptr<Svg> svg);
+    void addFrameAlt(std::string filename) {frameAltName = filename;}
+	void refreshForTheme();
+    void step() override;
+};
+
+
+struct IMPort : DynamicSVGPort  {
 	IMPort() {
+		addFrame(APP->window->loadSvg(asset::system("res/ComponentLibrary/PJ301M.svg")));
+		addFrameAlt(asset::system("res/ComponentLibrary/PJ301M-dark.svg"));
 	}
 };
 

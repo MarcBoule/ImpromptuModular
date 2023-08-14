@@ -49,7 +49,29 @@ void DynamicSVGScrew::step() {
 // Ports
 // ----------
 
-// none
+void DynamicSVGPort::addFrame(std::shared_ptr<Svg> svg) {
+	frames.push_back(svg);
+    if(frames.size() == 1) {
+        setSvg(svg);
+	}
+}
+
+void DynamicSVGPort::refreshForTheme() {
+	int newMode = isDark(mode) ? 1 : 0;
+	if (newMode != oldMode) {
+        if (newMode > 0 && !frameAltName.empty()) {// JIT loading of alternate skin
+			frames.push_back(APP->window->loadSvg(frameAltName));
+			frameAltName.clear();// don't reload!
+		}
+        setSvg(frames[newMode]);
+        oldMode = newMode;
+    }
+}
+
+void DynamicSVGPort::step() {
+	refreshForTheme();
+	SvgPort::step();
+}
 
 
 // Buttons and switches
