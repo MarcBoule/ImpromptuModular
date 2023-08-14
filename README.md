@@ -9,7 +9,7 @@ Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are 
 <a id="modules"></a>
 ## Modules
 
-Each module is available in light or dark panels with contrast adjusment, selectable in the right-click menu of the modules. A global default can be set, which takes effect only when adding new modules to a patch.
+Each module is available in light or dark panels with contrast adjusment, selectable in the right-click menu of the modules. By default the modules follow the global Rack setting ("Use dark panels if available"), but this can be bypassed on a per-module basis, where a fixed theme can be set for a given module. A default contrast can be set, which takes effect only when adding new modules to a patch.
 
 * [AdaptiveQuantizer](#adaptive-quantizer): Adaptive reference based quantizer.
 

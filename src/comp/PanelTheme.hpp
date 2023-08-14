@@ -12,7 +12,8 @@ using namespace rack;
 
 
 
-static constexpr float panelContrastDefault = 220.0f;
+static constexpr int panelThemeDefaultValue = 0x2;// bit 0 means isWhite for when not using rack global, bit 1 means using rack global dark setting 
+static constexpr float panelContrastDefaultValue = 220.0f;
 static constexpr float panelContrastMin = 190.0f;
 static constexpr float panelContrastMax = 240.0f;
 extern NVGcolor SCHEME_RED_IM;
@@ -40,11 +41,9 @@ struct PanelBaseWidget : TransparentWidget {
 
 
 struct InverterWidget : TransparentWidget {
-	// this method also has the main theme refresh stepper for the main panel's frame buffer
-	// it automatically makes DisplayBackground, SwitchOutlineWidget, etc. redraw when isDark() changes since
-	//   they are children to the main panel's frame buffer
-	// but components such as port and screws have their own steppers (TODO optimize this since screws are also children?)
-	// TODO make theme menu work properly when control clicking
+	// This method also has the main theme refresh stepper for the main panel's frame buffer.
+	// It automatically makes DisplayBackground, SwitchOutlineWidget, etc. redraw when isDark() changes since they are children to the main panel's frame buffer   
+	// Components such as ports and screws also have their own steppers (that just change the svg, since they don't have framebuffers)
 	SvgPanel* mainPanel;
 	int* panelThemeSrc = NULL;// aka mode
 	int oldMode = -1;

@@ -55,7 +55,7 @@ void saveThemeAndContrastAsDefault(int panelTheme, float panelContrast) {
 
 
 void loadThemeAndContrastFromDefault(int* panelTheme, float* panelContrast) {
-	*panelTheme = 0x2;// bit 0 means white for when not use rack default, bit 1 means use rack default  //defaultPanelTheme;
+	*panelTheme = panelThemeDefaultValue;//defaultPanelTheme;
 	*panelContrast = defaultPanelContrast;
 }
 
@@ -76,7 +76,7 @@ void readThemeAndContrastFromDefault() {
 	FILE *file = fopen(settingsFilename.c_str(), "r");
 	if (!file) {
 		// defaultPanelTheme = 0;
-		defaultPanelContrast = panelContrastDefault;
+		defaultPanelContrast = panelContrastDefaultValue;
 		writeThemeAndContrastAsDefault();
 		return;
 	}
@@ -86,7 +86,7 @@ void readThemeAndContrastFromDefault() {
 		// invalid setting json file
 		fclose(file);
 		// defaultPanelTheme = 0;
-		defaultPanelContrast = panelContrastDefault;
+		defaultPanelContrast = panelContrastDefaultValue;
 		writeThemeAndContrastAsDefault();
 		return;
 	}
@@ -106,7 +106,7 @@ void readThemeAndContrastFromDefault() {
 		defaultPanelContrast = json_number_value(contrastDefaultJ);
 	}
 	else {
-		defaultPanelContrast = panelContrastDefault;
+		defaultPanelContrast = panelContrastDefaultValue;
 	}
 	
 	// SCHEME_RED_IM
@@ -160,7 +160,7 @@ void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast,
 				}
 				float getMinValue() override {return panelContrastMin;}
 				float getMaxValue() override {return panelContrastMax;}
-				float getDefaultValue() override {return panelContrastDefault;}
+				float getDefaultValue() override {return panelContrastDefaultValue;}
 				float getDisplayValue() override {return *panelContrast;}
 				std::string getDisplayValueString() override {
 					return string::f("%.1f", rescale(*panelContrast, getMinValue(), getMaxValue(), 0.0f, 100.0f));
@@ -177,26 +177,36 @@ void createPanelThemeMenu(ui::Menu* menu, int* panelTheme, float* panelContrast,
 					delete quantity;
 				}
 			};
-			
+			struct DarkItem : MenuItem {
+				int* panelTheme;
+
+				void onAction(const event::Action &e) override {
+					*panelTheme ^= 0x1;
+				}
+				
+				void step() override {
+					disabled = (*panelTheme & 0x2) != 0;
+					rightText = CHECKMARK(*panelTheme & 0x1);
+					MenuItem::step();
+				}
+			};			
 		
 			Menu *menu = new Menu;
 			
 			menu->addChild(createCheckMenuItem("Use Rack global theme", "",
 				[=]() {return (*panelTheme & 0x2) != 0;},
-				[=]() {*panelTheme ^= 0x2;  /*mainPanel->fb->dirty = true;*/}
+				[=]() {*panelTheme ^= 0x2;}
 			));
 			
-			menu->addChild(createCheckMenuItem("Dark", "",
-				[=]() {return (*panelTheme & 0x1);},
-				[=]() {*panelTheme ^= 0x1;  /*mainPanel->fb->dirty = true;*/},
-				disabled = (*panelTheme & 0x2) != 0
-			));
+			DarkItem *darkItem = createMenuItem<DarkItem>("Dark", "");
+			darkItem->panelTheme = panelTheme;
+			menu->addChild(darkItem);
 			
+			menu->addChild(new MenuSeparator());
+
 			PanelContrastSlider *cSlider = new PanelContrastSlider(panelContrast, mainPanel);
 			cSlider->box.size.x = 200.0f;
 			menu->addChild(cSlider);
-
-			menu->addChild(new MenuSeparator());
 
 			menu->addChild(createMenuItem("Set contrast as default", "",
 				[=]() {saveThemeAndContrastAsDefault(*panelTheme, *panelContrast);}
