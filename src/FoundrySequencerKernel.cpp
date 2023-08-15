@@ -514,21 +514,22 @@ void SequencerKernel::rotateSeqByOne(int seqn, bool directionRight) {// caller s
 
 void SequencerKernel::activateTiedStep(int seqn, int stepn) {// caller sets dirty[] to 1
 	attributes[seqn][stepn].setTied(true);
-	if (stepn > 0) 
+	if (stepn > 0) {
 		propagateCVtoTied(seqn, stepn - 1);
 	
-	if (*holdTiedNotesPtr) {// new method
-		attributes[seqn][stepn].setGate(true);
-		for (int i = std::max(stepn, 1); i < MAX_STEPS && attributes[seqn][i].getTied(); i++) {
-			attributes[seqn][i].setGateType(attributes[seqn][i - 1].getGateType());
-			attributes[seqn][i - 1].setGateType(5);
-			attributes[seqn][i - 1].setGate(true);
+		if (*holdTiedNotesPtr) {// new method
+			attributes[seqn][stepn].setGate(true);
+			for (unsigned int i = stepn; i < MAX_STEPS && attributes[seqn][i].getTied(); i++) {
+				attributes[seqn][i].setGateType(attributes[seqn][i - 1].getGateType());
+				attributes[seqn][i - 1].setGateType(5);
+				attributes[seqn][i - 1].setGate(true);
+			}
 		}
-	}
-	else {// old method
-		if (stepn > 0) {
-			attributes[seqn][stepn] = attributes[seqn][stepn - 1];
-			attributes[seqn][stepn].setTied(true);
+		else {// old method
+			// if (stepn > 0) {
+				attributes[seqn][stepn] = attributes[seqn][stepn - 1];
+				attributes[seqn][stepn].setTied(true);
+			// }
 		}
 	}
 }
@@ -536,12 +537,11 @@ void SequencerKernel::activateTiedStep(int seqn, int stepn) {// caller sets dirt
 
 void SequencerKernel::deactivateTiedStep(int seqn, int stepn) {// caller sets dirty[] to 1
 	attributes[seqn][stepn].setTied(false);
-	if (*holdTiedNotesPtr) {// new method
+	if (*holdTiedNotesPtr && stepn > 0) {// new method
 		int lastGateType = attributes[seqn][stepn].getGateType();
 		for (int i = stepn + 1; i < MAX_STEPS && attributes[seqn][i].getTied(); i++)
 			lastGateType = attributes[seqn][i].getGateType();
-		if (stepn > 0)
-			attributes[seqn][stepn - 1].setGateType(lastGateType);
+		attributes[seqn][stepn - 1].setGateType(lastGateType);
 	}
 	//else old method, nothing to do
 }
@@ -584,7 +584,7 @@ void SequencerKernel::calcGateCode(bool editingSequence) {
 			gateCode = (ppqnCount == 0 ? 3 : 0);// trig on first ppqnCount
 		}
 		else {
-			uint64_t shiftAmt = ppqnCount * (96 / ppsFiltered);
+			uint64_t shiftAmt = ((uint64_t)ppqnCount) * (((uint64_t)96) / ((uint64_t)ppsFiltered));
 			if (shiftAmt >= 64)
 				gateCode = (int)((advGateHitMaskHigh[gateType] >> (shiftAmt - (uint64_t)64)) & (uint64_t)0x1);
 			else

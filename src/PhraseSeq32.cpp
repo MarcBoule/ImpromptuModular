@@ -1704,33 +1704,33 @@ struct PhraseSeq32 : Module {
 
 	void activateTiedStep(int seqn, int stepn) {
 		attributes[seqn][stepn].setTied(true);
-		if (stepn > 0) 
+		if (stepn > 0) {
 			propagateCVtoTied(seqn, stepn - 1);
 		
-		if (holdTiedNotes) {// new method
-			attributes[seqn][stepn].setGate1(true);
-			for (int i = std::max(stepn, 1); i < 32 && attributes[seqn][i].getTied(); i++) {
-				attributes[seqn][i].setGate1Mode(attributes[seqn][i - 1].getGate1Mode());
-				attributes[seqn][i - 1].setGate1Mode(5);
-				attributes[seqn][i - 1].setGate1(true);
+			if (holdTiedNotes) {// new method
+				attributes[seqn][stepn].setGate1(true);
+				for (int i = stepn; i < 32 && attributes[seqn][i].getTied(); i++) {
+					attributes[seqn][i].setGate1Mode(attributes[seqn][i - 1].getGate1Mode());
+					attributes[seqn][i - 1].setGate1Mode(5);
+					attributes[seqn][i - 1].setGate1(true);
+				}
 			}
-		}
-		else {// old method
-			if (stepn > 0) {
-				attributes[seqn][stepn] = attributes[seqn][stepn - 1];
-				attributes[seqn][stepn].setTied(true);
+			else {// old method
+				//if (stepn > 0) {
+					attributes[seqn][stepn] = attributes[seqn][stepn - 1];
+					attributes[seqn][stepn].setTied(true);
+				//}
 			}
 		}
 	}
 	
 	void deactivateTiedStep(int seqn, int stepn) {
 		attributes[seqn][stepn].setTied(false);
-		if (holdTiedNotes) {// new method
+		if (holdTiedNotes && stepn > 0) {// new method
 			int lastGateType = attributes[seqn][stepn].getGate1Mode();
 			for (int i = stepn + 1; i < 32 && attributes[seqn][i].getTied(); i++)
 				lastGateType = attributes[seqn][i].getGate1Mode();
-			if (stepn > 0)
-				attributes[seqn][stepn - 1].setGate1Mode(lastGateType);
+			attributes[seqn][stepn - 1].setGate1Mode(lastGateType);
 		}
 		//else old method, nothing to do
 	}

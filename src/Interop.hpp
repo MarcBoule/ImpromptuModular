@@ -16,11 +16,11 @@ static const std::string portableSequencePasteID = "Paste sequence";
 
 
 struct IoStep {// common intermediate format for interop conversion
-	bool gate;
-	bool tied;// when tied is true, gate is always true and prob is always -1.0
-	float pitch;
-	float vel;// 0.0 to 10.0, -1.0 will indicate that the note is not using velocity
-	float prob;// 0.0 to 1.0, -1.0 will indicate that the note is not using probability (always so when tied)
+	bool gate = false;
+	bool tied = false;// when tied is true, gate is always true and prob is always -1.0
+	float pitch = 0.0f;
+	float vel = 0.0f;// 0.0 to 10.0, -1.0 will indicate that the note is not using velocity
+	float prob = 0.0f;// 0.0 to 1.0, -1.0 will indicate that the note is not using probability (always so when tied)
 	
 	void init(bool _gate, bool _tied, float _pitch, float _vel, float _prob) {
 		gate = _gate; tied = _tied; pitch = _pitch, vel = _vel, prob = _prob;

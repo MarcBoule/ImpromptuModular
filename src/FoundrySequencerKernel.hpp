@@ -472,7 +472,7 @@ class SequencerKernel {
 	
 	void rotateSeqByOne(int seqn, bool directionRight);
 	void propagateCVtoTied(int seqn, int stepn) {
-		for (int i = stepn + 1; i < MAX_STEPS && attributes[seqn][i].getTied(); i++)
+		for (unsigned int i = stepn + 1; i < MAX_STEPS && attributes[seqn][i].getTied(); i++)
 			cv[seqn][i] = cv[seqn][i - 1];	
 	}
 	void activateTiedStep(int seqn, int stepn);
