@@ -1,3 +1,9 @@
+### 2.4.0 (2023-04-11)
+
+- Follow global Rack panel theme choice, with per-instance manual theme selection
+- Change port SVGs for dark theme
+
+
 ### 2.1.3 (2023-04-11)
 
 - Fix issue with Schmitt trigger
