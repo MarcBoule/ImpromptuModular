@@ -1,4 +1,4 @@
-### 2.4.0 (2023-04-11)
+### 2.4.0 (2023-08-14)
 
 - Follow global Rack panel theme choice, with per-instance manual theme selection
 - Change port SVGs for dark theme
