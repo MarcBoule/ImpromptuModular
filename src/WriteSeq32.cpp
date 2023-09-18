@@ -718,7 +718,7 @@ struct WriteSeq32Widget : ModuleWidget {
 				nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
 				
 				nvgFillColor(args.vg, displayColOn);
-				char displayStr[8];
+				char displayStr[3];
 				unsigned int numSteps = (module ? (unsigned int)(module->calcSteps()) : 32);
 				snprintf(displayStr, 3, "%2u", numSteps);
 				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
