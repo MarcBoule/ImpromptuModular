@@ -146,7 +146,7 @@ struct LowFrequencyOscillator {
 			return saw(phase) * (invert ? -1.0f : 1.0f);
 	}
 	float sqr() {
-		float sqr = (phase < pw) ^ invert ? 1.0f : -1.0f;
+		float sqr = ((phase < pw) ^ invert) ? 1.0f : -1.0f;
 		return offset ? sqr + 1.0f : sqr;
 	}
 	float light() {

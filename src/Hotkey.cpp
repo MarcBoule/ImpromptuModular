@@ -153,7 +153,7 @@ static void get_mods_name(char *name, int mods)
 {
 	name[0] = 0;
     if (mods & GLFW_MOD_SHIFT) {
-		if (name[0] != '\0') strcat(name, "+");
+		// if (name[0] != '\0') strcat(name, "+");  // not needed
         strcat(name, "Shift");
 	}
     if (mods & GLFW_MOD_CONTROL) {

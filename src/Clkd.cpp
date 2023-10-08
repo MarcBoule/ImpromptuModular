@@ -914,7 +914,7 @@ struct ClkdWidget : ModuleWidget {
 	struct BpmKnob : IMMediumKnob {
 		int *displayIndexPtr = NULL;
 		void onButton(const event::Button& e) override {
-			ParamQuantity* paramQuantity = getParamQuantity();
+			const ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity && displayIndexPtr) {
 				*displayIndexPtr = 0;
 			}
@@ -924,7 +924,7 @@ struct ClkdWidget : ModuleWidget {
 	struct RatioKnob : IMSmallKnob {
 		int *displayIndexPtr = NULL;
 		void onButton(const event::Button& e) override {
-			ParamQuantity* paramQuantity = getParamQuantity();
+			const ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity && displayIndexPtr) {
 				int ratioNum = paramQuantity->paramId - Clkd::RATIO_PARAMS;
 				if (ratioNum >= 0 && ratioNum < 3) {

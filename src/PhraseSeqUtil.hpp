@@ -21,7 +21,7 @@ static const int NUM_GATES = 12;// advanced gate types
 
 
 class StepAttributes {
-	unsigned short attributes;
+	unsigned short attributes = 0;
 	
 	public:
 
@@ -76,7 +76,7 @@ class StepAttributes {
 
 
 class SeqAttributes {
-	unsigned long attributes;
+	unsigned long attributes = 0ul;
 	
 	public:
 

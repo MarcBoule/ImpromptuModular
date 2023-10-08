@@ -23,9 +23,9 @@ class ProbKernel {
 	
 	private:
 	
-	float noteProbs[12];// [0.0f : 1.0f]
-	float noteAnchors[12];// [0.0f : 1.0f];  0.5f=oct"4"=0V, 1.0f=oct"4+MAX_ANCHOR_DELTA"; not quantized
-	float noteRanges[7];// [0] is -3, [6] is +3
+	float noteProbs[12] = {};// [0.0f : 1.0f]
+	float noteAnchors[12] = {};// [0.0f : 1.0f];  0.5f=oct"4"=0V, 1.0f=oct"4+MAX_ANCHOR_DELTA"; not quantized
+	float noteRanges[7] = {};// [0] is -3, [6] is +3
 	
 	
 	public:
@@ -346,9 +346,9 @@ class OutputKernel {
 	
 	private:
 	
-	float buf[MAX_LENGTH];// holds CVs or ProbKernel::IDEM_CV
-	float lastCv;// sample and hold, must never hold ProbKernel::IDEM_CV
-	int step;
+	float buf[MAX_LENGTH] = {};// holds CVs or ProbKernel::IDEM_CV
+	float lastCv = 0.0f;// sample and hold, must never hold ProbKernel::IDEM_CV
+	int step = 0;
 	
 	
 	public:
@@ -456,9 +456,9 @@ class OutputKernel {
 
 
 class DisplayManager {
-	long dispCounter;
-	int dispMode;
-	char buf[5];// only used when dispMode != DISP_NORMAL
+	long dispCounter = 0l;
+	int dispMode = 0;
+	char buf[5] = {};// only used when dispMode != DISP_NORMAL
 	
 	public:
 	

@@ -164,7 +164,6 @@ struct PhraseSeq32 : Module {
 	Trigger runningTrigger;
 	Trigger clockTrigger;
 	Trigger octTriggers[7];
-	Trigger octmTrigger;
 	Trigger gate1Trigger;
 	Trigger gate1ProbTrigger;
 	Trigger gate2Trigger;
@@ -175,7 +174,6 @@ struct PhraseSeq32 : Module {
 	Trigger copyTrigger;
 	Trigger pasteTrigger;
 	Trigger modeTrigger;
-	Trigger rotateTrigger;
 	Trigger transposeTrigger;
 	Trigger tiedTrigger;
 	Trigger stepTriggers[32];
@@ -573,7 +571,7 @@ struct PhraseSeq32 : Module {
 		if (runModeSongJ)
 			runModeSong = json_integer_value(runModeSongJ);
 		else {// legacy
-			json_t *runModeSongJ = json_object_get(rootJ, "runModeSong");
+			runModeSongJ = json_object_get(rootJ, "runModeSong");
 			if (runModeSongJ) {
 				runModeSong = json_integer_value(runModeSongJ);
 				if (runModeSong >= MODE_PEN)// this mode was not present in original version
@@ -1028,8 +1026,7 @@ struct PhraseSeq32 : Module {
 			// Mode/Length button
 			if (modeTrigger.process(params[RUNMODE_PARAM].getValue())) {
 				if (!attached) {
-					if (editingPpqn != 0l)
-						editingPpqn = 0l;			
+					editingPpqn = 0l;			
 					if (displayState == DISP_NORMAL || displayState == DISP_TRANSPOSE || displayState == DISP_ROTATE)
 						displayState = DISP_LENGTH;
 					else if (displayState == DISP_LENGTH)
@@ -1136,7 +1133,7 @@ struct PhraseSeq32 : Module {
 							}
 						}
 						else {
-							if (!attached || (attached && !running)) {
+							if (!attached || !running) {
 								int newPhrase = phrase[phraseIndexEdit] + deltaKnob;
 								if (newPhrase < 0)
 									newPhrase += (1 - newPhrase / 32) * 32;// newPhrase now positive
@@ -1726,7 +1723,7 @@ struct PhraseSeq32 : Module {
 	
 	void deactivateTiedStep(int seqn, int stepn) {
 		attributes[seqn][stepn].setTied(false);
-		if (holdTiedNotes && stepn > 0) {// new method
+		if (holdTiedNotes && stepn != 0) {// new method
 			int lastGateType = attributes[seqn][stepn].getGate1Mode();
 			for (int i = stepn + 1; i < 32 && attributes[seqn][i].getTied(); i++)
 				lastGateType = attributes[seqn][i].getGate1Mode();
@@ -1823,7 +1820,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 								module->seqIndexEdit = totalNum - 1;
 						}
 						else {
-							if (!module->attached || (module->attached && !module->running))
+							if (!module->attached || !module->running)
 								module->phrase[module->phraseIndexEdit] = totalNum - 1;
 						}
 
@@ -2023,7 +2020,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 				else if (module->displayState == PhraseSeq32::DISP_MODE) {
 					if (module->isEditingSequence()) {
 						bool expanderPresent = (module->rightExpander.module && module->rightExpander.module->model == modelPhraseSeqExpander);
-						float *messagesFromExpander = (float*)module->rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent						
+						const float *messagesFromExpander = (float*)module->rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent						
 						if (!expanderPresent || std::isnan(messagesFromExpander[4])) {
 							module->sequences[module->seqIndexEdit].setRunMode(MODE_FWD);
 						}

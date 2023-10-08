@@ -157,7 +157,7 @@ int moveIndex(int index, int indexNext, int numSteps) {
 
 void InstantiateExpanderItem::onAction(const event::Action &e) {
 	// Create Module and ModuleWidget
-	engine::Module* module = model->createModule();
+	module = model->createModule();
 	APP->engine->addModule(module);
 
 	ModuleWidget* mw = model->createModuleWidget(module);

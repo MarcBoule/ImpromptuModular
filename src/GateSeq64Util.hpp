@@ -9,7 +9,7 @@
 
 
 class StepAttributesGS {
-	unsigned short attributes;
+	unsigned short attributes = 0;
 	
 	public:
 	
@@ -44,7 +44,7 @@ class StepAttributesGS {
 
 
 class SeqAttributesGS {
-	unsigned short attributes;
+	unsigned short attributes = 0;
 	
 	public:
 

@@ -183,8 +183,8 @@ void SequencerKernel::dataFromJson(json_t *rootJ, bool editingSequence) {
 	
 	// CV and attributes (and dirty)
 	json_t *seqSavedJ = json_object_get(rootJ, (ids + "seqSaved").c_str());
-	int seqSaved[MAX_SEQS];
 	if (seqSavedJ) {
+		int seqSaved[MAX_SEQS];
 		int i;
 		for (i = 0; i < MAX_SEQS; i++)
 		{
@@ -537,7 +537,7 @@ void SequencerKernel::activateTiedStep(int seqn, int stepn) {// caller sets dirt
 
 void SequencerKernel::deactivateTiedStep(int seqn, int stepn) {// caller sets dirty[] to 1
 	attributes[seqn][stepn].setTied(false);
-	if (*holdTiedNotesPtr && stepn > 0) {// new method
+	if (*holdTiedNotesPtr && stepn != 0) {// new method
 		int lastGateType = attributes[seqn][stepn].getGateType();
 		for (int i = stepn + 1; i < MAX_STEPS && attributes[seqn][i].getTied(); i++)
 			lastGateType = attributes[seqn][i].getGateType();

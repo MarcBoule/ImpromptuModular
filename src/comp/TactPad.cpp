@@ -13,7 +13,7 @@ TactPad::TactPad() {
 
 
 void TactPad::onDragMove(const event::DragMove &e) {
-	ParamQuantity* paramQuantity = getParamQuantity();
+	const ParamQuantity* paramQuantity = getParamQuantity();
 	if (paramQuantity && e.button == GLFW_MOUSE_BUTTON_LEFT) {
 		float dragMouseY = APP->scene->rack->getMousePos().y;
 		setTactParam(onButtonPosY + dragMouseY - onButtonMouseY);
@@ -39,7 +39,7 @@ void TactPad::onDragEnd(const event::DragEnd &e) {
 
 
 void TactPad::onButton(const event::Button &e) {
-	ParamQuantity* paramQuantity = getParamQuantity();
+	const ParamQuantity* paramQuantity = getParamQuantity();
 	if (paramQuantity) {
 		onButtonMouseY = APP->scene->rack->getMousePos().y;
 		onButtonPosY = e.pos.y;

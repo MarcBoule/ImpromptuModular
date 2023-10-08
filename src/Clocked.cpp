@@ -241,7 +241,6 @@ struct Clocked : Module {
 	static constexpr float masterLengthMax = 120.0f / bpmMin;// a length is a double period
 	static constexpr float masterLengthMin = 120.0f / bpmMax;// a length is a double period
 	static constexpr float delayInfoTime = 3.0f;// seconds
-	static constexpr float swingInfoTime = 2.0f;// seconds
 	
 	
 	// Need to save, no reset
@@ -314,7 +313,7 @@ struct Clocked : Module {
 	
 	void updatePulseSwingDelay() {
 		bool expanderPresent = (rightExpander.module && rightExpander.module->model == modelClockedExpander);
-		float *messagesFromExpander = (float*)rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
+		const float *messagesFromExpander = (float*)rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
 		for (int i = 0; i < 4; i++) {
 			// Pulse Width
 			pulseWidth[i] = params[PW_PARAMS + i].getValue();

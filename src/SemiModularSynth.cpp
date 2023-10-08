@@ -263,7 +263,6 @@ struct SemiModularSynth : Module {
 	Trigger runningTrigger;
 	Trigger clockTrigger;
 	Trigger octTriggers[7];
-	Trigger octmTrigger;
 	Trigger gate1Trigger;
 	Trigger gate1ProbTrigger;
 	Trigger gate2Trigger;
@@ -274,7 +273,6 @@ struct SemiModularSynth : Module {
 	Trigger copyTrigger;
 	Trigger pasteTrigger;
 	Trigger modeTrigger;
-	Trigger rotateTrigger;
 	Trigger transposeTrigger;
 	Trigger tiedTrigger;
 	Trigger stepTriggers[16];
@@ -1163,8 +1161,7 @@ struct SemiModularSynth : Module {
 			// Mode/Length button
 			if (modeTrigger.process(params[RUNMODE_PARAM].getValue())) {
 				if (!attached) {
-					if (editingPpqn != 0l)
-						editingPpqn = 0l;			
+					editingPpqn = 0l;			
 					if (displayState == DISP_NORMAL || displayState == DISP_TRANSPOSE || displayState == DISP_ROTATE)
 						displayState = DISP_LENGTH;
 					else if (displayState == DISP_LENGTH)
@@ -1258,7 +1255,7 @@ struct SemiModularSynth : Module {
 							}
 						}
 						else {
-							if (!attached || (attached && !running))
+							if (!attached || !running)
 								phrase[phraseIndexEdit] = clamp(phrase[phraseIndexEdit] + deltaKnob, 0, 16 - 1);
 							else
 								attachedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
@@ -1886,17 +1883,17 @@ struct SemiModularSynth : Module {
 				}
 			}
 			else {// old method
-				if (stepn > 0) {
+				// if (stepn > 0) {
 					attributes[seqn][stepn] = attributes[seqn][stepn - 1];
 					attributes[seqn][stepn].setTied(true);
-				}
+				// }
 			}
 		}
 	}
 	
 	void deactivateTiedStep(int seqn, int stepn) {
 		attributes[seqn][stepn].setTied(false);
-		if (holdTiedNotes && stepn > 0) {// new method
+		if (holdTiedNotes && stepn != 0) {// new method
 			int lastGateType = attributes[seqn][stepn].getGate1Mode();
 			for (int i = stepn + 1; i < 16 && attributes[seqn][i].getTied(); i++)
 				lastGateType = attributes[seqn][i].getGate1Mode();
@@ -1993,7 +1990,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 								module->seqIndexEdit = totalNum - 1;
 						}
 						else {
-							if (!module->attached || (module->attached && !module->running))
+							if (!module->attached || !module->running)
 								module->phrase[module->phraseIndexEdit] = totalNum - 1;
 						}
 

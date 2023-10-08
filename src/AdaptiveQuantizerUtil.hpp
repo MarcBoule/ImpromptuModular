@@ -101,7 +101,7 @@ struct PersistenceKnob : IMBigKnob {
 		// IMBigKnob::onButton(e);
 	// }
 	void onDragMove(const event::DragMove& e) override {
-		ParamQuantity* paramQuantity = getParamQuantity();
+		const ParamQuantity* paramQuantity = getParamQuantity();
 		if (paramQuantity && infoDataTablePtr) {
 			*infoDataTablePtr = (long) (dataShowTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
 		}
@@ -119,7 +119,7 @@ struct OffsetKnob : IMMediumKnob {
 		// IMMediumKnob::onButton(e);
 	// }
 	void onDragMove(const event::DragMove& e) override {
-		ParamQuantity* paramQuantity = getParamQuantity();
+		const ParamQuantity* paramQuantity = getParamQuantity();
 		if (paramQuantity && infoDataTablePtr) {
 			*infoDataTablePtr = (long) (dataShowTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
 		}

@@ -89,7 +89,7 @@ class Phrase {
 
 
 class SeqAttributes {
-	unsigned long attributes;
+	unsigned long attributes = 0ul;
 	
 	public:
 
@@ -141,7 +141,7 @@ class SeqAttributes {
 
 
 class SingleStepRandom {
-	uint32_t played;// bit field that says if a given item was already played, max 32 steps
+	uint32_t played = 0;// bit field that says if a given item was already played, max 32 steps
 	std::vector<uint8_t> candidates;
 	
 	public:
@@ -173,7 +173,7 @@ class SingleStepRandom {
 
 
 class SinglePhraseRandom {
-	uint64_t played0, played1;// bit field that says if a given item was already played, max 128 phrases
+	uint64_t played0 = 0, played1 = 0;// bit field that says if a given item was already played, max 128 phrases
 	std::vector<uint8_t> candidates;
 	
 	public:
@@ -278,15 +278,19 @@ class SequencerKernel {
 	float slideCVdelta;// no need to initialize, this is only used when slideStepsRemain is not 0
 	
 	// No need to save, no reset
-	int id;
+	int id = 0;
 	std::string ids;
-	SequencerKernel *masterKernel;// nullprt for track 0, used for grouped run modes (tracks B,C,D follow A when random, for example)
-	bool* holdTiedNotesPtr;
-	int* stopAtEndOfSongPtr;
+	SequencerKernel *masterKernel = nullptr;// nullprt for track 0, used for grouped run modes (tracks B,C,D follow A when random, for example)
+	bool* holdTiedNotesPtr = nullptr;
+	int* stopAtEndOfSongPtr = nullptr;
 	
 	
 	
 	public: 
+	
+	SequencerKernel() {
+		onReset(false);
+	}
 	
 	void construct(int _id, SequencerKernel *_masterKernel, bool* _holdTiedNotesPtr, int* _stopAtEndOfSongPtr); // don't want regaular constructor mechanism
 
@@ -431,7 +435,7 @@ class SequencerKernel {
 	float applyNewOctave(int stepn, int newOct0, int count);
 	float applyNewKey(int stepn, int newKeyIndex, int count);
 	void writeCV(int stepn, float newCV, int count);
-	void writeAttribNoTies(int stepn, StepAttributes &stepAttrib) {// does not handle tied notes
+	void writeAttribNoTies(int stepn, const StepAttributes &stepAttrib) {// does not handle tied notes
 		attributes[seqIndexEdit][stepn] = stepAttrib;
 	}
 	
@@ -481,7 +485,7 @@ class SequencerKernel {
 	bool moveStepIndexRun(bool init, bool editingSequence);
 	bool movePhraseIndexBackward(bool init, bool rollover);
 	bool movePhraseIndexForeward(bool init, bool rollover);
-	int tempPhraseIndexes[MAX_PHRASES];// used only in next method	
+	int tempPhraseIndexes[MAX_PHRASES] = {};// used only in next method	
 	void movePhraseIndexRandom(bool init, uint32_t randomValue);	
 	void movePhraseIndexRandomSingle(bool init);	
 	void movePhraseIndexBrownian(bool init, uint32_t randomValue);	

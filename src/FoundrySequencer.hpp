@@ -39,6 +39,9 @@ class Sequencer {
 	
 	public: 
 	
+	Sequencer() {
+		onReset(false);
+	}
 	void construct(bool* _holdTiedNotesPtr, int* _velocityModePtr, int* _stopAtEndOfSongPtr);
 
 	void onReset(bool editingSequence);
@@ -142,7 +145,7 @@ class Sequencer {
 		sek[trackIndexEdit].writeCV(stepn, cvVal, 1);
 	}
 	void writeCV(int trkn, float cvVal, int multiStepsCount, float sampleRate, bool multiTracks);
-	void writeAttribNoTies(int stepn, StepAttributes &stepAttrib) {// does not handle tied notes
+	void writeAttribNoTies(int stepn, const StepAttributes &stepAttrib) {// does not handle tied notes
 		sek[trackIndexEdit].writeAttribNoTies(stepn, stepAttrib);
 	}
 	void autostep(bool autoseq, bool autostepLen, bool multiTracks);

@@ -558,11 +558,10 @@ struct WriteSeq64 : Module {
 		
 		// CV and gate outputs (staging area not used)
 		if (running) {
-			bool clockHigh = false;
 			bool retriggingOnReset = (clockIgnoreOnReset != 0l && retrigGatesOnReset);
 			for (int i = 0; i < 4; i++) {
 				outputs[CV_OUTPUTS + i].setVoltage(cv[i][indexStep[i]]);
-				clockHigh = i < 2 ? clock12Trigger.isHigh() : clock34Trigger.isHigh();
+				bool clockHigh = i < 2 ? clock12Trigger.isHigh() : clock34Trigger.isHigh();
 				outputs[GATE_OUTPUTS + i].setVoltage(( (((gates[i][indexStep[i]] == 1) && clockHigh) || gates[i][indexStep[i]] == 2) && !retriggingOnReset ) ? 10.0f : 0.0f);
 			}
 		}

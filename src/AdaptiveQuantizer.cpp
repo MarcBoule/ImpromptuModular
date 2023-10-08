@@ -715,7 +715,7 @@ struct AdaptiveQuantizer : Module {
 		intervals[head] = (!full && head == 0) ? 0 : notes[head] - notes[eucMod(head - 1, DTSIZE)];// intervals in -11 to 11
 		durations[head] = gateDuration;
 		
-		head = (head + 1);
+		head++;
 		if (head >= DTSIZE) {
 			full = true;
 			head = 0;
@@ -987,7 +987,7 @@ struct AdaptiveQuantizer : Module {
 							if (bestDist == 100 || weights[di12h] > bestWeight || 
 												  (weights[di12h] == bestWeight && weightAges[di12h] < weightAges[di12l])) {									
 								bestDist = dist;
-								bestWeight = weights[di12h];
+								// bestWeight = weights[di12h]; // not needed
 							}
 						}
 						if (bestDist != 100) {

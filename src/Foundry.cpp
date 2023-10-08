@@ -152,7 +152,6 @@ struct Foundry : Module {
 	Trigger copyTrigger;
 	Trigger pasteTrigger;
 	Trigger modeTrigger;
-	Trigger rotateTrigger;
 	Trigger transposeTrigger;
 	Trigger stepTriggers[SequencerKernel::MAX_STEPS];
 	Trigger clkResTrigger;
@@ -912,7 +911,7 @@ struct Foundry : Module {
 							}
 						}
 						else {// editing song
-							if (!attached || (attached && !running))
+							if (!attached || !running)
 								seq.modPhraseSeqNum(deltaSeqKnob, multiTracks);
 							else
 								attachedWarning = (long) (warningTime * sampleRate / RefreshCounter::displayRefreshStepSkips);
@@ -1625,7 +1624,7 @@ struct FoundryWidget : ModuleWidget {
 						if (editingSequence) {
 							int activeTrack = module->seq.getTrackIndexEdit();
 							bool expanderPresent = (module->rightExpander.module && module->rightExpander.module->model == modelFoundryExpander);
-							float *messagesFromExpander = (float*)module->rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
+							const float *messagesFromExpander = (float*)module->rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
 							if (!expanderPresent || std::isnan(messagesFromExpander[Sequencer::NUM_TRACKS + activeTrack])) {
 								module->seq.setSeqIndexEdit(totalNum - 1, activeTrack);
 								if (module->multiTracks) {
@@ -1639,7 +1638,7 @@ struct FoundryWidget : ModuleWidget {
 							}
 						}
 						else {// editing song
-							if (!module->attached || (module->attached && !module->running))
+							if (!module->attached || !module->running)
 								module->seq.setPhraseSeqNum(totalNum - 1, module->multiTracks);
 						}
 					}	
@@ -1984,7 +1983,7 @@ struct FoundryWidget : ModuleWidget {
 					if (module->editingSequence) {
 						for (int trkn = 0; trkn < Sequencer::NUM_TRACKS; trkn++) {
 							bool expanderPresent = (module->rightExpander.module && module->rightExpander.module->model == modelFoundryExpander);
-							float *messagesFromExpander = (float*)module->rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
+							const float *messagesFromExpander = (float*)module->rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
 							if (!expanderPresent || std::isnan(messagesFromExpander[Sequencer::NUM_TRACKS + trkn])) {
 								if (module->multiTracks || (trkn == module->seq.getTrackIndexEdit())) {
 									module->seq.setSeqIndexEdit(0, trkn);
@@ -1993,7 +1992,7 @@ struct FoundryWidget : ModuleWidget {
 						}
 					}
 					else {// editing song
-						if (!module->attached || (module->attached && !module->running))
+						if (!module->attached || !module->running)
 							module->seq.initPhraseSeqNum(module->multiTracks);
 					}
 				}	
@@ -2024,13 +2023,13 @@ struct FoundryWidget : ModuleWidget {
 				else {
 					if (!module->attached || !module->running) {
 						if (!module->editingSequence) {
-							if (module->displayState != Foundry::DISP_PPQN && module->displayState != Foundry::DISP_DELAY) {
+							// if (module->displayState != Foundry::DISP_PPQN && module->displayState != Foundry::DISP_DELAY) { // redundant
 								module->seq.setPhraseIndexEdit(0);
 								if (module->displayState != Foundry::DISP_REPS && module->displayState != Foundry::DISP_COPY_SONG_CUST)
 									module->displayState = Foundry::DISP_NORMAL;
 								if (!module->running)
 									module->seq.bringPhraseIndexRunToEdit();							
-							}	
+							// }	
 						}
 					}
 				}

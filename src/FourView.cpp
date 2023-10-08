@@ -255,7 +255,7 @@ struct FourView : Module {
 		}// userInputs refresh
 		
 		
-		for (int i = 0; i < 4; i++) {
+		for (i = 0; i < 4; i++) {
 			outputs[CV_OUTPUTS + i].setVoltage(displayValues[i] == unusedValue ? 0.0f : displayValues[i]);
 		}
 		

@@ -75,15 +75,13 @@ void VoltageControlledOscillator::process(float deltaTime, float syncValue) {
 
 	// Detect sync
 	int syncIndex = -1; // Index in the oversample loop where sync occurs [0, OVERSAMPLE)
-	float syncCrossing = 0.0f; // Offset that sync occurs [0.0f, 1.0f)
 	if (syncEnabled) {
 		syncValue -= 0.01f;
 		if (syncValue > 0.0f && lastSyncValue <= 0.0f) {
 			float deltaSync = syncValue - lastSyncValue;
-			syncCrossing = 1.0f - syncValue / deltaSync;
+			float syncCrossing = 1.0f - syncValue / deltaSync;
 			syncCrossing *= OVERSAMPLE;
 			syncIndex = (int)syncCrossing;
-			syncCrossing -= syncIndex;
 		}
 		lastSyncValue = syncValue;
 	}
