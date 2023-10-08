@@ -21,6 +21,7 @@ class Clock {
 
 	
 	double step;// -1.0 when stopped, [0 to 2*period[ for clock steps (*2 is because of swing, so we do groups of 2 periods)
+	double remainder;
 	double length;// double period
 	double sampleTime;
 	int iterations;// run this many double periods before going into sync if sub-clock
@@ -34,8 +35,9 @@ class Clock {
 		reset();
 	}
 	
-	void reset() {
+	void reset(double _remainder = 0.0) {
 		step = -1.0;
+		remainder = _remainder;
 	}
 	bool isReset() {
 		return step == -1.0;
@@ -48,7 +50,7 @@ class Clock {
 		resetClockOutputsHigh = resetClockOutputsHighPtr;
 	}
 	void start() {
-		step = 0.0;
+		step = remainder;
 	}
 	
 	void setup(double lengthGiven, int iterationsGiven, double sampleTimeGiven) {
@@ -69,8 +71,10 @@ class Clock {
 				if (step >= length) {// reached end iteration
 					iterations--;
 					step -= length;
-					if (iterations <= 0) 
-						reset();// frame done
+					if (iterations <= 0) {
+						double newRemainder = (syncSrc == nullptr ? step : 0.0);// don't calc remainders for subclocks since they sync to master
+						reset(newRemainder);// frame done
+					}
 				}
 			}
 		}
@@ -434,8 +438,9 @@ struct Clocked : Module {
 		sampleTime = 1.0 / sampleRate;
 		for (int i = 0; i < 4; i++) {
 			clk[i].reset();
-			if (i < 3) 
+			if (i < 3) {
 				delay[i].reset(resetClockOutputsHigh);
+			}
 			bufferedRatioKnobs[i] = params[RATIO_PARAMS + i].getValue();// must be done before the getRatioDoubled() a few lines down
 			syncRatios[i] = false;
 			ratiosDoubled[i] = getRatioDoubled(i);
@@ -448,14 +453,17 @@ struct Clocked : Module {
 									   //   which is 2*ppqn, plus epsilon. This timeoutTime is only used for timingout the 2nd clock edge
 		if (inputs[BPM_INPUT].isConnected()) {
 			if (bpmDetectionMode) {
-				if (hardReset)
+				if (hardReset) {
 					newMasterLength = 1.0f;// 120 BPM
+				}
 			}
-			else
+			else {
 				newMasterLength = 1.0f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage());// bpm = 120*2^V, 2T = 120/bpm = 120/(120*2^V) = 1/2^V
+			}
 		}
-		else
+		else {
 			newMasterLength = 120.0f / bufferedRatioKnobs[0];
+		}
 		newMasterLength = clamp(newMasterLength, masterLengthMin, masterLengthMax);
 		masterLength = newMasterLength;
 	}	
@@ -723,7 +731,7 @@ struct Clocked : Module {
 				// rising edge detect
 				if (trigBpmInValue) {
 					if (!running) {
-						// this must be the only way to start runnning when in bpmDetectionMode or else
+						// this must be the only way to start running when in bpmDetectionMode or else
 						//   when manually starting, the clock will not know which pulse is the 1st of a ppqn set
 						running = true;
 						runPulse.trigger(0.001f);
@@ -743,11 +751,11 @@ struct Clocked : Module {
 						if (extPulseNumber == 0)// if first pulse, start interval timer
 							extIntervalTime = 0.0;
 						else {
-							// all other ppqn pulses except the first one. now we have an interval upon which to plan a strecth 
+							// all other ppqn pulses except the first one. now we have an interval upon which to plan a stretch 
 							double timeLeft = extIntervalTime * (double)(ppqn * 2 - extPulseNumber) / ((double)extPulseNumber);
 							newMasterLength = clamp(clk[0].getStep() + timeLeft, masterLengthMin / 1.5f, masterLengthMax * 1.5f);// extended range for better sync ability (20-450 BPM)
 							timeoutTime = extIntervalTime * ((double)(1 + extPulseNumber) / ((double)extPulseNumber)) + 0.1; // when a second or higher clock edge is received, 
-							//  the timeout is the predicted next edge (whici is extIntervalTime + extIntervalTime / extPulseNumber) plus epsilon
+							//  the timeout is the predicted next edge (which is extIntervalTime + extIntervalTime / extPulseNumber) plus epsilon
 						}
 					}
 				}
@@ -812,12 +820,12 @@ struct Clocked : Module {
 		
 		// main clock engine
 		if (running) {
-			// See if clocks finished their prescribed number of iteratios of double periods (and syncWait for sub) or 
+			// See if clocks finished their prescribed number of iterations of double periods (and syncWait for sub) or 
 			//    if they were forced reset and if so, recalc and restart them
 			
 			// Master clock
 			if (clk[0].isReset()) {
-				// See if ratio knobs changed (or unitinialized)
+				// See if ratio knobs changed (or uninitialized)
 				for (int i = 1; i < 4; i++) {
 					if (syncRatios[i]) {// unused (undetermined state) for master
 						clk[i].reset();// force reset (thus refresh) of that sub-clock

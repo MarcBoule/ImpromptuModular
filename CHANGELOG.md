@@ -1,3 +1,9 @@
+### 2.4.1 (in development)
+
+- Improved timekeeping of Clocked/Clkd in standalone or BPM-CV modes
+- Fix warnings in WS32 with some compilers
+
+
 ### 2.4.0 (2023-08-14)
 
 - Follow global Rack panel theme choice, with per-instance manual theme selection
@@ -25,7 +31,7 @@
 
 ### 2.1.0 (2022-03-26)
 
-- Swaped accidental and octave characters in displays that can print notes (FourView, Part, CVPad, WriteSeq64, Foundry, but not WriteSeq32 to keep its display more readable)
+- Swapped accidental and octave characters in displays that can print notes (FourView, Part, CVPad, WriteSeq64, Foundry, but not WriteSeq32 to keep its display more readable)
 - Added new module called Var (Variations)
 - Added new module called Sygen (Synchronous gate enable)
 

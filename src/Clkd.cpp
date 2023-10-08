@@ -21,6 +21,7 @@ class Clock {
 
 	
 	double step;// -1.0 when stopped, [0 to period[ for clock steps 
+	double remainder;
 	double length;// period
 	double sampleTime;
 	int iterations;// run this many periods before going into sync if sub-clock
@@ -35,8 +36,9 @@ class Clock {
 		reset();
 	}
 	
-	void reset() {
+	void reset(double _remainder = 0.0) {
 		step = -1.0;
+		remainder = _remainder;
 	}
 	bool isReset() {
 		return step == -1.0;
@@ -50,7 +52,7 @@ class Clock {
 		trigOut = trigOutPtr;
 	}
 	void start() {
-		step = 0.0;
+		step = remainder;
 	}
 	
 	void setup(double lengthGiven, int iterationsGiven, double sampleTimeGiven) {
@@ -71,8 +73,10 @@ class Clock {
 				if (step >= length) {// reached end iteration
 					iterations--;
 					step -= length;
-					if (iterations <= 0) 
-						reset();// frame done
+					if (iterations <= 0) {
+						double newRemainder = (syncSrc == nullptr ? step : 0.0);// don't calc remainders for subclocks since they sync to master
+						reset(newRemainder);// frame done
+					}
 				}
 			}
 		}
@@ -302,14 +306,17 @@ struct Clkd : Module {
 									   //   which is 2*ppqn, plus epsilon. This timeoutTime is only used for timingout the 2nd clock edge
 		if (inputs[BPM_INPUT].isConnected()) {
 			if (bpmDetectionMode) {
-				if (hardReset)
+				if (hardReset) {
 					newMasterLength = 0.5f;// 120 BPM
+				}
 			}
-			else
+			else {
 				newMasterLength = 0.5f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage());// bpm = 120*2^V, T = 60/bpm = 60/(120*2^V) = 0.5/2^V
+			}
 		}
-		else
+		else {
 			newMasterLength = 60.0f / bufferedKnobs[3];
+		}
 		newMasterLength = clamp(newMasterLength, masterLengthMin, masterLengthMax);
 		masterLength = newMasterLength;
 	}	
@@ -593,7 +600,7 @@ struct Clkd : Module {
 				// rising edge detect
 				if (trigBpmInValue) {
 					if (!running) {
-						// this must be the only way to start runnning when in bpmDetectionMode or else
+						// this must be the only way to start running when in bpmDetectionMode or else
 						//   when manually starting, the clock will not know which pulse is the 1st of a ppqn set
 						running = true;
 						runPulse.trigger(0.001f);
@@ -613,11 +620,11 @@ struct Clkd : Module {
 						if (extPulseNumber == 0)// if first pulse, start interval timer
 							extIntervalTime = 0.0;
 						else {
-							// all other ppqn pulses except the first one. now we have an interval upon which to plan a strecth 
+							// all other ppqn pulses except the first one. now we have an interval upon which to plan a stretch 
 							double timeLeft = extIntervalTime * (double)(ppqn - extPulseNumber) / ((double)extPulseNumber);
 							newMasterLength = clamp(clk[0].getStep() + timeLeft, masterLengthMin / 1.5f, masterLengthMax * 1.5f);// extended range for better sync ability (20-450 BPM)
 							timeoutTime = extIntervalTime * ((double)(1 + extPulseNumber) / ((double)extPulseNumber)) + 0.1; // when a second or higher clock edge is received, 
-							//  the timeout is the predicted next edge (whici is extIntervalTime + extIntervalTime / extPulseNumber) plus epsilon
+							//  the timeout is the predicted next edge (which is extIntervalTime + extIntervalTime / extPulseNumber) plus epsilon
 						}
 					}
 				}
@@ -682,12 +689,12 @@ struct Clkd : Module {
 		
 		// main clock engine
 		if (running) {
-			// See if clocks finished their prescribed number of iteratios of double periods (and syncWait for sub) or 
+			// See if clocks finished their prescribed number of iterations of periods (and syncWait for sub) or 
 			//    if they were forced reset and if so, recalc and restart them
 			
 			// Master clock
 			if (clk[0].isReset()) {
-				// See if ratio knobs changed (or unitinialized)
+				// See if ratio knobs changed (or uninitialized)
 				for (int i = 0; i < 3; i++) {
 					if (syncRatios[i]) {// unused (undetermined state) for master
 						clk[i + 1].reset();// force reset (thus refresh) of that sub-clock
@@ -695,7 +702,7 @@ struct Clkd : Module {
 						syncRatios[i] = false;
 					}
 				}
-				clk[0].setup(masterLength, 1, sampleTime);// must call setup before start. length = double_period
+				clk[0].setup(masterLength, 1, sampleTime);// must call setup before start. length = period
 				clk[0].start();
 			}
 			clkOutputs[0] = clk[0].isHigh() ? 10.0f : 0.0f;		

@@ -713,10 +713,10 @@ struct WriteSeq64Widget : ModuleWidget {
 				nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
 				
 				nvgFillColor(args.vg, displayColOn);
-				char displayStr[3];
-				unsigned int numSteps = (module ? (unsigned)(module->indexSteps[module->calcChan()]) : 64);
-				snprintf(displayStr, 3, "%2u", numSteps);
-				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+				std::string displayStr;
+				unsigned int numSteps = (module ? (unsigned int)(module->indexSteps[module->calcChan()]) : 64);
+				displayStr = string::f("%2u", numSteps);
+				nvgText(args.vg, textPos.x, textPos.y, displayStr.c_str(), NULL);
 			}
 		}
 	};
@@ -745,10 +745,10 @@ struct WriteSeq64Widget : ModuleWidget {
 				nvgText(args.vg, textPos.x, textPos.y, "~~", NULL);
 				
 				nvgFillColor(args.vg, displayColOn);
-				char displayStr[3];
-				unsigned int stepNum = (module ? (unsigned) module->indexStep[module->calcChan()] : 0);
-				snprintf(displayStr, 3, "%2u", stepNum + 1);
-				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+				std::string displayStr;
+				unsigned int stepNum = (module ? (unsigned int) module->indexStep[module->calcChan()] : 0);
+				displayStr = string::f("%2u", stepNum + 1);
+				nvgText(args.vg, textPos.x, textPos.y, displayStr.c_str(), NULL);
 			}
 		}
 	};
