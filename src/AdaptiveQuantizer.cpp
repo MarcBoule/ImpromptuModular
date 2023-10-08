@@ -196,7 +196,7 @@ struct AdaptiveQuantizer : Module {
 	}
 
 
-	void onReset() override {
+	void onReset() override final {
 		thru = false;
 		freeze = false;
 		sampHold = false;
@@ -1054,7 +1054,7 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 		
 		NormalizedFloat12Item::NormalizedFloat12CopyItem *float12CopyItem = createMenuItem<NormalizedFloat12Item::NormalizedFloat12CopyItem>("Copy weights for ProbKey", "");
 		float12CopyItem->module = module;
@@ -1108,7 +1108,7 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/AdaptiveQuantizer.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

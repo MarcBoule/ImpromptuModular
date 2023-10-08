@@ -288,7 +288,7 @@ struct PhraseSeq32 : Module {
 	}
 
 	
-	void onReset() override {
+	void onReset() override final {
 		autoseq = false;
 		autostepLen = false;
 		holdTiedNotes = true;
@@ -757,7 +757,7 @@ struct PhraseSeq32 : Module {
 		static const float editGateLengthTime = 3.5f;// seconds
 		
 		bool expanderPresent = (rightExpander.module && rightExpander.module->model == modelPhraseSeqExpander);
-		float *messagesFromExpander = (float*)rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
+		float *messagesFromExpander = static_cast<float*>(rightExpander.consumerMessage);// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
 
 		
 		//********** Buttons, knobs, switches and inputs **********
@@ -1674,7 +1674,7 @@ struct PhraseSeq32 : Module {
 			
 			// To Expander
 			if (rightExpander.module && rightExpander.module->model == modelPhraseSeqExpander) {
-				float *messagesToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
+				float *messagesToExpander = static_cast<float*>(rightExpander.module->leftExpander.producerMessage);
 				messagesToExpander[0] = (float)panelTheme;
 				messagesToExpander[1] = panelContrast;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
@@ -1960,7 +1960,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 		
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
@@ -2020,7 +2020,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 				else if (module->displayState == PhraseSeq32::DISP_MODE) {
 					if (module->isEditingSequence()) {
 						bool expanderPresent = (module->rightExpander.module && module->rightExpander.module->model == modelPhraseSeqExpander);
-						const float *messagesFromExpander = (float*)module->rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent						
+						const float *messagesFromExpander = static_cast<float*>(module->rightExpander.consumerMessage);// could be invalid pointer when !expanderPresent, so read it only when expanderPresent						
 						if (!expanderPresent || std::isnan(messagesFromExpander[4])) {
 							module->sequences[module->seqIndexEdit].setRunMode(MODE_FWD);
 						}
@@ -2066,7 +2066,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/PhraseSeq32.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

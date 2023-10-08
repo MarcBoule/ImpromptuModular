@@ -69,7 +69,6 @@ struct ChordKey : Module {
 	RefreshCounter refresh;
 	Trigger octIncTriggers[4];
 	Trigger octDecTriggers[4];
-	Trigger maxVelTrigger;
 	Trigger transposeUpTrigger;
 	Trigger transposeDownTrigger;
 	dsp::BooleanTrigger keyTrigger;
@@ -132,7 +131,7 @@ struct ChordKey : Module {
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 
-	void onReset() override {
+	void onReset() override final {
 		for (int ci = 0; ci < NUM_CHORDS; ci++) { // chord index
 			// C-major triad with base note on C4
 			keys[ci][0] = 0;
@@ -538,7 +537,7 @@ struct ChordKey : Module {
 		if (refresh.processInputs()) {
 			// To Expander
 			if (rightExpander.module && (rightExpander.module->model == modelFourView || rightExpander.module->model == modelChordKeyExpander)) {
-				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
+				float *messageToExpander = static_cast<float*>(rightExpander.module->leftExpander.producerMessage);
 				for (int cni = 0; cni < 4; cni++) {
 					messageToExpander[cni] = octs[index][cni] >= 0 ? cvOuts[cni] : -100.0f;
 				}
@@ -701,7 +700,7 @@ struct ChordKeyWidget : ModuleWidget {
 	struct TransposeSlider : ui::Slider {
 		TransposeSlider(ChordKey* _module) {
 			quantity = new TransposeQuantity();
-			((TransposeQuantity*)quantity)->module = _module;
+			(static_cast<TransposeQuantity*>(quantity))->module = _module;
 		}
 		~TransposeSlider() {
 			delete quantity;
@@ -767,7 +766,7 @@ struct ChordKeyWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 		
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
@@ -831,7 +830,7 @@ struct ChordKeyWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/ChordKey.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		
@@ -926,24 +925,24 @@ struct ChordKeyWidget : ModuleWidget {
 		if (e.action == GLFW_PRESS) {
 			if (e.key == GLFW_KEY_C) {
 				if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
-					((ChordKey*)module)->interopCopyChord();
+					(static_cast<ChordKey*>(module))->interopCopyChord();
 					e.consume(this);
 					return;
 				}
 				else if ((e.mods & RACK_MOD_MASK) == (GLFW_MOD_SHIFT | GLFW_MOD_ALT)) {
-					((ChordKey*)module)->interopCopySeq();
+					(static_cast<ChordKey*>(module))->interopCopySeq();
 					e.consume(this);
 					return;
 				}						
 			}
 			else if (e.key == GLFW_KEY_V) {
 				if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
-					((ChordKey*)module)->interopPasteChord();
+					(static_cast<ChordKey*>(module))->interopPasteChord();
 					e.consume(this);
 					return;
 				}
 				else if ((e.mods & RACK_MOD_MASK) == (GLFW_MOD_SHIFT | GLFW_MOD_ALT)) {
-					((ChordKey*)module)->interopPasteSeq();
+					(static_cast<ChordKey*>(module))->interopPasteSeq();
 					e.consume(this);
 					return;
 				}						

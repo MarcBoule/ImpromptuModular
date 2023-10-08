@@ -41,7 +41,7 @@ struct BlankPanelWidget : ModuleWidget {
 				
 		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 	}	
 
 
@@ -52,7 +52,7 @@ struct BlankPanelWidget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/BlankPanel.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

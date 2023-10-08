@@ -81,10 +81,10 @@ struct FoundryExpander : Module {
 	void process(const ProcessArgs &args) override {		
 		// done outside expanderRefresh so that SEQ CV inputs are more responsive (issue #51)
 		bool motherPresent = leftExpander.module && leftExpander.module->model == modelFoundry;
-		float *messagesFromMother = (float*)leftExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
+		float *messagesFromMother = static_cast<float*>(leftExpander.consumerMessage);// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
 		if (motherPresent) {
 			// To Mother
-			float *messagesToMother = (float*)leftExpander.module->rightExpander.producerMessage;
+			float *messagesToMother = static_cast<float*>(leftExpander.module->rightExpander.producerMessage);
 			int i = 0;
 			for (; i < GATECV_INPUT; i++) {
 				messagesToMother[i] = (inputs[i].isConnected() ? inputs[i].getVoltage() : std::numeric_limits<float>::quiet_NaN());
@@ -127,7 +127,7 @@ struct FoundryExpanderWidget : ModuleWidget {
 	
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/FoundryExpander.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		
@@ -198,10 +198,10 @@ struct FoundryExpanderWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			int panelTheme = (((FoundryExpander*)module)->panelTheme);
-			float panelContrast = (((FoundryExpander*)module)->panelContrast);
+			int panelTheme = ((static_cast<FoundryExpander*>(module))->panelTheme);
+			float panelContrast = ((static_cast<FoundryExpander*>(module))->panelContrast);
 			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
 				lastPanelContrast = panelContrast;

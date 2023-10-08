@@ -260,7 +260,7 @@ struct Foundry : Module {
 	}
 
 	
-	void onReset() override {
+	void onReset() override final {
 		velocityMode = 0;
 		velocityBipol = false;
 		autostepLen = false;
@@ -521,7 +521,7 @@ struct Foundry : Module {
 		static const float revertDisplayTime = 0.7f;// seconds
 		
 		bool expanderPresent = (rightExpander.module && rightExpander.module->model == modelFoundryExpander);
-		float *messagesFromExpander = (float*)rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
+		float *messagesFromExpander = static_cast<float*>(rightExpander.consumerMessage);// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
 		
 		
 		//********** Buttons, knobs, switches and inputs **********
@@ -1368,7 +1368,7 @@ struct Foundry : Module {
 			
 			// To Expander
 			if (rightExpander.module && rightExpander.module->model == modelFoundryExpander) {
-				float *messagesToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
+				float *messagesToExpander = static_cast<float*>(rightExpander.module->leftExpander.producerMessage);
 				messagesToExpander[0] = (float)panelTheme;
 				messagesToExpander[1] = panelContrast;
 				messagesToExpander[2] = (((writeMode & 0x2) == 0) && editingSequence) ? 1.0f : 0.0f;// lights[WRITE_SEL_LIGHTS + 0].setBrightness()
@@ -1624,7 +1624,7 @@ struct FoundryWidget : ModuleWidget {
 						if (editingSequence) {
 							int activeTrack = module->seq.getTrackIndexEdit();
 							bool expanderPresent = (module->rightExpander.module && module->rightExpander.module->model == modelFoundryExpander);
-							const float *messagesFromExpander = (float*)module->rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
+							const float *messagesFromExpander = static_cast<float*>(module->rightExpander.consumerMessage);// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
 							if (!expanderPresent || std::isnan(messagesFromExpander[Sequencer::NUM_TRACKS + activeTrack])) {
 								module->seq.setSeqIndexEdit(totalNum - 1, activeTrack);
 								if (module->multiTracks) {
@@ -1830,7 +1830,7 @@ struct FoundryWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
@@ -1983,7 +1983,7 @@ struct FoundryWidget : ModuleWidget {
 					if (module->editingSequence) {
 						for (int trkn = 0; trkn < Sequencer::NUM_TRACKS; trkn++) {
 							bool expanderPresent = (module->rightExpander.module && module->rightExpander.module->model == modelFoundryExpander);
-							const float *messagesFromExpander = (float*)module->rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
+							const float *messagesFromExpander = static_cast<float*>(module->rightExpander.consumerMessage);// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
 							if (!expanderPresent || std::isnan(messagesFromExpander[Sequencer::NUM_TRACKS + trkn])) {
 								if (module->multiTracks || (trkn == module->seq.getTrackIndexEdit())) {
 									module->seq.setSeqIndexEdit(0, trkn);
@@ -2045,7 +2045,7 @@ struct FoundryWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/Foundry.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

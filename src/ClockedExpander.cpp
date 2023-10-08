@@ -57,14 +57,14 @@ struct ClockedExpander : Module {
 			bool motherPresent = (leftExpander.module && leftExpander.module->model == modelClocked);
 			if (motherPresent) {
 				// To Mother
-				float *messagesToMother = (float*)leftExpander.module->rightExpander.producerMessage;
+				float *messagesToMother = static_cast<float*>(leftExpander.module->rightExpander.producerMessage);
 				for (int i = 0; i < 8; i++) {
 					messagesToMother[i] = inputs[i].getVoltage();
 				}
 				leftExpander.module->rightExpander.messageFlipRequested = true;
 				
 				// From Mother
-				float *messagesFromMother = (float*)leftExpander.consumerMessage;
+				float *messagesFromMother = static_cast<float*>(leftExpander.consumerMessage);
 				panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 1);			
 				panelContrast = clamp(messagesFromMother[1], 0.0f, 255.0f);
 			}		
@@ -84,7 +84,7 @@ struct ClockedExpanderWidget : ModuleWidget {
 	
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/ClockedExpander.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		
@@ -104,10 +104,10 @@ struct ClockedExpanderWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			int panelTheme = (((ClockedExpander*)module)->panelTheme);
-			float panelContrast = (((ClockedExpander*)module)->panelContrast);
+			int panelTheme = ((static_cast<ClockedExpander*>(module))->panelTheme);
+			float panelContrast = ((static_cast<ClockedExpander*>(module))->panelContrast);
 			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
 				lastPanelContrast = panelContrast;

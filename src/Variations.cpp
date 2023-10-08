@@ -113,7 +113,7 @@ struct Variations : Module {
 	}
 
 	
-	void onReset() override {
+	void onReset() override final {
 		for (int c = 0; c < PORT_MAX_CHANNELS; c++) {
 			cvHold[c] = 0.0f;
 		}
@@ -297,7 +297,7 @@ struct VariationsWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 		
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
@@ -323,7 +323,7 @@ struct VariationsWidget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/Variations.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

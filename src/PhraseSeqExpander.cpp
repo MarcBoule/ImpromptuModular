@@ -59,7 +59,7 @@ struct PhraseSeqExpander : Module {
 			bool motherPresent = leftExpander.module && (leftExpander.module->model == modelPhraseSeq16 || leftExpander.module->model == modelPhraseSeq32);
 			if (motherPresent) {
 				// To Mother
-				float *messagesToMother = (float*)leftExpander.module->rightExpander.producerMessage;
+				float *messagesToMother = static_cast<float*>(leftExpander.module->rightExpander.producerMessage);
 				int i = 0;
 				for (; i < NUM_INPUTS - 1; i++) {
 					messagesToMother[i] = inputs[i].getVoltage();
@@ -68,7 +68,7 @@ struct PhraseSeqExpander : Module {
 				leftExpander.module->rightExpander.messageFlipRequested = true;
 					
 				// From Mother
-				float *messagesFromMother = (float*)leftExpander.consumerMessage;
+				float *messagesFromMother = static_cast<float*>(leftExpander.consumerMessage);
 				panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 1);
 				panelContrast = clamp(messagesFromMother[1], 0.0f, 255.0f);
 			}		
@@ -88,7 +88,7 @@ struct PhraseSeqExpanderWidget : ModuleWidget {
 	
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/PhraseSeqExpander.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		
@@ -109,10 +109,10 @@ struct PhraseSeqExpanderWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			int panelTheme = (((PhraseSeqExpander*)module)->panelTheme);
-			float panelContrast = (((PhraseSeqExpander*)module)->panelContrast);
+			int panelTheme = ((static_cast<PhraseSeqExpander*>(module))->panelTheme);
+			float panelContrast = ((static_cast<PhraseSeqExpander*>(module))->panelContrast);
 			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
 				lastPanelContrast = panelContrast;

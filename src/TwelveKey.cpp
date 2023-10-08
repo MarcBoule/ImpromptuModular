@@ -113,7 +113,7 @@ struct TwelveKey : Module {
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);
 	}
 
-	void onReset() override {
+	void onReset() override final {
 		octaveNum = 4;
 		cv = 0.0f;
 		vel = 1.0f;
@@ -263,7 +263,7 @@ struct TwelveKey : Module {
 			// From previous TwelveKey to the left
 			if (linkVelSettings && leftExpander.module && leftExpander.module->model == modelTwelveKey) {
 				// Get consumer message
-				float *message = (float*) leftExpander.consumerMessage;
+				float *message = static_cast<float*>(leftExpander.consumerMessage);
 				maxVel = message[0];
 				invertVel = message[1] > 0.5f;
 				params[VELPOL_PARAM].setValue(message[2]);
@@ -386,7 +386,7 @@ struct TwelveKey : Module {
 			
 			// To next TweleveKey to the right
 			if (rightExpander.module && rightExpander.module->model == modelTwelveKey) {
-				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
+				float *messageToExpander = static_cast<float*>(rightExpander.module->leftExpander.producerMessage);
 				messageToExpander[0] = maxVel;
 				messageToExpander[1] = (float)invertVel;
 				messageToExpander[2] = params[VELPOL_PARAM].getValue();
@@ -459,7 +459,7 @@ struct TwelveKeyWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 		
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
@@ -490,7 +490,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/TwelveKey.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

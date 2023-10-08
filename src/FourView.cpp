@@ -100,7 +100,7 @@ struct FourView : Module {
 	}
 	
 
-	void onReset() override {
+	void onReset() override final {
 		allowPolyOverride = 1;
 		showSharp = true;
 		resetNonJson();
@@ -226,7 +226,7 @@ struct FourView : Module {
 
 		if (motherPresent) {
 			// From Mother
-			float *messagesFromMother = (float*)leftExpander.consumerMessage;
+			float *messagesFromMother = static_cast<float*>(leftExpander.consumerMessage);
 			memcpy(displayValues, messagesFromMother, 4 * 4);
 			panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 1);
 			panelContrast = clamp(messagesFromMother[5], 0.0f, 255.0f);
@@ -594,7 +594,7 @@ struct FourViewWidget : ModuleWidget {
 		
 		menu->addChild(new MenuSeparator());
 		
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
@@ -619,7 +619,7 @@ struct FourViewWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/FourView.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 
@@ -665,12 +665,12 @@ struct FourViewWidget : ModuleWidget {
 		if (e.action == GLFW_PRESS) {
 			if (e.key == GLFW_KEY_C) {
 				if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
-					((FourView*)module)->interopCopyChord();
+					(static_cast<FourView*>(module))->interopCopyChord();
 					e.consume(this);
 					return;
 				}
 				else if ((e.mods & RACK_MOD_MASK) == (GLFW_MOD_SHIFT | GLFW_MOD_ALT)) {
-					((FourView*)module)->interopCopySeq();
+					(static_cast<FourView*>(module))->interopCopySeq();
 					e.consume(this);
 					return;
 				}						
@@ -681,10 +681,10 @@ struct FourViewWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			int panelTheme = (((FourView*)module)->panelTheme);
-			float panelContrast = (((FourView*)module)->panelContrast);
+			int panelTheme = ((static_cast<FourView*>(module))->panelTheme);
+			float panelContrast = ((static_cast<FourView*>(module))->panelContrast);
 			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
 				lastPanelContrast = panelContrast;

@@ -175,7 +175,7 @@ struct BigButtonSeq2 : Module {
 	}
 
 	
-	void onReset() override {
+	void onReset() override final {
 		indexStep = 0;
 		for (int c = 0; c < 6; c++) {
 			bank[c] = 0;
@@ -754,7 +754,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 		
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
@@ -797,7 +797,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/BigButtonSeq2.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

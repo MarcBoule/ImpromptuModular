@@ -215,7 +215,7 @@ struct GateSeq64 : Module {
 	}
 
 	
-	void onReset() override {
+	void onReset() override final {
 		autoseq = false;
 		seqCVmethod = 0;
 		pulsesPerStep = 1;
@@ -695,7 +695,7 @@ struct GateSeq64 : Module {
 			
 			// Write CV inputs 
 			bool expanderPresent = (rightExpander.module && rightExpander.module->model == modelGateSeq64Expander);
-			float *messagesFromExpander = (float*)rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
+			const float *messagesFromExpander = static_cast<float*>(rightExpander.consumerMessage);// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
 			if (expanderPresent) {
 				bool writeTrig = writeTrigger.process(messagesFromExpander[2]);
 				bool write0Trig = write0Trigger.process(messagesFromExpander[4]);
@@ -808,8 +808,7 @@ struct GateSeq64 : Module {
 			// Mode/Length button
 			if (modesTrigger.process(params[MODES_PARAM].getValue())) {
 				blinkNum = blinkNumInit;
-				if (editingPpqn != 0l)
-					editingPpqn = 0l;			
+				editingPpqn = 0l;			
 				if (displayState == DISP_GATE)
 					displayState = DISP_LENGTH;
 				else if (displayState == DISP_LENGTH)
@@ -951,7 +950,7 @@ struct GateSeq64 : Module {
 				
 				int newSeq = sequence;// good value when editingSequence, overwrite if not editingSequence
 				if (ppqnCount == 0) {
-					int oldStepIndexRun[4] = {stepIndexRun[0], stepIndexRun[1], stepIndexRun[2], stepIndexRun[3]};
+					const int oldStepIndexRun[4] = {stepIndexRun[0], stepIndexRun[1], stepIndexRun[2], stepIndexRun[3]};
 					if (editingSequence) {
 						moveIndexRunMode(&stepIndexRun[0], sequences[sequence].getLength(), sequences[sequence].getRunMode(), &stepIndexRunHistory);
 					}
@@ -1022,13 +1021,11 @@ struct GateSeq64 : Module {
 				}
 			}
 			else {
-				int row = -1;
-				int col = -1;
 				for (int i = 0; i < 64; i++) {
-					row = i >> (3 + stepConfig);//i / (16 * stepConfig);// optimized (not equivalent code, but in this case has same effect)
+					int row = i >> (3 + stepConfig);//i / (16 * stepConfig);// optimized (not equivalent code, but in this case has same effect)
 					if (stepConfig == 2 && row == 1) 
 						row++;
-					col = (((stepConfig - 1) << 4) | 0xF) & i;//i % (16 * stepConfig);// optimized			
+					int col = (((stepConfig - 1) << 4) | 0xF) & i;//i % (16 * stepConfig);// optimized			
 					if (editingSequence) {
 						if (displayState == DISP_LENGTH) {
 							if (col < (sequences[sequence].getLength() - 1))
@@ -1066,7 +1063,7 @@ struct GateSeq64 : Module {
 					}
 					else {// editing Song
 						if (displayState == DISP_LENGTH) {
-							col = i & 0xF;//i % 16;// optimized
+							// col = i & 0xF;//i % 16;// optimized, and not used!
 							if (i < (phrases - 1))
 								setGreenRed3(STEP_LIGHTS + i * 3, 0.32f, 0.0f);
 							else if (i == (phrases - 1))
@@ -1157,7 +1154,7 @@ struct GateSeq64 : Module {
 			}		
 			// To Expander
 			if (rightExpander.module && rightExpander.module->model == modelGateSeq64Expander) {
-				float *messagesToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
+				float *messagesToExpander = static_cast<float*>(rightExpander.module->leftExpander.producerMessage);
 				messagesToExpander[0] = (float)panelTheme;
 				messagesToExpander[1] = panelContrast;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
@@ -1362,7 +1359,7 @@ struct GateSeq64Widget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 		
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
@@ -1466,7 +1463,7 @@ struct GateSeq64Widget : ModuleWidget {
 		}
 		void onDragEnter(const event::DragEnter &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
-			LEDButtonGS *orig = dynamic_cast<LEDButtonGS*>(e.origin);
+			const LEDButtonGS *orig = dynamic_cast<LEDButtonGS*>(e.origin);
 			if (orig && paramQuantity) {
 				GateSeq64 *module = dynamic_cast<GateSeq64*>(paramQuantity->module);
 				if (module->isEditingSequence() && module->displayState != GateSeq64::DISP_LENGTH && module->displayState != GateSeq64::DISP_MODES) {
@@ -1487,7 +1484,7 @@ struct GateSeq64Widget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/GateSeq64.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

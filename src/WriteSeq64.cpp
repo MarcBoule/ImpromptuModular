@@ -155,7 +155,7 @@ struct WriteSeq64 : Module {
 	}
 
 	
-	void onReset() override {
+	void onReset() override final {
 		running = true;
 		for (int c = 0; c < 5; c++) {
 			indexStep[c] = 0;
@@ -831,7 +831,7 @@ struct WriteSeq64Widget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 		
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 
 		InteropSeqItem *interopSeqItem = createMenuItem<InteropSeqItem>(portableSequenceID, RIGHT_ARROW);
 		interopSeqItem->module = module;
@@ -862,7 +862,7 @@ struct WriteSeq64Widget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/WriteSeq64.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

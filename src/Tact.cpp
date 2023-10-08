@@ -103,7 +103,7 @@ struct Tact : Module {
 	}
 
 	
-	void onReset() override {
+	void onReset() override final {
 		for (int i = 0; i < 2; i++) {
 			cv[i] = 0.0f;
 			storeCV[i] = 0.0f;
@@ -374,7 +374,7 @@ struct TactWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
@@ -431,7 +431,7 @@ struct TactWidget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/Tact.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		
@@ -607,7 +607,7 @@ struct Tact1 : Module {
 	}
 
 	
-	void onReset() override {
+	void onReset() override final {
 		cv = 0.0f;
 		rateMultiplier = 1.0f;
 		autoReturn = -1;
@@ -734,7 +734,7 @@ struct Tact1Widget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 		
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
@@ -764,7 +764,7 @@ struct Tact1Widget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/Tact1.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		
@@ -883,7 +883,7 @@ struct TactG : Module {
 	}
 
 	
-	void onReset() override {
+	void onReset() override final {
 		cv = 0.0f;
 		autoReturn = -1;
 		resetNonJson();
@@ -1009,7 +1009,7 @@ struct TactGWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 		
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
@@ -1039,7 +1039,7 @@ struct TactGWidget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/TactG.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

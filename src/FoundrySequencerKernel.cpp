@@ -65,6 +65,7 @@ void SequencerKernel::initRun(bool editingSequence) {
 	lastProbGateEnable = true;
 	calcGateCode(editingSequence);// uses stepIndexRun as the step and {phraseIndexRun or seqIndexEdit} to determine the seq
 	slideStepsRemain = 0ul;
+	slideCVdelta = 0.0f;
 }
 
 

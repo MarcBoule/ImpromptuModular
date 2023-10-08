@@ -275,7 +275,7 @@ class SequencerKernel {
 	int gateCode;// 0 = Low for current pulse of step, 1 = High for current pulse of step, 2 = Clk high pulse, 3 = 1ms trig
 	bool lastProbGateEnable;// true means gate calc as normal, false means last prob says turn gate off (used by current and consecutive tied steps)
 	unsigned long slideStepsRemain;// 0 when no slide under way, downward step counter when sliding
-	float slideCVdelta;// no need to initialize, this is only used when slideStepsRemain is not 0
+	float slideCVdelta;// this is only used when slideStepsRemain is not 0
 	
 	// No need to save, no reset
 	int id = 0;

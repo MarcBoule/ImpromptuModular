@@ -44,7 +44,6 @@ struct CvPad : Module {
 	// constants
 	static const int N_BANKS = 8;
 	static const int N_PADS = 16;
-	static constexpr float cvKnobSensitivity = 4.0f;
 	static const int read1_16 = 0;// index into readHeads[7]
 	static const int read2_8 = 1;// index into readHeads[7]
 	static const int read4_4 = 3;// index into readHeads[7]
@@ -134,7 +133,7 @@ struct CvPad : Module {
 	}
 
 	
-	void onReset() override {
+	void onReset() override final {
 		for (int b = 0; b < N_BANKS; b++) {
 			for (int p = 0; p < N_PADS; p++) {
 				cvs[b][p] = 0.0f;
@@ -363,7 +362,7 @@ struct CvPad : Module {
 		if (refresh.processInputs()) {
 			// To Expander
 			if (rightExpander.module && rightExpander.module->model == modelFourView) {
-				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
+				float *messageToExpander = static_cast<float*>(rightExpander.module->leftExpander.producerMessage);
 				if (config == 4) {// 1x16
 					messageToExpander[0] = outputs[CV_OUTPUTS + 0].getVoltage();
 					for (int i = 1; i < 4; i++) {
@@ -694,8 +693,8 @@ struct CvPadWidget : ModuleWidget {
 	struct OffsetSlider : ui::Slider {
 		OffsetSlider(CvPad::cvsArray* cvSrc, int* bankSrc) {
 			quantity = new T();
-			((T*)quantity)->cvSrc = cvSrc;
-			((T*)quantity)->bankSrc = bankSrc;
+			(static_cast<T*>(quantity))->cvSrc = cvSrc;
+			(static_cast<T*>(quantity))->bankSrc = bankSrc;
 		}
 		~OffsetSlider() {
 			delete quantity;
@@ -861,11 +860,11 @@ struct CvPadWidget : ModuleWidget {
 	
 	
 	void appendContextMenu(Menu *menu) override {
-		CvPad *module = (CvPad*)(this->module);
+		CvPad *module = static_cast<CvPad*>(this->module);
 		
 		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 		
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
@@ -897,7 +896,7 @@ struct CvPadWidget : ModuleWidget {
 
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/CvPad.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		
@@ -996,16 +995,17 @@ struct CvPadWidget : ModuleWidget {
 	
 	void onHoverKey(const event::HoverKey& e) override {
 		if (e.action == GLFW_PRESS) {
+			CvPad* cvpModule = static_cast<CvPad*>(module);
 			if (e.key == GLFW_KEY_C) {
 				if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
-					((CvPad*)module)->cvCpBuf = ((CvPad*)module)->cvs[((CvPad*)module)->calcBank()][((CvPad*)module)->writeHead];
+					cvpModule->cvCpBuf = cvpModule->cvs[cvpModule->calcBank()][cvpModule->writeHead];
 					e.consume(this);
 					return;
 				}
 			}
 			else if (e.key == GLFW_KEY_V) {
 				if ((e.mods & RACK_MOD_MASK) == GLFW_MOD_SHIFT) {
-					((CvPad*)module)->cvs[((CvPad*)module)->calcBank()][((CvPad*)module)->writeHead] = ((CvPad*)module)->cvCpBuf;
+					cvpModule->cvs[cvpModule->calcBank()][cvpModule->writeHead] = cvpModule->cvCpBuf;
 					e.consume(this);
 					return;
 				}

@@ -24,17 +24,17 @@ class Sequencer {
 	SequencerKernel sek[NUM_TRACKS];
 	
 	// No need to save, with reset
-	unsigned long editingType;// similar to editingGate, but just for showing remanent gate type (nothing played); uses editingGateKeyLight
+	unsigned long editingType;// similar to editingGate, but just for showing remnant gate type (nothing played); uses editingGateKeyLight
 	unsigned long editingGate[NUM_TRACKS];// 0 when no edit gate, downward step counter timer when edit gate
 	int delayedSeqNumberRequest[NUM_TRACKS];
 	SeqCPbuffer seqCPbuf;
 	SongCPbuffer songCPbuf;
 	
 	// No need to save, no reset
-	int* velocityModePtr;
-	float editingGateCV[NUM_TRACKS];// no need to initialize, this goes with editingGate (output this only when editingGate > 0)
-	int editingGateCV2[NUM_TRACKS];// no need to initialize, this goes with editingGate (output this only when editingGate > 0)
-	int editingGateKeyLight;// no need to initialize, this goes with editingGate (use this only when editingGate > 0)
+	int* velocityModePtr = nullptr;
+	float editingGateCV[NUM_TRACKS] = {};// this goes with editingGate (output this only when editingGate > 0)
+	int editingGateCV2[NUM_TRACKS] = {};// this goes with editingGate (output this only when editingGate > 0)
+	int editingGateKeyLight = 0;// this goes with editingGate (use this only when editingGate > 0)
 	
 	
 	public: 

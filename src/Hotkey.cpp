@@ -237,7 +237,7 @@ struct Hotkey : Module {
 	}
 	
 
-	void onReset() override {
+	void onReset() override final {
 		hotkey = GLFW_KEY_SPACE;
 		hotkeyMods = 0;
 		requestTrig = false;
@@ -363,7 +363,7 @@ struct HotkeyWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Current hotkey:"));
@@ -382,7 +382,7 @@ struct HotkeyWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/Hotkey.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

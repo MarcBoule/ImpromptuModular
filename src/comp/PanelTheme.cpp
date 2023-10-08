@@ -60,7 +60,7 @@ void loadThemeAndContrastFromDefault(int* panelTheme, float* panelContrast) {
 }
 
 
-bool isDark(int* panelTheme) {
+bool isDark(const int* panelTheme) {
 	if (panelTheme != NULL) {
 		if ((*panelTheme & 0x2) != 0) {
 			return settings::preferDarkPanels;

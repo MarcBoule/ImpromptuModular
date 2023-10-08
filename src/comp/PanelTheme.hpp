@@ -22,7 +22,7 @@ extern NVGcolor SCHEME_GREEN_IM;
 
 void readThemeAndContrastFromDefault();
 
-bool isDark(int* panelTheme);
+bool isDark(const int* panelTheme);
 
 void saveThemeAndContrastAsDefault(int panelTheme, float panelContrast);
 void loadThemeAndContrastFromDefault(int* panelTheme, float* panelContrast);

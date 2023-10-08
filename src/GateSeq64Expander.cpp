@@ -59,7 +59,7 @@ struct GateSeq64Expander : Module {
 			bool motherPresent = (leftExpander.module && leftExpander.module->model == modelGateSeq64);
 			if (motherPresent) {
 				// To Mother
-				float *messagesToMother = (float*)leftExpander.module->rightExpander.producerMessage;
+				float *messagesToMother = static_cast<float*>(leftExpander.module->rightExpander.producerMessage);
 				messagesToMother[0] = (inputs[0].isConnected() ? inputs[0].getVoltage() : std::numeric_limits<float>::quiet_NaN());
 				messagesToMother[1] = (inputs[1].isConnected() ? inputs[1].getVoltage() : std::numeric_limits<float>::quiet_NaN());
 				for (int i = 2; i < NUM_INPUTS; i++) {
@@ -68,7 +68,7 @@ struct GateSeq64Expander : Module {
 				leftExpander.module->rightExpander.messageFlipRequested = true;
 
 				// From Mother
-				float *messagesFromMother = (float*)leftExpander.consumerMessage;
+				float *messagesFromMother = static_cast<float*>(leftExpander.consumerMessage);
 				panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 1);
 				panelContrast = clamp(messagesFromMother[1], 0.0f, 255.0f);
 			}		
@@ -88,7 +88,7 @@ struct GateSeq64ExpanderWidget : ModuleWidget {
 	
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/GateSeq64Expander.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		
@@ -110,10 +110,10 @@ struct GateSeq64ExpanderWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			int panelTheme = (((GateSeq64Expander*)module)->panelTheme);
-			float panelContrast = (((GateSeq64Expander*)module)->panelContrast);
+			int panelTheme = ((static_cast<GateSeq64Expander*>(module))->panelTheme);
+			float panelContrast = ((static_cast<GateSeq64Expander*>(module))->panelContrast);
 			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
 				lastPanelContrast = panelContrast;

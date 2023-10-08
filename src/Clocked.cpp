@@ -313,7 +313,7 @@ struct Clocked : Module {
 	
 	void updatePulseSwingDelay() {
 		bool expanderPresent = (rightExpander.module && rightExpander.module->model == modelClockedExpander);
-		const float *messagesFromExpander = (float*)rightExpander.consumerMessage;// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
+		const float *messagesFromExpander = static_cast<float*>(rightExpander.consumerMessage);// could be invalid pointer when !expanderPresent, so read it only when expanderPresent
 		for (int i = 0; i < 4; i++) {
 			// Pulse Width
 			pulseWidth[i] = params[PW_PARAMS + i].getValue();
@@ -404,7 +404,7 @@ struct Clocked : Module {
 	}
 
 
-	void onReset() override {
+	void onReset() override final {
 		running = true;
 		displayDelayNoteMode = true;
 		bpmDetectionMode = false;
@@ -905,7 +905,7 @@ struct Clocked : Module {
 			
 			// To Expander
 			if (rightExpander.module && rightExpander.module->model == modelClockedExpander) {
-				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
+				float *messageToExpander = static_cast<float*>(rightExpander.module->leftExpander.producerMessage);
 				messageToExpander[0] = (float)panelTheme;
 				messageToExpander[1] = panelContrast;
 				rightExpander.module->leftExpander.messageFlipRequested = true;
@@ -1016,7 +1016,7 @@ struct ClockedWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 		
-		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), (SvgPanel*)getPanel());
+		createPanelThemeMenu(menu, &(module->panelTheme), &(module->panelContrast), static_cast<SvgPanel*>(getPanel()));
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
@@ -1116,7 +1116,7 @@ struct ClockedWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/Clocked.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 		

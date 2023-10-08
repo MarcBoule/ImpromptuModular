@@ -75,7 +75,7 @@ struct ChordKeyExpander : Module {
 	}
 	
 
-	void onReset() override {
+	void onReset() override final {
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -107,7 +107,7 @@ struct ChordKeyExpander : Module {
 			bool motherPresent = (leftExpander.module && leftExpander.module->model == modelChordKey);
 			if (motherPresent) {
 				// From Mother
-				float *messagesFromMother = (float*)leftExpander.consumerMessage;
+				float *messagesFromMother = static_cast<float*>(leftExpander.consumerMessage);
 				for (int i = 0; i < 4; i++) {
 					chordValues[i] = messagesFromMother[i];
 				}
@@ -155,7 +155,7 @@ struct ChordKeyExpander : Module {
 		if (refresh.processInputs()) {
 			// To Expander
 			if (rightExpander.module && (rightExpander.module->model == modelFourView || rightExpander.module->model == modelChordKeyExpander)) {
-				float *messageToExpander = (float*)(rightExpander.module->leftExpander.producerMessage);
+				float *messageToExpander = static_cast<float*>(rightExpander.module->leftExpander.producerMessage);
 				for (int i = 0; i < 4; i++) {
 					messageToExpander[i] = chordValues[i];
 				}
@@ -226,7 +226,7 @@ struct ChordKeyExpanderWidget : ModuleWidget {
 		
 		// Main panel from Inkscape
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/ChordKeyExpander.svg")));
-		SvgPanel* svgPanel = (SvgPanel*)getPanel();
+		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
 
@@ -270,10 +270,10 @@ struct ChordKeyExpanderWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			int panelTheme = (((ChordKeyExpander*)module)->panelTheme);
-			float panelContrast = (((ChordKeyExpander*)module)->panelContrast);
+			int panelTheme = ((static_cast<ChordKeyExpander*>(module))->panelTheme);
+			float panelContrast = ((static_cast<ChordKeyExpander*>(module))->panelContrast);
 			if (panelTheme != lastPanelTheme || panelContrast != lastPanelContrast) {
-				SvgPanel* svgPanel = (SvgPanel*)getPanel();
+				SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 				svgPanel->fb->dirty = true;
 				lastPanelTheme = panelTheme;
 				lastPanelContrast = panelContrast;
