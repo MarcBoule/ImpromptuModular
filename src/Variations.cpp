@@ -292,7 +292,7 @@ struct VariationsWidget : ModuleWidget {
 
 
 	void appendContextMenu(Menu *menu) override {
-		Variations *module = dynamic_cast<Variations*>(this->module);
+		Variations *module = static_cast<Variations*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());

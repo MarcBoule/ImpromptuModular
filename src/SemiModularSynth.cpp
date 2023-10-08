@@ -2125,7 +2125,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 	};		
 	
 	void appendContextMenu(Menu *menu) override {
-		SemiModularSynth *module = dynamic_cast<SemiModularSynth*>(this->module);
+		SemiModularSynth *module = static_cast<SemiModularSynth*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
@@ -2171,7 +2171,7 @@ struct SemiModularSynthWidget : ModuleWidget {
 		void onDoubleClick(const event::DoubleClick &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				SemiModularSynth* module = dynamic_cast<SemiModularSynth*>(paramQuantity->module);
+				SemiModularSynth* module = static_cast<SemiModularSynth*>(paramQuantity->module);
 				// same code structure below as in sequence knob in main step()
 				if (module->editingPpqn != 0) {
 					module->pulsesPerStep = 1;

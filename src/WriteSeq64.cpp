@@ -826,7 +826,7 @@ struct WriteSeq64Widget : ModuleWidget {
 	};	
 
 	void appendContextMenu(Menu *menu) override {
-		WriteSeq64 *module = dynamic_cast<WriteSeq64*>(this->module);
+		WriteSeq64 *module = static_cast<WriteSeq64*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());

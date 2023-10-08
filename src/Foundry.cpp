@@ -1825,7 +1825,7 @@ struct FoundryWidget : ModuleWidget {
 	};		
 
 	void appendContextMenu(Menu *menu) override {
-		Foundry *module = dynamic_cast<Foundry*>(this->module);
+		Foundry *module = static_cast<Foundry*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
@@ -1938,7 +1938,7 @@ struct FoundryWidget : ModuleWidget {
 		void onDoubleClick(const event::DoubleClick &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				Foundry* module = dynamic_cast<Foundry*>(paramQuantity->module);
+				Foundry* module = static_cast<Foundry*>(paramQuantity->module);
 				// same code structure below as in velocity knob in main step()
 				if (module->editingSequence) {
 					module->displayState = Foundry::DISP_NORMAL;
@@ -1963,7 +1963,7 @@ struct FoundryWidget : ModuleWidget {
 		void onDoubleClick(const event::DoubleClick &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				Foundry* module = dynamic_cast<Foundry*>(paramQuantity->module);
+				Foundry* module = static_cast<Foundry*>(paramQuantity->module);
 				// same code structure below as in sequence knob in main step()
 				if (module->displayState == Foundry::DISP_LEN) {
 					module->seq.initLength(module->multiTracks);
@@ -2006,7 +2006,7 @@ struct FoundryWidget : ModuleWidget {
 		void onDoubleClick(const event::DoubleClick &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				Foundry* module = dynamic_cast<Foundry*>(paramQuantity->module);
+				Foundry* module = static_cast<Foundry*>(paramQuantity->module);
 				// same code structure below as in phrase knob in main step()
 				if (module->displayState == Foundry::DISP_MODE_SEQ) {
 					module->seq.initRunModeSeq(module->multiTracks);

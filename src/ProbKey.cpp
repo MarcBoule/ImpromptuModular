@@ -1436,7 +1436,7 @@ struct ProbKeyWidget : ModuleWidget {
 
 	
 	void appendContextMenu(Menu *menu) override {
-		ProbKey *module = dynamic_cast<ProbKey*>(this->module);
+		ProbKey *module = static_cast<ProbKey*>(this->module);
 		assert(module);
 		
 		menu->addChild(new MenuSeparator());

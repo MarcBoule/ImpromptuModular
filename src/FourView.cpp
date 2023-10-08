@@ -589,7 +589,7 @@ struct FourViewWidget : ModuleWidget {
 		}
 	};	
 	void appendContextMenu(Menu *menu) override {
-		FourView *module = dynamic_cast<FourView*>(this->module);
+		FourView *module = static_cast<FourView*>(this->module);
 		assert(module);
 		
 		menu->addChild(new MenuSeparator());

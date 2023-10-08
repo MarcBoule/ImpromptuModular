@@ -462,7 +462,7 @@ struct CvPadWidget : ModuleWidget {
 		void onDoubleClick(const event::DoubleClick &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				CvPad* module = dynamic_cast<CvPad*>(paramQuantity->module);
+				CvPad* module = static_cast<CvPad*>(paramQuantity->module);
 				module->cvs[module->bank][module->writeHead] = 0.0f;
 			}
 			ParamWidget::onDoubleClick(e);

@@ -358,7 +358,7 @@ struct HotkeyWidget : ModuleWidget {
 	char strBuf[512] = {};
 	
 	void appendContextMenu(Menu *menu) override {
-		Hotkey *module = dynamic_cast<Hotkey*>(this->module);
+		Hotkey *module = static_cast<Hotkey*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
@@ -409,7 +409,7 @@ struct HotkeyWidget : ModuleWidget {
 	
 	void onHoverKey(const event::HoverKey& e) override {
 		if (e.action == GLFW_PRESS) {
-			Hotkey *module = dynamic_cast<Hotkey*>(this->module);
+			Hotkey *module = static_cast<Hotkey*>(this->module);
 			if (module->hotkeyPressed(e.key, e.mods & RACK_MOD_MASK)) {
 				e.consume(this);
 				return;

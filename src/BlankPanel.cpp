@@ -36,7 +36,7 @@ struct BlankPanel : Module {
 
 struct BlankPanelWidget : ModuleWidget {
 	void appendContextMenu(Menu *menu) override {
-		BlankPanel *module = dynamic_cast<BlankPanel*>(this->module);
+		BlankPanel *module = static_cast<BlankPanel*>(this->module);
 		assert(module);
 				
 		menu->addChild(new MenuSeparator());

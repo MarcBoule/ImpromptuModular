@@ -761,7 +761,7 @@ struct ChordKeyWidget : ModuleWidget {
 		}
 	};	
 	void appendContextMenu(Menu *menu) override {
-		ChordKey *module = dynamic_cast<ChordKey*>(this->module);
+		ChordKey *module = static_cast<ChordKey*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());

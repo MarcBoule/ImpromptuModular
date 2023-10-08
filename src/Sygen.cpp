@@ -192,7 +192,7 @@ struct Sygen : Module {
 
 struct SygenWidget : ModuleWidget {
 	void appendContextMenu(Menu *menu) override {
-		Sygen *module = dynamic_cast<Sygen*>(this->module);
+		Sygen *module = static_cast<Sygen*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());

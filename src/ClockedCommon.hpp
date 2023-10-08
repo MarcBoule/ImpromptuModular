@@ -126,7 +126,7 @@ struct ResetModeBitToggleItem : MenuItem {
 // must have done validateClockModule() before calling this
 static void autopatch(PortWidget **slaveResetRunBpmInputs, bool *slaveBpmDetectionMode, bool *slaveResetClockOutputsHighPtr) {
 	for (Widget* widget : APP->scene->rack->getModuleContainer()->children) {
-		ModuleWidget* moduleWidget = dynamic_cast<ModuleWidget *>(widget);
+		ModuleWidget* moduleWidget = static_cast<ModuleWidget *>(widget);
 		if (moduleWidget) {
 			int64_t otherId = moduleWidget->module->id;
 			if (otherId == clockMaster.id && moduleWidget->model->slug.substr(0, 7) == std::string("Clocked")) {

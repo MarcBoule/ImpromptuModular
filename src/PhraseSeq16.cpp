@@ -1852,7 +1852,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 	};		
 	
 	void appendContextMenu(Menu *menu) override {
-		PhraseSeq16 *module = dynamic_cast<PhraseSeq16*>(this->module);
+		PhraseSeq16 *module = static_cast<PhraseSeq16*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
@@ -1907,7 +1907,7 @@ struct PhraseSeq16Widget : ModuleWidget {
 		void onDoubleClick(const event::DoubleClick &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				PhraseSeq16* module = dynamic_cast<PhraseSeq16*>(paramQuantity->module);
+				PhraseSeq16* module = static_cast<PhraseSeq16*>(paramQuantity->module);
 				// same code structure below as in sequence knob in main step()
 				if (module->editingPpqn != 0) {
 					module->pulsesPerStep = 1;

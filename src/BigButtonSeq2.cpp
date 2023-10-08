@@ -749,7 +749,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 	};	
 	
 	void appendContextMenu(Menu *menu) override {
-		BigButtonSeq2 *module = dynamic_cast<BigButtonSeq2*>(this->module);
+		BigButtonSeq2 *module = static_cast<BigButtonSeq2*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());

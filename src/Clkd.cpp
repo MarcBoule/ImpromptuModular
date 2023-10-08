@@ -848,7 +848,7 @@ struct ClkdWidget : ModuleWidget {
 	};		
 	
 	void appendContextMenu(Menu *menu) override {
-		Clkd *module = dynamic_cast<Clkd*>(this->module);
+		Clkd *module = static_cast<Clkd*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
@@ -1051,13 +1051,13 @@ struct ClkdWidget : ModuleWidget {
 	void onHoverKey(const event::HoverKey& e) override {
 		if (e.action == GLFW_PRESS) {
 			if ( e.key == GLFW_KEY_SPACE && ((e.mods & RACK_MOD_MASK) == 0) ) {
-				Clkd *module = dynamic_cast<Clkd*>(this->module);
+				Clkd *module = static_cast<Clkd*>(this->module);
 				module->toggleRun();
 				e.consume(this);
 				return;
 			}
 			else if ( e.key == GLFW_KEY_M && ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) ) {
-				Clkd *module = dynamic_cast<Clkd*>(this->module);
+				Clkd *module = static_cast<Clkd*>(this->module);
 				if (clockMaster.id != module->id && clockMaster.validateClockModule()) {
 					autopatch(slaveResetRunBpmInputs, &module->bpmDetectionMode, &module->resetClockOutputsHigh);
 				}

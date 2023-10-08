@@ -454,7 +454,7 @@ struct TwelveKeyWidget : ModuleWidget {
 		}
 	};
 	void appendContextMenu(Menu *menu) override {
-		TwelveKey *module = dynamic_cast<TwelveKey*>(this->module);
+		TwelveKey *module = static_cast<TwelveKey*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());

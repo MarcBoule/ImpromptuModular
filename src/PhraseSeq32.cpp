@@ -1955,7 +1955,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 	};	
 	
 	void appendContextMenu(Menu *menu) override {
-		PhraseSeq32 *module = dynamic_cast<PhraseSeq32*>(this->module);
+		PhraseSeq32 *module = static_cast<PhraseSeq32*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
@@ -2011,7 +2011,7 @@ struct PhraseSeq32Widget : ModuleWidget {
 		void onDoubleClick(const event::DoubleClick &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				PhraseSeq32* module = dynamic_cast<PhraseSeq32*>(paramQuantity->module);
+				PhraseSeq32* module = static_cast<PhraseSeq32*>(paramQuantity->module);
 				// same code structure below as in sequence knob in main step()
 				if (module->editingPpqn != 0) {
 					module->pulsesPerStep = 1;

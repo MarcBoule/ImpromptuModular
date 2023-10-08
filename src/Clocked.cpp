@@ -1011,7 +1011,7 @@ struct ClockedWidget : ModuleWidget {
 	};		
 	
 	void appendContextMenu(Menu *menu) override {
-		Clocked *module = dynamic_cast<Clocked*>(this->module);
+		Clocked *module = static_cast<Clocked*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
@@ -1079,7 +1079,7 @@ struct ClockedWidget : ModuleWidget {
 		void onDragMove(const event::DragMove &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				Clocked *module = dynamic_cast<Clocked*>(paramQuantity->module);
+				Clocked *module = static_cast<Clocked*>(paramQuantity->module);
 				int dispIndex = 0;
 				int paramId = paramQuantity->paramId;
 				if ( (paramId >= Clocked::SWING_PARAMS + 0) && (paramId <= Clocked::SWING_PARAMS + 3) )
@@ -1096,7 +1096,7 @@ struct ClockedWidget : ModuleWidget {
 		void onDragMove(const event::DragMove &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				Clocked *module = dynamic_cast<Clocked*>(paramQuantity->module);
+				Clocked *module = static_cast<Clocked*>(paramQuantity->module);
 				int dispIndex = 0;
 				int paramId = paramQuantity->paramId;
 				if ( (paramId >= Clocked::DELAY_PARAMS + 1) && (paramId <= Clocked::DELAY_PARAMS + 3) )
@@ -1225,13 +1225,13 @@ struct ClockedWidget : ModuleWidget {
 	void onHoverKey(const event::HoverKey& e) override {
 		if (e.action == GLFW_PRESS) {
 			if ( e.key == GLFW_KEY_SPACE && ((e.mods & RACK_MOD_MASK) == 0) ) {
-				Clocked *module = dynamic_cast<Clocked*>(this->module);
+				Clocked *module = static_cast<Clocked*>(this->module);
 				module->toggleRun();
 				e.consume(this);
 				return;
 			}
 			if ( e.key == GLFW_KEY_M && ((e.mods & RACK_MOD_MASK) == RACK_MOD_CTRL) ) {
-				Clocked *module = dynamic_cast<Clocked*>(this->module);
+				Clocked *module = static_cast<Clocked*>(this->module);
 				if (clockMaster.id != module->id && clockMaster.validateClockModule()) {
 					autopatch(slaveResetRunBpmInputs, &module->bpmDetectionMode, &module->resetClockOutputsHigh);
 				}

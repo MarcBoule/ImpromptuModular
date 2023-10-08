@@ -1354,7 +1354,7 @@ struct GateSeq64Widget : ModuleWidget {
 	};	
 		
 	void appendContextMenu(Menu *menu) override {
-		GateSeq64 *module = dynamic_cast<GateSeq64*>(this->module);
+		GateSeq64 *module = static_cast<GateSeq64*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
@@ -1403,7 +1403,7 @@ struct GateSeq64Widget : ModuleWidget {
 		void onDoubleClick(const event::DoubleClick &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				GateSeq64* module = dynamic_cast<GateSeq64*>(paramQuantity->module);
+				GateSeq64* module = static_cast<GateSeq64*>(paramQuantity->module);
 				// same code structure below as in sequence knob in main step()
 				bool editingSequence = module->isEditingSequence();
 				if (module->displayProbInfo != 0l && editingSequence) {
@@ -1450,7 +1450,7 @@ struct GateSeq64Widget : ModuleWidget {
 		void onDragStart(const event::DragStart &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				GateSeq64 *module = dynamic_cast<GateSeq64*>(paramQuantity->module);
+				GateSeq64 *module = static_cast<GateSeq64*>(paramQuantity->module);
 				if (module->isEditingSequence() && module->displayState != GateSeq64::DISP_LENGTH && module->displayState != GateSeq64::DISP_MODES && !module->lock) {
 					int step = paramQuantity->paramId - GateSeq64::STEP_PARAMS;
 					if ( (step >= 0) && (step < 64) ) {
@@ -1463,9 +1463,9 @@ struct GateSeq64Widget : ModuleWidget {
 		}
 		void onDragEnter(const event::DragEnter &e) override {
 			ParamQuantity* paramQuantity = getParamQuantity();
-			const LEDButtonGS *orig = dynamic_cast<LEDButtonGS*>(e.origin);
+			const LEDButtonGS *orig = static_cast<LEDButtonGS*>(e.origin);
 			if (orig && paramQuantity) {
-				GateSeq64 *module = dynamic_cast<GateSeq64*>(paramQuantity->module);
+				GateSeq64 *module = static_cast<GateSeq64*>(paramQuantity->module);
 				if (module->isEditingSequence() && module->displayState != GateSeq64::DISP_LENGTH && module->displayState != GateSeq64::DISP_MODES) {
 					int step = paramQuantity->paramId - GateSeq64::STEP_PARAMS;
 					if ( (step != module->lastStep) && (step >= 0) && (step < 64)) {

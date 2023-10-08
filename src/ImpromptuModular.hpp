@@ -91,7 +91,7 @@ struct ClockMaster {// should not need to have mutex since only menu driven
 	
 	bool validateClockModule() {
 		for (Widget* widget : APP->scene->rack->getModuleContainer()->children) {
-			ModuleWidget* moduleWidget = dynamic_cast<ModuleWidget *>(widget);
+			ModuleWidget* moduleWidget = static_cast<ModuleWidget *>(widget);
 			if (moduleWidget && moduleWidget->module->id == id) {
 				if (moduleWidget->model->slug.substr(0, 7) == std::string("Clocked")) {
 					return true;

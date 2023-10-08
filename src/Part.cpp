@@ -268,7 +268,7 @@ struct PartWidget : ModuleWidget {
 	};
 
 	void appendContextMenu(Menu *menu) override {
-		Part *module = dynamic_cast<Part*>(this->module);
+		Part *module = static_cast<Part*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());

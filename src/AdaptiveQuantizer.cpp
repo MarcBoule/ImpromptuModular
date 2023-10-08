@@ -1047,7 +1047,7 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 	};	
 	
 	void appendContextMenu(Menu *menu) override {
-		AdaptiveQuantizer *module = dynamic_cast<AdaptiveQuantizer*>(this->module);
+		AdaptiveQuantizer *module = static_cast<AdaptiveQuantizer*>(this->module);
 		assert(module);
 			
 		menu->addChild(createMenuLabel("Concept and design by Sam Burford"));
@@ -1274,7 +1274,7 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			AdaptiveQuantizer *module = dynamic_cast<AdaptiveQuantizer*>(this->module);
+			AdaptiveQuantizer *module = static_cast<AdaptiveQuantizer*>(this->module);
 						
 			if (module->infoDataTable != 0l) {
 				// prepare data-table picture (for alternate representation i.e. data-table visual)

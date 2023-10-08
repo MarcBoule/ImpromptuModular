@@ -369,7 +369,7 @@ struct Tact : Module {
 
 struct TactWidget : ModuleWidget {
 	void appendContextMenu(Menu *menu) override {
-		Tact *module = dynamic_cast<Tact*>(this->module);
+		Tact *module = static_cast<Tact*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
@@ -412,7 +412,7 @@ struct TactWidget : ModuleWidget {
 		void step() override {
 			ParamQuantity* paramQuantity = getParamQuantity();
 			if (paramQuantity) {
-				Tact* module = dynamic_cast<Tact*>(paramQuantity->module);
+				Tact* module = static_cast<Tact*>(paramQuantity->module);
 				if ((module->params[Tact::LINK_PARAM].getValue()) > 0.5f) {
 					box.size.x = padWidthWide;
 				}
@@ -729,7 +729,7 @@ struct Tact1 : Module {
 
 struct Tact1Widget : ModuleWidget {	
 	void appendContextMenu(Menu *menu) override {
-		Tact1 *module = dynamic_cast<Tact1*>(this->module);
+		Tact1 *module = static_cast<Tact1*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
@@ -1004,7 +1004,7 @@ struct TactG : Module {
 
 struct TactGWidget : ModuleWidget {	
 	void appendContextMenu(Menu *menu) override {
-		TactG *module = dynamic_cast<TactG*>(this->module);
+		TactG *module = static_cast<TactG*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
