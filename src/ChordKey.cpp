@@ -74,7 +74,7 @@ struct ChordKey : Module {
 	Trigger transposeDownTrigger;
 	dsp::BooleanTrigger keyTrigger;
 	PianoKeyInfo pkInfo;
-	int offWarningChan; // valid only when offWarning is non-zero
+	int offWarningChan = 0; // valid only when offWarning is non-zero
 	
 	
 	int getIndex() {
@@ -658,7 +658,7 @@ struct ChordKeyWidget : ModuleWidget {
 	};
 	
 	struct TransposeQuantity : Quantity {
-		ChordKey* module;
+		ChordKey* module = nullptr;
 		float valueLocal;// must be reset to 0 when enter menu (i.e. constructor)
 		int valueIntLocal;
 		int valueIntLocalLast;

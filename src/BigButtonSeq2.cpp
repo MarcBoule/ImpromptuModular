@@ -648,7 +648,7 @@ struct BigButtonSeq2 : Module {
 
 struct BigButtonSeq2Widget : ModuleWidget {
 	struct ChanDisplayWidget : TransparentWidget {
-		BigButtonSeq2 *module;
+		BigButtonSeq2 *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
 		
@@ -679,7 +679,7 @@ struct BigButtonSeq2Widget : ModuleWidget {
 	};
 
 	struct StepsDisplayWidget : TransparentWidget {
-		BigButtonSeq2 *module;
+		BigButtonSeq2 *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
 		

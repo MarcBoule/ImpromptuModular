@@ -629,10 +629,10 @@ struct WriteSeq64 : Module {
 
 struct WriteSeq64Widget : ModuleWidget {
 	struct NoteDisplayWidget : TransparentWidget {
-		WriteSeq64 *module;
+		WriteSeq64 *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		char text[7];
+		char text[7] = {};
 
 		NoteDisplayWidget() {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
@@ -691,7 +691,7 @@ struct WriteSeq64Widget : ModuleWidget {
 
 
 	struct StepsDisplayWidget : TransparentWidget {
-		WriteSeq64 *module;
+		WriteSeq64 *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
 		
@@ -723,7 +723,7 @@ struct WriteSeq64Widget : ModuleWidget {
 	
 	
 	struct StepDisplayWidget : TransparentWidget {
-		WriteSeq64 *module;
+		WriteSeq64 *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
 		
@@ -755,7 +755,7 @@ struct WriteSeq64Widget : ModuleWidget {
 	
 	
 	struct ChannelDisplayWidget : TransparentWidget {
-		WriteSeq64 *module;
+		WriteSeq64 *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
 		

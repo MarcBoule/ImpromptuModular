@@ -1181,10 +1181,10 @@ struct GateSeq64 : Module {
 
 struct GateSeq64Widget : ModuleWidget {
 	struct SequenceDisplayWidget : TransparentWidget {
-		GateSeq64 *module;
+		GateSeq64 *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		char displayStr[16];
+		char displayStr[16] = {};
 		int lastNum = -1;// -1 means timedout; >= 0 means we have a first number potential, if ever second key comes fast enough
 		clock_t lastTime = 0;
 		

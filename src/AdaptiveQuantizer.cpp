@@ -82,7 +82,7 @@ struct AdaptiveQuantizer : Module {
 	float chordOut[5];
 	int8_t notes[DTSIZE] = {};// contains note numbers from 0 to 11 (chromatic pitches)
 	int8_t octs[DTSIZE] = {};// contains octave number for notes
-	int8_t intervals[DTSIZE] = {};// contains intevals of notes (interval of a given note wrt the previous note)
+	int8_t intervals[DTSIZE] = {};// contains intervals of notes (interval of a given note wrt the previous note)
 	float durations[DTSIZE] = {};// contains duration of gate for notes
 	int head;// position of next note to be entered
 	bool full;
@@ -1013,7 +1013,7 @@ struct AdaptiveQuantizerWidget : ModuleWidget {
 	PitchMatrixLight* pitchLightsWidgets[12 * 5];
 	uint64_t route = 0;
 	bool showDataTable = false;
-	float datapic[12 * 5];// this is indexed according like this: [0] = bottom right, [11] = bottom left, [59] = top left
+	float datapic[12 * 5] = {};// this is indexed according like this: [0] = bottom right, [11] = bottom left, [59] = top left
 	
 	
 	struct NormalizedFloat12Item : MenuItem {

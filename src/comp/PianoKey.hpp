@@ -42,8 +42,8 @@ struct PianoKey : OpaqueWidget {
 
 
 struct PianoKeyWithVel : PianoKey {
-	float onButtonMouseY;
-	float onButtonPosY;
+	float onButtonMouseY = 0.0f;
+	float onButtonPosY = 0.0f;
 	
 	void draw(const DrawArgs &args) override;
 	void onButton(const event::Button &e) override;

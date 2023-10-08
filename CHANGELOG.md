@@ -1,7 +1,7 @@
 ### 2.4.1 (in development)
 
 - Improved timekeeping of Clocked/Clkd in standalone or BPM-CV modes
-- Fix warnings in WS32 with some compilers
+- Fix code warnings using Cppcheck
 
 
 ### 2.4.0 (2023-08-14)

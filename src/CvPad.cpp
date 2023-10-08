@@ -472,7 +472,7 @@ struct CvPadWidget : ModuleWidget {
 
 
 	struct BankDisplayWidget : TransparentWidget {
-		CvPad *module;
+		CvPad *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
 		
@@ -537,10 +537,10 @@ struct CvPadWidget : ModuleWidget {
 	
 
 	struct CvDisplayWidget : TransparentWidget {
-		CvPad *module;
+		CvPad *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		char text[7];
+		char text[7] = {};
 
 		CvDisplayWidget() {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
@@ -620,8 +620,8 @@ struct CvPadWidget : ModuleWidget {
 	
 	
 	struct OffsetDeciQuantity : Quantity {
-		CvPad::cvsArray* cvSrc;
-		int* bankSrc;
+		CvPad::cvsArray* cvSrc = nullptr;
+		int* bankSrc = nullptr;
 		float valueLocal;// must be reset to 0 when enter menu (i.e. constructor)
 		int valueIntLocal;
 		int valueIntLocalLast;

@@ -20,9 +20,8 @@ struct LadderFilter {
 	float omega0;
 	float resonance = 1.0f;
 	float state[4];
-	float input;
-	float lowpass;
-	float highpass;
+	float lowpass = 0.0f;
+	float highpass = 0.0f;
 	
 	LadderFilter() {
 		reset();

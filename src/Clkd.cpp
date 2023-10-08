@@ -20,15 +20,15 @@ class Clock {
 	//   for master, syncWait does not apply and iterations = 1
 
 	
-	double step;// -1.0 when stopped, [0 to period[ for clock steps 
-	double remainder;
-	double length;// period
-	double sampleTime;
-	int iterations;// run this many periods before going into sync if sub-clock
+	double step = 0.0;// -1.0 when stopped, [0 to period[ for clock steps 
+	double remainder = 0.0;
+	double length = 0.0;// period
+	double sampleTime = 0.0;
+	int iterations = 0;// run this many periods before going into sync if sub-clock
 	Clock* syncSrc = nullptr; // only subclocks will have this set to master clock
 	static constexpr double guard = 0.0005;// in seconds, region for sync to occur right before end of length of last iteration; sub clocks must be low during this period
-	bool *resetClockOutputsHigh;
-	bool *trigOut;
+	bool *resetClockOutputsHigh = nullptr;
+	bool *trigOut = nullptr;
 	
 	public:
 	
@@ -790,10 +790,10 @@ struct ClkdWidget : ModuleWidget {
 	PortWidget* slaveResetRunBpmInputs[3];
 
 	struct BpmRatioDisplayWidget : TransparentWidget {
-		Clkd *module;
+		Clkd *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		char displayStr[16];
+		char displayStr[16] = {};
 
 		
 		BpmRatioDisplayWidget() {

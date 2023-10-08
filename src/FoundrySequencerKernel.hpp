@@ -8,7 +8,7 @@
 
 
 class StepAttributes {
-	unsigned long attributes;
+	unsigned long attributes = 0ul;
 	
 	public:
 
@@ -65,7 +65,7 @@ class StepAttributes {
 
 class Phrase {
 	// a phrase is a sequence number and a number of repetitions; it is used to make a song
-	unsigned long phrase;
+	unsigned long phrase = 0ul;
 	
 	public:
 

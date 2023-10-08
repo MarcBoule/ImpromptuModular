@@ -20,14 +20,14 @@ class Clock {
 	//   for master, syncWait does not apply and iterations = 1
 
 	
-	double step;// -1.0 when stopped, [0 to 2*period[ for clock steps (*2 is because of swing, so we do groups of 2 periods)
-	double remainder;
-	double length;// double period
-	double sampleTime;
-	int iterations;// run this many double periods before going into sync if sub-clock
+	double step = 0.0;// -1.0 when stopped, [0 to 2*period[ for clock steps (*2 is because of swing, so we do groups of 2 periods)
+	double remainder = 0.0;
+	double length = 0.0;// double period
+	double sampleTime = 0.0;
+	int iterations = 0;// run this many double periods before going into sync if sub-clock
 	Clock* syncSrc = nullptr; // only subclocks will have this set to master clock
 	static constexpr double guard = 0.0005;// in seconds, region for sync to occur right before end of length of last iteration; sub clocks must be low during this period
-	bool *resetClockOutputsHigh;
+	bool *resetClockOutputsHigh = nullptr;
 	
 	public:
 	
@@ -266,7 +266,7 @@ struct Clocked : Module {
 	ClockDelay delay[3];// only channels 1 to 3 have delay
 	float bufferedRatioKnobs[4];// 0 = mast bpm knob, 1..3 is ratio knobs
 	bool syncRatios[4];// 0 index unused
-	int ratiosDoubled[4];
+	int ratiosDoubled[4];// 0 index unused
 	int extPulseNumber;// 0 to ppqn * 2 - 1
 	double extIntervalTime;// also used for auto mode change to P24 (2nd use of this member variable)
 	double timeoutTime;
@@ -295,10 +295,8 @@ struct Clocked : Module {
 
 	
 	int getRatioDoubled(int ratioKnobIndex) {
-		// ratioKnobIndex is 0 for master BPM's ratio (1 is implicitly returned), and 1 to 3 for other ratio knobs
+		// ratioKnobIndex ranges from 1 to 3 for the ratio knobs (do not call with 0)
 		// returns a positive ratio for mult, negative ratio for div (0 never returned)
-		if (ratioKnobIndex < 1) 
-			return 1;
 		bool isDivision = false;
 		int i = (int) std::round( bufferedRatioKnobs[ratioKnobIndex] );// [ -(numRatios-1) ; (numRatios-1) ]
 		if (i < 0) {
@@ -443,7 +441,7 @@ struct Clocked : Module {
 			}
 			bufferedRatioKnobs[i] = params[RATIO_PARAMS + i].getValue();// must be done before the getRatioDoubled() a few lines down
 			syncRatios[i] = false;
-			ratiosDoubled[i] = getRatioDoubled(i);
+			ratiosDoubled[i] = (i == 0 ? 1 : getRatioDoubled(i));
 			clkOutputs[i] = resetClockOutputsHigh ? 10.0f : 0.0f;
 		}
 		updatePulseSwingDelay();
@@ -922,11 +920,11 @@ struct ClockedWidget : ModuleWidget {
 	PortWidget* slaveResetRunBpmInputs[3];
 
 	struct RatioDisplayWidget : TransparentWidget {
-		Clocked *module;
-		int knobIndex;
+		Clocked *module = nullptr;
+		int knobIndex = 0;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		char displayStr[16];
+		char displayStr[16] = {};
 		const std::string delayLabelsClock[8] = {"D 0", "/16",   "1/8",  "1/4", "1/3",     "1/2", "2/3",     "3/4"};
 		const std::string delayLabelsNote[8]  = {"D 0", "/64",   "/32",  "/16", "/8t",     "1/8", "/4t",     "/8d"};
 

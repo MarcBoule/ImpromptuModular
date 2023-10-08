@@ -1289,7 +1289,7 @@ struct ProbKeyWidget : ModuleWidget {
 	};
 
 	struct MainDisplayWidget : TransparentWidget {
-		ProbKey *module;
+		ProbKey *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
 		
@@ -1315,14 +1315,14 @@ struct ProbKeyWidget : ModuleWidget {
 				if (module) {
 					if (module->dispManager.getMode() == DisplayManager::DISP_NORMAL) {
 						if (module->indexCvCap12 != 0) {
-							snprintf(displayStr, 5, "*%3u", module->getIndex() + 1);
+							snprintf(displayStr, 5, "*%3u", (unsigned int)(module->getIndex() + 1));
 						}
 						else {
-							snprintf(displayStr, 5, "%4u", module->getIndex() + 1);
+							snprintf(displayStr, 5, "%4u", (unsigned int)(module->getIndex() + 1));
 						}
 					}
 					else if (module->dispManager.getMode() == DisplayManager::DISP_LENGTH) {
-						snprintf(displayStr, 5, " L%2u", module->getLength());
+						snprintf(displayStr, 5, " L%2u", (unsigned int)(module->getLength()));
 					}
 					else {
 						memcpy(displayStr, module->dispManager.getText(), 5);

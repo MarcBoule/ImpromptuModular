@@ -511,7 +511,7 @@ struct FourViewWidget : ModuleWidget {
 		int baseIndex;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		char text[4];
+		char text[4] = {};
 
 		NotesDisplayWidget(Vec _pos, Vec _size, FourView* _module, int _baseIndex) {
 			box.size = _size;

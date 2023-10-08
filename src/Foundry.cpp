@@ -1408,10 +1408,10 @@ struct Foundry : Module {
 struct FoundryWidget : ModuleWidget {
 	template <int NUMCHAR>
 	struct DisplayWidget : TransparentWidget {// a centered display, must derive from this
-		Foundry *module;
+		Foundry *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		char displayStr[16];
+		char displayStr[16] = {};
 		static const int textFontSize = 15;
 		static constexpr float textOffsetY = 19.9f; // 18.2f for 14 pt, 19.7f for 15pt
 		

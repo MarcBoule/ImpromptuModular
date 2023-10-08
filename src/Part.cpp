@@ -182,7 +182,7 @@ struct PartWidget : ModuleWidget {
 		Part *module;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		char displayStr[5 + 1];// room for two chars left of decimal point, then decimal point, then two chars right of decimal point, plus null
+		char displayStr[5 + 1] = {};// room for two chars left of decimal point, then decimal point, then two chars right of decimal point, plus null
 		static const int textFontSize = 15;
 		static constexpr float textOffsetY = 19.9f;
 		

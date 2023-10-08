@@ -405,7 +405,7 @@ struct TwelveKey : Module {
 
 struct TwelveKeyWidget : ModuleWidget {
 	struct OctaveNumDisplayWidget : TransparentWidget {
-		TwelveKey *module;
+		TwelveKey *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
 		

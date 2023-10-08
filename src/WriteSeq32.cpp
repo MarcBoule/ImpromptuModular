@@ -629,11 +629,11 @@ struct WriteSeq32Widget : ModuleWidget {
 	int notesPos[8]; // used for rendering notes in LCD_24, 8 gate and 8 step LEDs 
 
 	struct NotesDisplayWidget : TransparentWidget {
-		WriteSeq32 *module;
+		WriteSeq32 *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		char text[8];
-		int* notesPosLocal;
+		char text[8] = {};
+		int* notesPosLocal = nullptr;
 
 		NotesDisplayWidget() {
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
@@ -696,7 +696,7 @@ struct WriteSeq32Widget : ModuleWidget {
 
 
 	struct StepsDisplayWidget : TransparentWidget {
-		WriteSeq32 *module;
+		WriteSeq32 *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
 		

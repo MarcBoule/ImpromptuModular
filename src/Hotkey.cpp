@@ -355,7 +355,7 @@ struct Hotkey : Module {
 
 
 struct HotkeyWidget : ModuleWidget {
-	char strBuf[512];
+	char strBuf[512] = {};
 	
 	void appendContextMenu(Menu *menu) override {
 		Hotkey *module = dynamic_cast<Hotkey*>(this->module);
