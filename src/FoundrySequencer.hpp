@@ -5,7 +5,7 @@
 #pragma once
 
 #include "FoundrySequencerKernel.hpp"
-
+#include <vector>
 
 class Sequencer {
 	public: 
@@ -21,7 +21,7 @@ class Sequencer {
 	int stepIndexEdit;
 	int phraseIndexEdit;
 	int trackIndexEdit;
-	SequencerKernel sek[NUM_TRACKS];
+	std::vector<SequencerKernel> sek;// size 4
 	
 	// No need to save, with reset
 	unsigned long editingType;// similar to editingGate, but just for showing remnant gate type (nothing played); uses editingGateKeyLight

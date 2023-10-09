@@ -21,14 +21,14 @@ const uint64_t SequencerKernel::advGateHitMaskHigh[NUM_GATES] =
 //  			TR1 				DUO		  			TR2 	     		D2		  			TR3  TRIG		
 
 
-void SequencerKernel::construct(int _id, SequencerKernel *_masterKernel, bool* _holdTiedNotesPtr, int* _stopAtEndOfSongPtr) {// don't want regular constructor mechanism
+SequencerKernel::SequencerKernel(int _id, SequencerKernel *_masterKernel, bool* _holdTiedNotesPtr, int* _stopAtEndOfSongPtr) {
 	id = _id;
 	ids = "id" + std::to_string(id) + "_";
 	masterKernel = _masterKernel;
 	holdTiedNotesPtr = _holdTiedNotesPtr;
 	stopAtEndOfSongPtr = _stopAtEndOfSongPtr;
+	onReset(false);
 }
-
 
 void SequencerKernel::onReset(bool editingSequence) {
 	initPulsesPerStep();

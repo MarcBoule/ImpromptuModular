@@ -32,7 +32,10 @@ class Clock {
 	
 	public:
 	
-	Clock() {
+	Clock(Clock* clkGiven, bool *resetClockOutputsHighPtr, bool *trigOutPtr) {
+		syncSrc = clkGiven;
+		resetClockOutputsHigh = resetClockOutputsHighPtr;
+		trigOut = trigOutPtr;
 		reset();
 	}
 	
@@ -45,11 +48,6 @@ class Clock {
 	}
 	double getStep() {
 		return step;
-	}
-	void construct(Clock* clkGiven, bool *resetClockOutputsHighPtr, bool *trigOutPtr) {
-		syncSrc = clkGiven;
-		resetClockOutputsHigh = resetClockOutputsHighPtr;
-		trigOut = trigOutPtr;
 	}
 	void start() {
 		step = remainder;
@@ -167,7 +165,7 @@ struct Clkd : Module {
 	long editingBpmMode;// 0 when no edit bpmMode, downward step counter timer when edit, negative upward when show can't edit ("--") 
 	double sampleRate;
 	double sampleTime;
-	Clock clk[4];
+	std::vector<Clock> clk;// size 4
 	float bufferedKnobs[4];// must be before ratiosDoubled, master is index 3, ratio knobs are 0 to 2
 	bool syncRatios[3];
 	int ratiosDoubled[3];
@@ -249,9 +247,9 @@ struct Clkd : Module {
 		configBypass(RUN_INPUT, RUN_OUTPUT);
 		configBypass(BPM_INPUT, BPM_OUTPUT);
 
-		clk[0].construct(nullptr, &resetClockOutputsHigh, &trigOuts[0]);
+		clk.push_back(Clock(nullptr, &resetClockOutputsHigh, &trigOuts[0]));
 		for (int i = 1; i < 4; i++) {
-			clk[i].construct(&clk[0], &resetClockOutputsHigh, &trigOuts[i]);		
+			clk.push_back(Clock(&clk[0], &resetClockOutputsHigh, &trigOuts[i]));		
 		}
 		onReset();
 		

@@ -31,7 +31,9 @@ class Clock {
 	
 	public:
 	
-	Clock() {
+	Clock(Clock* clkGiven, bool *resetClockOutputsHighPtr) {
+		syncSrc = clkGiven;
+		resetClockOutputsHigh = resetClockOutputsHighPtr;
 		reset();
 	}
 	
@@ -44,10 +46,6 @@ class Clock {
 	}
 	double getStep() {
 		return step;
-	}
-	void construct(Clock* clkGiven, bool *resetClockOutputsHighPtr) {
-		syncSrc = clkGiven;
-		resetClockOutputsHigh = resetClockOutputsHighPtr;
 	}
 	void start() {
 		step = remainder;
@@ -261,7 +259,7 @@ struct Clocked : Module {
 	long editingBpmMode;// 0 when no edit bpmMode, downward step counter timer when edit, negative upward when show can't edit ("--") 
 	double sampleRate;
 	double sampleTime;
-	Clock clk[4];
+	std::vector<Clock> clk;// size 4
 	ClockDelay delay[3];// only channels 1 to 3 have delay
 	float bufferedRatioKnobs[4];// 0 = mast bpm knob, 1..3 is ratio knobs
 	bool syncRatios[4];// 0 index unused
@@ -394,9 +392,9 @@ struct Clocked : Module {
 		configBypass(RUN_INPUT, RUN_OUTPUT);
 		configBypass(BPM_INPUT, BPM_OUTPUT);
 
-		clk[0].construct(nullptr, &resetClockOutputsHigh);
+		clk.push_back(Clock(nullptr, &resetClockOutputsHigh));
 		for (int i = 1; i < 4; i++) {
-			clk[i].construct(&clk[0], &resetClockOutputsHigh);		
+			clk.push_back(Clock(&clk[0], &resetClockOutputsHigh));		
 		}
 		onReset();
 		

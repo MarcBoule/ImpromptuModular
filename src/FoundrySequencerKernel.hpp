@@ -288,12 +288,7 @@ class SequencerKernel {
 	
 	public: 
 	
-	SequencerKernel() {
-		onReset(false);
-	}
-	
-	void construct(int _id, SequencerKernel *_masterKernel, bool* _holdTiedNotesPtr, int* _stopAtEndOfSongPtr); // don't want regaular constructor mechanism
-
+	SequencerKernel(int _id, SequencerKernel *_masterKernel, bool* _holdTiedNotesPtr, int* _stopAtEndOfSongPtr);
 	void onReset(bool editingSequence);
 	void resetNonJson(bool editingSequence);
 	void onRandomize(bool editingSequence);
