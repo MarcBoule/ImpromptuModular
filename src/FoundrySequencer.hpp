@@ -5,7 +5,7 @@
 #pragma once
 
 #include "FoundrySequencerKernel.hpp"
-#include <vector>
+
 
 class Sequencer {
 	public: 
