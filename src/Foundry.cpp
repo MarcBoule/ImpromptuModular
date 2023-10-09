@@ -178,7 +178,7 @@ struct Foundry : Module {
 	}
 
 	
-	Foundry() {
+	Foundry() : seq(&holdTiedNotes, &velocityMode, &stopAtEndOfSong) {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
 		rightExpander.producerMessage = rightMessages[0];
@@ -253,7 +253,6 @@ struct Foundry : Module {
 			configOutput(GATE_OUTPUTS + i, string::f("Track %c gate", i + 'A'));
 		}
 		
-		seq.construct(&holdTiedNotes, &velocityMode, &stopAtEndOfSong);
 		onReset();
 		
 		loadThemeAndContrastFromDefault(&panelTheme, &panelContrast);

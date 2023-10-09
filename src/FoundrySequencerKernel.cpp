@@ -21,7 +21,7 @@ const uint64_t SequencerKernel::advGateHitMaskHigh[NUM_GATES] =
 //  			TR1 				DUO		  			TR2 	     		D2		  			TR3  TRIG		
 
 
-void SequencerKernel::construct(int _id, SequencerKernel *_masterKernel, bool* _holdTiedNotesPtr, int* _stopAtEndOfSongPtr) {// don't want regaular constructor mechanism
+void SequencerKernel::construct(int _id, SequencerKernel *_masterKernel, bool* _holdTiedNotesPtr, int* _stopAtEndOfSongPtr) {// don't want regular constructor mechanism
 	id = _id;
 	ids = "id" + std::to_string(id) + "_";
 	masterKernel = _masterKernel;

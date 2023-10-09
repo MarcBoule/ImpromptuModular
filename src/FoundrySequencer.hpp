@@ -39,11 +39,7 @@ class Sequencer {
 	
 	public: 
 	
-	Sequencer() {
-		onReset(false);
-	}
-	void construct(bool* _holdTiedNotesPtr, int* _velocityModePtr, int* _stopAtEndOfSongPtr);
-
+	Sequencer(bool* _holdTiedNotesPtr, int* _velocityModePtr, int* _stopAtEndOfSongPtr);
 	void onReset(bool editingSequence);
 	void resetNonJson(bool editingSequence, bool propagateInitRun);
 	void onRandomize(bool editingSequence) {sek[trackIndexEdit].onRandomize(editingSequence);}

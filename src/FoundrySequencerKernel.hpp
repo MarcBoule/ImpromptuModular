@@ -280,7 +280,7 @@ class SequencerKernel {
 	// No need to save, no reset
 	int id = 0;
 	std::string ids;
-	SequencerKernel *masterKernel = nullptr;// nullprt for track 0, used for grouped run modes (tracks B,C,D follow A when random, for example)
+	SequencerKernel *masterKernel = nullptr;// nullptr for track 0, used for grouped run modes (tracks B,C,D follow A when random, for example)
 	bool* holdTiedNotesPtr = nullptr;
 	int* stopAtEndOfSongPtr = nullptr;
 	

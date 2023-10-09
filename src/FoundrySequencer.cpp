@@ -6,11 +6,13 @@
 #include "FoundrySequencer.hpp"
 
 
-void Sequencer::construct(bool* _holdTiedNotesPtr, int* _velocityModePtr, int* _stopAtEndOfSongPtr) {// don't want regaular constructor mechanism
+Sequencer::Sequencer(bool* _holdTiedNotesPtr, int* _velocityModePtr, int* _stopAtEndOfSongPtr) {
 	velocityModePtr = _velocityModePtr;
 	sek[0].construct(0, nullptr, _holdTiedNotesPtr, _stopAtEndOfSongPtr);
-	for (int trkn = 1; trkn < NUM_TRACKS; trkn++)
+	for (int trkn = 1; trkn < NUM_TRACKS; trkn++) {
 		sek[trkn].construct(trkn, &sek[0], _holdTiedNotesPtr, _stopAtEndOfSongPtr);
+	}
+	onReset(false);
 }
 
 
