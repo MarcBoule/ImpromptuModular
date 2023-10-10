@@ -392,6 +392,7 @@ struct Clocked : Module {
 		configBypass(RUN_INPUT, RUN_OUTPUT);
 		configBypass(BPM_INPUT, BPM_OUTPUT);
 
+		clk.reserve(4);
 		clk.push_back(Clock(nullptr, &resetClockOutputsHigh));
 		for (int i = 1; i < 4; i++) {
 			clk.push_back(Clock(&clk[0], &resetClockOutputsHigh));		

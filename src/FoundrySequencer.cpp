@@ -8,6 +8,7 @@
 
 Sequencer::Sequencer(bool* _holdTiedNotesPtr, int* _velocityModePtr, int* _stopAtEndOfSongPtr) {
 	velocityModePtr = _velocityModePtr;
+	sek.reserve(4);
 	sek.push_back(SequencerKernel(0, nullptr, _holdTiedNotesPtr, _stopAtEndOfSongPtr));
 	for (int trkn = 1; trkn < NUM_TRACKS; trkn++) {
 		sek.push_back(SequencerKernel(trkn, &sek[0], _holdTiedNotesPtr, _stopAtEndOfSongPtr));
