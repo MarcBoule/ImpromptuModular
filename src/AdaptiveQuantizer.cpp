@@ -2,7 +2,7 @@
 //Adaptive reference-based quantizer module for VCV Rack by Marc Boulé and Sam Burford
 //
 //Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics  
-//  from the Component Library by Wes Milholen. 
+//  from the Component Library by Pyer. 
 //See ./LICENSE.md for all licenses
 //See ./res/fonts/ for font licenses
 //***********************************************************************************************

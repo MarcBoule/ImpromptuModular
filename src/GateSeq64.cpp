@@ -2,7 +2,7 @@
 //Gate sequencer module for VCV Rack by Marc Boulé
 //
 //Based on code from the Fundamental and AudibleInstruments plugins by Andrew Belt 
-//and graphics from the Component Library by Wes Milholen 
+//and graphics from the Component Library by Pyer 
 //See ./LICENSE.md for all licenses
 //See ./res/fonts/ for font licenses
 //

@@ -1,5 +1,5 @@
 //***********************************************************************************************
-//Impromptu Modular: Modules for VCV Rack by Marc BoulĂ©
+//Impromptu Modular: Modules for VCV Rack by Marc Boulé
 //
 //See ./LICENSE.md for all licenses
 //***********************************************************************************************
