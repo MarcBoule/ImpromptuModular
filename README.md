@@ -151,7 +151,7 @@ The [FourView](#four-view) module, which is normally used independently, can als
 
 Impromptu sequencers implement two particular mechanisms related to resets and clocks in order to ensure proper reset behavior and correctly played first steps/beats.
 
-* **1ms-clock-ignore-on-reset**: A rising edge on the reset input repositions all play heads to the start of their respective sequences or songs. However, when such a reset also resets the clock module, a rising edge can sometimes be produced on the sequencer's clock input. Because of routing delays though other modules (ex.: separate clock dividers), this clock edge can sometimes arrive at the sequencer *after* the reset signal. In order to not count this clock as a true clock event, which would effectively skip the first step in the sequencer, all incoming [clock edges are ignored during 1ms after the reset](https://vcvrack.com/manual/VoltageStandards.html#timing) was received. The clock is also ignored during 1ms when the module is initialized or powered up (which is treated as an implicit reset).
+* **1ms-clock-ignore-on-reset**: A rising edge on the reset input repositions all play heads to the start of their respective sequences or songs. However, when such a reset also resets the clock module, a rising edge can sometimes be produced on the sequencer's clock input. Because of routing delays though other modules (ex.: separate clock dividers), this clock edge can sometimes arrive at the sequencer *after* the reset signal. In order to not count this clock as a true clock event, which would effectively skip the first step in the sequencer, all incoming [clock edges are ignored during 1ms after the reset](https://vcvrack.com/manual/VoltageStandards#Timing) was received. The clock is also ignored during 1ms when the module is initialized or powered up (which is treated as an implicit reset).
 
 * **Gate retriggering on reset**: When resetting a running clock that is driving a sequencer, particularly when the pulse width of the clock is non-negligible in length, pressing the reset while the gate and clock are high can lead to a continuous gate, thereby not triggering a sound module (drum module for example). Therefore, all gate outputs are forced low during 1ms after the reset edge, to ensure any trigger-sensitive targets are effectively triggered. In order for this to function properly, the incoming clock pulses should be at least 2ms in duration.
 
@@ -344,7 +344,7 @@ This sequencer has no concept of tied notes; when pasting sequences using the [P
 
 A keyboard-based chord generator with room to store 25 chords, that can be recalled using a 0 to 2V control voltage. Up to four notes can be set for each chord using the keyboard and the octave buttons. The [FourView](#four-view) module can also be used as an expander for the ChordKey to view the note names of the notes comprising the chord or the name of the chord itself; in this case no cables need to be connected to FourView it is immediately to the right of ChordKey.
 
-An [expander](#expanders) is also available (titled CHD-X), which offers four polyphonic quantizers that can be used to quantize any pitch CVs to the notes of the active chord selected in ChordKey. When the ChordKey expander is used independently, it will quantize pitch CVs according to all twelve notes.
+An [expander](#expanders) is also available (titled CHD-X), which offers four polyphonic quantizers that can be used to quantize any pitch CVs to the notes of the active chord selected in ChordKey ([video by Omri Cohen](https://www.youtube.com/watch?v=FRmfSRXPMzU)). When the ChordKey expander is used independently, it will quantize pitch CVs according to all twelve notes.
 
 * **INDEX**: This knob is used to select the given chord from the set of 25 possible chords that can be stored in the module. 
 
@@ -410,7 +410,7 @@ Clocked and Clkd also feature the ability to automatically patch the Reset, Run 
 <a id="clocked-sync"></a>
 ### External synchronization
 
-By default, the clock's BPM input is level sensitive and follows [Rack standards for BPM CVs](https://vcvrack.com/manual/VoltageStandards.html#pitch-and-frequencies). Synchronizing Clocked to an external clock signal can be done by selecting a mode other than "CV" with the MODE buttons located below the BPM input jack. The possible synchronization settings are: P2, P4, P8, P12, P16, P24, where the number indicates the number of pulses per step of the external clock source.
+By default, the clock's BPM input is level sensitive and follows [Rack standards for BPM CVs](https://vcvrack.com/manual/VoltageStandards#Pitch-and-Frequencies). Synchronizing Clocked to an external clock signal can be done by selecting a mode other than "CV" with the MODE buttons located below the BPM input jack. The possible synchronization settings are: P2, P4, P8, P12, P16, P24, where the number indicates the number of pulses per step of the external clock source.
 
 When using a chain of Clocked modules, all modules must have the same mode setting. The LED next to the mode buttons will light up when the sync mode is enabled; however, when no cable is connected to the BPM input jack, a regular clock is produced according to the BPM knob's value.
 
