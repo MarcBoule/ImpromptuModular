@@ -1,4 +1,4 @@
-### 2.4.1 (in development)
+### 2.4.1 (2023-10-31)
 
 - Improved timekeeping of Clocked/Clkd in standalone or BPM-CV modes
 - Fix code warnings using Cppcheck
