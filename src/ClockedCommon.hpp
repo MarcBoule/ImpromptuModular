@@ -216,4 +216,7 @@ struct AutopatchItem : MenuItem {
 
 		return menu;
 	}
-};	
+};
+
+void createBPMCVInputMenu(ui::Menu* menu, float* bpmInputScale, float* bpmInputOffset);
+

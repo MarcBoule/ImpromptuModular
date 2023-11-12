@@ -160,6 +160,8 @@ struct Clkd : Module {
 	bool forceCvOnBpmOut;
 	int displayIndex;
 	bool trigOuts[4];// output triggers when true, one for each clock output, master is index 0. 
+	float bpmInputScale;// -1.0f to 1.0f
+	float bpmInputOffset;// -10.0f to 10.0f
 
 	// No need to save, with reset
 	long editingBpmMode;// 0 when no edit bpmMode, downward step counter timer when edit, negative upward when show can't edit ("--") 
@@ -270,6 +272,8 @@ struct Clkd : Module {
 		for (int i = 0; i < 4; i++) {
 			trigOuts[i] = false;
 		}
+		bpmInputScale = 1.0f;
+		bpmInputOffset = 0.0f;
 		resetNonJson(false);
 	}
 	void resetNonJson(bool delayed) {// delay thread sensitive parts (i.e. schedule them so that process() will do them)
@@ -360,6 +364,12 @@ struct Clkd : Module {
 			json_array_insert_new(trigOutsJ, i, json_boolean(trigOuts[i]));
 		json_object_set_new(rootJ, "trigOuts", trigOutsJ);
 		
+		// bpmInputScale
+		json_object_set_new(rootJ, "bpmInputScale", json_real(bpmInputScale));
+
+		// bpmInputOffset
+		json_object_set_new(rootJ, "bpmInputOffset", json_real(bpmInputOffset));
+
 		// clockMaster (stores a valid (non-negative) id when we are the master, -1 when we are not)
 		json_object_set_new(rootJ, "clockMaster", json_integer(clockMaster.id == id ? id : -1));
 		
@@ -443,13 +453,24 @@ struct Clkd : Module {
 		
 		// trigOuts
 		json_t *trigOutsJ = json_object_get(rootJ, "trigOuts");
-		if (trigOutsJ)
+		if (trigOutsJ) {
 			for (int i = 0; i < 4; i++)
 			{
 				json_t *trigOutsArrayJ = json_array_get(trigOutsJ, i);
 				if (trigOutsArrayJ)
 					trigOuts[i] = json_is_true(trigOutsArrayJ);
 			}
+		}
+
+		// bpmInputScale
+		json_t *bpmInputScaleJ = json_object_get(rootJ, "bpmInputScale");
+		if (bpmInputScaleJ)
+			bpmInputScale = json_number_value(bpmInputScaleJ);
+
+		// bpmInputOffset
+		json_t *bpmInputOffsetJ = json_object_get(rootJ, "bpmInputOffset");
+		if (bpmInputOffsetJ)
+			bpmInputOffset = json_number_value(bpmInputOffsetJ);
 
 		resetNonJson(true);
 
@@ -644,7 +665,8 @@ struct Clkd : Module {
 			}
 			// BPM CV method
 			else {// bpmDetectionMode not active
-				newMasterLength = clamp(0.5f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage()), masterLengthMin, masterLengthMax);// bpm = 120*2^V, T = 60/bpm = 60/(120*2^V) = 0.5/2^V
+				float bpmCV = inputs[BPM_INPUT].getVoltage() * bpmInputScale + bpmInputOffset;
+				newMasterLength = clamp(0.5f / std::pow(2.0f, bpmCV), masterLengthMin, masterLengthMax);// bpm = 120*2^V, T = 60/bpm = 60/(120*2^V) = 0.5/2^V
 				// no need to round since this clocked's master's BPM knob is a snap knob thus already rounded, and with passthru approach, no cumul error
 				
 				// detect two quick pulses to automatically change the mode to P24
@@ -890,7 +912,9 @@ struct ClkdWidget : ModuleWidget {
 			[=](bool loop) {module->momentaryRunInput = !module->momentaryRunInput;}
 		));
 
-		menu->addChild(createBoolPtrMenuItem("BPM out is CV when ext sync", "", &module->forceCvOnBpmOut));
+		menu->addChild(createBoolPtrMenuItem("BPM output is CV when ext sync", "", &module->forceCvOnBpmOut));
+
+		createBPMCVInputMenu(menu, &module->bpmInputScale, &module->bpmInputOffset);
 
 		menu->addChild(createSubmenuItem("Send triggers (instead of gates)", "", [=](Menu* menu) {
 			menu->addChild(createBoolPtrMenuItem("Master clk", "", &(module->trigOuts[0])));

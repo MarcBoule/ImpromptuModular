@@ -254,6 +254,8 @@ struct Clocked : Module {
 	bool resetClockOutputsHigh;
 	bool momentaryRunInput;// true = trigger (original rising edge only version), false = level sensitive (emulated with rising and falling detection)
 	bool forceCvOnBpmOut;
+	float bpmInputScale;// -1.0f to 1.0f
+	float bpmInputOffset;// -10.0f to 10.0f
 
 	// No need to save, with reset
 	long editingBpmMode;// 0 when no edit bpmMode, downward step counter timer when edit, negative upward when show can't edit ("--") 
@@ -412,6 +414,8 @@ struct Clocked : Module {
 		resetClockOutputsHigh = true;
 		momentaryRunInput = true;
 		forceCvOnBpmOut = false;
+		bpmInputScale = 1.0f;
+		bpmInputOffset = 0.0f;
 		resetNonJson(false);
 	}
 	void resetNonJson(bool delayed) {// delay thread sensitive parts (i.e. schedule them so that process() will do them)
@@ -498,6 +502,12 @@ struct Clocked : Module {
 		// forceCvOnBpmOut
 		json_object_set_new(rootJ, "forceCvOnBpmOut", json_boolean(forceCvOnBpmOut));
 		
+		// bpmInputScale
+		json_object_set_new(rootJ, "bpmInputScale", json_real(bpmInputScale));
+
+		// bpmInputOffset
+		json_object_set_new(rootJ, "bpmInputOffset", json_real(bpmInputOffset));
+
 		// clockMaster
 		json_object_set_new(rootJ, "clockMaster", json_boolean(clockMaster.id == id));
 		
@@ -588,6 +598,16 @@ struct Clocked : Module {
 		json_t *forceCvOnBpmOutJ = json_object_get(rootJ, "forceCvOnBpmOut");
 		if (forceCvOnBpmOutJ)
 			forceCvOnBpmOut = json_is_true(forceCvOnBpmOutJ);
+
+		// bpmInputScale
+		json_t *bpmInputScaleJ = json_object_get(rootJ, "bpmInputScale");
+		if (bpmInputScaleJ)
+			bpmInputScale = json_number_value(bpmInputScaleJ);
+
+		// bpmInputOffset
+		json_t *bpmInputOffsetJ = json_object_get(rootJ, "bpmInputOffset");
+		if (bpmInputOffsetJ)
+			bpmInputOffset = json_number_value(bpmInputOffsetJ);
 
 		resetNonJson(true);
 		
@@ -772,7 +792,8 @@ struct Clocked : Module {
 			}
 			// BPM CV method
 			else {// bpmDetectionMode not active
-				newMasterLength = clamp(1.0f / std::pow(2.0f, inputs[BPM_INPUT].getVoltage()), masterLengthMin, masterLengthMax);// bpm = 120*2^V, 2T = 120/bpm = 120/(120*2^V) = 1/2^V
+				float bpmCV = inputs[BPM_INPUT].getVoltage() * bpmInputScale + bpmInputOffset;
+				newMasterLength = clamp(1.0f / std::pow(2.0f, bpmCV), masterLengthMin, masterLengthMax);// bpm = 120*2^V, 2T = 120/bpm = 120/(120*2^V) = 1/2^V
 				// no need to round since this clocked's master's BPM knob is a snap knob thus already rounded, and with passthru approach, no cumul error
 				
 				// detect two quick pulses to automatically change the mode to P24
@@ -1055,7 +1076,9 @@ struct ClockedWidget : ModuleWidget {
 			[=](bool loop) {module->momentaryRunInput = !module->momentaryRunInput;}
 		));
 		
-		menu->addChild(createBoolPtrMenuItem("BPM out is CV when ext sync", "", &module->forceCvOnBpmOut));
+		menu->addChild(createBoolPtrMenuItem("BPM output is CV when ext sync", "", &module->forceCvOnBpmOut));
+
+		createBPMCVInputMenu(menu, &module->bpmInputScale, &module->bpmInputOffset);
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Actions"));

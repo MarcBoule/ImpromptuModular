@@ -1,3 +1,8 @@
+### 2.4.2 (in development)
+
+- Clkd/Clocked: added scale and offset menu sliders for BPM input when in CV mode
+
+
 ### 2.4.1 (2023-10-31)
 
 - Improved timekeeping of Clocked/Clkd in standalone or BPM-CV modes
