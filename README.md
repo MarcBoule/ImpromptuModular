@@ -638,7 +638,7 @@ The following block diagram shows how sequences and phrases relate to each other
 
 ![IM](res/img/PhraseSeq16BlockDiag.jpg)
 
-Familiarity with the VCV SEQ-3 sequencer is recommended, as some operating principles are similar in both sequencers. It is also strongly recommended to read the section [general concepts](#general-concepts) for more relevant information that is not repeated here.
+Familiarity with the VCV SEQ-3 sequencer is recommended, as some operating principles are similar in both sequencers. It is also strongly recommended to see [general concepts](#general-concepts) for more relevant information that is not repeated here, along with an overview [video by Optoproductions](https://www.youtube.com/watch?v=re1j3IEiMlU).
 
 * **SEQ / SONG**: This is the main switch that controls the two major modes of the sequencer. Seq mode allows the currently selected sequence to be played/edited. In this mode, all controls are available (run mode, transpose, rotate, copy-paste, gates, slide, octave, notes) and the content of a sequence can be modified even when the sequencer is running. Song mode allows the creation of a series of sequence numbers (called phrases). In this mode, the run mode and length of the song and the sequence index numbers themselves can be modified (whether the sequence is running or not); some of the other aforementioned controls are unavailable and the actual contents of the sequences cannot be modified.
 
