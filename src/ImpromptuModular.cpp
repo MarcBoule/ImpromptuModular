@@ -34,6 +34,7 @@ void init(Plugin *p) {
 	p->addModel(modelGateSeq64);
 	p->addModel(modelGateSeq64Expander);
 	p->addModel(modelHotkey);
+	p->addModel(modelNoteEcho);
 	p->addModel(modelPart);
 	p->addModel(modelPhraseSeq16);
 	p->addModel(modelPhraseSeq32);

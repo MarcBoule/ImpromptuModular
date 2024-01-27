@@ -356,6 +356,14 @@ struct IMFivePosSmallKnob : IMSmallKnob {
 	}
 };
 
+struct IMFourPosSmallKnob : IMSmallKnob {
+	IMFourPosSmallKnob() {
+		speed = 1.6f;
+		minAngle = -0.5 * float(M_PI);
+		maxAngle = 0.5 * float(M_PI);
+	}
+};
+
 
 struct IMFivePosMediumKnob : IMMediumKnob {
 	IMFivePosMediumKnob() {
