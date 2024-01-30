@@ -12,34 +12,38 @@
 
 
 struct NoteEcho : Module {	
+
+	static const int NUM_TAPS = 4;
+
 	enum ParamIds {
-		ENUMS(TAP_PARAMS, 3),
-		ENUMS(ST_PARAMS, 3),
-		ENUMS(VEL_PARAMS, 3),
-		SD_PARAM,
+		ENUMS(TAP_PARAMS, NUM_TAPS),
+		ENUMS(ST_PARAMS, NUM_TAPS),
+		ENUMS(CV2_PARAMS, NUM_TAPS),
+		ENUMS(PROB_PARAMS, NUM_TAPS),
 		POLY_PARAM,
+		// SD_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
 		CV_INPUT,
 		GATE_INPUT,
-		VEL_INPUT,
+		CV2_INPUT,
 		CLK_INPUT,
-		TAPCV_INPUT,
-		STCV_INPUT,
-		VELCV_INPUT,
+		// TAPCV_INPUT,
+		// STCV_INPUT,
+		// VELCV_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
 		CV_OUTPUT,
 		GATE_OUTPUT,
-		VEL_OUTPUT,
+		CV2_OUTPUT,
 		CLK_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		SD_LIGHT,
-		ENUMS(GATE_LIGHTS, 16),
+		ENUMS(GATE_LIGHTS, 20),// last one can never be used (4*4 or 5*3 total possible 19 LEDs needed)
+		// SD_LIGHT,
 		NUM_LIGHTS
 	};
 	
@@ -48,7 +52,7 @@ struct NoteEcho : Module {
 	// none
 
 	// Constants
-	static const int length = 32;// must be at least 16 given tap init values
+	static const int length = 32;
 	static constexpr float delayInfoTime = 3.0f;// seconds
 	
 	
@@ -60,13 +64,13 @@ struct NoteEcho : Module {
 	int sampDelayClk;
 
 	// No need to save, with reset
-	int notifySource[3] = {0, 0, 0};// 0 (not really used), 1 (semi) 2 (vel)
-	long notifyInfo[3] = {0l, 0l, 0l};// downward step counter when semi or vel to be displayed, 0 when normal tap display
+	int notifySource[4] = {0, 0, 0, 0};// 0 (not really used), 1 (semi) 2 (CV2), 3 (prob)
+	long notifyInfo[4] = {0l, 0l, 0l, 0l};// downward step counter when semi, cv2, prob to be displayed, 0 when normal tap display
 	
 	// No need to save, no reset
 	RefreshCounter refresh;
 	Trigger clkTrigger;
-	Trigger sdTrigger;
+	// Trigger sdTrigger;
 
 
 	int getTapValue(int tapNum) {
@@ -81,10 +85,10 @@ struct NoteEcho : Module {
 
 		configParam(POLY_PARAM, 1, 4, 1, "Input polyphony");
 		paramQuantities[POLY_PARAM]->snapEnabled = true;
-		configParam(SD_PARAM, 0.0f, 1.0f, 0.0f, "1 sample delay clk");
+		// configParam(SD_PARAM, 0.0f, 1.0f, 0.0f, "1 sample delay clk");
 		
 		char strBuf[32];
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
 			snprintf(strBuf, 32, "Tap %i position", i + 1);
 			configParam(TAP_PARAMS + i, 0, (float)length, ((float)i) * 4.0f + 4.0f, strBuf);		
@@ -93,27 +97,30 @@ struct NoteEcho : Module {
 			snprintf(strBuf, 32, "Tap %i semitone offset", i + 1);
 			configParam(ST_PARAMS + i, -48.0f, 48.0f, 0.0f, strBuf);		
 			paramQuantities[ST_PARAMS + i]->snapEnabled = true;
-			// vel knobs
-			snprintf(strBuf, 32, "Tap %i velocity percent", i + 1);
-			configParam(VEL_PARAMS + i, 0.0f, 1.0f, 0.0f, strBuf, " %", 0.0f, 100.0f);		
+			// CV2 knobs
+			snprintf(strBuf, 32, "Tap %i CV2 offset or scale", i + 1);
+			configParam(CV2_PARAMS + i, -1.0f, 1.0f, 0.0f, strBuf);		
+			// CV2 knobs
+			snprintf(strBuf, 32, "Tap %i probability", i + 1);
+			configParam(PROB_PARAMS + i, 0.0f, 1.0f, 1.0f, strBuf);		
 		}
 		
 		configInput(CV_INPUT, "CV");
 		configInput(GATE_INPUT, "Gate");
-		configInput(VEL_INPUT, "Velocity");
+		configInput(CV2_INPUT, "CV2/Velocity");
 		configInput(CLK_INPUT, "Clock");
-		configInput(TAPCV_INPUT, "Tap CV");
-		configInput(STCV_INPUT, "Semitone offset CV");
-		configInput(VEL_INPUT, "Velocity percent CV");
+		// configInput(TAPCV_INPUT, "Tap CV");
+		// configInput(STCV_INPUT, "Semitone offset CV");
+		// configInput(CV2_INPUT, "Velocity percent CV");
 
 		configOutput(CV_OUTPUT, "CV");
 		configOutput(GATE_OUTPUT, "Gate");
-		configOutput(VEL_OUTPUT, "Velocity");
+		configOutput(CV2_OUTPUT, "CV2/Velocity");
 		configOutput(CLK_OUTPUT, "Clock");
 		
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
-		configBypass(VEL_INPUT, VEL_OUTPUT);
+		configBypass(CV2_INPUT, CV2_OUTPUT);
 		configBypass(CLK_INPUT, CLK_OUTPUT);
 
 		onReset();
@@ -168,12 +175,12 @@ struct NoteEcho : Module {
 
 	void process(const ProcessArgs &args) override {
 		// sample delay clk
-		if (sdTrigger.process(params[SD_PARAM].getValue())) {
-			sampDelayClk = sampDelayClk + 1;
-			if (sampDelayClk > 1) {
-				sampDelayClk = 0;
-			}
-		}
+		// if (sdTrigger.process(params[SD_PARAM].getValue())) {
+			// sampDelayClk = sampDelayClk + 1;
+			// if (sampDelayClk > 1) {
+				// sampDelayClk = 0;
+			// }
+		// }
 
 
 		if (refresh.processInputs()) {
@@ -190,10 +197,10 @@ struct NoteEcho : Module {
 		// lights
 		if (refresh.processLights()) {
 			// sampDelayClk light
-			lights[SD_LIGHT].setBrightness(sampDelayClk != 0 ? 1.0f : 0.0f);
+			// lights[SD_LIGHT].setBrightness(sampDelayClk != 0 ? 1.0f : 0.0f);
 
 			// info notification counters
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < 4; i++) {
 				notifyInfo[i]--;
 				if (notifyInfo[i] < 0l)
 					notifyInfo[i] = 0l;
@@ -225,7 +232,7 @@ struct NoteEchoWidget : ModuleWidget {
 			IMMediumKnob::onDragMove(e);
 		}
 	};
-	struct VelKnob : IMMediumKnob {
+	struct Cv2Knob : IMSmallKnob {
 		NoteEcho *module = nullptr;
 		int tapNum = 0;
 		void onDragMove(const event::DragMove &e) override {
@@ -233,7 +240,18 @@ struct NoteEchoWidget : ModuleWidget {
 				module->notifySource[tapNum] = 2l;
 				module->notifyInfo[tapNum] = (long) (NoteEcho::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
 			}
-			IMMediumKnob::onDragMove(e);
+			IMSmallKnob::onDragMove(e);
+		}
+	};
+	struct ProbKnob : IMSmallKnob {
+		NoteEcho *module = nullptr;
+		int tapNum = 0;
+		void onDragMove(const event::DragMove &e) override {
+			if (module) {
+				module->notifySource[tapNum] = 3l;
+				module->notifyInfo[tapNum] = (long) (NoteEcho::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
+			}
+			IMSmallKnob::onDragMove(e);
 		}
 	};
 	
@@ -281,11 +299,17 @@ struct NoteEchoWidget : ModuleWidget {
 							displayStr[0] = ist > 0 ? '+' : '-';
 						}
 					}
-					else {
-						// vel
-						float vel = module->params[NoteEcho::VEL_PARAMS + tapNum].getValue();
+					else if (module->notifySource[tapNum] == 2) {
+						// CV2
+						float vel = module->params[NoteEcho::CV2_PARAMS + tapNum].getValue();
 						unsigned int ivel100 = (unsigned)(std::round(vel * 100.0f));
 						snprintf(displayStr, 4, "%3u", ivel100);
+					}
+					else {
+						// Prob
+						float prob = module->params[NoteEcho::PROB_PARAMS + tapNum].getValue();
+						unsigned int iprob100 = (unsigned)(std::round(prob * 100.0f));
+						snprintf(displayStr, 4, "%3u", iprob100);
 					}
 				}
 				else {
@@ -330,24 +354,25 @@ struct NoteEchoWidget : ModuleWidget {
 
 
 		static const float col5d = 16.0f;
-		static const float col51 = 8.64f;// CV in/out
+		static const float col51 = 8.64f;
 		static const float col52 = col51 + col5d;// Gate in/out
 		static const float col53 = col52 + col5d;// Vel in/out
 		static const float col54 = col53 + col5d;// Clk in/out
-		static const float col55 = col54 + col5d;// sd and gateLightMatrix
+		static const float col55 = 75.0f;// poly, center of CV2, prob knobs
 		
-		static const float col54d = 2.0f;// CV in/out
-		static const float col4d = (4.0f * col5d - 2.0f * col54d) / 3.0f;// CV in/out
+		static const float col54d = 2.0f;
+		static const float col4d = 20.5f;
 		static const float col41 = col51 + col54d;// Tap
 		static const float col42 = col41 + col4d;// Displays
 		static const float col43 = col42 + col4d;// Semitone
-		static const float col44 = col55 - col54d;// Vel
+		static const float col44 = col55 - 7.0f;// CV2
+		static const float col45 = col55 + 7.0f;// CV2
 		
-		static const float row0 = 21.0f;// CV, Gate, Vel, Clk inputs, and sampDelayClk
+		static const float row0 = 21.0f;// Clk, CV, Gate, CV2 inputs, and sampDelayClk
 		static const float row1 = row0 + 20.0f;// tap 1
-		static const float row23d = 15.0f;// taps 2 and 3
-		static const float row5 = 110.5f;// CV, Gate, Vel, Clk outputs
-		static const float row4 = row5 - 20.0f;// CV inputs and poly knob
+		static const float row24d = 16.0f;// taps 2-4
+		static const float row5 = 110.5f;// Clk, CV, Gate, CV2 outputs
+		// static const float row4 = row5 - 20.0f;// CV inputs and poly knob
 		
 		static const float displayWidths = 48; // 43 for 14pt, 46 for 15pt
 		static const float displayHeights = 24; // 22 for 14pt, 24 for 15pt
@@ -356,57 +381,63 @@ struct NoteEchoWidget : ModuleWidget {
 		// row 0
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row0)), true, module, NoteEcho::CV_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row0)), true, module, NoteEcho::GATE_INPUT, mode));
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row0)), true, module, NoteEcho::VEL_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row0)), true, module, NoteEcho::CV2_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row0)), true, module, NoteEcho::CLK_INPUT, mode));
-		addParam(createParamCentered<LEDButton>(mm2px(Vec(col55, row0)), module, NoteEcho::SD_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col55, row0)), module, NoteEcho::SD_LIGHT));
+		addParam(createDynamicParamCentered<IMFourPosSmallKnob>(mm2px(Vec(col55, row0)), module, NoteEcho::POLY_PARAM, mode));
+
+		// addParam(createParamCentered<LEDButton>(mm2px(Vec(col55, row0)), module, NoteEcho::SD_PARAM));
+		// addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col55, row0)), module, NoteEcho::SD_LIGHT));
 		
-		// rows 1-3
-		for (int i = 0; i < 3; i++) {
+		// rows 1-4
+		for (int i = 0; i < NoteEcho::NUM_TAPS; i++) {
 			TapKnob* tapKnobP;
-			addParam(tapKnobP = createDynamicParamCentered<TapKnob>(mm2px(Vec(col41, row1 + i * row23d)), module, NoteEcho::TAP_PARAMS + i, mode));	
+			addParam(tapKnobP = createDynamicParamCentered<TapKnob>(mm2px(Vec(col41, row1 + i * row24d)), module, NoteEcho::TAP_PARAMS + i, mode));	
 			tapKnobP->module = module;
 			tapKnobP->tapNum = i;
 			
 			// displays
-			TapDisplayWidget* tapDisplayWidget = new TapDisplayWidget(i, mm2px(Vec(col42, row1 + i * row23d)), VecPx(displayWidths, displayHeights), module);
+			TapDisplayWidget* tapDisplayWidget = new TapDisplayWidget(i, mm2px(Vec(col42, row1 + i * row24d)), VecPx(displayWidths, displayHeights), module);
 			addChild(tapDisplayWidget);
 			svgPanel->fb->addChild(new DisplayBackground(tapDisplayWidget->box.pos, tapDisplayWidget->box.size, mode));
 			
 			SemitoneKnob* stKnobP;
-			addParam(stKnobP = createDynamicParamCentered<SemitoneKnob>(mm2px(Vec(col43, row1 + i * row23d)), module, NoteEcho::ST_PARAMS + i, mode));	
+			addParam(stKnobP = createDynamicParamCentered<SemitoneKnob>(mm2px(Vec(col43, row1 + i * row24d)), module, NoteEcho::ST_PARAMS + i, mode));	
 			stKnobP->module = module;
 			stKnobP->tapNum = i;
 			
-			VelKnob* velKnobP;			
-			addParam(velKnobP = createDynamicParamCentered<VelKnob>(mm2px(Vec(col44, row1 + i * row23d)), module, NoteEcho::VEL_PARAMS + i, mode));	
-			velKnobP->module = module;
-			velKnobP->tapNum = i;
+			Cv2Knob* cv2KnobP;			
+			addParam(cv2KnobP = createDynamicParamCentered<Cv2Knob>(mm2px(Vec(col44, row1 + i * row24d)), module, NoteEcho::CV2_PARAMS + i, mode));	
+			cv2KnobP->module = module;
+			cv2KnobP->tapNum = i;
+			
+			ProbKnob* probKnobP;			
+			addParam(probKnobP = createDynamicParamCentered<ProbKnob>(mm2px(Vec(col45, row1 + i * row24d)), module, NoteEcho::PROB_PARAMS + i, mode));	
+			probKnobP->module = module;
+			probKnobP->tapNum = i;
 		}
 		
 		// row 4
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col41, row4)), true, module, NoteEcho::TAPCV_INPUT, mode));
-		addParam(createDynamicParamCentered<IMFourPosSmallKnob>(mm2px(Vec(col42, row4)), module, NoteEcho::POLY_PARAM, mode));
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col43, row4)), true, module, NoteEcho::STCV_INPUT, mode));
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col44, row4)), true, module, NoteEcho::VELCV_INPUT, mode));
+		// addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col41, row4)), true, module, NoteEcho::TAPCV_INPUT, mode));
+		// addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col43, row4)), true, module, NoteEcho::STCV_INPUT, mode));
+		// addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col44, row4)), true, module, NoteEcho::VELCV_INPUT, mode));
 		
 		// row 5
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row5)), false, module, NoteEcho::CV_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row5)), false, module, NoteEcho::GATE_OUTPUT, mode));
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row5)), false, module, NoteEcho::VEL_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row5)), false, module, NoteEcho::CV2_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row5)), false, module, NoteEcho::CLK_OUTPUT, mode));
 
-		// gate light matrix
+		// gate lights
 		static const float gldx = 2.0f;
-		static const float gldy = 2.0f;
-		float posx = col55 - gldx * 1.5f - 1.0f;
-		for (int i = 0; i < 4; i++) {
-			float posy = row5 - gldy * 1.5f;
-			for (int j = 0; j < 4; j++) {
-				addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(posx, posy)), module, NoteEcho::GATE_LIGHTS + i));
-				posy += gldy;
+		static const float glto = -6.0f;
+		static const float posy[5] = {28.0f, row1 + glto, row1 + glto + row24d, row1 + glto + 2 * row24d, row1 + glto + 3 * row24d};
+		
+		for (int j = 0; j < 5; j++) {
+			float posx = col52 - gldx * 1.5f;
+			for (int i = 0; i < 4; i++) {
+				addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(posx, posy[j])), module, NoteEcho::GATE_LIGHTS + j * 4 + i));
+				posx += gldx;
 			}
-			posx += gldx;
 		}
 	}
 };
