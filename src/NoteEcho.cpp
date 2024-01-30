@@ -21,6 +21,8 @@ struct NoteEcho : Module {
 		ENUMS(CV2_PARAMS, NUM_TAPS),
 		ENUMS(PROB_PARAMS, NUM_TAPS),
 		POLY_PARAM,
+		CV2MODE_PARAM,
+		PMODE_PARAM,
 		// SD_PARAM,
 		NUM_PARAMS
 	};
@@ -79,6 +81,9 @@ struct NoteEcho : Module {
 	int getSemiValue(int tapNum) {
 		return (int)(std::round(params[ST_PARAMS + tapNum].getValue()));
 	}
+	bool isCv2Offset() {
+		return params[CV2MODE_PARAM].getValue() > 0.5f;
+	}
 	
 	NoteEcho() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -86,6 +91,8 @@ struct NoteEcho : Module {
 		configParam(POLY_PARAM, 1, 4, 1, "Input polyphony");
 		paramQuantities[POLY_PARAM]->snapEnabled = true;
 		// configParam(SD_PARAM, 0.0f, 1.0f, 0.0f, "1 sample delay clk");
+		configSwitch(CV2MODE_PARAM, 0.0f, 1.0f, 1.0f, "CV2 mode", {"Scale", "Offset"});
+		configSwitch(PMODE_PARAM, 0.0f, 1.0f, 1.0f, "Random mode", {"Separate", "Chord"});
 		
 		char strBuf[32];
 		for (int i = 0; i < NUM_TAPS; i++) {
@@ -271,50 +278,83 @@ struct NoteEchoWidget : ModuleWidget {
 			module = _module;
 			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
 		}
-		
+
 		void drawLayer(const DrawArgs &args, int layer) override {
 			if (layer == 1) {
 				if (!(font = APP->window->loadFont(fontPath))) {
 					return;
 				}
+				static const float offsetXfrac = 3.5f;
 				nvgFontSize(args.vg, textFontSize);
 				nvgFontFaceId(args.vg, font->handle);
 				nvgTextLetterSpacing(args.vg, -0.4);
 
-				Vec textPos = VecPx(5.7f, textOffsetY);
+				Vec textPos = VecPx(6.3f, textOffsetY);
 				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
-				std::string initString(3,'~');
-				nvgText(args.vg, textPos.x, textPos.y, initString.c_str(), NULL);
+				nvgText(args.vg, textPos.x, textPos.y, "~", NULL);
+				std::string initString(".~~");
+				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, initString.c_str(), NULL);
 				
 				nvgFillColor(args.vg, displayColOn);
-				if (!module || module->getTapValue(tapNum) < 1) {
-					snprintf(displayStr, 4, " - ");
+				if (!module || module->getTapValue(tapNum) < 1 || module->params[NoteEcho::POLY_PARAM].getValue() >= 4.0f) {
+					snprintf(displayStr, 5, "  - ");
 				}
 				else if (module->notifyInfo[tapNum] > 0l) {
 					if (module->notifySource[tapNum] == 1) {
 						// semitone
 						int ist = module->getSemiValue(tapNum);
-						snprintf(displayStr, 4, " %2u", (unsigned)(std::abs(ist)));
+						snprintf(displayStr, 5, "  %2u", (unsigned)(std::abs(ist)));
 						if (ist != 0) {
 							displayStr[0] = ist > 0 ? '+' : '-';
 						}
 					}
 					else if (module->notifySource[tapNum] == 2) {
 						// CV2
-						float vel = module->params[NoteEcho::CV2_PARAMS + tapNum].getValue();
-						unsigned int ivel100 = (unsigned)(std::round(vel * 100.0f));
-						snprintf(displayStr, 4, "%3u", ivel100);
+						float cv2 = module->params[NoteEcho::CV2_PARAMS + tapNum].getValue();
+						if (module->isCv2Offset()) {
+							// CV2 mode is: offset
+							float cvValPrint = std::fabs(cv2) * 10.0f;
+							if (cvValPrint > 9.975f)
+								snprintf(displayStr, 5, "  10");
+							else if (cvValPrint < 0.025f)
+								snprintf(displayStr, 5, "   0");
+							else {
+								snprintf(displayStr, 5, "%3.2f", cvValPrint);// Three-wide, two positions after the decimal, left-justified
+								displayStr[1] = '.';// in case locals in printf
+							}								
+						}
+						else {
+							// CV2 mode is: scale
+							int iscale = std::round(std::fabs(cv2) * 100.0f);
+							if (iscale > 99 ) {
+								snprintf(displayStr, 5, "1 00");
+							}
+							else {
+								snprintf(displayStr, 5, "  %2u", (unsigned)iscale);
+								if (cv2 < 0.0f && iscale != 0) {
+									displayStr[0] = '-';
+								}
+							}							
+						}
 					}
 					else {
 						// Prob
 						float prob = module->params[NoteEcho::PROB_PARAMS + tapNum].getValue();
 						unsigned int iprob100 = (unsigned)(std::round(prob * 100.0f));
-						snprintf(displayStr, 4, "%3u", iprob100);
+						if ( iprob100 >= 100)
+							snprintf(displayStr, 5, "   1");
+						else if (iprob100 >= 1) {
+							snprintf(displayStr, 5, "0.%02u", (unsigned) iprob100);
+						}	
+						else
+							snprintf(displayStr, 5, "   0");
 					}
 				}
 				else {
-					snprintf(displayStr, 4, "T%2u", (unsigned)(module->getTapValue(tapNum)));	
+					snprintf(displayStr, 5, "T %2u", (unsigned)(module->getTapValue(tapNum)));	
 				}
+				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &displayStr[1], NULL);
+				displayStr[1] = 0;
 				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
 			}
 		}
@@ -396,7 +436,7 @@ struct NoteEchoWidget : ModuleWidget {
 			tapKnobP->tapNum = i;
 			
 			// displays
-			TapDisplayWidget* tapDisplayWidget = new TapDisplayWidget(i, mm2px(Vec(col42, row1 + i * row24d)), VecPx(displayWidths, displayHeights), module);
+			TapDisplayWidget* tapDisplayWidget = new TapDisplayWidget(i, mm2px(Vec(col42, row1 + i * row24d)), VecPx(displayWidths + 4, displayHeights), module);
 			addChild(tapDisplayWidget);
 			svgPanel->fb->addChild(new DisplayBackground(tapDisplayWidget->box.pos, tapDisplayWidget->box.size, mode));
 			
@@ -426,15 +466,18 @@ struct NoteEchoWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row5)), false, module, NoteEcho::GATE_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row5)), false, module, NoteEcho::CV2_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row5)), false, module, NoteEcho::CLK_OUTPUT, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col44 + 3.0f, row5)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col45, row5)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
 
 		// gate lights
 		static const float gldx = 2.0f;
 		static const float glto = -6.0f;
-		static const float posy[5] = {28.0f, row1 + glto, row1 + glto + row24d, row1 + glto + 2 * row24d, row1 + glto + 3 * row24d};
+		static const float posy[5] = {30.0f, row1 + glto, row1 + glto + row24d, row1 + glto + 2 * row24d, row1 + glto + 3 * row24d};
 		
 		for (int j = 0; j < 5; j++) {
-			float posx = col52 - gldx * 1.5f;
+			float posx = col42 - gldx * 1.5f;
 			for (int i = 0; i < 4; i++) {
+				if (j == 4 && i == 3) continue;
 				addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(posx, posy[j])), module, NoteEcho::GATE_LIGHTS + j * 4 + i));
 				posx += gldx;
 			}
