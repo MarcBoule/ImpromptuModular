@@ -31,6 +31,7 @@ struct NoteEcho : Module {
 		GATE_INPUT,
 		CV2_INPUT,
 		CLK_INPUT,
+		CLEAR_INPUT,
 		// TAPCV_INPUT,
 		// STCV_INPUT,
 		// VELCV_INPUT,
@@ -54,7 +55,7 @@ struct NoteEcho : Module {
 	// none
 
 	// Constants
-	static const int length = 32;
+	static const int LENGTH = 32;
 	static constexpr float delayInfoTime = 3.0f;// seconds
 	
 	
@@ -98,7 +99,7 @@ struct NoteEcho : Module {
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
 			snprintf(strBuf, 32, "Tap %i position", i + 1);
-			configParam(TAP_PARAMS + i, 0, (float)length, ((float)i) * 4.0f + 4.0f, strBuf);		
+			configParam(TAP_PARAMS + i, 0, (float)LENGTH, ((float)i) * 4.0f + 4.0f, strBuf);		
 			paramQuantities[TAP_PARAMS + i]->snapEnabled = true;
 			// tap knobs
 			snprintf(strBuf, 32, "Tap %i semitone offset", i + 1);
@@ -116,6 +117,7 @@ struct NoteEcho : Module {
 		configInput(GATE_INPUT, "Gate");
 		configInput(CV2_INPUT, "CV2/Velocity");
 		configInput(CLK_INPUT, "Clock");
+		configInput(CLEAR_INPUT, "Clear (reset)");
 		// configInput(TAPCV_INPUT, "Tap CV");
 		// configInput(STCV_INPUT, "Semitone offset CV");
 		// configInput(CV2_INPUT, "Velocity percent CV");
@@ -296,7 +298,8 @@ struct NoteEchoWidget : ModuleWidget {
 				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, initString.c_str(), NULL);
 				
 				nvgFillColor(args.vg, displayColOn);
-				if (!module || module->getTapValue(tapNum) < 1 || module->params[NoteEcho::POLY_PARAM].getValue() >= 4.0f) {
+				if (!module || module->getTapValue(tapNum) < 1 || 
+				    (tapNum == 3 && module->params[NoteEcho::POLY_PARAM].getValue() >= 4.0f) ) {
 					snprintf(displayStr, 5, "  - ");
 				}
 				else if (module->notifyInfo[tapNum] > 0l) {
@@ -393,20 +396,18 @@ struct NoteEchoWidget : ModuleWidget {
 		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 
-		static const float col5d = 16.0f;
-		static const float col51 = 8.64f;
-		static const float col52 = col51 + col5d;// Gate in/out
-		static const float col53 = col52 + col5d;// Vel in/out
-		static const float col54 = col53 + col5d;// Clk in/out
-		static const float col55 = 75.0f;// poly, center of CV2, prob knobs
+		static const float col5d = 14.5f;
+		static const float col51 = 9.47f;
+		static const float col52 = col51 + col5d;
+		static const float col53 = col52 + col5d;
+		static const float col54 = col53 + col5d;
+		static const float col55 = col54 + col5d;
+		static const float col56 = col55 + col5d;
 		
 		static const float col54d = 2.0f;
-		static const float col4d = 20.5f;
 		static const float col41 = col51 + col54d;// Tap
-		static const float col42 = col41 + col4d;// Displays
-		static const float col43 = col42 + col4d;// Semitone
-		static const float col44 = col55 - 7.0f;// CV2
-		static const float col45 = col55 + 7.0f;// CV2
+		static const float col43 = col54 - col54d;// Semitone
+		static const float col42 = (col41 + col43) / 2.0f;// Displays
 		
 		static const float row0 = 21.0f;// Clk, CV, Gate, CV2 inputs, and sampDelayClk
 		static const float row1 = row0 + 20.0f;// tap 1
@@ -424,9 +425,8 @@ struct NoteEchoWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row0)), true, module, NoteEcho::CV2_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row0)), true, module, NoteEcho::CLK_INPUT, mode));
 		addParam(createDynamicParamCentered<IMFourPosSmallKnob>(mm2px(Vec(col55, row0)), module, NoteEcho::POLY_PARAM, mode));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col56, row0)), true, module, NoteEcho::CLEAR_INPUT, mode));
 
-		// addParam(createParamCentered<LEDButton>(mm2px(Vec(col55, row0)), module, NoteEcho::SD_PARAM));
-		// addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col55, row0)), module, NoteEcho::SD_LIGHT));
 		
 		// rows 1-4
 		for (int i = 0; i < NoteEcho::NUM_TAPS; i++) {
@@ -446,12 +446,12 @@ struct NoteEchoWidget : ModuleWidget {
 			stKnobP->tapNum = i;
 			
 			Cv2Knob* cv2KnobP;			
-			addParam(cv2KnobP = createDynamicParamCentered<Cv2Knob>(mm2px(Vec(col44, row1 + i * row24d)), module, NoteEcho::CV2_PARAMS + i, mode));	
+			addParam(cv2KnobP = createDynamicParamCentered<Cv2Knob>(mm2px(Vec(col55, row1 + i * row24d)), module, NoteEcho::CV2_PARAMS + i, mode));	
 			cv2KnobP->module = module;
 			cv2KnobP->tapNum = i;
 			
 			ProbKnob* probKnobP;			
-			addParam(probKnobP = createDynamicParamCentered<ProbKnob>(mm2px(Vec(col45, row1 + i * row24d)), module, NoteEcho::PROB_PARAMS + i, mode));	
+			addParam(probKnobP = createDynamicParamCentered<ProbKnob>(mm2px(Vec(col56, row1 + i * row24d)), module, NoteEcho::PROB_PARAMS + i, mode));	
 			probKnobP->module = module;
 			probKnobP->tapNum = i;
 		}
@@ -466,8 +466,8 @@ struct NoteEchoWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row5)), false, module, NoteEcho::GATE_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row5)), false, module, NoteEcho::CV2_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row5)), false, module, NoteEcho::CLK_OUTPUT, mode));
-		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col44 + 3.0f, row5)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
-		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col45, row5)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col55, row5)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
 
 		// gate lights
 		static const float gldx = 2.0f;
