@@ -326,12 +326,10 @@ struct NoteEcho : Module {
 	
 	
 	
-		// main code
-		// clear
+		// clear and clock
 		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage())) {
 			clear();
 		}
-		// clock
 		if (clkTrigger.process(inputs[CLK_INPUT].getVoltage())) {
 			// sample the inputs
 			for (int i = 0; i < MAX_POLY; i++) {
@@ -726,7 +724,7 @@ struct NoteEchoWidget : ModuleWidget {
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
 
 		// gate lights
-		static const float gldx = 2.5f;
+		static const float gldx = 3.0f;
 		static const float glto = -7.0f;
 		static const float posy[5] = {28.0f, row1 + glto, row1 + glto + row24d, row1 + glto + 2 * row24d, row1 + glto + 3 * row24d};
 		
