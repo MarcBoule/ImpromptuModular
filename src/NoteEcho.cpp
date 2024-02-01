@@ -56,7 +56,7 @@ struct NoteEcho : Module {
 	// none
 
 	// Constants
-	static const int LENGTH = 32;
+	static const int LENGTH = 32 + 1;
 	static constexpr float delayInfoTime = 3.0f;// seconds
 	
 	
@@ -113,6 +113,8 @@ struct NoteEcho : Module {
 		return params[CV2MODE_PARAM].getValue() > 0.5f;
 	}
 	
+	
+	
 	NoteEcho() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
@@ -126,7 +128,7 @@ struct NoteEcho : Module {
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
 			snprintf(strBuf, 32, "Tap %i delay", i + 1);
-			configParam(TAP_PARAMS + i, 0, (float)LENGTH, ((float)i) + 1.0f, strBuf);		
+			configParam(TAP_PARAMS + i, 0, (float)(LENGTH - 1), ((float)i) + 1.0f, strBuf);		
 			paramQuantities[TAP_PARAMS + i]->snapEnabled = true;
 			// tap knobs
 			snprintf(strBuf, 32, "Tap %i semitone offset", i + 1);
@@ -331,7 +333,7 @@ struct NoteEcho : Module {
 			// sample the inputs
 			for (int i = 0; i < MAX_POLY; i++) {
 				cv[head][i] = inputs[CV_INPUT].getChannels() > i ? inputs[CV_INPUT].getVoltage(i) : 0.0f;
-				cv2[head][i] = inputs[CV2_INPUT].getChannels() > i ? inputs[CV2_INPUT].getVoltage(i) : 0.0f;// normalling to 10V is not really useful here, since even if we also normal the passthrough (tap0) when CV2 input unconnected, it's value can't be controlled, so even if we can apply CV2 mod to the 4 true taps, a 10V value on the passthrough tap would have to coincide with that is desired and useful. So given this, forget normalling CV input to 10V.
+				cv2[head][i] = inputs[CV2_INPUT].getChannels() > i ? inputs[CV2_INPUT].getVoltage(i) : 0.0f;// normaling to 10V is not really useful here, since even if we also normal the passthrough (tap0) when CV2 input unconnected, it's value can't be controlled, so even if we can apply CV2 mod to the 4 true taps, a 10V value on the passthrough tap would have to coincide with that is desired and useful. So given this, forget normaling CV input to 10V.
 				gate[head][i] = inputs[GATE_INPUT].getChannels() > i ? (inputs[GATE_INPUT].getVoltage(i) > 1.0f) : false;
 			}
 			// step the head pointer
@@ -353,20 +355,21 @@ struct NoteEcho : Module {
 		
 		
 		// outputs
-		// do passthrough outputs first since automatic
+		// do tap0 outputs first
 		outputs[CLK_OUTPUT].setVoltage(inputs[CLK_INPUT].getVoltage());
 		int c = 0;// running index for all poly cable writes
 		for (; c < poly; c++) {
-			outputs[CV_OUTPUT].setVoltage(inputs[CV_INPUT].getVoltage(c),c);
-			outputs[GATE_OUTPUT].setVoltage(inputs[GATE_INPUT].getVoltage(c),c);
-			outputs[CV2_OUTPUT].setVoltage(inputs[CV2_INPUT].getVoltage(c),c);
+			int srIndex = (head - 1 + 2 * LENGTH) % LENGTH;
+			outputs[CV_OUTPUT].setVoltage(cv[srIndex][c],c);
+			outputs[GATE_OUTPUT].setVoltage(gate[srIndex][c] && inputs[CLK_INPUT].getVoltage() > 1.0f ? 10.0f : 0.0f,c);
+			outputs[CV2_OUTPUT].setVoltage(cv2[srIndex][c],c);
 		}
-		// now do tap outputs
+		// now do main tap outputs
 		for (int j = 0; j < NUM_TAPS; j++) {
 			if ( !isTapActive(j) || (j == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 				continue;
 			}
-			int srIndex = ((head - getTapValue(j) - 1) + 2 * LENGTH) % LENGTH;
+			int srIndex = (head - getTapValue(j) - 1 + 2 * LENGTH) % LENGTH;
 			for (int i = 0; i < poly; i++, c++) {
 				// cv
 				float cvWithSemi = cv[srIndex][i] + params[ST_PARAMS + j].getValue() / 12.0f;
@@ -714,15 +717,14 @@ struct NoteEchoWidget : ModuleWidget {
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
 
 		// gate lights
-		static const float gldx = 2.0f;
-		static const float glto = -6.0f;
-		static const float posy[5] = {30.0f, row1 + glto, row1 + glto + row24d, row1 + glto + 2 * row24d, row1 + glto + 3 * row24d};
+		static const float gldx = 2.5f;
+		static const float glto = -7.0f;
+		static const float posy[5] = {28.0f, row1 + glto, row1 + glto + row24d, row1 + glto + 2 * row24d, row1 + glto + 3 * row24d};
 		
 		for (int j = 0; j < 5; j++) {
 			float posx = col42 - gldx * 1.5f;
 			for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
-				// if (j == 4 && i == (NoteEcho::MAX_POLY - 1)) continue;
-				addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(posx, posy[j])), module, NoteEcho::GATE_LIGHTS + j * NoteEcho::MAX_POLY + i));
+				addChild(createLightCentered<SmallLight<GreenLight>>(mm2px(Vec(posx, posy[j])), module, NoteEcho::GATE_LIGHTS + j * NoteEcho::MAX_POLY + i));
 				posx += gldx;
 			}
 		}
