@@ -46,7 +46,7 @@ struct NoteEcho : Module {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),// last one can never be used (5*3 or 4*4) total possible 19 LEDs needed)
+		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
 		// SD_LIGHT,
 		NUM_LIGHTS
 	};
@@ -66,14 +66,14 @@ struct NoteEcho : Module {
 	
 	// Need to save, with reset
 	// int sampDelayClk;
-	float cv[LENGTH + 1][MAX_POLY];
-	float cv2[LENGTH + 1][MAX_POLY];
-	bool gate[LENGTH + 1][MAX_POLY];
+	float cv[LENGTH][MAX_POLY];
+	float cv2[LENGTH][MAX_POLY];
+	bool gate[LENGTH][MAX_POLY];
 	bool gateEn[NUM_TAPS][MAX_POLY];
 	int head;// points the next register to be written when next clock occurs
 
 	// No need to save, with reset
-	int poly;// for process() only
+	// none
 	
 	// No need to save, no reset
 	int notifySource[4] = {0, 0, 0, 0};// 0 (not really used), 1 (semi) 2 (CV2), 3 (prob)
@@ -85,11 +85,26 @@ struct NoteEcho : Module {
 	// Trigger sdTrigger;
 
 
-	int getPolyValue() {
+	int getPolyKnob() {
 		return (int)(params[POLY_PARAM].getValue() + 0.5f);
 	}
 	int getTapValue(int tapNum) {
 		return (int)(params[TAP_PARAMS + tapNum].getValue() + 0.5f);
+	}
+	bool isTapActive(int tapNum) {
+		return params[TAP_PARAMS + tapNum].getValue() >= 0.5f;
+	}
+	int countActiveTaps() {
+		int count = 0;
+		for (int i = 0; i < NUM_TAPS; i++) {
+			if (isTapActive(i)) {
+				count++;
+			}			
+		}
+		return count;
+	}
+	bool isLastTapAllowed() {
+		return getPolyKnob() < MAX_POLY || countActiveTaps() < NUM_TAPS;
 	}
 	int getSemiValue(int tapNum) {
 		return (int)(std::round(params[ST_PARAMS + tapNum].getValue()));
@@ -110,8 +125,8 @@ struct NoteEcho : Module {
 		char strBuf[32];
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
-			snprintf(strBuf, 32, "Tap %i position", i + 1);
-			configParam(TAP_PARAMS + i, 0, (float)LENGTH, ((float)i) * 4.0f + 4.0f, strBuf);		
+			snprintf(strBuf, 32, "Tap %i delay", i + 1);
+			configParam(TAP_PARAMS + i, 0, (float)LENGTH, ((float)i) + 1.0f, strBuf);		
 			paramQuantities[TAP_PARAMS + i]->snapEnabled = true;
 			// tap knobs
 			snprintf(strBuf, 32, "Tap %i semitone offset", i + 1);
@@ -151,7 +166,7 @@ struct NoteEcho : Module {
 
 
 	void clear() {
-		for (int j = 0; j < LENGTH + 1; j++) {
+		for (int j = 0; j < LENGTH; j++) {
 			for (int i = 0; i < MAX_POLY; i++) {
 				cv[j][i] = 0.0f;
 				cv2[j][i] = 0.0f;
@@ -172,7 +187,6 @@ struct NoteEcho : Module {
 		resetNonJson();
 	}
 	void resetNonJson() {
-		poly = 0;
 	}
 
 	
@@ -192,7 +206,7 @@ struct NoteEcho : Module {
 		json_t *cvJ = json_array();
 		json_t *cv2J = json_array();
 		json_t *gateJ = json_array();
-		for (int j = 0; j < LENGTH + 1; j++) {
+		for (int j = 0; j < LENGTH; j++) {
 			for (int i = 0; i < MAX_POLY; i++) {
 				json_array_insert_new(cvJ, j * MAX_POLY + i, json_real(cv[j][i]));
 				json_array_insert_new(cv2J, j * MAX_POLY + i, json_real(cv2[j][i]));
@@ -238,7 +252,7 @@ struct NoteEcho : Module {
 		// cv, cv2, gate
 		json_t *cvJ = json_object_get(rootJ, "cv");
 		if (cvJ) {
-			for (int j = 0; j < LENGTH + 1; j++) {
+			for (int j = 0; j < LENGTH; j++) {
 				for (int i = 0; i < MAX_POLY; i++) {
 					json_t *cvArrayJ = json_array_get(cvJ, j * MAX_POLY + i);
 					if (cvArrayJ)
@@ -248,7 +262,7 @@ struct NoteEcho : Module {
 		}
 		json_t *cv2J = json_object_get(rootJ, "cv2");
 		if (cv2J) {
-			for (int j = 0; j < LENGTH + 1; j++) {
+			for (int j = 0; j < LENGTH; j++) {
 				for (int i = 0; i < MAX_POLY; i++) {
 					json_t *cv2ArrayJ = json_array_get(cv2J, j * MAX_POLY + i);
 					if (cv2ArrayJ)
@@ -258,7 +272,7 @@ struct NoteEcho : Module {
 		}
 		json_t *gateJ = json_object_get(rootJ, "gate");
 		if (gateJ) {
-			for (int j = 0; j < LENGTH + 1; j++) {
+			for (int j = 0; j < LENGTH; j++) {
 				for (int i = 0; i < MAX_POLY; i++) {
 					json_t *gateArrayJ = json_array_get(gateJ, j * MAX_POLY + i);
 					if (gateArrayJ)
@@ -289,17 +303,18 @@ struct NoteEcho : Module {
 
 
 	void process(const ProcessArgs &args) override {
-		int newPoly = getPolyValue();
-		if (poly != newPoly || outputs[CV_OUTPUT].getChannels() != newPoly) {
-			poly = newPoly;
-			int chans = std::min(poly * 5, 16);
+		int poly = getPolyKnob();
+		int activeTaps = countActiveTaps();
+		bool lastTapAllowed = poly < MAX_POLY || activeTaps < NUM_TAPS;
+		int chans = std::min(poly * (1 + activeTaps), 16);
+		if (outputs[CV_OUTPUT].getChannels() != chans) {
 			outputs[CV_OUTPUT].setChannels(chans);
 			outputs[GATE_OUTPUT].setChannels(chans);
 			outputs[CV2_OUTPUT].setChannels(chans);
 		}
 
 		if (refresh.processInputs()) {
-			
+			// none
 		}// userInputs refresh
 	
 	
@@ -312,11 +327,11 @@ struct NoteEcho : Module {
 			// sample the inputs
 			for (int i = 0; i < MAX_POLY; i++) {
 				cv[head][i] = inputs[CV_INPUT].getChannels() > i ? inputs[CV_INPUT].getVoltage(i) : 0.0f;
-				cv2[head][i] = inputs[CV2_INPUT].getChannels() > i ? inputs[CV2_INPUT].getVoltage(i) : 0.0f;
+				cv2[head][i] = inputs[CV2_INPUT].getChannels() > i ? inputs[CV2_INPUT].getVoltage(i) : 0.0f;// normalling to 10V is not really useful here, since even if we also normal the passthrough (tap0) when CV2 input unconnected, it's value can't be controlled, so even if we can apply CV2 mod to the 4 true taps, a 10V value on the passthrough tap would have to coincide with that is desired and useful. So given this, forget normalling CV input to 10V.
 				gate[head][i] = inputs[GATE_INPUT].getChannels() > i ? (inputs[GATE_INPUT].getVoltage(i) > 1.0f) : false;
 			}
 			// step the head pointer
-			head = (head + 1) % (LENGTH + 1);
+			head = (head + 1) % LENGTH;
 			// refill gateEn array
 			for (int j = 0; j < NUM_TAPS; j++) {
 				for (int i = 0; i < MAX_POLY; i++) {
@@ -330,11 +345,45 @@ struct NoteEcho : Module {
 					}
 				}
 			}
-			
 		}
 		
+		
 		// outputs
-		outputs[CV_OUTPUT].setVoltage(0.0f);
+		// do passthrough outputs first since automatic
+		outputs[CLK_OUTPUT].setVoltage(inputs[CLK_INPUT].getVoltage());
+		int c = 0;// running index for all poly cable writes
+		for (; c < poly; c++) {
+			outputs[CV_OUTPUT].setVoltage(inputs[CV_INPUT].getVoltage(c),c);
+			outputs[GATE_OUTPUT].setVoltage(inputs[GATE_INPUT].getVoltage(c),c);
+			outputs[CV2_OUTPUT].setVoltage(inputs[CV2_INPUT].getVoltage(c),c);
+		}
+		// now do tap outputs
+		for (int j = 0; j < NUM_TAPS; j++) {
+			if ( !isTapActive(j) || (j == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+				continue;
+			}
+			int srIndex = ((head - getTapValue(j) - 1) + 2 * LENGTH) % LENGTH;
+			for (int i = 0; i < poly; i++, c++) {
+				// cv
+				float cvWithSemi = cv[srIndex][i] + params[ST_PARAMS + j].getValue() / 12.0f;
+				outputs[CV_OUTPUT].setVoltage(cvWithSemi, c);
+				
+				// gate
+				bool gateWithProb = gate[srIndex][i] && gateEn[j][i] && inputs[CLK_INPUT].getVoltage() > 1.0f;
+				outputs[GATE_OUTPUT].setVoltage(gateWithProb ? 10.0f : 0.0f, c);
+				
+				// cv2
+				float cv2WithMod = cv2[srIndex][i];
+				if (isCv2Offset()) {
+					cv2WithMod += params[CV2_PARAMS + j].getValue() * 10.0f;
+				}
+				else {
+					cv2WithMod *= params[CV2_PARAMS + j].getValue();
+				}
+				outputs[CV2_OUTPUT].setVoltage(cv2WithMod, c);
+			}
+		}
+		// assert(c == chans);
 			
 		
 		// lights
@@ -343,33 +392,36 @@ struct NoteEcho : Module {
 			// lights[SD_LIGHT].setBrightness(sampDelayClk != 0 ? 1.0f : 0.0f);
 
 			// gate lights
-			for (int j = 0; j < 5; j++) {
+			if (notifyPoly > 0) {
 				for (int i = 0; i < MAX_POLY; i++) {
-					// if (j == 4 && i == (MAX_POLY - 1)) continue; // not needed here since can't access anything wrong
-					
-					bool lstate = i < poly && !(poly == MAX_POLY && j == 4);
-					// here lstate is visual indication of which poly on each tap are valid
-					if (lstate && notifyPoly == 0) {
-						// show gates
-						if (j == 0) {
-							// if tap 0
-							int tapIndex0 = head - 1;
-							if (head < 0) {
-								head = (LENGTH + 1) - 1;
-							}
-							lstate &= gate[tapIndex0][i];						
+					lights[GATE_LIGHTS + i].setBrightness(i < poly ? 1.0f : 0.0f);
+				}
+				for (int j = 0; j < NUM_TAPS; j++) {
+					for (int i = 0; i < MAX_POLY; i++) {
+						bool lstate = i < poly && isTapActive(j);
+						if (j == (NUM_TAPS - 1) && !isLastTapAllowed()) {
+							lstate = false;
 						}
-						else {
-							// other tap (1-4)
-							int tapIndex = head - getTapValue(j - 1);
-							if (head < 0) {
-								head = (LENGTH + 1) - 1;
-							}
-							lstate &= gate[tapIndex][i];					
-							lstate &= gateEn[j - 1][i];								
-						}
+						lights[GATE_LIGHTS + 4 + j * MAX_POLY + i].setBrightness(lstate ? 1.0f : 0.0f);
 					}
-					lights[GATE_LIGHTS + j * MAX_POLY + i].setBrightness(lstate);
+				}
+			}
+			else {
+				int c = 0;
+				for (int i = 0; i < MAX_POLY; i++) {
+					bool lstate = i < poly;
+					lights[GATE_LIGHTS + i].setBrightness(lstate && outputs[GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
+					if (lstate) c++;
+				}
+				for (int j = 0; j < NUM_TAPS; j++) {
+					for (int i = 0; i < MAX_POLY; i++) {
+						bool lstate = i < poly && isTapActive(j);
+						if (j == (NUM_TAPS - 1) && !isLastTapAllowed()) {
+							lstate = false;
+						}
+						lights[GATE_LIGHTS + 4 + j * MAX_POLY + i].setBrightness(lstate && outputs[GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
+						if (lstate) c++;
+					}
 				}
 			}
 
@@ -478,9 +530,11 @@ struct NoteEchoWidget : ModuleWidget {
 				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, initString.c_str(), NULL);
 				
 				nvgFillColor(args.vg, displayColOn);
-				if (!module || module->getTapValue(tapNum) < 1 || 
-				    (tapNum == 3 && module->getPolyValue() >= 4) ) {
+				if (!module || module->getTapValue(tapNum) < 1) {
 					snprintf(displayStr, 5, "  - ");
+				}
+				else if (tapNum == 3 && !module->isLastTapAllowed()) {
+					snprintf(displayStr, 5, "O VF");
 				}
 				else if (module->notifyInfo[tapNum] > 0l) {
 					if (module->notifySource[tapNum] == 1) {
@@ -538,7 +592,7 @@ struct NoteEchoWidget : ModuleWidget {
 					}
 				}
 				else {
-					snprintf(displayStr, 5, "T %2u", (unsigned)(module->getTapValue(tapNum)));	
+					snprintf(displayStr, 5, "D %2u", (unsigned)(module->getTapValue(tapNum)));	
 				}
 				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &displayStr[1], NULL);
 				displayStr[1] = 0;
@@ -663,7 +717,7 @@ struct NoteEchoWidget : ModuleWidget {
 		for (int j = 0; j < 5; j++) {
 			float posx = col42 - gldx * 1.5f;
 			for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
-				if (j == 4 && i == (NoteEcho::MAX_POLY - 1)) continue;
+				// if (j == 4 && i == (NoteEcho::MAX_POLY - 1)) continue;
 				addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(posx, posy[j])), module, NoteEcho::GATE_LIGHTS + j * NoteEcho::MAX_POLY + i));
 				posx += gldx;
 			}
