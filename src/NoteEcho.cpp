@@ -309,7 +309,11 @@ struct NoteEcho : Module {
 		int chans = std::min(poly * (1 + activeTaps), 16);
 		if (outputs[CV_OUTPUT].getChannels() != chans) {
 			outputs[CV_OUTPUT].setChannels(chans);
+		}
+		if (outputs[GATE_OUTPUT].getChannels() != chans) {
 			outputs[GATE_OUTPUT].setChannels(chans);
+		}
+		if (outputs[CV2_OUTPUT].getChannels() != chans) {
 			outputs[CV2_OUTPUT].setChannels(chans);
 		}
 
