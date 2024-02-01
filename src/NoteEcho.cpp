@@ -277,8 +277,9 @@ struct NoteEcho : Module {
 			for (int j = 0; j < LENGTH; j++) {
 				for (int i = 0; i < MAX_POLY; i++) {
 					json_t *gateArrayJ = json_array_get(gateJ, j * MAX_POLY + i);
-					if (gateArrayJ)
+					if (gateArrayJ) {
 						gate[j][i] = json_is_true(gateArrayJ);
+					}
 				}
 			}
 		}
@@ -290,7 +291,7 @@ struct NoteEcho : Module {
 				for (int i = 0; i < MAX_POLY; i++) {
 					json_t *gateEnArrayJ = json_array_get(gateEnJ, j * MAX_POLY + i);
 					if (gateEnArrayJ)
-						gate[j][i] = json_is_true(gateEnArrayJ);
+						gateEn[j][i] = json_is_true(gateEnArrayJ);
 				}
 			}
 		}
@@ -326,14 +327,22 @@ struct NoteEcho : Module {
 	
 	
 		// main code
+		// clear
 		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage())) {
 			clear();
 		}
+		// clock
 		if (clkTrigger.process(inputs[CLK_INPUT].getVoltage())) {
 			// sample the inputs
 			for (int i = 0; i < MAX_POLY; i++) {
 				cv[head][i] = inputs[CV_INPUT].getChannels() > i ? inputs[CV_INPUT].getVoltage(i) : 0.0f;
-				cv2[head][i] = inputs[CV2_INPUT].getChannels() > i ? inputs[CV2_INPUT].getVoltage(i) : 0.0f;// normaling to 10V is not really useful here, since even if we also normal the passthrough (tap0) when CV2 input unconnected, it's value can't be controlled, so even if we can apply CV2 mod to the 4 true taps, a 10V value on the passthrough tap would have to coincide with that is desired and useful. So given this, forget normaling CV input to 10V.
+				if (inputs[CV_INPUT].getChannels() < 1) {
+					cv2[head][i] = 0.0f;
+				}
+				else {
+					cv2[head][i] = inputs[CV2_INPUT].getVoltage(std::min(i, inputs[CV2_INPUT].getChannels() - 1));
+				}
+				// normaling CV2 to 10V is not really useful here, since even if we also normal the passthrough (tap0) when CV2 input unconnected, it's value can't be controlled, so even if we can apply CV2 mod to the 4 true taps, a 10V value on the passthrough tap would have to coincide with that is desired and useful. So given this, forget normaling CV input to 10V.
 				gate[head][i] = inputs[GATE_INPUT].getChannels() > i ? (inputs[GATE_INPUT].getVoltage(i) > 1.0f) : false;
 			}
 			// step the head pointer
@@ -688,17 +697,17 @@ struct NoteEchoWidget : ModuleWidget {
 			svgPanel->fb->addChild(new DisplayBackground(tapDisplayWidget->box.pos, tapDisplayWidget->box.size, mode));
 			
 			SemitoneKnob* stKnobP;
-			addParam(stKnobP = createDynamicParamCentered<SemitoneKnob>(mm2px(Vec(col43, row1 + i * row24d)), module, NoteEcho::ST_PARAMS + i, mode));	
+			addParam(stKnobP = createDynamicParamCentered<SemitoneKnob>(mm2px(Vec(col43, row1 + i * row24d)), module, NoteEcho::ST_PARAMS + i, mode));
 			stKnobP->module = module;
 			stKnobP->tapNum = i;
 			
 			Cv2Knob* cv2KnobP;			
-			addParam(cv2KnobP = createDynamicParamCentered<Cv2Knob>(mm2px(Vec(col55, row1 + i * row24d)), module, NoteEcho::CV2_PARAMS + i, mode));	
+			addParam(cv2KnobP = createDynamicParamCentered<Cv2Knob>(mm2px(Vec(col55, row1 + i * row24d)), module, NoteEcho::CV2_PARAMS + i, mode));
 			cv2KnobP->module = module;
 			cv2KnobP->tapNum = i;
 			
 			ProbKnob* probKnobP;			
-			addParam(probKnobP = createDynamicParamCentered<ProbKnob>(mm2px(Vec(col56, row1 + i * row24d)), module, NoteEcho::PROB_PARAMS + i, mode));	
+			addParam(probKnobP = createDynamicParamCentered<ProbKnob>(mm2px(Vec(col56, row1 + i * row24d)), module, NoteEcho::PROB_PARAMS + i, mode));
 			probKnobP->module = module;
 			probKnobP->tapNum = i;
 		}
