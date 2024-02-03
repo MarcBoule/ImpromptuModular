@@ -123,7 +123,7 @@
 			"slug": "NoteEcho",
 			"name": "NoteEcho",
 			"description": "CV/Gate-based delay",
-			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#noteecho",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#note-echo",
 			"tags": ["Sample and hold", "Delay"]
 		},
 		{
@@ -166,7 +166,8 @@
 			"name": "SMS16",
 			"description": "Semi-modular monophonic synthesizer, with 16-step sequencer",
 			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#sms-16",
-			"tags": ["Synth voice", "Sequencer"]
+			"tags": ["Synth voice", "Sequencer"],
+			"hidden": true
 		},
 		{
 			"slug": "Sygen",

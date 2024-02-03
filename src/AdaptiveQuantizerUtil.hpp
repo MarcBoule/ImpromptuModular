@@ -92,20 +92,20 @@ struct PitchMatrixLight : WhiteLightIM {
 // Knobs
 // ****************************************************************************
 
-struct PersistenceKnob : IMBigKnob {
+struct PersistenceKnob : IMMediumKnob {
 	static constexpr float dataShowTime = 5.0f;
 	long* infoDataTablePtr = NULL;
 	
 	// void onButton(const event::Button& e) override {
 		// *infoDataTablePtr = 1;// show alternate representation
-		// IMBigKnob::onButton(e);
+		// IMMediumKnob::onButton(e);
 	// }
 	void onDragMove(const event::DragMove& e) override {
 		const ParamQuantity* paramQuantity = getParamQuantity();
 		if (paramQuantity && infoDataTablePtr) {
 			*infoDataTablePtr = (long) (dataShowTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
 		}
-		IMBigKnob::onDragMove(e);
+		IMMediumKnob::onDragMove(e);
 	}
 };
 
@@ -138,12 +138,12 @@ struct WeightingKnob : IMMediumKnob {
 };
 
 
-struct PitchesKnob : IMBigKnob {
+struct PitchesKnob : IMMediumKnob {
 	// long* infoDataTablePtr = NULL;
 
 	// void onButton(const event::Button& e) override {
 		// *infoDataTablePtr = 0;// show normal representation
-		// IMBigKnob::onButton(e);
+		// IMMediumKnob::onButton(e);
 	// }
 };
 

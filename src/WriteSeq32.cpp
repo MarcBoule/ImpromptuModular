@@ -73,6 +73,7 @@ struct WriteSeq32 : Module {
 	float cv[4][32];
 	int gates[4][32];
 	bool resetOnRun;
+	bool retrigGatesOnReset;
 	int stepRotates;
 
 	// No need to save, with reset
@@ -167,6 +168,7 @@ struct WriteSeq32 : Module {
 			}
 		}
 		resetOnRun = false;
+		retrigGatesOnReset = true;
 		stepRotates = 0;
 		resetNonJson();
 	}
@@ -234,6 +236,9 @@ struct WriteSeq32 : Module {
 		// resetOnRun
 		json_object_set_new(rootJ, "resetOnRun", json_boolean(resetOnRun));
 		
+		// retrigGatesOnReset
+		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
+
 		// stepRotates
 		json_object_set_new(rootJ, "stepRotates", json_integer(stepRotates));
 
@@ -298,6 +303,11 @@ struct WriteSeq32 : Module {
 		if (resetOnRunJ)
 			resetOnRun = json_is_true(resetOnRunJ);
 		
+		// retrigGatesOnReset
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		if (retrigGatesOnResetJ)
+			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
+
 		// stepRotates
 		json_t *stepRotatesJ = json_object_get(rootJ, "stepRotates");
 		if (stepRotatesJ)
@@ -793,6 +803,8 @@ struct WriteSeq32Widget : ModuleWidget {
 		}));	
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
+
+		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
 	}	
 	
 	

@@ -111,6 +111,7 @@ struct Foundry : Module {
 	int seqCVmethod;// 0 is 0-10V, 1 is C2-D7#, 2 is TrigIncr
 	bool running;
 	bool resetOnRun;
+	bool retrigGatesOnReset;
 	bool attached;
 	int velEditMode;// 0 is velocity (aka CV2), 1 is gate-prob, 2 is slide-rate
 	int writeMode;// 0 is both, 1 is CV only, 2 is CV2 only
@@ -270,6 +271,7 @@ struct Foundry : Module {
 		seqCVmethod = 0;
 		running = true;
 		resetOnRun = false;
+		retrigGatesOnReset = true;
 		attached = false;
 		velEditMode = 0;
 		writeMode = 0;
@@ -345,6 +347,9 @@ struct Foundry : Module {
 		// resetOnRun
 		json_object_set_new(rootJ, "resetOnRun", json_boolean(resetOnRun));
 		
+		// retrigGatesOnReset
+		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
+
 		// attached
 		json_object_set_new(rootJ, "attached", json_boolean(attached));
 
@@ -430,6 +435,11 @@ struct Foundry : Module {
 		json_t *resetOnRunJ = json_object_get(rootJ, "resetOnRun");
 		if (resetOnRunJ)
 			resetOnRun = json_is_true(resetOnRunJ);
+
+		// retrigGatesOnReset
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		if (retrigGatesOnResetJ)
+			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
 
 		// attached
 		json_t *attachedJ = json_object_get(rootJ, "attached");
@@ -1841,6 +1851,8 @@ struct FoundryWidget : ModuleWidget {
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 
+		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
+		
 		menu->addChild(createBoolPtrMenuItem("Hold tied notes", "", &module->holdTiedNotes));		
 
 		menu->addChild(createSubmenuItem("Single shot song", "", [=](Menu* menu) {

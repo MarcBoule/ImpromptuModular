@@ -82,6 +82,7 @@ struct GateSeq64 : Module {
 	SeqAttributesGS sequences[MAX_SEQS];
 	int phrase[64];// This is the song (series of phases; a phrase is a patten number)
 	bool resetOnRun;
+	bool retrigGatesOnReset;
 	bool stopAtEndOfSong;
 	bool lock;
 
@@ -235,6 +236,7 @@ struct GateSeq64 : Module {
 			phrase[i] = 0;
 		}
 		resetOnRun = false;
+		retrigGatesOnReset = true;
 		stopAtEndOfSong = false;
 		lock = false;
 		resetNonJson(false);
@@ -349,6 +351,9 @@ struct GateSeq64 : Module {
 		// resetOnRun
 		json_object_set_new(rootJ, "resetOnRun", json_boolean(resetOnRun));
 		
+		// retrigGatesOnReset
+		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
+
 		// stopAtEndOfSong
 		json_object_set_new(rootJ, "stopAtEndOfSong", json_boolean(stopAtEndOfSong));
 
@@ -535,6 +540,11 @@ struct GateSeq64 : Module {
 		json_t *resetOnRunJ = json_object_get(rootJ, "resetOnRun");
 		if (resetOnRunJ)
 			resetOnRun = json_is_true(resetOnRunJ);
+
+		// retrigGatesOnReset
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		if (retrigGatesOnResetJ)
+			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
 
 		// stopAtEndOfSong
 		json_t *stopAtEndOfSongJ = json_object_get(rootJ, "stopAtEndOfSong");
@@ -1365,6 +1375,8 @@ struct GateSeq64Widget : ModuleWidget {
 		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
+
+		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
 
 		menu->addChild(createBoolPtrMenuItem("Single shot song", "", &module->stopAtEndOfSong));
 

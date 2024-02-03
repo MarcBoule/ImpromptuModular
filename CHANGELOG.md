@@ -1,6 +1,11 @@
 ### 2.4.2 (in development)
 
 - Clkd/Clocked: added scale and offset menu sliders for BPM input when in CV mode
+- BigButton: remove channel display
+- AdaptiveQuantizer: resize two large knobs
+- SMS16: mark this module as hidden since it is now deprecated (will provisionally continue to work when patches containing SMS16 are loaded, but the code will eventually be removed)
+- Add new module called NoteEcho
+- Add option to turn off gate-retriggers-on-reset for all sequencers (for compatibility with NoteEcho)
 
 
 ### 2.4.1 (2023-10-31)

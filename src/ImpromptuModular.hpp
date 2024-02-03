@@ -58,7 +58,7 @@ extern Model *modelBlankPanel;
 
 
 // General constants
-static const bool retrigGatesOnReset = true;
+// static const bool retrigGatesOnReset = true;// for seqs that used this, it is now a menu option or hard-coded there
 static constexpr float clockIgnoreOnResetDuration = 0.001f;// disable clock on powerup and reset for 1 ms (so that the first step plays)
 
 static const unsigned int expanderRefreshStepSkips = 4;

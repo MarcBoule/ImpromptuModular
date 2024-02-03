@@ -79,6 +79,7 @@ struct BigButtonSeq2 : Module {
 	int metronomeDiv = 4;
 	bool writeFillsToMemory;
 	bool quantizeBig;
+	bool retrigGatesOnReset;
 	bool nextStepHits;
 	bool sampleAndHold;
 	
@@ -188,6 +189,7 @@ struct BigButtonSeq2 : Module {
 		metronomeDiv = 4;
 		writeFillsToMemory = false;
 		quantizeBig = true;
+		retrigGatesOnReset = true;
 		nextStepHits = false;
 		sampleAndHold = false;
 		resetNonJson();
@@ -272,6 +274,9 @@ struct BigButtonSeq2 : Module {
 
 		// quantizeBig
 		json_object_set_new(rootJ, "quantizeBig", json_boolean(quantizeBig));
+
+		// retrigGatesOnReset
+		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
 
 		// nextStepHits
 		json_object_set_new(rootJ, "nextStepHits", json_boolean(nextStepHits));
@@ -375,6 +380,11 @@ struct BigButtonSeq2 : Module {
 		json_t *quantizeBigJ = json_object_get(rootJ, "quantizeBig");
 		if (quantizeBigJ)
 			quantizeBig = json_is_true(quantizeBigJ);
+
+		// retrigGatesOnReset
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		if (retrigGatesOnResetJ)
+			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
 
 		// nextStepHits
 		json_t *nextStepHitsJ = json_object_get(rootJ, "nextStepHits");
@@ -763,6 +773,8 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
 		
+		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
+
 		menu->addChild(createBoolPtrMenuItem("Big and Del on next step", "", &module->nextStepHits));
 
 		menu->addChild(createSubmenuItem("Metronome light", "", [=](Menu* menu) {

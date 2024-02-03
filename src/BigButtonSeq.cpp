@@ -69,6 +69,7 @@ struct BigButtonSeq : Module {
 	int metronomeDiv;
 	bool writeFillsToMemory;
 	bool quantizeBig;
+	bool retrigGatesOnReset;
 	bool nextStepHits;
 	
 	// No need to save, with reset
@@ -159,6 +160,7 @@ struct BigButtonSeq : Module {
 		metronomeDiv = 4;
 		writeFillsToMemory = false;
 		quantizeBig = true;
+		retrigGatesOnReset = true;
 		nextStepHits = false;
 		resetNonJson();
 	}
@@ -213,6 +215,9 @@ struct BigButtonSeq : Module {
 
 		// quantizeBig
 		json_object_set_new(rootJ, "quantizeBig", json_boolean(quantizeBig));
+
+		// retrigGatesOnReset
+		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
 
 		// nextStepHits
 		json_object_set_new(rootJ, "nextStepHits", json_boolean(nextStepHits));
@@ -277,6 +282,11 @@ struct BigButtonSeq : Module {
 		json_t *quantizeBigJ = json_object_get(rootJ, "quantizeBig");
 		if (quantizeBigJ)
 			quantizeBig = json_is_true(quantizeBigJ);
+
+		// retrigGatesOnReset
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		if (retrigGatesOnResetJ)
+			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
 
 		// nextStepHits
 		json_t *nextStepHitsJ = json_object_get(rootJ, "nextStepHits");
@@ -367,8 +377,9 @@ struct BigButtonSeq : Module {
 				if (pendingOp != 0)
 					performPending(channel, lightTime);// Proper pending write/del to next step which is now reached
 				
-				if (indexStep == 0)
+				if (indexStep == 0) {
 					metronomeLightStart = 1.0f;
+				}
 				metronomeLightDiv = ((indexStep % metronomeDiv) == 0 && indexStep != 0) ? 1.0f : 0.0f;
 				
 				// Random (toggle gate according to probability knob)
@@ -466,7 +477,7 @@ struct BigButtonSeq : Module {
 
 
 struct BigButtonSeqWidget : ModuleWidget {
-	struct ChanDisplayWidget : TransparentWidget {
+	/*struct ChanDisplayWidget : TransparentWidget {
 		BigButtonSeq *module = nullptr;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
@@ -495,7 +506,7 @@ struct BigButtonSeqWidget : ModuleWidget {
 				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);				
 			}
 		}
-	};
+	};*/
 
 	struct StepsDisplayWidget : TransparentWidget {
 		BigButtonSeq *module = nullptr;
@@ -538,6 +549,8 @@ struct BigButtonSeqWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
+		
+		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
 		
 		menu->addChild(createBoolPtrMenuItem("Big and Del on next step", "", &module->nextStepHits));
 
@@ -619,12 +632,12 @@ struct BigButtonSeqWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMSixPosBigKnob>(VecPx(colC, row2), module, BigButtonSeq::CHAN_PARAM, mode));		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(col0 + 48, row2), true, module, BigButtonSeq::CHAN_INPUT, mode));
 		// Chan display
-		ChanDisplayWidget *displayChan = new ChanDisplayWidget();
+/*		ChanDisplayWidget *displayChan = new ChanDisplayWidget();
 		displayChan->box.size = VecPx(24, 30);// 1 character
 		displayChan->box.pos = VecPx(170, row2).minus(displayChan->box.size.div(2));
 		displayChan->module = module;
 		addChild(displayChan);	
-		svgPanel->fb->addChild(new DisplayBackground(displayChan->box.pos, displayChan->box.size, mode));
+		svgPanel->fb->addChild(new DisplayBackground(displayChan->box.pos, displayChan->box.size, mode));*/
 		// Length display
 		StepsDisplayWidget *displaySteps = new StepsDisplayWidget();
 		displaySteps->box.size = VecPx(40, 30);// 2 characters

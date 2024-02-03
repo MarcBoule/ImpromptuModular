@@ -116,6 +116,7 @@ struct PhraseSeq16 : Module {
 	float cv[16][16];// [-3.0 : 3.917]. First index is patten number, 2nd index is step
 	StepAttributes attributes[16][16];// First index is patten number, 2nd index is step (see enum AttributeBitMasks for details)
 	bool resetOnRun;
+	bool retrigGatesOnReset;
 	bool attached;
 	bool stopAtEndOfSong;
 
@@ -273,6 +274,7 @@ struct PhraseSeq16 : Module {
 			}
 		}
 		resetOnRun = false;
+		retrigGatesOnReset = true;
 		attached = false;
 		stopAtEndOfSong = false;
 		resetNonJson();
@@ -401,6 +403,9 @@ struct PhraseSeq16 : Module {
 		// resetOnRun
 		json_object_set_new(rootJ, "resetOnRun", json_boolean(resetOnRun));
 		
+		// retrigGatesOnReset
+		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
+
 		// attached
 		json_object_set_new(rootJ, "attached", json_boolean(attached));
 
@@ -665,6 +670,11 @@ struct PhraseSeq16 : Module {
 		if (resetOnRunJ)
 			resetOnRun = json_is_true(resetOnRunJ);
 		
+		// retrigGatesOnReset
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		if (retrigGatesOnResetJ)
+			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
+
 		// attached
 		json_t *attachedJ = json_object_get(rootJ, "attached");
 		if (attachedJ)
@@ -1868,6 +1878,8 @@ struct PhraseSeq16Widget : ModuleWidget {
 		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
+
+		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
 
 		menu->addChild(createBoolPtrMenuItem("Hold tied notes", "", &module->holdTiedNotes));		
 

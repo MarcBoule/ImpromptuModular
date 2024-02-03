@@ -31,6 +31,8 @@ Each module is available in light or dark panels with contrast adjusment, select
 
 * [Hotkey](#hotkey): A utility module that sends a trigger when a given key is pressed (mouse must be over module).
 
+* [NoteEcho](#note-echo): A 32-step CV/Gate shift register with 4 taps to create a CV/Gate-based delay effect.
+
 * [Part](#part): A gate splitter module based on an input CV and split point.
 
 * [PhraseSeq16](#phrase-seq-16): 16-phrase sequencer with 16 steps per sequence, with onboard keyboard and CV input for easy sequence programming.
@@ -39,7 +41,7 @@ Each module is available in light or dark panels with contrast adjusment, select
 
 * [ProbKey](#prob-key): Keyboard-based random note generator.
 
-* [SMS16](#sms-16): Internally pre-patched all-in-one semi-modular synthesizer for quickly getting sounds and learning the basics of modular synthesis.
+* [SMS16](#sms-16): [DEPRECATED] Internally pre-patched all-in-one semi-modular synthesizer for quickly getting sounds and learning the basics of modular synthesis.
 
 * [Sygen](#sygen): Synchronous gate enable.
 
@@ -96,7 +98,7 @@ The RGB values used in the green and red colors in the various LEDs can be tweak
 
 ## Acknowledgements
 
-Impromptu Modular is not a single-person endeavor. Many people have taken the time to suggest improvements and to collaborate on module concepts, graphics, testing, etc. This list of acknowledgements is too large to maintain properly, and so in place of a detailed list of names and participations, I would simply like to extend a big thank you to all that have helped and contributed to the project. The Dark-valor graphic theme was graciously provided by Xavier Belmont.
+Impromptu Modular is not a single-person endeavor. Many people have taken the time to suggest improvements and to collaborate on module concepts, graphics, testing, etc. This list of acknowledgements is too large to maintain properly, and so in place of a detailed list of names and participations, I would simply like to extend a big thank you to all that have helped and contributed to the project.
 
 
 <a id="general-concepts"></a>
@@ -616,6 +618,37 @@ The current hotkey is visible in the right-click menu of the module and is autom
 
 
 
+<a id="note-echo"></a>
+## NoteEcho
+
+![IM](res/img/NoteEcho.jpg)
+
+NoteEcho is a 32-step CV/Gate shift register with 4 taps to create a CV/Gate-based delay effect. Typical delay modules function with audio signals, whereas this module is an exploration of a similar effect, but instead using CV/Gate pairs. The module also has a second CV (called CV2) that can be used for velocity or panning effects in the delays. The inputs are sampled on the rising edge of the clock signal. The module has four user-selectable taps, called A, B, C, D in this document. The taps have controllable delay positions in the shift register. An implicit 5th tap is also present, called tap 0, for the sampled inputs, and is not user-controllable. Each tap is assigned its own channel in the polyphonic output cables. The knobs and switches function as follows:
+
+* **POLY**: This sets the polyphony of the CV, Gate and CV2 inputs, and has a maximum value of 4. When the input polyphony is set to 4, one of the user-selectable taps (A, B, C, or D) must be deactivated in order for the total number of channels to not exceed 16. When the input polyphony is set to 3, all taps can be used and the output cables will have a polyphony of 15 (5 taps x 3).
+
+* **DELAY**: Sets the number of clock cycle delays for the given tap (i.e. position in the shift register), from 1 to 32. 
+
+* **SEMI**: Offset the CV of the given tap by a number of semitones, from -48 to 48 (&plusmn; 4 octaves). 
+
+* **CV2**: Apply offset or scaling to the CV2 output of the given tap, with a range of &plusmn; 10V when offset mode is selected (+), or &plusmn; 1 when scaling mode is selected (x).
+
+* **_p_**: Apply probability to the output gate of the given tap.
+
+* **CV2 mode**: This switch selects either the offset mode (i.e. addition) for the CV2 knobs, or the scaling mode (i.e. multiplication).
+
+* **_p_ mode**: When polyphony is used, this switch allows a single probability event to be used for all channels of the given tap, or separate probability events. When NoteEcho is used to delay chords, for example, it is advisable to set this switch to the "Chord" setting, such that all the notes play in a grouped manner (either all or none).
+
+When NoteEcho is used after a sequencer, it is advisable to delay the clock signal going into NoteEcho (using a utility module), such that it arrives at the same time (or after) the notes produced by the sequencer. Usually only a few sample delays are sufficient. Since that sequencer is likely clocked by the same clock module, connecting the same clock source directly to NoteEcho would not allow it to sample the sequencer's outputs on the same clock edge, resulting in an extra clock cycle delay in the outputs. In the same line of reasoning, NoteEcho has a clock output signal, which can then be used in-sync with its GV/Gate outputs for processing further down the chain, if a clock signal is required. 
+
+NoteEcho pairs particularly well with the [ProbKey](#prob-key) module, when using a low density setting on ProbKey. NoteEcho is well adapted to generative music, either controlling instrument VSTs through the VCV-Host module, or synth voices patched in Rack. For patched voices, the usual polyphonic ADSRs, oscillators, quantizers, etc. can easily be used down-chain of NoteEcho.
+
+Important: When using NoteEcho with any of the Impromptu sequencers, be sure to turn off the option "Retrigger gates on reset" in the sequencers, or else the first gate after a reset may not be registered by NoteEcho.
+
+([Back to module list](#modules))
+
+
+
 <a id="part"></a>
 ## Part
 
@@ -804,7 +837,7 @@ The ProbKey module supports **polyphony** such that a polyphonic gate input will
 
 ![IM](res/img/SemiModularSynth.jpg)
 
-(*Concept and design by Xavier Belmont; sequencer by Impromptu*)
+[DEPRECATED] (*Concept and design by Xavier Belmont; sequencer by Impromptu*)
 
 An all-in-one pre-patched semi-modular synthesizer. Based on the [VCV Fundamental](https://vcvrack.com/Fundamental.html) modules by VCV and the [PhraseSeq16](#phrase-seq-16) sequencer (above). Please see those links for the respective manuals, while keeping in mind that not all features of the Fundamental modules were implemented in SMS16 (Semi-Modular Synth 16). A typical signal flow is internally patched by default, as shown by the interconnecting lines on the faceplate of the module. The majority of the internal connections can be overridden by any cables patched into those related jacks. 
 

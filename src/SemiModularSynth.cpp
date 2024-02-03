@@ -201,6 +201,7 @@ struct SemiModularSynth : Module {
 	int stepIndexEdit;
 	int phraseIndexEdit;
 	bool resetOnRun;
+	bool retrigGatesOnReset;
 	bool attached;
 	bool stopAtEndOfSong;
 
@@ -486,6 +487,7 @@ struct SemiModularSynth : Module {
 			}
 		}
 		resetOnRun = false;
+		retrigGatesOnReset = true;
 		attached = false;
 		stopAtEndOfSong = false;
 		resetNonJson();
@@ -623,6 +625,9 @@ struct SemiModularSynth : Module {
 		// resetOnRun
 		json_object_set_new(rootJ, "resetOnRun", json_boolean(resetOnRun));
 		
+		// retrigGatesOnReset
+		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
+
 		// attached
 		json_object_set_new(rootJ, "attached", json_boolean(attached));
 
@@ -816,6 +821,11 @@ struct SemiModularSynth : Module {
 		json_t *resetOnRunJ = json_object_get(rootJ, "resetOnRun");
 		if (resetOnRunJ)
 			resetOnRun = json_is_true(resetOnRunJ);
+
+		// retrigGatesOnReset
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		if (retrigGatesOnResetJ)
+			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
 
 		// attached
 		json_t *attachedJ = json_object_get(rootJ, "attached");
@@ -2141,6 +2151,8 @@ struct SemiModularSynthWidget : ModuleWidget {
 		menu->addChild(createMenuLabel("Settings"));
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
+
+		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
 
 		menu->addChild(createBoolPtrMenuItem("Hold tied notes", "", &module->holdTiedNotes));		
 
