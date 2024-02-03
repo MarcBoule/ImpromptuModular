@@ -623,15 +623,15 @@ The current hotkey is visible in the right-click menu of the module and is autom
 
 ![IM](res/img/NoteEcho.jpg)
 
-NoteEcho is a 32-step CV/Gate shift register with 4 taps to create a CV/Gate-based delay effect. Typical delay modules function with audio signals, whereas this module is an exploration of a similar effect, but instead using CV/Gate pairs. The module also has a second CV (called CV2) that can be used for velocity or panning effects in the delays. The inputs are sampled on the rising edge of the clock signal. The module has four user-selectable taps, called A, B, C, D in this document. The taps have controllable delay positions in the shift register. An implicit 5th tap is also present, called tap 0, for the sampled inputs, and is not user-controllable. Each tap is assigned its own channel in the polyphonic output cables. The knobs and switches function as follows:
+NoteEcho is a 32-step CV/Gate shift register with 4 taps to create a CV/Gate-based delay effect. Typical delay modules function with audio signals, whereas this module is an exploration of a similar effect, but instead for CV/Gate pairs. The module also has a second CV (called CV2) that can be used for velocity or panning effects in the delays. The inputs are sampled on the rising edge of the clock signal. The module has four user-selectable taps, called A, B, C, D in this document. The taps have controllable delay positions in the shift register. An implicit 5th tap is also present, called tap 0, for the sampled inputs, and is not user-controllable. Each tap is assigned its own channel in the polyphonic output cables. The knobs and switches function as follows:
 
 * **POLY**: This sets the polyphony of the CV, Gate and CV2 inputs, and has a maximum value of 4. When the input polyphony is set to 4, one of the user-selectable taps (A, B, C, or D) must be deactivated in order for the total number of channels to not exceed 16. When the input polyphony is set to 3, all taps can be used and the output cables will have a polyphony of 15 (5 taps x 3).
 
 * **DELAY**: Sets the number of clock cycle delays for the given tap (i.e. position in the shift register), from 1 to 32. 
 
-* **SEMI**: Offset the CV of the given tap by a number of semitones, from -48 to 48 (&plusmn; 4 octaves). 
+* **SEMI**: Offset the CV of the given tap by a number of semitones, from -48 to 48 (&plusmn;4 octaves). 
 
-* **CV2**: Apply offset or scaling to the CV2 output of the given tap, with a range of &plusmn; 10V when offset mode is selected (+), or &plusmn; 1 when scaling mode is selected (x).
+* **CV2**: Apply offset or scaling to the CV2 output of the given tap, with a range of &plusmn;10V when offset mode is selected (+), or &plusmn;1 when scaling mode is selected (x).
 
 * **_p_**: Apply probability to the output gate of the given tap.
 
@@ -641,9 +641,10 @@ NoteEcho is a 32-step CV/Gate shift register with 4 taps to create a CV/Gate-bas
 
 When NoteEcho is used after a sequencer, it is advisable to delay the clock signal going into NoteEcho (using a utility module), such that it arrives at the same time (or after) the notes produced by the sequencer. Usually only a few sample delays are sufficient. Since that sequencer is likely clocked by the same clock module, connecting the same clock source directly to NoteEcho would not allow it to sample the sequencer's outputs on the same clock edge, resulting in an extra clock cycle delay in the outputs. In the same line of reasoning, NoteEcho has a clock output signal, which can then be used in-sync with its GV/Gate outputs for processing further down the chain, if a clock signal is required. 
 
-NoteEcho pairs particularly well with the [ProbKey](#prob-key) module, when using a low density setting on ProbKey. NoteEcho is well adapted to generative music, either controlling instrument VSTs through the VCV-Host module, or synth voices patched in Rack. For patched voices, the usual polyphonic ADSRs, oscillators, quantizers, etc. can easily be used down-chain of NoteEcho.
+NoteEcho pairs particularly well with the [ProbKey](#prob-key) module, when using a low density setting on ProbKey. NoteEcho is well adapted to generative music, either controlling instrument VSTs through the VCV-Host module, or synth voices patched in Rack. For patched voices, the usual polyphonic ADSRs, oscillators, quantizers, etc. can easily be used down-chain of NoteEcho. An option in the right-click menu called "Filter out identical notes", when activated, allows a certain amount of redundant note elimination, to avoid multiply hitting the same note when delays interact with the incoming notes.
 
 Important: When using NoteEcho with any of the Impromptu sequencers, be sure to turn off the option "Retrigger gates on reset" in the sequencers, or else the first gate after a reset may not be registered by NoteEcho.
+
 
 ([Back to module list](#modules))
 
