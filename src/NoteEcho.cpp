@@ -43,6 +43,7 @@ struct NoteEcho : Module {
 	};
 	enum LightIds {
 		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
+		SD_LIGHT,
 		NUM_LIGHTS
 	};
 	
@@ -66,13 +67,15 @@ struct NoteEcho : Module {
 	bool gateEn[NUM_TAPS][MAX_POLY];
 	int head;// points the next register to be written when next clock occurs
 	bool noteFilter;
+	int clkDelay;
+	float clkDelReg[2] = {};
 
 	// No need to save, with reset
 	// none
 	
 	// No need to save, no reset
-	int notifySource[4] = {0, 0, 0, 0};// 0 (not really used), 1 (semi) 2 (CV2), 3 (prob)
-	long notifyInfo[4] = {0l, 0l, 0l, 0l};// downward step counter when semi, cv2, prob to be displayed, 0 when normal tap display
+	int notifySource[4] = {};// 0 (normal), 1 (semi) 2 (CV2), 3 (prob)
+	long notifyInfo[4] = {};// downward step counter when semi, cv2, prob to be displayed, 0 when normal tap display
 	long notifyPoly = 0l;// downward step counter when notify poly size in leds, 0 when normal leds
 	RefreshCounter refresh;
 	Trigger clkTrigger;
@@ -146,6 +149,8 @@ struct NoteEcho : Module {
 		configOutput(CV2_OUTPUT, "CV2/Velocity");
 		configOutput(CLK_OUTPUT, "Clock");
 		
+		configLight(SD_LIGHT, "Sample delay active");
+		
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
 		configBypass(CV2_INPUT, CV2_OUTPUT);
@@ -176,6 +181,9 @@ struct NoteEcho : Module {
 	void onReset() override final {
 		clear();
 		noteFilter = false;
+		clkDelay = 0;
+		clkDelReg[0] = 0.0f;
+		clkDelReg[1] = 0.0f;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -221,6 +229,13 @@ struct NoteEcho : Module {
 		// noteFilter
 		json_object_set_new(rootJ, "noteFilter", json_boolean(noteFilter));
 
+		// clkDelay
+		json_object_set_new(rootJ, "clkDelay", json_integer(clkDelay));
+		
+		// clkDelReg[]
+		json_object_set_new(rootJ, "clkDelReg0", json_real(clkDelReg[0]));
+		json_object_set_new(rootJ, "clkDelReg1", json_real(clkDelReg[1]));
+		
 		return rootJ;
 	}
 
@@ -291,6 +306,19 @@ struct NoteEcho : Module {
 		if (noteFilterJ)
 			noteFilter = json_is_true(noteFilterJ);
 
+		// clkDelay
+		json_t *clkDelayJ = json_object_get(rootJ, "clkDelay");
+		if (clkDelayJ)
+			clkDelay = json_integer_value(clkDelayJ);
+
+		// clkDelReg[]
+		json_t *clkDelRegJ = json_object_get(rootJ, "clkDelReg0");
+		if (clkDelRegJ)
+			clkDelReg[0] = json_number_value(clkDelRegJ);
+		clkDelRegJ = json_object_get(rootJ, "clkDelReg1");
+		if (clkDelRegJ)
+			clkDelReg[1] = json_number_value(clkDelRegJ);
+
 		resetNonJson();
 	}
 
@@ -340,7 +368,8 @@ struct NoteEcho : Module {
 		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage())) {
 			clear();
 		}
-		bool clkEdge = clkTrigger.process(inputs[CLK_INPUT].getVoltage());
+		float clockSignal = clkDelay <= 0 ? inputs[CLK_INPUT].getVoltage() : clkDelReg[clkDelay - 1];
+		bool clkEdge = clkTrigger.process(clockSignal);
 		if (clkEdge) {
 			// sample the inputs
 			for (int i = 0; i < MAX_POLY; i++) {
@@ -374,12 +403,12 @@ struct NoteEcho : Module {
 		
 		// outputs
 		// do tap0 outputs first
-		outputs[CLK_OUTPUT].setVoltage(inputs[CLK_INPUT].getVoltage());
+		outputs[CLK_OUTPUT].setVoltage(clockSignal);
 		int c = 0;// running index for all poly cable writes
 		for (; c < poly; c++) {
 			int srIndex = (head - 1 + 2 * LENGTH) % LENGTH;
 			outputs[CV_OUTPUT].setVoltage(cv[srIndex][c],c);
-			outputs[GATE_OUTPUT].setVoltage(gate[srIndex][c] && inputs[CLK_INPUT].getVoltage() > 1.0f ? 10.0f : 0.0f,c);
+			outputs[GATE_OUTPUT].setVoltage(gate[srIndex][c] && clockSignal > 1.0f ? 10.0f : 0.0f,c);
 			outputs[CV2_OUTPUT].setVoltage(cv2[srIndex][c],c);
 		}
 		// now do main tap outputs
@@ -394,7 +423,7 @@ struct NoteEcho : Module {
 				outputs[CV_OUTPUT].setVoltage(cvWithSemi, c);
 				
 				// gate
-				bool gateWithProb = gate[srIndex][i] && gateEn[j][i] && inputs[CLK_INPUT].getVoltage() > 1.0f;
+				bool gateWithProb = gate[srIndex][i] && gateEn[j][i] && clockSignal > 1.0f;
 				outputs[GATE_OUTPUT].setVoltage(gateWithProb ? 10.0f : 0.0f, c);
 				
 				// cv2
@@ -432,6 +461,9 @@ struct NoteEcho : Module {
 			}
 
 		}// lightRefreshCounter
+		
+		clkDelReg[1] = clkDelReg[0];
+		clkDelReg[0] = inputs[CLK_INPUT].getVoltage();	
 	}// process()
 };
 
@@ -609,6 +641,21 @@ struct NoteEchoWidget : ModuleWidget {
 		menu->addChild(createMenuLabel("Settings"));
 
 		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
+
+		menu->addChild(createSubmenuItem("Sample delay clock input", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("0", "",
+				[=]() {return module->clkDelay == 0;},
+				[=]() {module->clkDelay = 0;}
+			));
+			menu->addChild(createCheckMenuItem("1", "",
+				[=]() {return module->clkDelay == 1;},
+				[=]() {module->clkDelay = 1;}
+			));
+			menu->addChild(createCheckMenuItem("2", "",
+				[=]() {return module->clkDelay == 2;},
+				[=]() {module->clkDelay = 2;}
+			));
+		}));	
 	}	
 
 	
@@ -656,6 +703,7 @@ struct NoteEchoWidget : ModuleWidget {
 		
 		// row 0
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row0)), true, module, NoteEcho::CLK_INPUT, mode));
+		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col51 + 4.5f, row0 - 6.6f)), module, NoteEcho::SD_LIGHT));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row0)), true, module, NoteEcho::CV_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row0)), true, module, NoteEcho::GATE_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row0)), true, module, NoteEcho::CV2_INPUT, mode));
@@ -718,6 +766,8 @@ struct NoteEchoWidget : ModuleWidget {
 	void step() override {
 		if (module) {
 			NoteEcho* m = (NoteEcho*)(module);
+			
+			// gate lights
 			int poly = m->getPolyKnob();
 			if (m->notifyPoly > 0) {
 				for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
@@ -751,6 +801,9 @@ struct NoteEchoWidget : ModuleWidget {
 					}
 				}
 			}	
+			
+			// sample delay light
+			m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f);
 		}
 		ModuleWidget::step();
 	}
