@@ -765,7 +765,7 @@ struct NoteEchoWidget : ModuleWidget {
 	
 	void step() override {
 		if (module) {
-			NoteEcho* m = (NoteEcho*)(module);
+			NoteEcho* m = static_cast<NoteEcho*>(module);
 			
 			// gate lights
 			int poly = m->getPolyKnob();
