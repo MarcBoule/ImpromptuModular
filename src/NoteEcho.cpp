@@ -642,7 +642,7 @@ struct NoteEchoWidget : ModuleWidget {
 
 		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
 
-		menu->addChild(createSubmenuItem("Sample delay clock input", "", [=](Menu* menu) {
+		menu->addChild(createSubmenuItem("Sample delay on clock input", "", [=](Menu* menu) {
 			menu->addChild(createCheckMenuItem("0", "",
 				[=]() {return module->clkDelay == 0;},
 				[=]() {module->clkDelay = 0;}
