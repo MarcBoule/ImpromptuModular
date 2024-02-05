@@ -110,6 +110,25 @@ struct NoteEcho : Module {
 		return params[CV2MODE_PARAM].getValue() > 0.5f;
 	}
 	
+	void refreshCv2ParamQuantities() {
+		// set the CV2 param units to either "V" or "", depending on the value of CV2MODE_PARAM (which must be setup when this method is called)
+		for (int i = 0; i < NUM_TAPS; i++) {
+			ParamQuantity* pq = paramQuantities[CV2_PARAMS + i];
+			if (!pq) continue;
+
+			if (isCv2Offset() && pq->unit != " V") {
+				pq->name = string::f("Tap %i CV2 offset", i + 1);
+				pq->unit = " V";
+				pq->displayMultiplier = 10.f;
+			}
+			else if (!isCv2Offset() && pq->unit != "") {
+				pq->name = string::f("Tap %i CV2 scale", i + 1);
+				pq->unit = "";
+				pq->displayMultiplier = 1.f;
+			}
+		}
+	}
+	
 	
 	
 	NoteEcho() {
@@ -120,23 +139,19 @@ struct NoteEcho : Module {
 		configSwitch(CV2MODE_PARAM, 0.0f, 1.0f, 1.0f, "CV2 mode", {"Scale", "Offset"});
 		configSwitch(PMODE_PARAM, 0.0f, 1.0f, 1.0f, "Random mode", {"Separate", "Chord"});
 		
-		char strBuf[32];
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
-			snprintf(strBuf, 32, "Tap %i delay", i + 1);
-			configParam(TAP_PARAMS + i, 0, (float)(LENGTH - 1), ((float)i) + 1.0f, strBuf);		
+			configParam(TAP_PARAMS + i, 0, (float)(LENGTH - 1), ((float)i) + 1.0f, string::f("Tap %i delay", i + 1));
 			paramQuantities[TAP_PARAMS + i]->snapEnabled = true;
 			// tap knobs
-			snprintf(strBuf, 32, "Tap %i semitone offset", i + 1);
-			configParam(ST_PARAMS + i, -48.0f, 48.0f, 0.0f, strBuf);		
+			configParam(ST_PARAMS + i, -48.0f, 48.0f, 0.0f, string::f("Tap %i semitone offset", i + 1));		
 			paramQuantities[ST_PARAMS + i]->snapEnabled = true;
 			// CV2 knobs
-			snprintf(strBuf, 32, "Tap %i CV2 offset or scale", i + 1);
-			configParam(CV2_PARAMS + i, -1.0f, 1.0f, 0.0f, strBuf);		
+			configParam(CV2_PARAMS + i, -1.0f, 1.0f, 0.0f, "CV2", "");// temporary labels, good values done in refreshCv2ParamQuantities() below (CV2MODE_PARAM must be setup at this point)
 			// CV2 knobs
-			snprintf(strBuf, 32, "Tap %i probability", i + 1);
-			configParam(PROB_PARAMS + i, 0.0f, 1.0f, 1.0f, strBuf);		
+			configParam(PROB_PARAMS + i, 0.0f, 1.0f, 1.0f, string::f("Tap %i probability", i + 1));		
 		}
+		refreshCv2ParamQuantities();
 		
 		configInput(CV_INPUT, "CV");
 		configInput(GATE_INPUT, "Gate");
@@ -804,6 +819,9 @@ struct NoteEchoWidget : ModuleWidget {
 			
 			// sample delay light
 			m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f);
+
+			// CV2 knobs' labels
+			m->refreshCv2ParamQuantities();
 		}
 		ModuleWidget::step();
 	}
