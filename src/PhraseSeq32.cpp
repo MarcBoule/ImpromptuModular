@@ -115,7 +115,7 @@ struct PhraseSeq32 : Module {
 	float cv[32][32];// [-3.0 : 3.917]. First index is patten number, 2nd index is step
 	StepAttributes attributes[32][32];// First index is patten number, 2nd index is step (see enum AttributeBitMasks for details)
 	bool resetOnRun;
-	bool retrigGatesOnReset;
+	int retrigGatesOnReset;
 	bool attached;
 	bool stopAtEndOfSong;
 
@@ -310,7 +310,7 @@ struct PhraseSeq32 : Module {
 			}
 		}
 		resetOnRun = false;
-		retrigGatesOnReset = true;
+		retrigGatesOnReset = RGOR_NRUN;
 		attached = false;
 		stopAtEndOfSong = false;
 		resetNonJson(false);
@@ -444,7 +444,7 @@ struct PhraseSeq32 : Module {
 		json_object_set_new(rootJ, "resetOnRun", json_boolean(resetOnRun));
 		
 		// retrigGatesOnReset
-		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
+		json_object_set_new(rootJ, "retrigGatesOnReset2", json_integer(retrigGatesOnReset));
 
 		// stepIndexEdit
 		json_object_set_new(rootJ, "stepIndexEdit", json_integer(stepIndexEdit));
@@ -642,9 +642,9 @@ struct PhraseSeq32 : Module {
 			resetOnRun = json_is_true(resetOnRunJ);
 
 		// retrigGatesOnReset
-		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset2");
 		if (retrigGatesOnResetJ)
-			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
+			retrigGatesOnReset = json_integer_value(retrigGatesOnResetJ);
 
 		// stepIndexEdit
 		json_t *stepIndexEditJ = json_object_get(rootJ, "stepIndexEdit");
@@ -1406,7 +1406,7 @@ struct PhraseSeq32 : Module {
 			for (int i = 0; i < 2; i += stepConfig)
 				slideOffset[i] = (slideStepsRemain[i] > 0ul ? (slideCVdelta[i] * (float)slideStepsRemain[i]) : 0.0f);
 			outputs[CVA_OUTPUT].setVoltage(cv[seq][step0] - slideOffset[0]);
-			bool retriggingOnReset = (clockIgnoreOnReset != 0l && retrigGatesOnReset);
+			bool retriggingOnReset = (clockIgnoreOnReset != 0l && calcRGOR(retrigGatesOnReset, &inputs[RUNCV_INPUT]));
 			outputs[GATE1A_OUTPUT].setVoltage((calcGate(gate1Code[0], clockTrigger, clockPeriod, sampleRate) && !muteGate1A && !retriggingOnReset) ? 10.0f : 0.0f);
 			outputs[GATE2A_OUTPUT].setVoltage((calcGate(gate2Code[0], clockTrigger, clockPeriod, sampleRate) && !muteGate2A && !retriggingOnReset) ? 10.0f : 0.0f);
 			if (stepConfig == 1) {// 2x16
@@ -1982,7 +1982,20 @@ struct PhraseSeq32Widget : ModuleWidget {
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 
-		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
+		menu->addChild(createSubmenuItem("Retrigger gates on reset", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("No", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_NONE;},
+				[=]() {module->retrigGatesOnReset = RGOR_NONE;}
+			));
+			menu->addChild(createCheckMenuItem("Yes", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_YES;},
+				[=]() {module->retrigGatesOnReset = RGOR_YES;}
+			));
+			menu->addChild(createCheckMenuItem("Only when Run cable is unconnected", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_NRUN;},
+				[=]() {module->retrigGatesOnReset = RGOR_NRUN;}
+			));
+		}));	
 
 		menu->addChild(createBoolPtrMenuItem("Hold tied notes", "", &module->holdTiedNotes));		
 

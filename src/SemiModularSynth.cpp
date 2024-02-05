@@ -201,7 +201,7 @@ struct SemiModularSynth : Module {
 	int stepIndexEdit;
 	int phraseIndexEdit;
 	bool resetOnRun;
-	bool retrigGatesOnReset;
+	int retrigGatesOnReset;
 	bool attached;
 	bool stopAtEndOfSong;
 
@@ -487,7 +487,7 @@ struct SemiModularSynth : Module {
 			}
 		}
 		resetOnRun = false;
-		retrigGatesOnReset = true;
+		retrigGatesOnReset = RGOR_NRUN;
 		attached = false;
 		stopAtEndOfSong = false;
 		resetNonJson();
@@ -626,7 +626,7 @@ struct SemiModularSynth : Module {
 		json_object_set_new(rootJ, "resetOnRun", json_boolean(resetOnRun));
 		
 		// retrigGatesOnReset
-		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
+		json_object_set_new(rootJ, "retrigGatesOnReset2", json_integer(retrigGatesOnReset));
 
 		// attached
 		json_object_set_new(rootJ, "attached", json_boolean(attached));
@@ -823,9 +823,9 @@ struct SemiModularSynth : Module {
 			resetOnRun = json_is_true(resetOnRunJ);
 
 		// retrigGatesOnReset
-		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset2");
 		if (retrigGatesOnResetJ)
-			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
+			retrigGatesOnReset = json_integer_value(retrigGatesOnResetJ);
 
 		// attached
 		json_t *attachedJ = json_object_get(rootJ, "attached");
@@ -1495,7 +1495,7 @@ struct SemiModularSynth : Module {
 			bool muteGate2 = !editingSequence && (params[GATE2_PARAM].getValue() > 0.5f);// live mute
 			float slideOffset = (slideStepsRemain > 0ul ? (slideCVdelta * (float)slideStepsRemain) : 0.0f);
 			outputs[CV_OUTPUT].setVoltage(cv[seq][step] - slideOffset);
-			bool retriggingOnReset = (clockIgnoreOnReset != 0l && retrigGatesOnReset);
+			bool retriggingOnReset = (clockIgnoreOnReset != 0l && calcRGOR(retrigGatesOnReset, &inputs[RUNCV_INPUT]));
 			outputs[GATE1_OUTPUT].setVoltage((calcGate(gate1Code, clockTrigger, clockPeriod, sampleRate) && !muteGate1 && !retriggingOnReset) ? 10.0f : 0.0f);
 			outputs[GATE2_OUTPUT].setVoltage((calcGate(gate2Code, clockTrigger, clockPeriod, sampleRate) && !muteGate2 && !retriggingOnReset) ? 10.0f : 0.0f);
 		}
@@ -2152,7 +2152,20 @@ struct SemiModularSynthWidget : ModuleWidget {
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 
-		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
+		menu->addChild(createSubmenuItem("Retrigger gates on reset", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("No", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_NONE;},
+				[=]() {module->retrigGatesOnReset = RGOR_NONE;}
+			));
+			menu->addChild(createCheckMenuItem("Yes", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_YES;},
+				[=]() {module->retrigGatesOnReset = RGOR_YES;}
+			));
+			menu->addChild(createCheckMenuItem("Only when Run cable is unconnected", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_NRUN;},
+				[=]() {module->retrigGatesOnReset = RGOR_NRUN;}
+			));
+		}));	
 
 		menu->addChild(createBoolPtrMenuItem("Hold tied notes", "", &module->holdTiedNotes));		
 

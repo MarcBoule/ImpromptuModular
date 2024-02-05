@@ -79,7 +79,7 @@ struct BigButtonSeq2 : Module {
 	int metronomeDiv = 4;
 	bool writeFillsToMemory;
 	bool quantizeBig;
-	bool retrigGatesOnReset;
+	int retrigGatesOnReset;
 	bool nextStepHits;
 	bool sampleAndHold;
 	
@@ -189,7 +189,7 @@ struct BigButtonSeq2 : Module {
 		metronomeDiv = 4;
 		writeFillsToMemory = false;
 		quantizeBig = true;
-		retrigGatesOnReset = true;
+		retrigGatesOnReset = RGOR_NRUN;
 		nextStepHits = false;
 		sampleAndHold = false;
 		resetNonJson();
@@ -276,7 +276,7 @@ struct BigButtonSeq2 : Module {
 		json_object_set_new(rootJ, "quantizeBig", json_boolean(quantizeBig));
 
 		// retrigGatesOnReset
-		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
+		json_object_set_new(rootJ, "retrigGatesOnReset2", json_integer(retrigGatesOnReset));
 
 		// nextStepHits
 		json_object_set_new(rootJ, "nextStepHits", json_boolean(nextStepHits));
@@ -382,9 +382,9 @@ struct BigButtonSeq2 : Module {
 			quantizeBig = json_is_true(quantizeBigJ);
 
 		// retrigGatesOnReset
-		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset2");
 		if (retrigGatesOnResetJ)
-			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
+			retrigGatesOnReset = json_integer_value(retrigGatesOnResetJ);
 
 		// nextStepHits
 		json_t *nextStepHitsJ = json_object_get(rootJ, "nextStepHits");
@@ -583,7 +583,7 @@ struct BigButtonSeq2 : Module {
 		// Gate outputs
 		bool bigPulseState = bigPulse.process((float)sampleTime);
 		bool outPulseState = clockTrigger.isHigh();
-		bool retriggingOnReset = (clockIgnoreOnReset != 0l && retrigGatesOnReset);
+		bool retriggingOnReset = (clockIgnoreOnReset != 0l && retrigGatesOnReset != RGOR_NONE);
 		for (int i = 0; i < 6; i++) {
 			bool gate = getGate(i, indexStep);
 			bool outSignal = ( ((gate || (i == channel && fillPressed)) && outPulseState) || (gate && bigPulseState && i == channel) );
@@ -773,7 +773,20 @@ struct BigButtonSeq2Widget : ModuleWidget {
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
 		
-		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
+		menu->addChild(createSubmenuItem("Retrigger gates on reset", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("No", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_NONE;},
+				[=]() {module->retrigGatesOnReset = RGOR_NONE;}
+			));
+			menu->addChild(createCheckMenuItem("Yes", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_YES;},
+				[=]() {module->retrigGatesOnReset = RGOR_YES;}
+			));
+			// menu->addChild(createCheckMenuItem("Only when Run cable is unconnected", "",
+				// [=]() {return module->retrigGatesOnReset == RGOR_NRUN;},
+				// [=]() {module->retrigGatesOnReset = RGOR_NRUN;}
+			// ));
+		}));	
 
 		menu->addChild(createBoolPtrMenuItem("Big and Del on next step", "", &module->nextStepHits));
 

@@ -5,7 +5,7 @@
 - AdaptiveQuantizer: resize two large knobs
 - SMS16: mark this module as hidden since it is now deprecated (will provisionally continue to work when patches containing SMS16 are loaded, but the code will eventually be removed)
 - Add new module called NoteEcho
-- Add option to turn off gate-retriggers-on-reset for all sequencers (for compatibility with NoteEcho)
+- Add option to control gate-retriggers-on-reset for all sequencers (for compatibility with NoteEcho), default value from now is "Only when Run cable is unconnected", other values are "Yes" and "No".
 
 
 ### 2.4.1 (2023-10-31)

@@ -82,7 +82,7 @@ struct GateSeq64 : Module {
 	SeqAttributesGS sequences[MAX_SEQS];
 	int phrase[64];// This is the song (series of phases; a phrase is a patten number)
 	bool resetOnRun;
-	bool retrigGatesOnReset;
+	int retrigGatesOnReset;
 	bool stopAtEndOfSong;
 	bool lock;
 
@@ -236,7 +236,7 @@ struct GateSeq64 : Module {
 			phrase[i] = 0;
 		}
 		resetOnRun = false;
-		retrigGatesOnReset = true;
+		retrigGatesOnReset = RGOR_NRUN;
 		stopAtEndOfSong = false;
 		lock = false;
 		resetNonJson(false);
@@ -352,7 +352,7 @@ struct GateSeq64 : Module {
 		json_object_set_new(rootJ, "resetOnRun", json_boolean(resetOnRun));
 		
 		// retrigGatesOnReset
-		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
+		json_object_set_new(rootJ, "retrigGatesOnReset2", json_integer(retrigGatesOnReset));
 
 		// stopAtEndOfSong
 		json_object_set_new(rootJ, "stopAtEndOfSong", json_boolean(stopAtEndOfSong));
@@ -542,9 +542,9 @@ struct GateSeq64 : Module {
 			resetOnRun = json_is_true(resetOnRunJ);
 
 		// retrigGatesOnReset
-		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset2");
 		if (retrigGatesOnResetJ)
-			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
+			retrigGatesOnReset = json_integer_value(retrigGatesOnResetJ);
 
 		// stopAtEndOfSong
 		json_t *stopAtEndOfSongJ = json_object_get(rootJ, "stopAtEndOfSong");
@@ -1010,7 +1010,7 @@ struct GateSeq64 : Module {
 				
 		// Gate outputs
 		if (running) {
-			bool retriggingOnReset = (clockIgnoreOnReset != 0l && retrigGatesOnReset);
+			bool retriggingOnReset = (clockIgnoreOnReset != 0l && calcRGOR(retrigGatesOnReset, &inputs[RUNCV_INPUT]));
 			for (int i = 0; i < 4; i++)
 				outputs[GATE_OUTPUTS + i].setVoltage((calcGate(gateCode[i], clockTrigger) && !retriggingOnReset)  ? 10.0f : 0.0f);
 		}
@@ -1376,7 +1376,20 @@ struct GateSeq64Widget : ModuleWidget {
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 
-		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
+		menu->addChild(createSubmenuItem("Retrigger gates on reset", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("No", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_NONE;},
+				[=]() {module->retrigGatesOnReset = RGOR_NONE;}
+			));
+			menu->addChild(createCheckMenuItem("Yes", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_YES;},
+				[=]() {module->retrigGatesOnReset = RGOR_YES;}
+			));
+			menu->addChild(createCheckMenuItem("Only when Run cable is unconnected", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_NRUN;},
+				[=]() {module->retrigGatesOnReset = RGOR_NRUN;}
+			));
+		}));	
 
 		menu->addChild(createBoolPtrMenuItem("Single shot song", "", &module->stopAtEndOfSong));
 

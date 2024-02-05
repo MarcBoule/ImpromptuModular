@@ -58,8 +58,11 @@ extern Model *modelBlankPanel;
 
 
 // General constants
-// static const bool retrigGatesOnReset = true;// for seqs that used this, it is now a menu option or hard-coded there
+enum RetrigGatesOnResetId {RGOR_NONE, RGOR_YES, RGOR_NRUN};// no, yes, only when Run is not connected (BigButton has specific code since no Run input
 static constexpr float clockIgnoreOnResetDuration = 0.001f;// disable clock on powerup and reset for 1 ms (so that the first step plays)
+inline calcRGOR(int retrigGatesOnReset, Input* runInput) {
+	return retrigGatesOnReset == RGOR_YES || (retrigGatesOnReset == RGOR_NRUN && !runInput->isConnected());
+}
 
 static const unsigned int expanderRefreshStepSkips = 4;
 static const NVGcolor displayColOn = nvgRGB(0xaf, 0xd2, 0x2c);

@@ -111,7 +111,7 @@ struct Foundry : Module {
 	int seqCVmethod;// 0 is 0-10V, 1 is C2-D7#, 2 is TrigIncr
 	bool running;
 	bool resetOnRun;
-	bool retrigGatesOnReset;
+	int retrigGatesOnReset;
 	bool attached;
 	int velEditMode;// 0 is velocity (aka CV2), 1 is gate-prob, 2 is slide-rate
 	int writeMode;// 0 is both, 1 is CV only, 2 is CV2 only
@@ -271,7 +271,7 @@ struct Foundry : Module {
 		seqCVmethod = 0;
 		running = true;
 		resetOnRun = false;
-		retrigGatesOnReset = true;
+		retrigGatesOnReset = RGOR_NRUN;
 		attached = false;
 		velEditMode = 0;
 		writeMode = 0;
@@ -348,7 +348,7 @@ struct Foundry : Module {
 		json_object_set_new(rootJ, "resetOnRun", json_boolean(resetOnRun));
 		
 		// retrigGatesOnReset
-		json_object_set_new(rootJ, "retrigGatesOnReset", json_boolean(retrigGatesOnReset));
+		json_object_set_new(rootJ, "retrigGatesOnReset2", json_integer(retrigGatesOnReset));
 
 		// attached
 		json_object_set_new(rootJ, "attached", json_boolean(attached));
@@ -437,9 +437,9 @@ struct Foundry : Module {
 			resetOnRun = json_is_true(resetOnRunJ);
 
 		// retrigGatesOnReset
-		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset");
+		json_t *retrigGatesOnResetJ = json_object_get(rootJ, "retrigGatesOnReset2");
 		if (retrigGatesOnResetJ)
-			retrigGatesOnReset = json_is_true(retrigGatesOnResetJ);
+			retrigGatesOnReset = json_integer_value(retrigGatesOnResetJ);
 
 		// attached
 		json_t *attachedJ = json_object_get(rootJ, "attached");
@@ -1104,7 +1104,7 @@ struct Foundry : Module {
 		float velOut[Sequencer::NUM_TRACKS];
 		for (int trkn = 0; trkn < Sequencer::NUM_TRACKS; trkn++) {
 			cvOut[trkn] = (seq.calcCvOutputAndDecSlideStepsRemain(trkn, running, editingSequence));
-			bool retriggingOnReset = (clockIgnoreOnReset != 0l && retrigGatesOnReset);
+			bool retriggingOnReset = (clockIgnoreOnReset != 0l && calcRGOR(retrigGatesOnReset, &inputs[RUNCV_INPUT]));
 			gateOut[trkn] = (seq.calcGateOutput(trkn, running && !retriggingOnReset, clockTriggers[clkInSources[trkn]], sampleRate));
 			velOut[trkn] = (seq.calcVelOutput(trkn, running && !retriggingOnReset, editingSequence) - (velocityBipol ? 5.0f : 0.0f));			
 		}
@@ -1851,7 +1851,20 @@ struct FoundryWidget : ModuleWidget {
 		
 		menu->addChild(createBoolPtrMenuItem("Reset on run", "", &module->resetOnRun));
 
-		menu->addChild(createBoolPtrMenuItem("Retrigger gates on reset", "", &module->retrigGatesOnReset));
+		menu->addChild(createSubmenuItem("Retrigger gates on reset", "", [=](Menu* menu) {
+			menu->addChild(createCheckMenuItem("No", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_NONE;},
+				[=]() {module->retrigGatesOnReset = RGOR_NONE;}
+			));
+			menu->addChild(createCheckMenuItem("Yes", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_YES;},
+				[=]() {module->retrigGatesOnReset = RGOR_YES;}
+			));
+			menu->addChild(createCheckMenuItem("Only when Run cable is unconnected", "",
+				[=]() {return module->retrigGatesOnReset == RGOR_NRUN;},
+				[=]() {module->retrigGatesOnReset = RGOR_NRUN;}
+			));
+		}));	
 		
 		menu->addChild(createBoolPtrMenuItem("Hold tied notes", "", &module->holdTiedNotes));		
 
