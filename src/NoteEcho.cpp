@@ -54,7 +54,9 @@ struct NoteEcho : Module {
 	// Constants
 	static const int LENGTH = 32 + 1;
 	static constexpr float delayInfoTime = 3.0f;// seconds
-	
+	static constexpr float cv2NormMin = -10.0f;
+	static constexpr float cv2NormMax = 10.0f;
+	static constexpr float cv2NormDefault = 0.0f;
 	
 	// Need to save, no reset
 	int panelTheme;
@@ -68,7 +70,8 @@ struct NoteEcho : Module {
 	int head;// points the next register to be written when next clock occurs
 	bool noteFilter;
 	int clkDelay;
-	float clkDelReg[2] = {};
+	float clkDelReg[2];
+	float cv2NormalledVoltage;
 
 	// No need to save, with reset
 	// none
@@ -199,6 +202,7 @@ struct NoteEcho : Module {
 		clkDelay = 0;
 		clkDelReg[0] = 0.0f;
 		clkDelReg[1] = 0.0f;
+		cv2NormalledVoltage = 0.0f;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -251,6 +255,9 @@ struct NoteEcho : Module {
 		json_object_set_new(rootJ, "clkDelReg0", json_real(clkDelReg[0]));
 		json_object_set_new(rootJ, "clkDelReg1", json_real(clkDelReg[1]));
 		
+		// cv2NormalledVoltage
+		json_object_set_new(rootJ, "cv2NormalledVoltage", json_real(cv2NormalledVoltage));
+
 		return rootJ;
 	}
 
@@ -334,6 +341,11 @@ struct NoteEcho : Module {
 		if (clkDelRegJ)
 			clkDelReg[1] = json_number_value(clkDelRegJ);
 
+		// cv2NormalledVoltage
+		json_t *cv2NormalledVoltageJ = json_object_get(rootJ, "cv2NormalledVoltage");
+		if (cv2NormalledVoltageJ)
+			cv2NormalledVoltage = json_number_value(cv2NormalledVoltageJ);
+
 		resetNonJson();
 	}
 
@@ -390,7 +402,7 @@ struct NoteEcho : Module {
 			for (int i = 0; i < MAX_POLY; i++) {
 				cv[head][i] = inputs[CV_INPUT].getChannels() > i ? inputs[CV_INPUT].getVoltage(i) : 0.0f;
 				if (inputs[CV2_INPUT].getChannels() < 1) {
-					cv2[head][i] = 0.0f;
+					cv2[head][i] = cv2NormalledVoltage;
 				}
 				else {
 					cv2[head][i] = inputs[CV2_INPUT].getVoltage(std::min(i, inputs[CV2_INPUT].getChannels() - 1));
@@ -642,6 +654,59 @@ struct NoteEchoWidget : ModuleWidget {
 		}
 	};
 	
+
+	void createCv2NormalizationMenu(ui::Menu* menu, float* cv2Normalled) {
+			
+		struct Cv2NormItem : MenuItem {
+			float* cv2Normalled = NULL;
+			
+			Menu *createChildMenu() override {
+				struct Cv2NormQuantity : Quantity {
+					float* cv2Normalled;
+					
+					Cv2NormQuantity(float* _cv2Normalled) {
+						cv2Normalled = _cv2Normalled;
+					}
+					void setValue(float value) override {
+						*cv2Normalled = math::clamp(value, getMinValue(), getMaxValue());
+					}
+					float getValue() override {
+						return *cv2Normalled;
+					}
+					float getMinValue() override {return NoteEcho::cv2NormMin;}
+					float getMaxValue() override {return NoteEcho::cv2NormMax;}
+					float getDefaultValue() override {return NoteEcho::cv2NormDefault;}
+					float getDisplayValue() override {return *cv2Normalled;}
+					std::string getDisplayValueString() override {
+						return string::f("%.1f", clamp(*cv2Normalled, getMinValue(), getMaxValue()));
+					}
+					void setDisplayValue(float displayValue) override {setValue(displayValue);}
+					std::string getLabel() override {return "Voltage";}
+					std::string getUnit() override {return " V";}
+				};
+				struct Cv2NormSlider : ui::Slider {
+					Cv2NormSlider(float* cv2Normalled) {
+						quantity = new Cv2NormQuantity(cv2Normalled);
+					}
+					~Cv2NormSlider() {
+						delete quantity;
+					}
+				};
+			
+				Menu *menu = new Menu;
+
+				Cv2NormSlider *cSlider = new Cv2NormSlider(cv2Normalled);
+				cSlider->box.size.x = 200.0f;
+				menu->addChild(cSlider);
+			
+				return menu;
+			}
+		};
+		
+		Cv2NormItem *c2nItem = createMenuItem<Cv2NormItem>("CV2 input normalization", RIGHT_ARROW);
+		c2nItem->cv2Normalled = cv2Normalled;
+		menu->addChild(c2nItem);
+	}	
 	
 
 	void appendContextMenu(Menu *menu) override {
@@ -671,6 +736,8 @@ struct NoteEchoWidget : ModuleWidget {
 				[=]() {module->clkDelay = 2;}
 			));
 		}));	
+		
+		createCv2NormalizationMenu(menu, &(module->cv2NormalledVoltage));
 	}	
 
 	
