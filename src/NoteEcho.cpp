@@ -44,6 +44,7 @@ struct NoteEcho : Module {
 	enum LightIds {
 		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
 		SD_LIGHT,
+		ENUMS(CV2NORM_LIGHTS, 2),// reg green
 		NUM_LIGHTS
 	};
 	
@@ -168,6 +169,7 @@ struct NoteEcho : Module {
 		configOutput(CLK_OUTPUT, "Clock");
 		
 		configLight(SD_LIGHT, "Sample delay active");
+		configLight(CV2NORM_LIGHTS, "CV2 normalization voltage");
 		
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
@@ -789,6 +791,7 @@ struct NoteEchoWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row0)), true, module, NoteEcho::CV_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row0)), true, module, NoteEcho::GATE_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row0)), true, module, NoteEcho::CV2_INPUT, mode));
+		addChild(createLightCentered<TinyLight<GreenRedLight>>(mm2px(Vec(col54 + 4.7f, row0 - 6.6f)), module, NoteEcho::CV2NORM_LIGHTS));
 		PolyKnob* polyKnobP;
 		addParam(polyKnobP = createDynamicParamCentered<PolyKnob>(mm2px(Vec(col55, row0)), module, NoteEcho::POLY_PARAM, mode));
 		polyKnobP->module = module;
@@ -886,6 +889,10 @@ struct NoteEchoWidget : ModuleWidget {
 			
 			// sample delay light
 			m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f);
+			
+			// CV2 norm light
+			m->lights[NoteEcho::CV2NORM_LIGHTS + 0].setBrightness( ((float)(m->cv2NormalledVoltage)) / NoteEcho::cv2NormMax);
+			m->lights[NoteEcho::CV2NORM_LIGHTS + 1].setBrightness( ((float)(m->cv2NormalledVoltage)) / NoteEcho::cv2NormMin);
 
 			// CV2 knobs' labels
 			m->refreshCv2ParamQuantities();
