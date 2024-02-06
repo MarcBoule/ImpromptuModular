@@ -680,10 +680,10 @@ struct NoteEchoWidget : ModuleWidget {
 					float getDefaultValue() override {return NoteEcho::cv2NormDefault;}
 					float getDisplayValue() override {return *cv2Normalled;}
 					std::string getDisplayValueString() override {
-						return string::f("%.1f", clamp(*cv2Normalled, getMinValue(), getMaxValue()));
+						return string::f("%.2f", clamp(*cv2Normalled, getMinValue(), getMaxValue()));
 					}
 					void setDisplayValue(float displayValue) override {setValue(displayValue);}
-					std::string getLabel() override {return "Voltage";}
+					std::string getLabel() override {return "CV2";}
 					std::string getUnit() override {return " V";}
 				};
 				struct Cv2NormSlider : ui::Slider {
@@ -705,7 +705,7 @@ struct NoteEchoWidget : ModuleWidget {
 			}
 		};
 		
-		Cv2NormItem *c2nItem = createMenuItem<Cv2NormItem>("CV2 input normalization", RIGHT_ARROW);
+		Cv2NormItem *c2nItem = createMenuItem<Cv2NormItem>("Input normalization", RIGHT_ARROW);
 		c2nItem->cv2Normalled = cv2Normalled;
 		menu->addChild(c2nItem);
 	}	
@@ -787,7 +787,7 @@ struct NoteEchoWidget : ModuleWidget {
 		
 		// row 0
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row0)), true, module, NoteEcho::CLK_INPUT, mode));
-		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col51 + 4.5f, row0 - 6.6f)), module, NoteEcho::SD_LIGHT));
+		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col51 + 4.3f, row0 - 6.6f)), module, NoteEcho::SD_LIGHT));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row0)), true, module, NoteEcho::CV_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row0)), true, module, NoteEcho::GATE_INPUT, mode));
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row0)), true, module, NoteEcho::CV2_INPUT, mode));
