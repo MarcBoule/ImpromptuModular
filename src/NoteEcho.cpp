@@ -78,8 +78,8 @@ struct NoteEcho : Module {
 	// none
 	
 	// No need to save, no reset
-	int notifySource[4] = {};// 0 (normal), 1 (semi) 2 (CV2), 3 (prob)
-	long notifyInfo[4] = {};// downward step counter when semi, cv2, prob to be displayed, 0 when normal tap display
+	int notifySource[NUM_TAPS] = {};// 0 (normal), 1 (semi) 2 (CV2), 3 (prob)
+	long notifyInfo[NUM_TAPS] = {};// downward step counter when semi, cv2, prob to be displayed, 0 when normal tap display
 	long notifyPoly = 0l;// downward step counter when notify poly size in leds, 0 when normal leds
 	RefreshCounter refresh;
 	Trigger clkTrigger;
@@ -466,7 +466,6 @@ struct NoteEcho : Module {
 				outputs[CV2_OUTPUT].setVoltage(cv2WithMod, c);
 			}
 		}
-		// assert(c == chans);
 		if (clkEdge && noteFilter) {
 			filterOutputsForIdentNotes(chans, poly); 
 		}
@@ -474,11 +473,11 @@ struct NoteEcho : Module {
 		
 		// lights
 		if (refresh.processLights()) {
-			// gate lights
+			// lights
 			// see NoteEchoWidget::step()
 
 			// info notification counters
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < NUM_TAPS; i++) {
 				notifyInfo[i]--;
 				if (notifyInfo[i] < 0l) {
 					notifyInfo[i] = 0l;
