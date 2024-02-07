@@ -891,8 +891,11 @@ struct NoteEchoWidget : ModuleWidget {
 			m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f);
 			
 			// CV2 norm light
-			m->lights[NoteEcho::CV2NORM_LIGHTS + 0].setBrightness( ((float)(m->cv2NormalledVoltage)) / NoteEcho::cv2NormMax);
-			m->lights[NoteEcho::CV2NORM_LIGHTS + 1].setBrightness( ((float)(m->cv2NormalledVoltage)) / NoteEcho::cv2NormMin);
+			bool cv2uncon = !(m->inputs[NoteEcho::CV2_INPUT].isConnected());
+			float green = cv2uncon ? (((float)(m->cv2NormalledVoltage)) / NoteEcho::cv2NormMax) : 0.0f;
+			float red =   cv2uncon ? (((float)(m->cv2NormalledVoltage)) / NoteEcho::cv2NormMin) : 0.0f;
+			m->lights[NoteEcho::CV2NORM_LIGHTS + 0].setBrightness(green);
+			m->lights[NoteEcho::CV2NORM_LIGHTS + 1].setBrightness(red);
 
 			// CV2 knobs' labels
 			m->refreshCv2ParamQuantities();
