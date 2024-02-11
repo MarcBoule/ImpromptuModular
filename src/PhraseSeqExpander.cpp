@@ -5,9 +5,6 @@
 //  from the Component Library by Pyer. 
 //See ./LICENSE.md for all licenses
 //See ./res/fonts/ for font licenses
-//
-//Module concept and design by Marc Boulé, Nigel Sixsmith
-//
 //***********************************************************************************************
 
 

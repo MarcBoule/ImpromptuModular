@@ -8,7 +8,6 @@
 //
 // The idea for this module was provided by Andre Belt
 // https://community.vcvrack.com/t/module-ideas/7175/231
-// 
 //***********************************************************************************************
 
 

@@ -8,8 +8,6 @@
 //
 //Module concept, desing and layout by Xavier Belmont
 //Code by Marc Boulé
-//
-//Acknowledgements: please see README.md
 //***********************************************************************************************
 
 

@@ -1,8 +1,8 @@
 //***********************************************************************************************
-//Four channel note viewer module for VCV Rack by Marc Boulé
+//Keyboard-based chord generator module for VCV Rack by Marc Boulé
 //
-//Based on code from the Fundamental and AudibleInstruments plugins by Andrew Belt 
-//and graphics from the Component Library by Pyer 
+//Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics  
+//  from the Component Library by Pyer. 
 //See ./LICENSE.md for all licenses
 //See ./res/fonts/ for font licenses
 //***********************************************************************************************

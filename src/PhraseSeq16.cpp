@@ -7,8 +7,6 @@
 //See ./res/fonts/ for font licenses
 //
 //Module inspired by the SA-100 Stepper Acid sequencer by Transistor Sounds Labs
-//
-//Acknowledgements: please see README.md
 //***********************************************************************************************
 
 

@@ -2,7 +2,6 @@
 //Impromptu Modular: Modules for VCV Rack by Marc Boulé
 // 
 //Interop code for common portable sequence
-//
 //***********************************************************************************************
 
 #pragma once

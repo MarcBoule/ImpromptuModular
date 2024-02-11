@@ -7,7 +7,6 @@
 //See ./res/fonts/ for font licenses
 //
 //Module concept and design by Marc Boulé, Nigel Sixsmith, Xavier Belmont and Steve Baker
-//
 //***********************************************************************************************
 
 
