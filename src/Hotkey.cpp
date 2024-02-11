@@ -13,7 +13,7 @@
 #include "ImpromptuModular.hpp"
 
 
-// Note: to manuall poll key states (not used in this module though): 
+// Note: to manually poll key states (not used in this module though): 
 // glfwGetKey(APP->window->win, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ? 10.0f : 0.0f
 
 
@@ -149,24 +149,23 @@ static const char* get_key_name(int key)
         default:                    return "UNKNOWN";
     }
 }
-static void get_mods_name(char *name, int mods)
+static std::string get_mods_name(int mods)
 {
-	name[0] = 0;
+	std::string name;
     if (mods & GLFW_MOD_SHIFT) {
-		// if (name[0] != '\0') strcat(name, "+");  // not needed
-        strcat(name, "Shift");
+        name += "Shift";
 	}
     if (mods & GLFW_MOD_CONTROL) {
-		if (name[0] != '\0') strcat(name, "+");
-        strcat(name, "Ctrl");
+		if (!name.empty()) name += "+";
+        name += "Ctrl";
 	}
     if (mods & GLFW_MOD_ALT) {
-		if (name[0] != '\0') strcat(name, "+");
-        strcat(name, "Alt");
+		if (!name.empty()) name += "+";
+        name += "Alt";
 	}
     if (mods & GLFW_MOD_SUPER) {
-		if (name[0] != '\0') strcat(name, "+");
-        strcat(name, "Super");
+		if (!name.empty()) name += "+";
+        name += "Super";
 	}
 	// caps and num locks treated as normal keys
     // if (mods & GLFW_MOD_CAPS_LOCK) {
@@ -177,6 +176,7 @@ static void get_mods_name(char *name, int mods)
 		// if (name[0] != '\0') strcat(name, "+");
         // strcat(name, "Numlock-on");
 	// }
+	return name;
 }
 
 
@@ -355,8 +355,6 @@ struct Hotkey : Module {
 
 
 struct HotkeyWidget : ModuleWidget {
-	char strBuf[512] = {};
-	
 	void appendContextMenu(Menu *menu) override {
 		Hotkey *module = static_cast<Hotkey*>(this->module);
 		assert(module);
@@ -368,10 +366,10 @@ struct HotkeyWidget : ModuleWidget {
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Current hotkey:"));
 		
-		get_mods_name(strBuf, module->hotkeyMods);
-		if (strBuf[0] != '\0') strcat(strBuf, "+");
-		strcat(strBuf, get_key_name(module->hotkey));
-		menu->addChild(createMenuLabel(strBuf));
+		std::string name = get_mods_name(module->hotkeyMods);
+		if (!name.empty()) name += "+";
+		name += get_key_name(module->hotkey);
+		menu->addChild(createMenuLabel(name));
 	}	
 
 	

@@ -58,10 +58,8 @@ struct ChordKeyExpander : Module {
 		leftExpander.producerMessage = leftMessages[0];
 		leftExpander.consumerMessage = leftMessages[1];
 		
-		char strBuf[32];
 		for (int c = 0; c < 4; c++) {
-			snprintf(strBuf, 32, "Oct channel %i", c + 1);
-			configParam(OCT_PARAMS + c, -4.0f, 4.0f, 0.0f, strBuf);
+			configParam(OCT_PARAMS + c, -4.0f, 4.0f, 0.0f, string::f("Oct channel %i", c + 1));
 			paramQuantities[OCT_PARAMS + c]->snapEnabled = true;
 		}
 

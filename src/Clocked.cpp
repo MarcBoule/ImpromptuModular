@@ -357,21 +357,16 @@ struct Clocked : Module {
 		configParam(BPMMODE_UP_PARAM, 0.0f, 1.0f, 0.0f,  "Bpm mode next");
 		configParam(SWING_PARAMS + 0, -1.0f, 1.0f, 0.0f, "Swing clk");
 		configParam(PW_PARAMS + 0, 0.0f, 1.0f, 0.5f, "Pulse width clk");			
-		char strBuf[32];
 		for (int i = 0; i < 3; i++) {// Row 2-4 (sub clocks)
 			// Ratio knobs
-			snprintf(strBuf, 32, "Clk %i ratio", i + 1);
-			configParam<RatioParam>(RATIO_PARAMS + 1 + i, ((float)numRatios - 1.0f)*-1.0f, (float)numRatios - 1.0f, 0.0f, strBuf);		
+			configParam<RatioParam>(RATIO_PARAMS + 1 + i, ((float)numRatios - 1.0f)*-1.0f, (float)numRatios - 1.0f, 0.0f, string::f("Clk %i ratio", i + 1));		
 			paramQuantities[RATIO_PARAMS + 1 + i]->snapEnabled = true;
 			// Swing knobs
-			snprintf(strBuf, 32, "Swing clk %i", i + 1);
-			configParam(SWING_PARAMS + 1 + i, -1.0f, 1.0f, 0.0f, strBuf);
+			configParam(SWING_PARAMS + 1 + i, -1.0f, 1.0f, 0.0f, string::f("Swing clk %i", i + 1));
 			// PW knobs
-			snprintf(strBuf, 32, "Pulse width clk %i", i + 1);
-			configParam(PW_PARAMS + 1 + i, 0.0f, 1.0f, 0.5f,strBuf);
+			configParam(PW_PARAMS + 1 + i, 0.0f, 1.0f, 0.5f,string::f("Pulse width clk %i", i + 1));
 			// Delay knobs
-			snprintf(strBuf, 32, "Delay clk %i", i + 1);
-			configParam(DELAY_PARAMS + 1 + i, 0.0f, 8.0f - 1.0f, 0.0f, strBuf);
+			configParam(DELAY_PARAMS + 1 + i, 0.0f, 8.0f - 1.0f, 0.0f, string::f("Delay clk %i", i + 1));
 			paramQuantities[DELAY_PARAMS + 1 + i]->snapEnabled = true;
 		}
 		

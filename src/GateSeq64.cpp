@@ -168,20 +168,17 @@ struct GateSeq64 : Module {
 		rightMessages[1][0] = std::numeric_limits<float>::quiet_NaN();
 		rightMessages[1][1] = std::numeric_limits<float>::quiet_NaN();
 		
-		char strBuf[32];
 		// Step LED buttons and GateMode lights
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 16; x++) {
-				snprintf(strBuf, 32, "Step/phrase %i", y * 16 + x + 1);
-				configParam(STEP_PARAMS + y * 16 + x, 0.0f, 1.0f, 0.0f, strBuf);
+				configParam(STEP_PARAMS + y * 16 + x, 0.0f, 1.0f, 0.0f, string::f("Step/phrase %i", y * 16 + x + 1));
 			}
 		}
 		configParam(GMODE_PARAMS + 2, 0.0f, 1.0f, 0.0f, "Gate type 3");
 		configParam(GMODE_PARAMS + 1, 0.0f, 1.0f, 0.0f, "Gate type 2");
 		configParam(GMODE_PARAMS + 0, 0.0f, 1.0f, 0.0f, "Gate type 1");
 		for (int x = 1; x < 6; x++) {
-			snprintf(strBuf, 32, "Gate type %i", 2 + x + 1);
-			configParam(GMODE_PARAMS + 2 + x, 0.0f, 1.0f, 0.0f, strBuf);
+			configParam(GMODE_PARAMS + 2 + x, 0.0f, 1.0f, 0.0f, string::f("Gate type %i", 2 + x + 1));
 		}
 		configParam(PROB_PARAM, 0.0f, 1.0f, 0.0f, "Probability");
 		configParam(RESET_PARAM, 0.0f, 1.0f, 0.0f, "Reset");

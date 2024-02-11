@@ -196,17 +196,14 @@ struct PhraseSeq16 : Module {
 		// must init those that have no-connect info to non-connected, or else mother may read 0.0 init value if ever refresh limiters make it such that after a connection of expander the mother reads before the first pass through the expander's writing code, and this may do something undesired (ex: change track in Foundry on expander connected while track CV jack is empty)
 		rightMessages[1][4] = std::numeric_limits<float>::quiet_NaN();
 
-		char strBuf[32];
 		for (int x = 0; x < 16; x++) {
-			snprintf(strBuf, 32, "Step/phrase %i", x + 1);
-			configParam(STEP_PHRASE_PARAMS + x, 0.0f, 1.0f, 0.0f, strBuf);
+			configParam(STEP_PHRASE_PARAMS + x, 0.0f, 1.0f, 0.0f, string::f("Step/phrase %i", x + 1));
 		}
 		configParam(ATTACH_PARAM, 0.0f, 1.0f, 0.0f, "Attach");
 		configParam(KEYNOTE_PARAM, 0.0f, 1.0f, 0.0f, "Keyboard note mode");
 		configParam(KEYGATE_PARAM, 0.0f, 1.0f, 0.0f, "Keyboard gate-type mode");
 		for (int i = 0; i < 7; i++) {
-			snprintf(strBuf, 32, "Octave %i", i + 1);
-			configParam(OCTAVE_PARAM + i, 0.0f, 1.0f, 0.0f, strBuf);
+			configParam(OCTAVE_PARAM + i, 0.0f, 1.0f, 0.0f, string::f("Octave %i", i + 1));
 		}
 		
 		configSwitch(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode", {"Song", "Sequence"});// 1.0f is top position

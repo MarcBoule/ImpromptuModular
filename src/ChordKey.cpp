@@ -101,12 +101,9 @@ struct ChordKey : Module {
 	ChordKey() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
-		char strBuf[32];
 		for (int cni = 0; cni < 4; cni++) {// chord note index
-			snprintf(strBuf, 32, "Oct down %i", cni + 1);
-			configParam(OCTDEC_PARAMS + cni, 0.0, 1.0, 0.0, strBuf);
-			snprintf(strBuf, 32, "Oct up %i", cni + 1);
-			configParam(OCTINC_PARAMS + cni, 0.0, 1.0, 0.0, strBuf);
+			configParam(OCTDEC_PARAMS + cni, 0.0, 1.0, 0.0, string::f("Oct down %i", cni + 1));
+			configParam(OCTINC_PARAMS + cni, 0.0, 1.0, 0.0, string::f("Oct up %i", cni + 1));
 		}
 		configParam(INDEX_PARAM, 0.0f, 24.0f, 0.0f, "Index", "", 0.0f, 1.0f, 1.0f);// diplay params are: base, mult, offset
 		paramQuantities[INDEX_PARAM]->snapEnabled = true;

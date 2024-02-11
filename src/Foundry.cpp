@@ -190,22 +190,18 @@ struct Foundry : Module {
 			rightMessages[1][i] = std::numeric_limits<float>::quiet_NaN();
 		}
 
-		char strBuf[32];
 		const int numX = SequencerKernel::MAX_STEPS / 2;
 		for (int x = 0; x < numX; x++) {
 			// First row
-			snprintf(strBuf, 32, "Step %i", x + 1);
-			configParam(STEP_PHRASE_PARAMS + x, 0.0f, 1.0f, 0.0f, strBuf);
+			configParam(STEP_PHRASE_PARAMS + x, 0.0f, 1.0f, 0.0f, string::f("Step %i", x + 1));
 			// Second row
-			snprintf(strBuf, 32, "Step %i", x + numX + 1);
-			configParam(STEP_PHRASE_PARAMS + x + numX, 0.0f, 1.0f, 0.0f, strBuf);
+			configParam(STEP_PHRASE_PARAMS + x + numX, 0.0f, 1.0f, 0.0f, string::f("Step %i", x + numX + 1));
 		}
 		configParam(SEL_PARAM, 0.0f, 1.0f, 0.0f, "Select multi steps");
 		configSwitch(CPMODE_PARAM, 0.0f, 2.0f, 0.0f, "Copy-paste mode", {"4 steps", "8 steps", "Custom"});// 0.0f is top position
 		configSwitch(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode", {"Song", "Sequence"});// 1.0f is top position
 		for (int i = 0; i < 7; i++) {
-			snprintf(strBuf, 32, "Octave %i", i + 1);
-			configParam(OCTAVE_PARAM + i, 0.0f, 1.0f, 0.0f, strBuf);
+			configParam(OCTAVE_PARAM + i, 0.0f, 1.0f, 0.0f, string::f("Octave %i", i + 1));
 		}
 
 		configParam(VEL_KNOB_PARAM, -INFINITY, INFINITY, 0.0f, "CV2/p/r knob");	

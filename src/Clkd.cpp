@@ -223,11 +223,9 @@ struct Clkd : Module {
 		configParam(BPMMODE_UP_PARAM, 0.0f, 1.0f, 0.0f,  "Bpm mode next");
 		configParam(DISPLAY_DOWN_PARAM, 0.0f, 1.0f, 0.0f, "Display prev");
 		configParam(DISPLAY_UP_PARAM, 0.0f, 1.0f, 0.0f,  "Display next");
-		char strBuf[32];
 		for (int i = 0; i < 3; i++) {// Row 2-4 (sub clocks)
 			// Ratio1 knob
-			snprintf(strBuf, 32, "Clk %i ratio", i + 1);
-			configParam<RatioParam>(RATIO_PARAMS + i, ((float)numRatios - 1.0f)*-1.0f, float(numRatios) - 1.0f, 0.0f, strBuf);
+			configParam<RatioParam>(RATIO_PARAMS + i, ((float)numRatios - 1.0f)*-1.0f, float(numRatios) - 1.0f, 0.0f, string::f("Clk %i ratio", i + 1));
 			paramQuantities[RATIO_PARAMS + i]->snapEnabled = true;
 		}
 		configParam<BpmParam>(BPM_PARAM, (float)(bpmMin), (float)(bpmMax), 120.0f, "Master clock", " BPM");// must be a snap knob, code in step() assumes that a rounded value is read from the knob	(chaining considerations vs BPM detect)

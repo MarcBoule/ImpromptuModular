@@ -107,14 +107,11 @@ struct WriteSeq32 : Module {
 		configSwitch(SHARP_PARAM, 0.0f, 1.0f, 1.0f, "Display mode", {"Flat", "Sharp"});
 		configSwitch(QUANTIZE_PARAM, 0.0f, 1.0f, 1.0f, "Quantize", {"No", "Yes"}); 
 		
-		char strBuf[32];
 		for (int i = 0; i < 4; i++) {
-			snprintf(strBuf, 32, "Window #%i of 4", i + 1);
-			configParam(WINDOW_PARAM + i, 0.0f, 1.0f, 0.0f, strBuf);
+			configParam(WINDOW_PARAM + i, 0.0f, 1.0f, 0.0f, string::f("Window #%i of 4", i + 1));
 		}
 		for (int i = 0; i < 8; i++) {
-			snprintf(strBuf, 32, "Gate #%i of 8", i + 1);
-			configParam(GATE_PARAM + i, 0.0f, 1.0f, 0.0f, strBuf);
+			configParam(GATE_PARAM + i, 0.0f, 1.0f, 0.0f, string::f("Gate #%i of 8", i + 1));
 		}
 		configParam(CHANNEL_PARAM, 0.0f, 1.0f, 0.0f, "Channel");
 		configParam(COPY_PARAM, 0.0f, 1.0f, 0.0f, "Copy");

@@ -295,17 +295,14 @@ struct SemiModularSynth : Module {
 	SemiModularSynth() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		
-		char strBuf[32];
 		for (int x = 0; x < 16; x++) {
-			snprintf(strBuf, 32, "Step/phrase %i", x + 1);
-			configParam(STEP_PHRASE_PARAMS + x, 0.0f, 1.0f, 0.0f, strBuf);
+			configParam(STEP_PHRASE_PARAMS + x, 0.0f, 1.0f, 0.0f, string::f("Step/phrase %i", x + 1));
 		}
 		configParam(ATTACH_PARAM, 0.0f, 1.0f, 0.0f, "Attach");
 		configParam(KEYNOTE_PARAM, 0.0f, 1.0f, 0.0f, "Keyboard note mode");
 		configParam(KEYGATE_PARAM, 0.0f, 1.0f, 0.0f, "Keyboard gate-type mode");
 		for (int i = 0; i < 7; i++) {
-			snprintf(strBuf, 32, "Octave %i", i + 1);
-			configParam(OCTAVE_PARAM + i, 0.0f, 1.0f, 0.0f, strBuf);
+			configParam(OCTAVE_PARAM + i, 0.0f, 1.0f, 0.0f, string::f("Octave %i", i + 1));
 		}
 
 		configSwitch(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode", {"Song", "Sequence"});// 1.0f is top position
