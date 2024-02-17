@@ -663,10 +663,10 @@ struct BigButtonSeqWidget : ModuleWidget {
 		static const int row3 = 183;// len and rnd
 		
 		// Len knob and jack
-		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(218, row3), module, BigButtonSeq::LEN_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(218, row3), module, BigButtonSeq::LEN_PARAM, mode));		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(218 - 53, row3), true, module, BigButtonSeq::LEN_INPUT, mode));
 		// Rnd knob and jack
-		addParam(createDynamicParamCentered<IMBigKnob>(VecPx(37, row3), module, BigButtonSeq::RND_PARAM, mode));		
+		addParam(createDynamicParamCentered<IMMediumKnob>(VecPx(37, row3), module, BigButtonSeq::RND_PARAM, mode));		
 		addInput(createDynamicPortCentered<IMPort>(VecPx(37 + 53, row3), true, module, BigButtonSeq::RND_INPUT, mode));
 
 
