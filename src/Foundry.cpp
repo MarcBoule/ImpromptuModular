@@ -199,7 +199,7 @@ struct Foundry : Module {
 		configSwitch(CPMODE_PARAM, 0.0f, 2.0f, 0.0f, "Copy-paste mode", {"4 steps", "8 steps", "Custom"});// 0.0f is top position
 		configSwitch(EDIT_PARAM, 0.0f, 1.0f, 1.0f, "Seq/song mode", {"Song", "Sequence"});// 1.0f is top position
 		for (int i = 0; i < 7; i++) {
-			configParam(OCTAVE_PARAM + i, 0.0f, 1.0f, 0.0f, string::f("Octave %i", i + 1));
+			configParam(OCTAVE_PARAM + i, 0.0f, 1.0f, 0.0f, string::f("Octave %i", 7 - i));
 		}
 
 		configParam(VEL_KNOB_PARAM, -INFINITY, INFINITY, 0.0f, "CV2/p/r knob");	

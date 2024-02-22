@@ -2,6 +2,7 @@
 
 - Hotkey: added option to control how key modifiers are handled
 - BigButton: resized two of the three knobs (made smaller)
+- PhraseSeq16/32, Foundry: fix tooltips on octave buttons
 
 
 ### 2.4.2 (2024-02-11)
