@@ -42,9 +42,11 @@ struct NoteEcho : Module {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
 		SD_LIGHT,
+		FILTER_LIGHT,
+		WET_LIGHT,
 		ENUMS(CV2NORM_LIGHTS, 2),// reg green
+		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
 		NUM_LIGHTS
 	};
 	
@@ -70,6 +72,7 @@ struct NoteEcho : Module {
 	bool gateEn[NUM_TAPS][MAX_POLY];
 	int head;// points the next register to be written when next clock occurs
 	bool noteFilter;
+	bool wetOnly;
 	int clkDelay;
 	float clkDelReg[2];
 	float cv2NormalledVoltage;
@@ -105,7 +108,7 @@ struct NoteEcho : Module {
 		return count;
 	}
 	bool isLastTapAllowed() {
-		return getPolyKnob() < MAX_POLY || countActiveTaps() < NUM_TAPS;
+		return getPolyKnob() < MAX_POLY || countActiveTaps() < NUM_TAPS || wetOnly;
 	}
 	int getSemiValue(int tapNum) {
 		return (int)(std::round(params[ST_PARAMS + tapNum].getValue()));
@@ -169,6 +172,8 @@ struct NoteEcho : Module {
 		configOutput(CLK_OUTPUT, "Clock");
 		
 		configLight(SD_LIGHT, "Sample delay active");
+		configLight(FILTER_LIGHT, "Filter identical notes");
+		configLight(WET_LIGHT, "Echoes only");
 		configLight(CV2NORM_LIGHTS, "CV2 normalization voltage");
 		
 		configBypass(CV_INPUT, CV_OUTPUT);
@@ -201,6 +206,7 @@ struct NoteEcho : Module {
 	void onReset() override final {
 		clear();
 		noteFilter = false;
+		wetOnly = false;
 		clkDelay = 0;
 		clkDelReg[0] = 0.0f;
 		clkDelReg[1] = 0.0f;
@@ -249,6 +255,9 @@ struct NoteEcho : Module {
 		
 		// noteFilter
 		json_object_set_new(rootJ, "noteFilter", json_boolean(noteFilter));
+
+		// wetOnly
+		json_object_set_new(rootJ, "wetOnly", json_boolean(wetOnly));
 
 		// clkDelay
 		json_object_set_new(rootJ, "clkDelay", json_integer(clkDelay));
@@ -330,6 +339,11 @@ struct NoteEcho : Module {
 		if (noteFilterJ)
 			noteFilter = json_is_true(noteFilterJ);
 
+		// wetOnly
+		json_t *wetOnlyJ = json_object_get(rootJ, "wetOnly");
+		if (wetOnlyJ)
+			wetOnly = json_is_true(wetOnlyJ);
+
 		// clkDelay
 		json_t *clkDelayJ = json_object_get(rootJ, "clkDelay");
 		if (clkDelayJ)
@@ -375,8 +389,8 @@ struct NoteEcho : Module {
 	void process(const ProcessArgs &args) override {
 		int poly = getPolyKnob();
 		int activeTaps = countActiveTaps();
-		bool lastTapAllowed = poly < MAX_POLY || activeTaps < NUM_TAPS;
-		int chans = std::min(poly * (1 + activeTaps), 16);
+		bool lastTapAllowed = isLastTapAllowed();
+		int chans = std::min( poly * ( (wetOnly ? 0 : 1) + activeTaps ) , 16 );
 		if (outputs[CV_OUTPUT].getChannels() != chans) {
 			outputs[CV_OUTPUT].setChannels(chans);
 		}
@@ -409,7 +423,7 @@ struct NoteEcho : Module {
 				else {
 					cv2[head][i] = inputs[CV2_INPUT].getVoltage(std::min(i, inputs[CV2_INPUT].getChannels() - 1));
 				}
-				// normaling CV2 to 10V is not really useful here, since even if we also normal the passthrough (tap0) when CV2 input unconnected, it's value can't be controlled, so even if we can apply CV2 mod to the 4 true taps, a 10V value on the passthrough tap would have to coincide with that is desired and useful. So given this, forget normaling CV input to 10V.
+				// normalizing CV2 to 10V is not really useful here, since even if we also normal the pass-through (tap0) when CV2 input unconnected, it's value can't be controlled, so even if we can apply CV2 mod to the 4 true taps, a 10V value on the pass-through tap would have to coincide with that is desired and useful. So given this, forget normalizing CV input to 10V.
 				gate[head][i] = inputs[GATE_INPUT].getChannels() > i ? (inputs[GATE_INPUT].getVoltage(i) > 1.0f) : false;
 			}
 			// step the head pointer
@@ -431,14 +445,16 @@ struct NoteEcho : Module {
 		
 		
 		// outputs
-		// do tap0 outputs first
 		outputs[CLK_OUTPUT].setVoltage(clockSignal);
+		// do tap0 outputs first
 		int c = 0;// running index for all poly cable writes
-		for (; c < poly; c++) {
-			int srIndex = (head - 1 + 2 * LENGTH) % LENGTH;
-			outputs[CV_OUTPUT].setVoltage(cv[srIndex][c],c);
-			outputs[GATE_OUTPUT].setVoltage(gate[srIndex][c] && clockSignal > 1.0f ? 10.0f : 0.0f,c);
-			outputs[CV2_OUTPUT].setVoltage(cv2[srIndex][c],c);
+		if (!wetOnly) {
+			for (; c < poly; c++) {
+				int srIndex = (head - 1 + 2 * LENGTH) % LENGTH;
+				outputs[CV_OUTPUT].setVoltage(cv[srIndex][c],c);
+				outputs[GATE_OUTPUT].setVoltage(gate[srIndex][c] && clockSignal > 1.0f ? 10.0f : 0.0f,c);
+				outputs[CV2_OUTPUT].setVoltage(cv2[srIndex][c],c);
+			}
 		}
 		// now do main tap outputs
 		for (int j = 0; j < NUM_TAPS; j++) {
@@ -721,8 +737,6 @@ struct NoteEchoWidget : ModuleWidget {
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
 
-		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
-
 		menu->addChild(createSubmenuItem("Sample delay on clock input", "", [=](Menu* menu) {
 			menu->addChild(createCheckMenuItem("0", "",
 				[=]() {return module->clkDelay == 0;},
@@ -738,6 +752,10 @@ struct NoteEchoWidget : ModuleWidget {
 			));
 		}));	
 		
+		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
+		
+		menu->addChild(createBoolPtrMenuItem("Echoes only", "", &module->wetOnly));
+
 		createCv2NormalizationMenu(menu, &(module->cv2NormalledVoltage));
 	}	
 
@@ -787,10 +805,16 @@ struct NoteEchoWidget : ModuleWidget {
 		// row 0
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row0)), true, module, NoteEcho::CLK_INPUT, mode));
 		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col51 + 4.3f, row0 - 6.6f)), module, NoteEcho::SD_LIGHT));
+		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row0)), true, module, NoteEcho::CV_INPUT, mode));
+		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col52 + 3.3f, row0 - 6.6f)), module, NoteEcho::FILTER_LIGHT));
+		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row0)), true, module, NoteEcho::GATE_INPUT, mode));
+		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col53 + 5.6f, row0 - 6.6f)), module, NoteEcho::WET_LIGHT));
+		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row0)), true, module, NoteEcho::CV2_INPUT, mode));
 		addChild(createLightCentered<TinyLight<GreenRedLight>>(mm2px(Vec(col54 + 4.7f, row0 - 6.6f)), module, NoteEcho::CV2NORM_LIGHTS));
+		
 		PolyKnob* polyKnobP;
 		addParam(polyKnobP = createDynamicParamCentered<PolyKnob>(mm2px(Vec(col55, row0)), module, NoteEcho::POLY_PARAM, mode));
 		polyKnobP->module = module;
@@ -854,9 +878,11 @@ struct NoteEchoWidget : ModuleWidget {
 			// gate lights
 			int poly = m->getPolyKnob();
 			if (m->notifyPoly > 0) {
+				// do tap0 outputs first
 				for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
-					m->lights[NoteEcho::GATE_LIGHTS + i].setBrightness(i < poly ? 1.0f : 0.0f);
+					m->lights[NoteEcho::GATE_LIGHTS + i].setBrightness(i < poly && !m->wetOnly ? 1.0f : 0.0f);
 				}
+				// now do main tap outputs
 				for (int j = 0; j < NoteEcho::NUM_TAPS; j++) {
 					for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
 						bool lstate = i < poly && m->isTapActive(j);
@@ -869,11 +895,13 @@ struct NoteEchoWidget : ModuleWidget {
 			}
 			else {
 				int c = 0;
+				// do tap0 outputs first
 				for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
-					bool lstate = i < poly;
+					bool lstate = i < poly && !m->wetOnly;
 					m->lights[NoteEcho::GATE_LIGHTS + i].setBrightness(lstate && m->outputs[NoteEcho::GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
 					if (lstate) c++;
 				}
+				// now do main tap outputs
 				for (int j = 0; j < NoteEcho::NUM_TAPS; j++) {
 					for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
 						bool lstate = i < poly && m->isTapActive(j);
@@ -887,7 +915,13 @@ struct NoteEchoWidget : ModuleWidget {
 			}	
 			
 			// sample delay light
-			m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f);
+			m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f );
+			
+			// filter light
+			m->lights[NoteEcho::FILTER_LIGHT].setBrightness( m->noteFilter ? 1.0f : 0.0f );
+			
+			// wet light
+			m->lights[NoteEcho::WET_LIGHT].setBrightness( m->wetOnly ? 1.0f : 0.0f );
 			
 			// CV2 norm light
 			bool cv2uncon = !(m->inputs[NoteEcho::CV2_INPUT].isConnected());
