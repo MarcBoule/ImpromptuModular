@@ -131,7 +131,7 @@ struct DynamicSVGScrew : SvgWidget {
 	std::string frameAltName;
 
     void addFrame(std::shared_ptr<Svg> svg);
-    void addFrameAlt(std::string filename) {frameAltName = filename;}
+    void addFrameAlt(const std::string& filename) {frameAltName = filename;}
 	void refreshForTheme();
     void step() override;
 };
@@ -156,7 +156,7 @@ struct DynamicSVGPort : SvgPort {
 	std::string frameAltName;
 
     void addFrame(std::shared_ptr<Svg> svg);
-    void addFrameAlt(std::string filename) {frameAltName = filename;}
+    void addFrameAlt(const std::string& filename) {frameAltName = filename;}
 	void refreshForTheme();
     void step() override;
 };

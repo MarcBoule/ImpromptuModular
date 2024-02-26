@@ -187,12 +187,12 @@ class SinglePhraseRandom {
 		candidates.clear();
 		for (int i = 0; i < length; i++) {
 			if (i < 64) {
-				if ( (played0 & (0x1 << i)) == 0) {
+				if ( (played0 & (((uint64_t)0x1) << i)) == 0) {
 					candidates.push_back(i);
 				}
 			}
 			else {
-				if ( (played1 & (0x1 << (i - 64))) == 0) {
+				if ( (played1 & (((uint64_t)0x1) << (i - 64))) == 0) {
 					candidates.push_back(i);
 				}
 			}
@@ -205,10 +205,10 @@ class SinglePhraseRandom {
 			tpiIndex = candidates[random::u32() % candidates.size()];
 		}
 		if (tpiIndex < 64) {
-			played0 |= (0x1 << tpiIndex);
+			played0 |= (((uint64_t)0x1) << tpiIndex);
 		}
 		else {
-			played1 |= (0x1 << (tpiIndex - 64));
+			played1 |= (((uint64_t)0x1) << (tpiIndex - 64));
 		}
 		
 		return tpiIndex;
