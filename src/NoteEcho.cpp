@@ -378,8 +378,9 @@ struct NoteEcho : Module {
 					// kill redundant note
 					outputs[GATE_OUTPUT].setVoltage(0.0f, c2);
 					// and use its gateEn[][] to keep this persistent after the clock edge
-					int j = (c2 - poly) / poly;
-					gateEn[j][c2 % poly] = false;
+					int t = c2 / poly;
+					if (!wetOnly) t -= 1;
+					gateEn[t][c2 % poly] = false;
 				}
 			}
 		}
