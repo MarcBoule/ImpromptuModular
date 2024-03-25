@@ -130,8 +130,6 @@ struct GateSeq64 : Module {
 	dsp::BooleanTrigger editingSequenceTrigger;
 	HoldDetect modeHoldDetect;
 	SeqAttributesGS seqAttribBuffer[MAX_SEQS];// buffer for dataFromJson for thread safety
-	int lastStep = 0;// for mouse painting
-	bool lastValue = false;// for mouse painting
 
 	
 	bool isEditingSequence(void) {return params[EDIT_PARAM].getValue() > 0.5f;}
@@ -1182,6 +1180,10 @@ struct GateSeq64 : Module {
 };// GateSeq64 : module
 
 struct GateSeq64Widget : ModuleWidget {
+	bool mousePainting = false;// for mouse painting
+	bool lastValue = false;// for mouse painting
+	int lastStep = -1;// for mouse painting
+	
 	struct SequenceDisplayWidget : TransparentWidget {
 		GateSeq64 *module = nullptr;
 		std::shared_ptr<Font> font;
@@ -1466,35 +1468,54 @@ struct GateSeq64Widget : ModuleWidget {
 	};		
 
 	struct LEDButtonGS : LEDButton {
+		bool* mousePainting = nullptr;
+		bool* lastValue = nullptr;
+		int* lastStep = 0;
+		GateSeq64 *module = nullptr;
+		
 		LEDButtonGS() {};
+
 		void onDragStart(const event::DragStart &e) override {
-			ParamQuantity* paramQuantity = getParamQuantity();
-			if (paramQuantity) {
-				GateSeq64 *module = static_cast<GateSeq64*>(paramQuantity->module);
-				if (module->isEditingSequence() && module->displayState != GateSeq64::DISP_LENGTH && module->displayState != GateSeq64::DISP_MODES && !module->lock) {
-					int step = paramQuantity->paramId - GateSeq64::STEP_PARAMS;
-					if ( (step >= 0) && (step < 64) ) {
-						module->lastStep = step;
-						module->lastValue = !module->attributes[module->sequence][step].getGate();// negate since event to toggle has yet to occur
+			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+				const ParamQuantity* paramQuantity = getParamQuantity();
+				if (paramQuantity && module) {
+					if (module->isEditingSequence() && module->displayState != GateSeq64::DISP_LENGTH && module->displayState != GateSeq64::DISP_MODES && !module->lock) {
+						int step = paramQuantity->paramId - GateSeq64::STEP_PARAMS;
+						if ( (step >= 0) && (step < 64) ) {
+							*lastStep = step;
+							*lastValue = !module->attributes[module->sequence][step].getGate();// negate since event to toggle has yet to occur
+							// module->attributes[module->sequence][step].setGate(*lastValue);
+							*mousePainting = true;
+						}
 					}
 				}
+				e.consume(this);
 			}
 			LEDButton::onDragStart(e);
 		}
+
+
 		void onDragEnter(const event::DragEnter &e) override {
-			ParamQuantity* paramQuantity = getParamQuantity();
-			const LEDButtonGS *orig = static_cast<LEDButtonGS*>(e.origin);
-			if (orig && paramQuantity) {
-				GateSeq64 *module = static_cast<GateSeq64*>(paramQuantity->module);
-				if (module->isEditingSequence() && module->displayState != GateSeq64::DISP_LENGTH && module->displayState != GateSeq64::DISP_MODES) {
-					int step = paramQuantity->paramId - GateSeq64::STEP_PARAMS;
-					if ( (step != module->lastStep) && (step >= 0) && (step < 64)) {
-						module->attributes[module->sequence][step].setGate(module->lastValue);
+			if (e.button == GLFW_MOUSE_BUTTON_LEFT) {
+				const ParamQuantity* paramQuantity = getParamQuantity();
+				if (paramQuantity && module && (*mousePainting)) {
+					if (module->isEditingSequence() && module->displayState != GateSeq64::DISP_LENGTH && module->displayState != GateSeq64::DISP_MODES) {
+						int step = paramQuantity->paramId - GateSeq64::STEP_PARAMS;
+						if ((step != *lastStep) && (step >= 0) && (step < 64)) {
+							module->attributes[module->sequence][step].setGate(*lastValue);
+						}
 					}
 				}
+				e.consume(this);
 			}
 			LEDButton::onDragEnter(e);
-		};
+		}
+		
+
+		void onDragEnd(const DragEndEvent& e) override {
+			*mousePainting = false;
+			LEDButton::onDragEnd(e);
+		}
 	};
 
 	GateSeq64Widget(GateSeq64 *module) {
@@ -1528,7 +1549,12 @@ struct GateSeq64Widget : ModuleWidget {
 		for (int y = 0; y < 4; y++) {
 			int posX = col0;
 			for (int x = 0; x < 16; x++) {
-				addParam(createParamCentered<LEDButtonGS>(VecPx(posX, row0 + y * spacingRows), module, GateSeq64::STEP_PARAMS + y * 16 + x));
+				LEDButtonGS* button = createParamCentered<LEDButtonGS>(VecPx(posX, row0 + y * spacingRows), module, GateSeq64::STEP_PARAMS + y * 16 + x);
+				button->mousePainting = &mousePainting;
+				button->lastValue = &lastValue;
+				button->lastStep = &lastStep;
+				button->module = module;
+				addParam(button);
 				addChild(createLightCentered<MediumLight<GreenRedWhiteLightIM>>(VecPx(posX, row0 + y * spacingRows), module, GateSeq64::STEP_LIGHTS + (y * 16 + x) * 3));
 				posX += spacingSteps;
 				if ((x + 1) % 4 == 0)
