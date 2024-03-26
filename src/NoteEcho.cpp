@@ -572,7 +572,7 @@ struct NoteEchoWidget : ModuleWidget {
 		int tapNum = 0;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		char displayStr[16] = {};
+		std::string dispStr;
 		static const int textFontSize = 15;
 		static constexpr float textOffsetY = 19.9f; // 18.2f for 14 pt, 19.7f for 15pt
 		
@@ -602,18 +602,18 @@ struct NoteEchoWidget : ModuleWidget {
 				
 				nvgFillColor(args.vg, displayColOn);
 				if (!module || module->getTapValue(tapNum) < 1) {
-					snprintf(displayStr, 5, "  - ");
+					dispStr = "  - ";
 				}
 				else if (tapNum == 3 && !module->isLastTapAllowed()) {
-					snprintf(displayStr, 5, "O VF");
+					dispStr = "O VF";
 				}
 				else if (module->notifyInfo[tapNum] > 0l) {
 					if (module->notifySource[tapNum] == 1) {
 						// semitone
 						int ist = module->getSemiValue(tapNum);
-						snprintf(displayStr, 5, "  %2u", (unsigned)(std::abs(ist)));
+						dispStr = string::f("  %2u", (unsigned)(std::abs(ist)));
 						if (ist != 0) {
-							displayStr[0] = ist > 0 ? '+' : '-';
+							dispStr[0] = ist > 0 ? '+' : '-';
 						}
 					}
 					else if (module->notifySource[tapNum] == 2) {
@@ -623,27 +623,27 @@ struct NoteEchoWidget : ModuleWidget {
 							// CV2 mode is: offset
 							float cvValPrint = std::fabs(cv2) * 10.0f;
 							if (cvValPrint > 9.975f) {
-								snprintf(displayStr, 5, "  10");
+								dispStr = "  10";
 							}
 							else if (cvValPrint < 0.025f) {
-								snprintf(displayStr, 5, "   0");
+								dispStr = "   0";
 							}
 							else {
-								snprintf(displayStr, 5, "%3.2f", cvValPrint);// Three-wide, two positions after the decimal, left-justified
-								displayStr[1] = '.';// in case locals in printf
+								dispStr = string::f("%3.2f", cvValPrint);// Three-wide, two positions after the decimal, left-justified
+								dispStr[1] = '.';// in case locals in printf
 							}								
 						}
 						else {
 							// CV2 mode is: scale
 							unsigned int iscale100 = (unsigned)(std::round(std::fabs(cv2) * 100.0f));
 							if ( iscale100 >= 100) {
-								snprintf(displayStr, 5, "   1");
+								dispStr = "   1";
 							}
 							else if (iscale100 >= 1) {
-								snprintf(displayStr, 5, "0.%02u", (unsigned) iscale100);
+								dispStr = string::f("0.%02u", (unsigned) iscale100);
 							}	
 							else {
-								snprintf(displayStr, 5, "   0");
+								dispStr = "   0";
 							}
 						}
 					}
@@ -652,22 +652,22 @@ struct NoteEchoWidget : ModuleWidget {
 						float prob = module->params[NoteEcho::PROB_PARAMS + tapNum].getValue();
 						unsigned int iprob100 = (unsigned)(std::round(prob * 100.0f));
 						if ( iprob100 >= 100) {
-							snprintf(displayStr, 5, "   1");
+							dispStr = "   1";
 						}
 						else if (iprob100 >= 1) {
-							snprintf(displayStr, 5, "0.%02u", (unsigned) iprob100);
+							dispStr = string::f("0.%02u", (unsigned) iprob100);
 						}	
 						else {
-							snprintf(displayStr, 5, "   0");
+							dispStr = "   0";
 						}
 					}
 				}
 				else {
-					snprintf(displayStr, 5, "D %2u", (unsigned)(module->getTapValue(tapNum)));	
+					dispStr = string::f("D %2u", (unsigned)(module->getTapValue(tapNum)));	
 				}
-				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &displayStr[1], NULL);
-				displayStr[1] = 0;
-				nvgText(args.vg, textPos.x, textPos.y, displayStr, NULL);
+				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &dispStr[1], NULL);
+				dispStr[1] = 0;
+				nvgText(args.vg, textPos.x, textPos.y, dispStr.c_str(), NULL);
 			}
 		}
 	};
