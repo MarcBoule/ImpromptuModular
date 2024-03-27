@@ -491,7 +491,45 @@ struct NoteEcho : Module {
 		// lights
 		if (refresh.processLights()) {
 			// lights
-			// see NoteEchoWidget::step()
+			// simple ones done in NoteEchoWidget::step(), gate lights must be here (see detailed comment in step():
+			
+			// gate lights
+			if (notifyPoly > 0) {
+				// do tap0 outputs first
+				for (int i = 0; i < MAX_POLY; i++) {
+					lights[GATE_LIGHTS + i].setBrightness(i < poly && !wetOnly ? 1.0f : 0.0f);
+				}
+				// now do main tap outputs
+				for (int j = 0; j < NUM_TAPS; j++) {
+					for (int i = 0; i < MAX_POLY; i++) {
+						bool lstate = i < poly && isTapActive(j);
+						if (j == (NUM_TAPS - 1) && !isLastTapAllowed()) {
+							lstate = false;
+						}
+						lights[GATE_LIGHTS + 4 + j * MAX_POLY + i].setBrightness(lstate ? 1.0f : 0.0f);
+					}
+				}
+			}
+			else {
+				int c = 0;
+				// do tap0 outputs first
+				for (int i = 0; i < MAX_POLY; i++) {
+					bool lstate = i < poly && !wetOnly;
+					lights[GATE_LIGHTS + i].setBrightness(lstate && outputs[GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
+					if (lstate) c++;
+				}
+				// now do main tap outputs
+				for (int j = 0; j < NUM_TAPS; j++) {
+					for (int i = 0; i < MAX_POLY; i++) {
+						bool lstate = i < poly && isTapActive(j);
+						if (j == (NUM_TAPS - 1) && !isLastTapAllowed()) {
+							lstate = false;
+						}
+						lights[GATE_LIGHTS + 4 + j * MAX_POLY + i].setBrightness(lstate && outputs[GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
+						if (lstate) c++;
+					}
+				}
+			}
 
 			// info notification counters
 			for (int i = 0; i < NUM_TAPS; i++) {
@@ -876,44 +914,7 @@ struct NoteEchoWidget : ModuleWidget {
 		if (module) {
 			NoteEcho* m = static_cast<NoteEcho*>(module);
 			
-			// gate lights
-			int poly = m->getPolyKnob();
-			if (m->notifyPoly > 0) {
-				// do tap0 outputs first
-				for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
-					m->lights[NoteEcho::GATE_LIGHTS + i].setBrightness(i < poly && !m->wetOnly ? 1.0f : 0.0f);
-				}
-				// now do main tap outputs
-				for (int j = 0; j < NoteEcho::NUM_TAPS; j++) {
-					for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
-						bool lstate = i < poly && m->isTapActive(j);
-						if (j == (NoteEcho::NUM_TAPS - 1) && !m->isLastTapAllowed()) {
-							lstate = false;
-						}
-						m->lights[NoteEcho::GATE_LIGHTS + 4 + j * NoteEcho::MAX_POLY + i].setBrightness(lstate ? 1.0f : 0.0f);
-					}
-				}
-			}
-			else {
-				int c = 0;
-				// do tap0 outputs first
-				for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
-					bool lstate = i < poly && !m->wetOnly;
-					m->lights[NoteEcho::GATE_LIGHTS + i].setBrightness(lstate && m->outputs[NoteEcho::GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
-					if (lstate) c++;
-				}
-				// now do main tap outputs
-				for (int j = 0; j < NoteEcho::NUM_TAPS; j++) {
-					for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
-						bool lstate = i < poly && m->isTapActive(j);
-						if (j == (NoteEcho::NUM_TAPS - 1) && !m->isLastTapAllowed()) {
-							lstate = false;
-						}
-						m->lights[NoteEcho::GATE_LIGHTS + 4 + j * NoteEcho::MAX_POLY + i].setBrightness(lstate && m->outputs[NoteEcho::GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
-						if (lstate) c++;
-					}
-				}
-			}	
+			// gate lights done in process() since they look at output[], and when connecting/disconnecting cables the cable sizes are reset (and buffers cleared), which makes the gate lights flicker
 			
 			// sample delay light
 			m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f );
