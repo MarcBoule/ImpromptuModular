@@ -1,5 +1,5 @@
 Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://library.vcvrack.com/).
-Version 2.4.2  ![GitHub repo size](https://img.shields.io/github/repo-size/MarcBoule/ImpromptuModular)
+Version 2.4.3  ![GitHub repo size](https://img.shields.io/github/repo-size/MarcBoule/ImpromptuModular)
 
 Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 

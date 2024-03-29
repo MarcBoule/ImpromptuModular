@@ -3,6 +3,8 @@
 - Hotkey: added option to control how key modifiers are handled
 - BigButton: resized two of the three knobs (made smaller)
 - PhraseSeq16/32, Foundry: fix tooltips on octave buttons
+- GateSeq64: fixed a mouse painting bug when dragging cables across steps
+- NoteEcho: add menu option for wet only, and add filter and wet-only status lights
 
 
 ### 2.4.2 (2024-02-11)
