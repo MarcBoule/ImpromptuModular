@@ -1,4 +1,4 @@
-### 2.4.3 (in development)
+### 2.4.3 (2024-04-01)
 
 - Hotkey: added option to control how key modifiers are handled
 - BigButton: resized two of the three knobs (made smaller)
