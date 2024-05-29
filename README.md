@@ -41,8 +41,6 @@ Each module is available in light or dark panels with contrast adjusment, select
 
 * [ProbKey](#prob-key): Keyboard-based random note generator.
 
-* [SMS16](#sms-16): [DEPRECATED] Internally pre-patched all-in-one semi-modular synthesizer for quickly getting sounds and learning the basics of modular synthesis.
-
 * [Sygen](#sygen): Synchronous gate enable.
 
 * [Tact/Tact1/TactG](#tact): Touch-like CV controller modules.
@@ -125,11 +123,11 @@ In all sequencers, clicking **Randomize** in the right-click menu of the module 
 
 Many sequencers feature **SEQ# CV inputs**, which can be used to select the active sequence for editing or to externally control the playing order of the sequences. Three different modes are available for these inputs in the right click menu of the modules, under **Seq CV in**. 
 * 0-10V: a 0 to 10V input is proportionally mapped to the 1 to N sequence numbers; for example:
-    * In PhraseSeq16 and SMS16, the mapping is `SEQ# 1-16 <-> 0-10 V`
+    * In PhraseSeq16 the mapping is `SEQ# 1-16 <-> 0-10 V`
     * In PhraseSeq32 and GateSeq64, the mapping is `SEQ# 1-32 <-> 0-10 V`
     * In Foundry, the mapping is `SEQ# 1-64 <-> 0-10 V`
 * C4-D5# (or other note intervals): CV levels corresponding to the standard note voltages are mapped to the 1 to N sequence numbers, for example:
-    * In PhraseSeq16 and SMS16, the mapping is `SEQ# 1-16 <-> C4-D5#`
+    * In PhraseSeq16 the mapping is `SEQ# 1-16 <-> C4-D5#`
     * In PhraseSeq32 and GateSeq64, the mapping is `SEQ# 1-32 <-> C4-G6`
     * In Foundry, the mapping is `SEQ# 1-64 <-> C2-D7#`
 * Trig-Incr: the input is trigger sensitive and moves to the next sequence number every time a trigger is received. A reset can be used to move back to the first sequence.
@@ -189,7 +187,7 @@ Further information for developpers is available in a short summary of the [code
 <a id="portable_seq"></a>
 ### Portable sequence
 
-The [Portable sequence standard](clipboard-format.md) is supported in the following Impromptu sequencers: PhraseSeq16/32, SMS16 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence". 
+The [Portable sequence standard](clipboard-format.md) is supported in the following Impromptu sequencers: PhraseSeq16/32 and Foundry. Sequences can be copied to the clipboard to then be pasted in any compliant sequencers that support the standard. These special copy/paste commands can be found in the module's right-click menu under the entry called "Portable sequence". 
 
 The Portable sequence standard can also be used to copy small sequences of up to four notes into/from ChordKey, in order to make a chord out of a sequence of notes, or vice versa. The FourView module also allows the copying of the displayed notes for then pasting as a small sequence in a sequencer, or as a chord in ChordKey.
 
@@ -828,25 +826,6 @@ Other options are also available in the right-click menu:
 * **Manual step lock**: This menu allows individual steps to be locked manually. The menu is not automatically closed when clicking steps or the *Clear all* option; to close the menu, the Done item can be clicked (which does nothing internally except close the menu), or by clicking elsewhere on the module. Manually locking steps is only advised when the Lock knob is at 100% (full right) or if Prob-Key is not receiving any gates; if not, the *Manual step lock* menu will quickly get out of sync with the notes stored in the lock buffer since the menu is not dynamically updated when held open.
 
 The ProbKey module supports **polyphony** such that a polyphonic gate input will generate a polyphonic CV/gate output pair where each channel will generate separate random notes according to the (unique) settings of the module. The *Density*, *Squash* and *Offset* CV inputs also support polyphony in order to exert a certain amount of control over the different voices, but in order to have true separate randomness across multiple channels, separate ProbKey modules must be used and then merged.
-
-([Back to module list](#modules))
-
-
-
-<a id="sms-16"></a>
-## SMS16
-
-![IM](res/img/SemiModularSynth.jpg)
-
-[DEPRECATED] (*Concept and design by Xavier Belmont; sequencer by Impromptu*)
-
-An all-in-one pre-patched semi-modular synthesizer. Based on the [VCV Fundamental](https://vcvrack.com/Fundamental.html) modules by VCV and the [PhraseSeq16](#phrase-seq-16) sequencer (above). Please see those links for the respective manuals, while keeping in mind that not all features of the Fundamental modules were implemented in SMS16 (Semi-Modular Synth 16). A typical signal flow is internally patched by default, as shown by the interconnecting lines on the faceplate of the module. The majority of the internal connections can be overridden by any cables patched into those related jacks. 
-
-This module can be used for quickly exploring ideas for sequences, and is also useful for those new to modular synthesis before learning how to fill the screen with cables! Also note that the final output is the low-pass output of the VCF module (Voltage Controlled Filter). The VCF is purposely placed after the VCA (Voltage Controlled Amplifier) in the signal flow, such that the VCF can be lightly saturated, producing a thicker sound, especially when the Drive knob is turned up.
-
-Extra controls were also added to the LFO (Low Frequency Oscillator), namely **GAIN** and **OFFSET**, to be able to easily modulate any other on-board parameter. With maximum gain, the LFO produces a 10V peak-to-peak signal (i.e. 5V amplitude). The offset knob is automatically scaled such that with maximum (minimum) offset, the signal's maximum (minimum) voltage is +10V (-10V). That is, with the gain set to 0, the offset value spans -10V to +10V, and with the gain set to maximum, the offset value spans -5V to +5V. Also note that the clock LFO is automatically reset on every reset event in the sequencer.
-
-The SMS16 also features the advanced gate mode of the PhraseSeq16. When changing the clock resolution in the SMS16, the onboard clock will automatically be scaled accordingly and no multiplied clock needs to be supplied to the module.
 
 ([Back to module list](#modules))
 

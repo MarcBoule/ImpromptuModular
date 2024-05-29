@@ -1,3 +1,8 @@
+### 2.4.4 (in development)
+
+- Remove SMS16, which was deprecated 2024-02-11
+
+
 ### 2.4.3 (2024-04-01)
 
 - Hotkey: added option to control how key modifiers are handled

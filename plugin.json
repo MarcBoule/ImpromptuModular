@@ -162,14 +162,6 @@
 			"tags": ["Sequencer", "Random", "Polyphonic"]
 		},
 		{
-			"slug": "Semi-ModularSynth",
-			"name": "SMS16",
-			"description": "Semi-modular monophonic synthesizer, with 16-step sequencer",
-			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#sms-16",
-			"tags": ["Synth voice", "Sequencer"],
-			"hidden": true
-		},
-		{
 			"slug": "Sygen",
 			"name": "Sygen",
 			"description": "Synchronous gate enable",
