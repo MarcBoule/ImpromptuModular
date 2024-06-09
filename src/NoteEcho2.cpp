@@ -174,7 +174,7 @@ struct NoteEcho2 : Module {
 		
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
-			configParam(TAP_PARAMS + i, 1, (float)(MAX_DEL), ((float)i) + 1.0f, string::f("Tap %i delay", i + 1));
+			configParam(TAP_PARAMS + i, 0, (float)(MAX_DEL), ((float)i) + 1.0f, string::f("Tap %i delay", i + 1));
 			paramQuantities[TAP_PARAMS + i]->snapEnabled = true;
 			// tap knobs
 			configParam(ST_PARAMS + i, -48.0f, 48.0f, 0.0f, string::f("Tap %i semitone offset", i + 1));		
