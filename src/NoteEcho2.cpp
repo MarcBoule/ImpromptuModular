@@ -54,17 +54,18 @@ struct NoteEcho2 : Module {
 	
 	struct NoteEvent {
 		// all info here has semitone, cv2offset and prob applied 
-		// an event is considered pending when gateOffFrame<=0 (waiting for falling edge of a gate input), and ready when >0
+		// an event is considered pending when gateOffFrame==0 (waiting for falling edge of a gate input), and ready when >0; when pending, rest of struct is populated
+		int64_t capturedFrame;
 		int64_t gateOnFrame;
-		int64_t gateOffFrame;// can be -x when waiting for falling gate, all the while rest of struct will be populated, where
-		// x is number of frames of delay that were added to the rising gate's frame to create the gateOnFrame
+		int64_t gateOffFrame;// 0 when pending
 		float cv;
 		float cv2;
 		bool muted;// this is used to enter events that fail the probability gen so as to properly queue things for falling gate edges
 		
-		NoteEvent(float _cv, float _cv2, int64_t _gateOnFrame, int64_t _gateOffFrame, bool _muted) {
+		NoteEvent(float _cv, float _cv2, int64_t _capturedFrame, int64_t _gateOnFrame, int64_t _gateOffFrame, bool _muted) {
 			cv = _cv;
 			cv2 = _cv2;
+			capturedFrame = _capturedFrame;
 			gateOnFrame = _gateOnFrame;
 			gateOffFrame = _gateOffFrame;
 			muted = _muted;
@@ -76,6 +77,7 @@ struct NoteEcho2 : Module {
 	// none
 
 	// Constants
+	static constexpr float groupedProbsEpsilon = 0.01f;// time in seconds within which gates are considered grouped across polys, for when random mode is set to chord
 	static const int MAX_DEL = 32;
 	static const int MAX_QUEUE = MAX_DEL * 4;// assume quarter clocked note is finest resolution 
 	static constexpr float delayInfoTime = 3.0f;// seconds
@@ -359,7 +361,8 @@ struct NoteEcho2 : Module {
 		//   and enter proper events according to taps
 		for (int p = 0; p < MAX_POLY; p++) {
 			int gateEdge = gateTriggers[p].process(inputs[GATE_INPUT].getVoltage(p));
-			if (p >= std::min(poly, inputs[GATE_INPUT].getChannels())) {
+			int pLimit = std::min(poly, inputs[GATE_INPUT].getChannels());
+			if (p >= pLimit) {
 				break;
 			}
 			if (gateEdge == 1) {
@@ -390,23 +393,36 @@ struct NoteEcho2 : Module {
 						}
 
 						// frames
-						int64_t delayFrames = clockPeriod * (int64_t)getTapValue(t);
-						int64_t gateOnFrame = delayFrames + (int64_t)args.frame;
-						int64_t gateOffFrame = -delayFrames;// will be completed when gate falls
+						int64_t capturedFrame = args.frame;
+						int64_t gateOnFrame = capturedFrame + clockPeriod * (int64_t)getTapValue(t);
+						int64_t gateOffFrame = 0;// will be completed when gate falls
 						
 						// muted
-						bool muted;
-						if (p == 0 || !isSingleProbs() || channel[t][0].empty()) {
+						bool muted = false;
+						bool gotMuted = false;
+						if (isSingleProbs()) {
+							// try to get muted prob from another poly if close enough time-wise
+							int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
+							for (int p2 = 0; p2 < pLimit; p2++) {
+								if (p2 == p || channel[t][p2].empty()) continue;
+								int64_t delta = channel[t][p2].back().capturedFrame - capturedFrame;
+								int64_t delta2 = channel[t][p2].back().gateOnFrame - gateOnFrame;
+								if (llabs(delta) < closenessFrames && llabs(delta2) < closenessFrames) {
+									muted = channel[t][p2].back().muted;
+									gotMuted = true;
+									DEBUG("got closeness");
+									break;
+								}
+							}
+						}
+						if (!gotMuted) {
 							// generate new muted according to prob
 							muted = !getGateProbEnableForTap(t);
 						}
-						else {
-							// get muted prob from first poly
-							muted = channel[t][0].back().muted;
-						}
 
-						NoteEvent newEvent(cv, cv2, gateOnFrame, gateOffFrame, muted);
+						NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
 						channel[t][p].push(newEvent);// pushed at the end, get end using .back()
+						DEBUG("pushed an event");
 					}
 					else {
 						// MAX_QUEUE reached, flush
@@ -417,30 +433,22 @@ struct NoteEcho2 : Module {
 			else if (gateEdge == -1) {
 				// here we have a falling gate on poly p
 				for (int t = 0; t < NUM_TAPS; t++) {
-					// scan the taps to add the gateOffFrame
+					// scan the taps to set the gateOffFrame
 					if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 						continue;
 					}					
 					if (!channel[t][p].empty()) {
-						NoteEvent backEvent = channel[t][p].back();
-						if (backEvent.muted) {
+						if (channel[t][p].back().muted) {
 							channel[t][p].pop();
 						}
 						else {
-							if (backEvent.gateOffFrame <= 0) {
+							if (channel[t][p].back().gateOffFrame == 0) {
 								// we have a pending event
-								int64_t gateOffFrame = -backEvent.gateOffFrame + (double)args.frame;
-								if (gateOffFrame > backEvent.gateOnFrame) {
-									// well-formed event
-									channel[t][p].back().gateOffFrame = gateOffFrame;
-								}
-								else {
-									// error, back event would have a gateOffFrame <= gateOnFrame, flush
-									clearChannel(t, p);
-								}
+								int64_t gateFrames = args.frame - channel[t][p].back().capturedFrame;
+								channel[t][p].back().gateOffFrame = channel[t][p].back().gateOnFrame + gateFrames;
 							}
 							else {
-								// error, back event already has a gateOffFrame, flush
+								// error, back event already has a gateOffFrame, flush channel
 								clearChannel(t, p);
 							}
 						}
@@ -474,7 +482,7 @@ struct NoteEcho2 : Module {
 						outputs[CV_OUTPUT].setVoltage(e.cv, c);
 						outputs[CV2_OUTPUT].setVoltage(e.cv2, c);
 						gate = true;
-						if (e.gateOffFrame > 0 && args.frame >= e.gateOffFrame) {
+						if (e.gateOffFrame != 0 && args.frame >= e.gateOffFrame) {
 							gate = false;
 							channel[t][p].pop();
 						}
