@@ -77,7 +77,7 @@ struct NoteEcho2 : Module {
 	// none
 
 	// Constants
-	static constexpr float groupedProbsEpsilon = 0.01f;// time in seconds within which gates are considered grouped across polys, for when random mode is set to chord
+	static constexpr float groupedProbsEpsilon = 0.02f;// time in seconds within which gates are considered grouped across polys, for when random mode is set to chord
 	static const int MAX_DEL = 32;
 	static const int MAX_QUEUE = MAX_DEL * 4;// assume quarter clocked note is finest resolution 
 	static constexpr float delayInfoTime = 3.0f;// seconds
@@ -303,11 +303,6 @@ struct NoteEcho2 : Module {
 	}
 
 
-	void filterOutputsForIdentNotes(int chans, int poly) {
-		// TODO
-	}
-
-
 	void onSampleRateChange() override {
 		clear();
 	}		
@@ -361,9 +356,8 @@ struct NoteEcho2 : Module {
 		//   and enter proper events according to taps
 		for (int p = 0; p < MAX_POLY; p++) {
 			int gateEdge = gateTriggers[p].process(inputs[GATE_INPUT].getVoltage(p));
-			int pLimit = std::min(poly, inputs[GATE_INPUT].getChannels());
-			if (p >= pLimit) {
-				break;
+			if (p >= poly) {
+				continue;// must do all gateTriggers[p].process()
 			}
 			if (gateEdge == 1) {
 				// here we have a rising gate on poly p
@@ -403,14 +397,13 @@ struct NoteEcho2 : Module {
 						if (isSingleProbs()) {
 							// try to get muted prob from another poly if close enough time-wise
 							int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
-							for (int p2 = 0; p2 < pLimit; p2++) {
+							for (int p2 = 0; p2 < poly; p2++) {
 								if (p2 == p || channel[t][p2].empty()) continue;
 								int64_t delta = channel[t][p2].back().capturedFrame - capturedFrame;
 								int64_t delta2 = channel[t][p2].back().gateOnFrame - gateOnFrame;
 								if (llabs(delta) < closenessFrames && llabs(delta2) < closenessFrames) {
 									muted = channel[t][p2].back().muted;
 									gotMuted = true;
-									DEBUG("got closeness");
 									break;
 								}
 							}
@@ -422,7 +415,6 @@ struct NoteEcho2 : Module {
 
 						NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
 						channel[t][p].push(newEvent);// pushed at the end, get end using .back()
-						DEBUG("pushed an event");
 					}
 					else {
 						// MAX_QUEUE reached, flush
@@ -479,12 +471,26 @@ struct NoteEcho2 : Module {
 				if (!channel[t][p].empty()) {
 					NoteEvent e = channel[t][p].front();
 					if (args.frame >= e.gateOnFrame) {
-						outputs[CV_OUTPUT].setVoltage(e.cv, c);
-						outputs[CV2_OUTPUT].setVoltage(e.cv2, c);
 						gate = true;
 						if (e.gateOffFrame != 0 && args.frame >= e.gateOffFrame) {
+							// note is now done, remove it (CVs will stay held in the ports though)
 							gate = false;
 							channel[t][p].pop();
+						}
+						else if (noteFilter) {
+							// don't allow the gate to turn on if the same CV is already on another channel that has its gate high
+							for (int c2 = 0; c2 < c; c2++) {
+								if (outputs[GATE_OUTPUT].getVoltage(c2) != 0.0f &&
+									outputs[CV_OUTPUT].getVoltage(c2) == e.cv) {
+									gate = false;
+									channel[t][p].pop();
+									break;
+								}
+							}
+						}
+						if (gate) {
+							outputs[CV_OUTPUT].setVoltage(e.cv, c);
+							outputs[CV2_OUTPUT].setVoltage(e.cv2, c);							
 						}
 					}
 				}
