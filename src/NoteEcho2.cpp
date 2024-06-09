@@ -772,7 +772,7 @@ struct NoteEcho2Widget : ModuleWidget {
 		float* cont = module ? &module->panelContrast : NULL;
 		
 		// Main panel from Inkscape
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/NoteEcho.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/NoteEcho2.svg")));
 		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
