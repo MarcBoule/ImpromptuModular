@@ -55,17 +55,19 @@ struct NoteEcho2 : Module {
 	struct NoteEvent {
 		// all info here has semitone, cv2offset and prob applied 
 		// an event is considered pending when gateOffFrame<=0 (waiting for falling edge of a gate input), and ready when >0
-		float cv;
-		float cv2;
 		int64_t gateOnFrame;
 		int64_t gateOffFrame;// can be -x when waiting for falling gate, all the while rest of struct will be populated, where
 		// x is number of frames of delay that were added to the rising gate's frame to create the gateOnFrame
+		float cv;
+		float cv2;
+		bool muted;// this is used to enter events that fail the probability gen so as to properly queue things for falling gate edges
 		
-		NoteEvent(float _cv, float _cv2, int64_t _gateOnFrame, int64_t _gateOffFrame) {
+		NoteEvent(float _cv, float _cv2, int64_t _gateOnFrame, int64_t _gateOffFrame, bool _muted) {
 			cv = _cv;
 			cv2 = _cv2;
 			gateOnFrame = _gateOnFrame;
 			gateOffFrame = _gateOffFrame;
+			muted = _muted;
 		}
 	};
 
@@ -355,10 +357,9 @@ struct NoteEcho2 : Module {
 		
 		// check the poly gate input for rising/falling gates, 
 		//   and enter proper events according to taps
-		bool gateEnProb[NUM_TAPS];
 		for (int p = 0; p < MAX_POLY; p++) {
 			int gateEdge = gateTriggers[p].process(inputs[GATE_INPUT].getVoltage(p));
-			if (clockPeriod < 0 || p >= std::min(poly, inputs[GATE_INPUT].getChannels())) {
+			if (p >= std::min(poly, inputs[GATE_INPUT].getChannels())) {
 				break;
 			}
 			if (gateEdge == 1) {
@@ -368,10 +369,7 @@ struct NoteEcho2 : Module {
 					if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 						continue;
 					}
-					if (p == 0) {
-						gateEnProb[t] = getGateProbEnableForTap(t);
-					}
-					if (gateEnProb[t] && channel[t][p].size() < MAX_QUEUE) {
+					if (channel[t][p].size() < MAX_QUEUE) {
 						// cv
 						float cv = inputs[CV_INPUT].getChannels() > p ? inputs[CV_INPUT].getVoltage(p) : 0.0f;
 						cv += getSemiVolts(t);
@@ -395,14 +393,25 @@ struct NoteEcho2 : Module {
 						int64_t delayFrames = clockPeriod * (int64_t)getTapValue(t);
 						int64_t gateOnFrame = delayFrames + (int64_t)args.frame;
 						int64_t gateOffFrame = -delayFrames;// will be completed when gate falls
+						
+						// muted
+						bool muted;
+						if (p == 0 || !isSingleProbs() || channel[t][0].empty()) {
+							// generate new muted according to prob
+							muted = !getGateProbEnableForTap(t);
+						}
+						else {
+							// get muted prob from first poly
+							muted = channel[t][0].back().muted;
+						}
 
-						NoteEvent newEvent(cv, cv2, gateOnFrame, gateOffFrame);
-						channel[t][p].push(newEvent);
+						NoteEvent newEvent(cv, cv2, gateOnFrame, gateOffFrame, muted);
+						channel[t][p].push(newEvent);// pushed at the end, get end using .back()
 					}
-					if (p != 0 && !isSingleProbs()) {
-						// separate probs for each poly chan, so get new gateEnProb for potential next poly
-						gateEnProb[t] = getGateProbEnableForTap(t);
-					}	
+					else {
+						// MAX_QUEUE reached, flush
+						clearChannel(t, p);
+					}
 				}// tap t
 			}
 			else if (gateEdge == -1) {
@@ -413,19 +422,27 @@ struct NoteEcho2 : Module {
 						continue;
 					}					
 					if (!channel[t][p].empty()) {
-						if (channel[t][p].back().gateOffFrame <= 0) {
-							int64_t gateOffFrame = -channel[t][p].back().gateOffFrame + (double)args.frame;
-							if (gateOffFrame > channel[t][p].back().gateOnFrame) {
-								channel[t][p].back().gateOffFrame = gateOffFrame;
-							}
-							else {
-								// back event has a gateOffFrame before or equal to gateOnFrame
-								clearChannel(t, p);
-							}
+						NoteEvent backEvent = channel[t][p].back();
+						if (backEvent.muted) {
+							channel[t][p].pop();
 						}
 						else {
-							// back event already has a gateOffFrame
-							clearChannel(t, p);
+							if (backEvent.gateOffFrame <= 0) {
+								// we have a pending event
+								int64_t gateOffFrame = -backEvent.gateOffFrame + (double)args.frame;
+								if (gateOffFrame > backEvent.gateOnFrame) {
+									// well-formed event
+									channel[t][p].back().gateOffFrame = gateOffFrame;
+								}
+								else {
+									// error, back event would have a gateOffFrame <= gateOnFrame, flush
+									clearChannel(t, p);
+								}
+							}
+							else {
+								// error, back event already has a gateOffFrame, flush
+								clearChannel(t, p);
+							}
 						}
 					}
 				}// tap t					
@@ -465,9 +482,6 @@ struct NoteEcho2 : Module {
 				}
 				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
 			}
-		}
-		if (clkEdge && noteFilter) {
-			filterOutputsForIdentNotes(chans, poly); 
 		}
 		
 		
