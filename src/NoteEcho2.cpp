@@ -9,6 +9,7 @@
 
 
 #include "ImpromptuModular.hpp"
+#include <queue>
 
 
 
@@ -43,6 +44,7 @@ struct NoteEcho2 : Module {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
+		TOK_LIGHT,
 		FILTER_LIGHT,
 		WET_LIGHT,
 		ENUMS(CV2NORM_LIGHTS, 2),// reg green
@@ -51,11 +53,30 @@ struct NoteEcho2 : Module {
 	};
 	
 	
+	struct NoteEvent {
+		// all info here has semitone, cv2offset and prob applied 
+		// an event is considered pending when gateOffFrame<=0 (waiting for falling edge of a gate input), and ready when >0
+		float cv;
+		float cv2;
+		int64_t gateOnFrame;
+		int64_t gateOffFrame;// can be -x when waiting for falling gate (do not use event until this is positive), all the while rest of struct will be populated, where
+		// x is number of frames of delay that were added to the rising gate's frame to create the gateOnFrame
+		
+		NoteEvent(float _cv, float _cv2, int64_t _gateOnFrame, int64_t _gateOffFrame) {
+			cv = _cv;
+			cv2 = _cv2;
+			gateOnFrame = _gateOnFrame;
+			gateOffFrame = _gateOffFrame;
+		}
+	};
+
+	
 	// Expander
 	// none
 
 	// Constants
 	static const int MAX_DEL = 32;
+	static const int MAX_QUEUE = MAX_DEL * 4;// assume quarter clocked note is finest resolution 
 	static constexpr float delayInfoTime = 3.0f;// seconds
 	static constexpr float cv2NormMin = -10.0f;
 	static constexpr float cv2NormMax = 10.0f;
@@ -66,15 +87,12 @@ struct NoteEcho2 : Module {
 	float panelContrast;
 	
 	// Need to save, with reset
-	float cv[NUM_TAPS][MAX_POLY];// * all info here has semitone, cv2offset and prob applied 
-	float cv2[NUM_TAPS][MAX_POLY];// *
 	bool noteFilter;
 	bool wetOnly;
 	float cv2NormalledVoltage;
 
 	// No need to save, with reset
-	int64_t gateOnFrame[NUM_TAPS][MAX_POLY];// *
-	int64_t gateOffFrame[NUM_TAPS][MAX_POLY];// *
+	std::queue<NoteEvent> channel[NUM_TAPS][MAX_POLY];// all info here has semitone, cv2offset and prob applied 
 	int64_t lastRisingClkFrame;// -1 when none
 	int64_t clockPeriod;// -1 when not valid
 	
@@ -85,6 +103,7 @@ struct NoteEcho2 : Module {
 	RefreshCounter refresh;
 	Trigger clkTrigger;
 	Trigger clearTrigger;
+	TriggerRiseFall gateTriggers[NUM_TAPS];
 
 
 	int getPolyKnob() {
@@ -111,8 +130,17 @@ struct NoteEcho2 : Module {
 	int getSemiValue(int tapNum) {
 		return (int)(std::round(params[ST_PARAMS + tapNum].getValue()));
 	}
+	float getSemiVolts(int tapNum) {
+		return params[ST_PARAMS + tapNum].getValue() / 12.0f;
+	}
 	bool isCv2Offset() {
 		return params[CV2MODE_PARAM].getValue() > 0.5f;
+	}
+	bool isSingleProbs() {
+		return params[PMODE_PARAM].getValue() > 0.5f;
+	}
+	bool getGateProbEnableForTap(int tapNum) {
+		return (random::uniform() < params[PROB_PARAMS + tapNum].getValue()); // random::uniform is [0.0, 1.0), see include/util/common.hpp
 	}
 	
 	void refreshCv2ParamQuantities() {
@@ -146,7 +174,7 @@ struct NoteEcho2 : Module {
 		
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
-			configParam(TAP_PARAMS + i, 1, (float)(MAX_DEL), ((float)i), string::f("Tap %i delay", i + 1));
+			configParam(TAP_PARAMS + i, 1, (float)(MAX_DEL), ((float)i) + 1.0f, string::f("Tap %i delay", i + 1));
 			paramQuantities[TAP_PARAMS + i]->snapEnabled = true;
 			// tap knobs
 			configParam(ST_PARAMS + i, -48.0f, 48.0f, 0.0f, string::f("Tap %i semitone offset", i + 1));		
@@ -169,6 +197,7 @@ struct NoteEcho2 : Module {
 		configOutput(CV2_OUTPUT, "CV2/Velocity");
 		configOutput(CLK_OUTPUT, "Clock");
 		
+		configLight(TOK_LIGHT, "Undetected clock period");
 		configLight(FILTER_LIGHT, "Filter identical notes");
 		configLight(WET_LIGHT, "Echoes only");
 		configLight(CV2NORM_LIGHTS, "CV2 normalization voltage");
@@ -184,32 +213,25 @@ struct NoteEcho2 : Module {
 	}
 
 
-	void clearCvs() {
-		for (int j = 0; j < NUM_TAPS; j++) {
-			for (int i = 0; i < MAX_POLY; i++) {
-				cv[j][i] = 0.0f;
-				cv2[j][i] = 0.0f;
-			}
-		}
-	}
-	void clearGates() {
-		for (int j = 0; j < NUM_TAPS; j++) {
-			for (int i = 0; i < MAX_POLY; i++) {
-				gateOnFrame[j][i] = -1;
-				gateOffFrame[j][i] = -1;
+	void clear() {
+		for (int t = 0; t < NUM_TAPS; t++) {
+			for (int p = 0; p < MAX_POLY; p++) {
+				while (!channel[t][p].empty()) {
+					channel[t][p].pop();
+				}
 			}
 		}
 	}
 
+
 	void onReset() override final {
-		clearCvs();
 		noteFilter = false;
 		wetOnly = false;
 		cv2NormalledVoltage = 0.0f;
 		resetNonJson();
 	}
 	void resetNonJson() {
-		clearGates();
+		clear();
 		lastRisingClkFrame = -1;// none
 		clockPeriod = -1;// not valid
 	}
@@ -223,18 +245,6 @@ struct NoteEcho2 : Module {
 
 		// panelContrast
 		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
-
-		// cv, cv2
-		json_t *cvJ = json_array();
-		json_t *cv2J = json_array();
-		for (int j = 0; j < NUM_TAPS; j++) {
-			for (int i = 0; i < MAX_POLY; i++) {
-				json_array_insert_new(cvJ, j * MAX_POLY + i, json_real(cv[j][i]));
-				json_array_insert_new(cv2J, j * MAX_POLY + i, json_real(cv2[j][i]));
-			}
-		}
-		json_object_set_new(rootJ, "cv", cvJ);
-		json_object_set_new(rootJ, "cv2", cv2J);
 		
 		// noteFilter
 		json_object_set_new(rootJ, "noteFilter", json_boolean(noteFilter));
@@ -259,28 +269,6 @@ struct NoteEcho2 : Module {
 		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
 		if (panelContrastJ)
 			panelContrast = json_number_value(panelContrastJ);
-
-		// cv, cv2
-		json_t *cvJ = json_object_get(rootJ, "cv");
-		if (cvJ) {
-			for (int j = 0; j < NUM_TAPS; j++) {
-				for (int i = 0; i < MAX_POLY; i++) {
-					json_t *cvArrayJ = json_array_get(cvJ, j * MAX_POLY + i);
-					if (cvArrayJ)
-						cv[j][i] = json_number_value(cvArrayJ);
-				}
-			}
-		}
-		json_t *cv2J = json_object_get(rootJ, "cv2");
-		if (cv2J) {
-			for (int j = 0; j < NUM_TAPS; j++) {
-				for (int i = 0; i < MAX_POLY; i++) {
-					json_t *cv2ArrayJ = json_array_get(cv2J, j * MAX_POLY + i);
-					if (cv2ArrayJ)
-						cv2[j][i] = json_number_value(cv2ArrayJ);
-				}
-			}
-		}
 
 		// noteFilter
 		json_t *noteFilterJ = json_object_get(rootJ, "noteFilter");
@@ -329,12 +317,90 @@ struct NoteEcho2 : Module {
 	
 		// clear and clock
 		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage())) {
-			clearCvs();
-			clearGates();
+			clear();
 		}
 		float clockSignal = inputs[CLK_INPUT].getVoltage();
-/*		bool clkEdge = clkTrigger.process(clockSignal);
+		bool clkEdge = clkTrigger.process(clockSignal);
 		if (clkEdge) {
+			// update clockPeriod
+			if (lastRisingClkFrame != -1) {
+				int64_t deltaFrames = args.frame - lastRisingClkFrame;
+				float deltaFramesF = (float)deltaFrames;
+				if (deltaFramesF < (args.sampleRate * 6.0f)) {// 10 BPM minimum tempo
+					clockPeriod = deltaFrames;
+				}
+				// else, remember the previous clockPeriod so nothing to do
+			}
+			lastRisingClkFrame = args.frame;
+		}	
+		
+		// check the poly gate input for rising/falling gates, 
+		//   and enter proper events according to taps
+		bool gateEnProb[NUM_TAPS];
+		for (int p = 0; p < MAX_POLY; p++) {
+			int gateEdge = gateTriggers[p].process(inputs[GATE_INPUT].getVoltage(p));
+			if (clockPeriod < 0 || p >= std::min(poly, inputs[GATE_INPUT].getChannels())) {
+				break;
+			}
+			if (gateEdge == 1) {
+				// here we have a rising gate on poly p
+				// now scan taps and prepare events for this gate on poly p 
+				for (int t = 0; t < NUM_TAPS; t++) {
+					if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+						continue;
+					}
+					if (p == 0) {
+						gateEnProb[t] = getGateProbEnableForTap(t);
+					}
+					if (gateEnProb[t] && channel[t][p].size() < MAX_QUEUE) {
+						// cv
+						float cv = inputs[CV_INPUT].getChannels() > p ? inputs[CV_INPUT].getVoltage(p) : 0.0f;
+						cv += getSemiVolts(t);
+						
+						// cv2
+						float cv2;
+						if (inputs[CV2_INPUT].getChannels() < 1) {
+							cv2 = cv2NormalledVoltage;
+						}
+						else {
+							cv2 = inputs[CV2_INPUT].getVoltage(std::min(p, inputs[CV2_INPUT].getChannels() - 1));
+						}
+						if (isCv2Offset()) {
+							cv2 += params[CV2_PARAMS + t].getValue() * 10.0f;
+						}
+						else {
+							cv2 *= params[CV2_PARAMS + t].getValue();
+						}
+
+						// frames
+						int64_t delayFrames = clockPeriod * (int64_t)getTapValue(t);
+						int64_t gateOnFrame = delayFrames + (int64_t)args.frame;
+						int64_t gateOffFrame = -delayFrames;// will be completed when gate falls
+
+						NoteEvent newEvent(cv, cv2, gateOnFrame, gateOffFrame);
+						channel[t][p].push(newEvent);
+					}
+					if (p != 0 && !isSingleProbs()) {
+						// separate probs for each poly chan, so get new gateEnProb for potential next poly
+						gateEnProb[t] = getGateProbEnableForTap(t);
+					}	
+				}// tap t
+			}
+			else if (gateEdge == -1) {
+				// here we have a falling gate on poly p
+				for (int t = 0; t < NUM_TAPS; t++) {
+					// scan the taps to add the gateOffFrame
+					if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+						continue;
+					}					
+					if (!channel[t][p].empty() && channel[t][p].back().gateOffFrame <= 0) {
+						channel[t][p].back().gateOffFrame = -channel[t][p].back().gateOffFrame + (double)args.frame;
+					}
+				}// tap t					
+			}
+		}// poly p
+		
+/*		if (clkEdge) {
 			// sample the inputs
 			for (int i = 0; i < MAX_POLY; i++) {
 				cv[head][i] = inputs[CV_INPUT].getChannels() > i ? inputs[CV_INPUT].getVoltage(i) : 0.0f;
@@ -746,6 +812,7 @@ struct NoteEcho2Widget : ModuleWidget {
 		
 		// row 0
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row0)), true, module, NoteEcho2::CLK_INPUT, mode));
+		addChild(createLightCentered<TinyLight<RedLight>>(mm2px(Vec(col51 + 4.3f, row0 - 6.6f)), module, NoteEcho2::TOK_LIGHT));	
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row0)), true, module, NoteEcho2::CV_INPUT, mode));
 		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col52 + 3.3f, row0 - 6.6f)), module, NoteEcho2::FILTER_LIGHT));
@@ -818,6 +885,9 @@ struct NoteEcho2Widget : ModuleWidget {
 			
 			// gate lights done in process() since they look at output[], and when connecting/disconnecting cables the cable sizes are reset (and buffers cleared), which makes the gate lights flicker
 			
+			// T ok light
+			m->lights[NoteEcho2::TOK_LIGHT].setBrightness( m->clockPeriod == -1 ? 1.0f : 0.0f );
+
 			// filter light
 			m->lights[NoteEcho2::FILTER_LIGHT].setBrightness( m->noteFilter ? 1.0f : 0.0f );
 			
