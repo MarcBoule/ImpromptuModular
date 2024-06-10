@@ -109,7 +109,7 @@ struct ChordKeyExpander : Module {
 				for (int i = 0; i < 4; i++) {
 					chordValues[i] = messagesFromMother[i];
 				}
-				panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 1);
+				panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 2);
 				panelContrast = clamp(messagesFromMother[5], 0.0f, 255.0f);
 			}	
 			else {

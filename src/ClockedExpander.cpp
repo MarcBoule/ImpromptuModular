@@ -64,7 +64,7 @@ struct ClockedExpander : Module {
 				
 				// From Mother
 				float *messagesFromMother = static_cast<float*>(leftExpander.consumerMessage);
-				panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 1);			
+				panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 2);
 				panelContrast = clamp(messagesFromMother[1], 0.0f, 255.0f);
 			}		
 		}// expanderRefreshCounter

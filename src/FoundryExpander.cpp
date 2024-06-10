@@ -94,7 +94,7 @@ struct FoundryExpander : Module {
 			leftExpander.module->rightExpander.messageFlipRequested = true;
 
 			// From Mother
-			panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 1);
+			panelTheme = clamp((int)(messagesFromMother[0] + 0.5f), 0, 2);
 			panelContrast = clamp(messagesFromMother[1], 0.0f, 255.0f);
 		}		
 
