@@ -366,60 +366,57 @@ struct NoteEcho2 : Module {
 					if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 						continue;
 					}
-					if (channel[t][p].size() < MAX_QUEUE) {
-						// cv
-						float cv = inputs[CV_INPUT].getChannels() > p ? inputs[CV_INPUT].getVoltage(p) : 0.0f;
-						cv += getSemiVolts(t);
-						
-						// cv2
-						float cv2;
-						if (inputs[CV2_INPUT].getChannels() < 1) {
-							cv2 = cv2NormalledVoltage;
-						}
-						else {
-							cv2 = inputs[CV2_INPUT].getVoltage(std::min(p, inputs[CV2_INPUT].getChannels() - 1));
-						}
-						if (isCv2Offset()) {
-							cv2 += params[CV2_PARAMS + t].getValue() * 10.0f;
-						}
-						else {
-							cv2 *= params[CV2_PARAMS + t].getValue();
-						}
-
-						// frames
-						int64_t capturedFrame = args.frame;
-						int64_t gateOnFrame = capturedFrame + clockPeriod * (int64_t)getTapValue(t);
-						int64_t gateOffFrame = 0;// will be completed when gate falls
-						
-						// muted
-						bool muted = false;
-						bool gotMuted = false;
-						if (isSingleProbs()) {
-							// try to get muted prob from another poly if close enough time-wise
-							int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
-							for (int p2 = 0; p2 < poly; p2++) {
-								if (p2 == p || channel[t][p2].empty()) continue;
-								int64_t delta = channel[t][p2].back().capturedFrame - capturedFrame;
-								int64_t delta2 = channel[t][p2].back().gateOnFrame - gateOnFrame;
-								if (llabs(delta) < closenessFrames && llabs(delta2) < closenessFrames) {
-									muted = channel[t][p2].back().muted;
-									gotMuted = true;
-									break;
-								}
-							}
-						}
-						if (!gotMuted) {
-							// generate new muted according to prob
-							muted = !getGateProbEnableForTap(t);
-						}
-
-						NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
-						channel[t][p].push(newEvent);// pushed at the end, get end using .back()
+					if (channel[t][p].size() >= MAX_QUEUE) {
+						continue;// skip event if queue too full
+					}
+					// cv
+					float cv = inputs[CV_INPUT].getChannels() > p ? inputs[CV_INPUT].getVoltage(p) : 0.0f;
+					cv += getSemiVolts(t);
+					
+					// cv2
+					float cv2;
+					if (inputs[CV2_INPUT].getChannels() < 1) {
+						cv2 = cv2NormalledVoltage;
 					}
 					else {
-						// MAX_QUEUE reached, flush
-						clearChannel(t, p);
+						cv2 = inputs[CV2_INPUT].getVoltage(std::min(p, inputs[CV2_INPUT].getChannels() - 1));
 					}
+					if (isCv2Offset()) {
+						cv2 += params[CV2_PARAMS + t].getValue() * 10.0f;
+					}
+					else {
+						cv2 *= params[CV2_PARAMS + t].getValue();
+					}
+
+					// frames
+					int64_t capturedFrame = args.frame;
+					int64_t gateOnFrame = capturedFrame + clockPeriod * (int64_t)getTapValue(t);
+					int64_t gateOffFrame = 0;// will be completed when gate falls
+					
+					// muted
+					bool muted = false;
+					bool gotMuted = false;
+					if (isSingleProbs()) {
+						// try to get muted prob from another poly if close enough time-wise
+						int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
+						for (int p2 = 0; p2 < poly; p2++) {
+							if (p2 == p || channel[t][p2].empty()) continue;
+							int64_t delta = channel[t][p2].back().capturedFrame - capturedFrame;
+							int64_t delta2 = channel[t][p2].back().gateOnFrame - gateOnFrame;
+							if (llabs(delta) < closenessFrames && llabs(delta2) < closenessFrames) {
+								muted = channel[t][p2].back().muted;
+								gotMuted = true;
+								break;
+							}
+						}
+					}
+					if (!gotMuted) {
+						// generate new muted according to prob
+						muted = !getGateProbEnableForTap(t);
+					}
+
+					NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
+					channel[t][p].push(newEvent);// pushed at the end, get end using .back()
 				}// tap t
 			}
 			else if (gateEdge == -1) {
