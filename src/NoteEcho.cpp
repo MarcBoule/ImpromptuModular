@@ -38,7 +38,7 @@ struct NoteEcho : Module {
 		CV_OUTPUT,
 		GATE_OUTPUT,
 		CV2_OUTPUT,
-		CLK_OUTPUT,
+		// CLK_OUTPUT,// unused
 		NUM_OUTPUTS
 	};
 	enum LightIds {
@@ -55,7 +55,8 @@ struct NoteEcho : Module {
 	// none
 
 	// Constants
-	static const int LENGTH = 32 + 1;
+	static const int MAX_DEL = 32;
+	static const int SR_LENGTH = MAX_DEL + 1;
 	static constexpr float delayInfoTime = 3.0f;// seconds
 	static constexpr float cv2NormMin = -10.0f;
 	static constexpr float cv2NormMax = 10.0f;
@@ -66,11 +67,6 @@ struct NoteEcho : Module {
 	float panelContrast;
 	
 	// Need to save, with reset
-	float cv[LENGTH][MAX_POLY];
-	float cv2[LENGTH][MAX_POLY];
-	bool gate[LENGTH][MAX_POLY];
-	bool gateEn[NUM_TAPS][MAX_POLY];
-	int head;// points the next register to be written when next clock occurs
 	bool noteFilter;
 	bool wetOnly;
 	int clkDelay;
@@ -78,7 +74,13 @@ struct NoteEcho : Module {
 	float cv2NormalledVoltage;
 
 	// No need to save, with reset
-	// none
+	// ** SR MODE
+	float cv[SR_LENGTH][MAX_POLY];
+	float cv2[SR_LENGTH][MAX_POLY];
+	bool gate[SR_LENGTH][MAX_POLY];
+	bool gateEn[NUM_TAPS][MAX_POLY];
+	int head;// points the next register to be written when next clock occurs
+	// ** DEL MODE
 	
 	// No need to save, no reset
 	int notifySource[NUM_TAPS] = {};// 0 (normal), 1 (semi) 2 (CV2), 3 (prob)
@@ -148,7 +150,7 @@ struct NoteEcho : Module {
 		
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
-			configParam(TAP_PARAMS + i, 0, (float)(LENGTH - 1), ((float)i) + 1.0f, string::f("Tap %i delay", i + 1));
+			configParam(TAP_PARAMS + i, 0, (float)(SR_LENGTH - 1), ((float)i) + 1.0f, string::f("Tap %i delay", i + 1));
 			paramQuantities[TAP_PARAMS + i]->snapEnabled = true;
 			// tap knobs
 			configParam(ST_PARAMS + i, -48.0f, 48.0f, 0.0f, string::f("Tap %i semitone offset", i + 1));		
@@ -169,7 +171,7 @@ struct NoteEcho : Module {
 		configOutput(CV_OUTPUT, "CV");
 		configOutput(GATE_OUTPUT, "Gate");
 		configOutput(CV2_OUTPUT, "CV2/Velocity");
-		configOutput(CLK_OUTPUT, "Clock");
+		// configOutput(CLK_OUTPUT, "Clock");
 		
 		configLight(SD_LIGHT, "Sample delay active");
 		configLight(FILTER_LIGHT, "Filter identical notes");
@@ -179,7 +181,7 @@ struct NoteEcho : Module {
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
 		configBypass(CV2_INPUT, CV2_OUTPUT);
-		configBypass(CLK_INPUT, CLK_OUTPUT);
+		// configBypass(CLK_INPUT, CLK_OUTPUT);
 
 		onReset();
 		
@@ -187,8 +189,8 @@ struct NoteEcho : Module {
 	}
 
 
-	void clear() {
-		for (int j = 0; j < LENGTH; j++) {
+	void srClear() {
+		for (int j = 0; j < SR_LENGTH; j++) {
 			for (int i = 0; i < MAX_POLY; i++) {
 				cv[j][i] = 0.0f;
 				cv2[j][i] = 0.0f;
@@ -204,7 +206,6 @@ struct NoteEcho : Module {
 	}
 
 	void onReset() override final {
-		clear();
 		noteFilter = false;
 		wetOnly = false;
 		clkDelay = 0;
@@ -214,6 +215,7 @@ struct NoteEcho : Module {
 		resetNonJson();
 	}
 	void resetNonJson() {
+		srClear();
 	}
 
 	
@@ -225,33 +227,6 @@ struct NoteEcho : Module {
 
 		// panelContrast
 		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
-
-		// cv, cv2, gate
-		json_t *cvJ = json_array();
-		json_t *cv2J = json_array();
-		json_t *gateJ = json_array();
-		for (int j = 0; j < LENGTH; j++) {
-			for (int i = 0; i < MAX_POLY; i++) {
-				json_array_insert_new(cvJ, j * MAX_POLY + i, json_real(cv[j][i]));
-				json_array_insert_new(cv2J, j * MAX_POLY + i, json_real(cv2[j][i]));
-				json_array_insert_new(gateJ, j * MAX_POLY + i, json_boolean(gate[j][i]));
-			}
-		}
-		json_object_set_new(rootJ, "cv", cvJ);
-		json_object_set_new(rootJ, "cv2", cv2J);
-		json_object_set_new(rootJ, "gate", gateJ);
-		
-		// gateEn
-		json_t *gateEnJ = json_array();
-		for (int j = 0; j < NUM_TAPS; j++) {
-			for (int i = 0; i < MAX_POLY; i++) {
-				json_array_insert_new(gateEnJ, j * MAX_POLY + i, json_boolean(gateEn[j][i]));
-			}
-		}
-		json_object_set_new(rootJ, "gateEn", gateEnJ);
-
-		// head
-		json_object_set_new(rootJ, "head", json_integer(head));
 		
 		// noteFilter
 		json_object_set_new(rootJ, "noteFilter", json_boolean(noteFilter));
@@ -283,56 +258,6 @@ struct NoteEcho : Module {
 		json_t *panelContrastJ = json_object_get(rootJ, "panelContrast");
 		if (panelContrastJ)
 			panelContrast = json_number_value(panelContrastJ);
-
-		// cv, cv2, gate
-		json_t *cvJ = json_object_get(rootJ, "cv");
-		if (cvJ) {
-			for (int j = 0; j < LENGTH; j++) {
-				for (int i = 0; i < MAX_POLY; i++) {
-					json_t *cvArrayJ = json_array_get(cvJ, j * MAX_POLY + i);
-					if (cvArrayJ)
-						cv[j][i] = json_number_value(cvArrayJ);
-				}
-			}
-		}
-		json_t *cv2J = json_object_get(rootJ, "cv2");
-		if (cv2J) {
-			for (int j = 0; j < LENGTH; j++) {
-				for (int i = 0; i < MAX_POLY; i++) {
-					json_t *cv2ArrayJ = json_array_get(cv2J, j * MAX_POLY + i);
-					if (cv2ArrayJ)
-						cv2[j][i] = json_number_value(cv2ArrayJ);
-				}
-			}
-		}
-		json_t *gateJ = json_object_get(rootJ, "gate");
-		if (gateJ) {
-			for (int j = 0; j < LENGTH; j++) {
-				for (int i = 0; i < MAX_POLY; i++) {
-					json_t *gateArrayJ = json_array_get(gateJ, j * MAX_POLY + i);
-					if (gateArrayJ) {
-						gate[j][i] = json_is_true(gateArrayJ);
-					}
-				}
-			}
-		}
-		
-		// gateEn
-		json_t *gateEnJ = json_object_get(rootJ, "gateEn");
-		if (gateEnJ) {
-			for (int j = 0; j < NUM_TAPS; j++) {
-				for (int i = 0; i < MAX_POLY; i++) {
-					json_t *gateEnArrayJ = json_array_get(gateEnJ, j * MAX_POLY + i);
-					if (gateEnArrayJ)
-						gateEn[j][i] = json_is_true(gateEnArrayJ);
-				}
-			}
-		}
-
-		// head
-		json_t *headJ = json_object_get(rootJ, "head");
-		if (headJ)
-			head = json_integer_value(headJ);
 
 		// noteFilter
 		json_t *noteFilterJ = json_object_get(rootJ, "noteFilter");
@@ -410,7 +335,7 @@ struct NoteEcho : Module {
 	
 		// clear and clock
 		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage())) {
-			clear();
+			srClear();
 		}
 		float clockSignal = clkDelay <= 0 ? inputs[CLK_INPUT].getVoltage() : clkDelReg[clkDelay - 1];
 		bool clkEdge = clkTrigger.process(clockSignal);
@@ -428,7 +353,7 @@ struct NoteEcho : Module {
 				gate[head][i] = inputs[GATE_INPUT].getChannels() > i ? (inputs[GATE_INPUT].getVoltage(i) > 1.0f) : false;
 			}
 			// step the head pointer
-			head = (head + 1) % LENGTH;
+			head = (head + 1) % SR_LENGTH;
 			// refill gateEn array
 			for (int j = 0; j < NUM_TAPS; j++) {
 				for (int i = 0; i < MAX_POLY; i++) {
@@ -446,12 +371,12 @@ struct NoteEcho : Module {
 		
 		
 		// outputs
-		outputs[CLK_OUTPUT].setVoltage(clockSignal);
+		// outputs[CLK_OUTPUT].setVoltage(clockSignal);
 		// do tap0 outputs first
 		int c = 0;// running index for all poly cable writes
 		if (!wetOnly) {
 			for (; c < poly; c++) {
-				int srIndex = (head - 1 + 2 * LENGTH) % LENGTH;
+				int srIndex = (head - 1 + 2 * SR_LENGTH) % SR_LENGTH;
 				outputs[CV_OUTPUT].setVoltage(cv[srIndex][c],c);
 				outputs[GATE_OUTPUT].setVoltage(gate[srIndex][c] && clockSignal > 1.0f ? 10.0f : 0.0f,c);
 				outputs[CV2_OUTPUT].setVoltage(cv2[srIndex][c],c);
@@ -462,7 +387,7 @@ struct NoteEcho : Module {
 			if ( !isTapActive(j) || (j == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 				continue;
 			}
-			int srIndex = (head - getTapValue(j) - 1 + 2 * LENGTH) % LENGTH;
+			int srIndex = (head - getTapValue(j) - 1 + 2 * SR_LENGTH) % SR_LENGTH;
 			for (int i = 0; i < poly; i++, c++) {
 				// cv
 				float cvWithSemi = cv[srIndex][i] + params[ST_PARAMS + j].getValue() / 12.0f;
@@ -842,9 +767,10 @@ struct NoteEchoWidget : ModuleWidget {
 
 		
 		// row 0
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row0)), true, module, NoteEcho::CLK_INPUT, mode));
-		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col51 + 4.3f, row0 - 6.6f)), module, NoteEcho::SD_LIGHT));
-		
+		PolyKnob* polyKnobP;
+		addParam(polyKnobP = createDynamicParamCentered<PolyKnob>(mm2px(Vec(col51, row0)), module, NoteEcho::POLY_PARAM, mode));
+		polyKnobP->module = module;
+
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row0)), true, module, NoteEcho::CV_INPUT, mode));
 		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col52 + 3.3f, row0 - 6.6f)), module, NoteEcho::FILTER_LIGHT));
 		
@@ -854,10 +780,11 @@ struct NoteEchoWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row0)), true, module, NoteEcho::CV2_INPUT, mode));
 		addChild(createLightCentered<TinyLight<GreenRedLight>>(mm2px(Vec(col54 + 4.7f, row0 - 6.6f)), module, NoteEcho::CV2NORM_LIGHTS));
 		
-		PolyKnob* polyKnobP;
-		addParam(polyKnobP = createDynamicParamCentered<PolyKnob>(mm2px(Vec(col55, row0)), module, NoteEcho::POLY_PARAM, mode));
-		polyKnobP->module = module;
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col56, row0)), true, module, NoteEcho::CLEAR_INPUT, mode));
+		// addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col55, row0)), true, module, NoteEcho::CLEAR_INPUT, mode));
+		
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col56, row0)), true, module, NoteEcho::CLK_INPUT, mode));
+		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col56 + 4.3f, row0 - 6.6f)), module, NoteEcho::SD_LIGHT));
+				
 
 		
 		// rows 1-4
@@ -889,7 +816,8 @@ struct NoteEchoWidget : ModuleWidget {
 		}
 		
 		// row 5
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row5)), false, module, NoteEcho::CLK_OUTPUT, mode));
+		// addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row5)), false, module, NoteEcho::CLK_OUTPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row5)), true, module, NoteEcho::CLEAR_INPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row5)), false, module, NoteEcho::CV_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row5)), false, module, NoteEcho::GATE_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row5)), false, module, NoteEcho::CV2_OUTPUT, mode));
