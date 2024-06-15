@@ -9,6 +9,7 @@
 
 
 #include "ImpromptuModular.hpp"
+#include <queue>
 
 
 struct NoteEcho : Module {	
@@ -23,7 +24,10 @@ struct NoteEcho : Module {
 		ENUMS(PROB_PARAMS, NUM_TAPS),
 		POLY_PARAM,
 		CV2MODE_PARAM,
-		PMODE_PARAM,
+		PMODE_PARAM,// end of 1st version of module
+		// ----
+		DEL_MODE_PARAM,// start of 2nd version of module with two modes
+		CV2NORM_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -45,11 +49,31 @@ struct NoteEcho : Module {
 		SD_LIGHT,
 		FILTER_LIGHT,
 		WET_LIGHT,
-		ENUMS(CV2NORM_LIGHTS, 2),// reg green
 		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
 		NUM_LIGHTS
 	};
 	
+	
+	struct NoteEvent {
+		// all info here has semitone, cv2offset and prob applied 
+		// an event is considered pending when gateOffFrame==0 (waiting for falling edge of a gate input), and ready when >0; when pending, rest of struct is populated
+		int64_t capturedFrame;
+		int64_t gateOnFrame;
+		int64_t gateOffFrame;// 0 when pending
+		float cv;
+		float cv2;
+		bool muted;// this is used to enter events that fail the probability gen so as to properly queue things for falling gate edges
+		
+		NoteEvent(float _cv, float _cv2, int64_t _capturedFrame, int64_t _gateOnFrame, int64_t _gateOffFrame, bool _muted) {
+			cv = _cv;
+			cv2 = _cv2;
+			capturedFrame = _capturedFrame;
+			gateOnFrame = _gateOnFrame;
+			gateOffFrame = _gateOffFrame;
+			muted = _muted;
+		}
+	};
+
 	
 	// Expander
 	// none
@@ -57,21 +81,24 @@ struct NoteEcho : Module {
 	// Constants
 	static const int MAX_DEL = 32;
 	static const int SR_LENGTH = MAX_DEL + 1;
+	static const int DEL_MAX_QUEUE = MAX_DEL * 4;// assume quarter clocked note is finest resolution 
 	static constexpr float delayInfoTime = 3.0f;// seconds
 	static constexpr float cv2NormMin = -10.0f;
 	static constexpr float cv2NormMax = 10.0f;
 	static constexpr float cv2NormDefault = 0.0f;
+	static constexpr float groupedProbsEpsilon = 0.02f;// time in seconds within which gates are considered grouped across polys, for when random mode is set to chord, for DEL Mode
 	
 	// Need to save, no reset
 	int panelTheme;
 	float panelContrast;
 	
 	// Need to save, with reset
-	bool noteFilter;
-	bool wetOnly;
-	int clkDelay;
-	float clkDelReg[2];
-	float cv2NormalledVoltage;
+	bool noteFilter;// TODO not replaced by a param since it's a trig button to toggle state
+	bool wetOnly;// TODO not replaced by a param since it's a trig button to toggle state
+	// float cv2NormalledVoltage;
+	int clkDelay;// SR Mode
+	float clkDelReg[2];// SR Mode
+	int64_t clockPeriod;// DEL Mode
 
 	// No need to save, with reset
 	// ** SR MODE
@@ -81,6 +108,9 @@ struct NoteEcho : Module {
 	bool gateEn[NUM_TAPS][MAX_POLY];
 	int head;// points the next register to be written when next clock occurs
 	// ** DEL MODE
+	std::queue<NoteEvent> channel[NUM_TAPS][MAX_POLY];// all info here has semitone, cv2offset and prob applied 
+	int64_t lastRisingClkFrame;// -1 when none
+	int lastPoly;
 	
 	// No need to save, no reset
 	int notifySource[NUM_TAPS] = {};// 0 (normal), 1 (semi) 2 (CV2), 3 (prob)
@@ -91,6 +121,9 @@ struct NoteEcho : Module {
 	Trigger clearTrigger;
 
 
+	bool isDelMode() {
+		return params[DEL_MODE_PARAM].getValue() >= 0.5f;
+	}
 	int getPolyKnob() {
 		return (int)(params[POLY_PARAM].getValue() + 0.5f);
 	}
@@ -117,6 +150,9 @@ struct NoteEcho : Module {
 	}
 	bool isCv2Offset() {
 		return params[CV2MODE_PARAM].getValue() > 0.5f;
+	}
+	float cv2NormalledVoltage() {
+		return params[CV2NORM_PARAM].getValue();
 	}
 	
 	void refreshCv2ParamQuantities() {
@@ -147,10 +183,12 @@ struct NoteEcho : Module {
 		paramQuantities[POLY_PARAM]->snapEnabled = true;
 		configSwitch(CV2MODE_PARAM, 0.0f, 1.0f, 1.0f, "CV2 mode", {"Scale", "Offset"});
 		configSwitch(PMODE_PARAM, 0.0f, 1.0f, 1.0f, "Random mode", {"Separate", "Chord"});
+		configSwitch(DEL_MODE_PARAM, 0.0f, 1.0f, 1.0f, "Main mode", {"Shift register", "Delay"});
+		configParam(CV2NORM_PARAM, -10.0f, 10.0f, 0.0f, "CV2 normalization", "");
 		
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
-			configParam(TAP_PARAMS + i, 0, (float)(SR_LENGTH - 1), ((float)i) + 1.0f, string::f("Tap %i delay", i + 1));
+			configParam(TAP_PARAMS + i, 0, (float)(MAX_DEL), ((float)i) + 1.0f, string::f("Tap %i delay", i + 1));
 			paramQuantities[TAP_PARAMS + i]->snapEnabled = true;
 			// tap knobs
 			configParam(ST_PARAMS + i, -48.0f, 48.0f, 0.0f, string::f("Tap %i semitone offset", i + 1));		
@@ -176,7 +214,6 @@ struct NoteEcho : Module {
 		configLight(SD_LIGHT, "Sample delay active");
 		configLight(FILTER_LIGHT, "Filter identical notes");
 		configLight(WET_LIGHT, "Echoes only");
-		configLight(CV2NORM_LIGHTS, "CV2 normalization voltage");
 		
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
@@ -204,18 +241,35 @@ struct NoteEcho : Module {
 		}
 		head = 0;
 	}
+	
+	void delClearChannel(int t, int p) {
+		while (!channel[t][p].empty()) {
+			channel[t][p].pop();
+		}
+	}
+	void delClear() {
+		for (int t = 0; t < NUM_TAPS; t++) {
+			for (int p = 0; p < MAX_POLY; p++) {
+				delClearChannel(t, p);
+			}
+		}
+	}
 
 	void onReset() override final {
 		noteFilter = false;
 		wetOnly = false;
+		// cv2NormalledVoltage = 0.0f;
 		clkDelay = 0;
 		clkDelReg[0] = 0.0f;
 		clkDelReg[1] = 0.0f;
-		cv2NormalledVoltage = 0.0f;
+		clockPeriod = (int64_t)(APP->engine->getSampleRate());// 60 BPM until detected
 		resetNonJson();
 	}
 	void resetNonJson() {
 		srClear();
+		delClear();
+		lastRisingClkFrame = -1;// none
+		lastPoly = getPolyKnob();
 	}
 
 	
@@ -234,6 +288,9 @@ struct NoteEcho : Module {
 		// wetOnly
 		json_object_set_new(rootJ, "wetOnly", json_boolean(wetOnly));
 
+		// cv2NormalledVoltage
+		// json_object_set_new(rootJ, "cv2NormalledVoltage", json_real(cv2NormalledVoltage));
+
 		// clkDelay
 		json_object_set_new(rootJ, "clkDelay", json_integer(clkDelay));
 		
@@ -241,8 +298,8 @@ struct NoteEcho : Module {
 		json_object_set_new(rootJ, "clkDelReg0", json_real(clkDelReg[0]));
 		json_object_set_new(rootJ, "clkDelReg1", json_real(clkDelReg[1]));
 		
-		// cv2NormalledVoltage
-		json_object_set_new(rootJ, "cv2NormalledVoltage", json_real(cv2NormalledVoltage));
+		// clockPeriod
+		json_object_set_new(rootJ, "clockPeriod", json_integer((long)clockPeriod));
 
 		return rootJ;
 	}
@@ -269,6 +326,18 @@ struct NoteEcho : Module {
 		if (wetOnlyJ)
 			wetOnly = json_is_true(wetOnlyJ);
 
+		// cv2NormalledVoltage (also the flag for 1st version)
+		json_t *cv2NormalledVoltageJ = json_object_get(rootJ, "cv2NormalledVoltage");
+		if (cv2NormalledVoltageJ) {
+			// old version
+			params[DEL_MODE_PARAM].setValue(0.0f);// force SR Mode since this is a 1st version load
+			params[CV2NORM_PARAM].setValue(json_number_value(cv2NormalledVoltageJ));
+		}
+		else {
+			// new version with two modes
+			// nothing to do (DEL_MODE_PARAM and CV2NORM_PARAM already loaded or init properly)
+		}
+
 		// clkDelay
 		json_t *clkDelayJ = json_object_get(rootJ, "clkDelay");
 		if (clkDelayJ)
@@ -282,10 +351,10 @@ struct NoteEcho : Module {
 		if (clkDelRegJ)
 			clkDelReg[1] = json_number_value(clkDelRegJ);
 
-		// cv2NormalledVoltage
-		json_t *cv2NormalledVoltageJ = json_object_get(rootJ, "cv2NormalledVoltage");
-		if (cv2NormalledVoltageJ)
-			cv2NormalledVoltage = json_number_value(cv2NormalledVoltageJ);
+		// clockPeriod
+		json_t *clockPeriodJ = json_object_get(rootJ, "clockPeriod");
+		if (clockPeriodJ)
+			clockPeriod = (int64_t)json_integer_value(clockPeriodJ);
 
 		resetNonJson();
 	}
@@ -312,11 +381,16 @@ struct NoteEcho : Module {
 	}
 
 
+	void onSampleRateChange() override {
+		delClear();
+	}		
+
+
 	void process(const ProcessArgs &args) override {
 		int poly = getPolyKnob();
-		int activeTaps = countActiveTaps();
+		int numActiveTaps = countActiveTaps();
 		bool lastTapAllowed = isLastTapAllowed();
-		int chans = std::min( poly * ( (wetOnly ? 0 : 1) + activeTaps ) , 16 );
+		int chans = std::min( poly * ( (wetOnly ? 0 : 1) + numActiveTaps ) , 16 );
 		if (outputs[CV_OUTPUT].getChannels() != chans) {
 			outputs[CV_OUTPUT].setChannels(chans);
 		}
@@ -328,7 +402,10 @@ struct NoteEcho : Module {
 		}
 
 		if (refresh.processInputs()) {
-			// none
+			if (poly != lastPoly) {
+				delClear();
+				lastPoly = poly;
+			}
 		}// userInputs refresh
 	
 	
@@ -336,6 +413,7 @@ struct NoteEcho : Module {
 		// clear and clock
 		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage())) {
 			srClear();
+			delClear();
 		}
 		float clockSignal = clkDelay <= 0 ? inputs[CLK_INPUT].getVoltage() : clkDelReg[clkDelay - 1];
 		bool clkEdge = clkTrigger.process(clockSignal);
@@ -344,7 +422,7 @@ struct NoteEcho : Module {
 			for (int i = 0; i < MAX_POLY; i++) {
 				cv[head][i] = inputs[CV_INPUT].getChannels() > i ? inputs[CV_INPUT].getVoltage(i) : 0.0f;
 				if (inputs[CV2_INPUT].getChannels() < 1) {
-					cv2[head][i] = cv2NormalledVoltage;
+					cv2[head][i] = cv2NormalledVoltage();
 				}
 				else {
 					cv2[head][i] = inputs[CV2_INPUT].getVoltage(std::min(i, inputs[CV2_INPUT].getChannels() - 1));
@@ -636,60 +714,6 @@ struct NoteEchoWidget : ModuleWidget {
 	};
 	
 
-	void createCv2NormalizationMenu(ui::Menu* menu, float* cv2Normalled) {
-			
-		struct Cv2NormItem : MenuItem {
-			float* cv2Normalled = NULL;
-			
-			Menu *createChildMenu() override {
-				struct Cv2NormQuantity : Quantity {
-					float* cv2Normalled;
-					
-					Cv2NormQuantity(float* _cv2Normalled) {
-						cv2Normalled = _cv2Normalled;
-					}
-					void setValue(float value) override {
-						*cv2Normalled = math::clamp(value, getMinValue(), getMaxValue());
-					}
-					float getValue() override {
-						return *cv2Normalled;
-					}
-					float getMinValue() override {return NoteEcho::cv2NormMin;}
-					float getMaxValue() override {return NoteEcho::cv2NormMax;}
-					float getDefaultValue() override {return NoteEcho::cv2NormDefault;}
-					float getDisplayValue() override {return *cv2Normalled;}
-					std::string getDisplayValueString() override {
-						return string::f("%.2f", clamp(*cv2Normalled, getMinValue(), getMaxValue()));
-					}
-					void setDisplayValue(float displayValue) override {setValue(displayValue);}
-					std::string getLabel() override {return "CV2";}
-					std::string getUnit() override {return " V";}
-				};
-				struct Cv2NormSlider : ui::Slider {
-					Cv2NormSlider(float* cv2Normalled) {
-						quantity = new Cv2NormQuantity(cv2Normalled);
-					}
-					~Cv2NormSlider() {
-						delete quantity;
-					}
-				};
-			
-				Menu *menu = new Menu;
-
-				Cv2NormSlider *cSlider = new Cv2NormSlider(cv2Normalled);
-				cSlider->box.size.x = 200.0f;
-				menu->addChild(cSlider);
-			
-				return menu;
-			}
-		};
-		
-		Cv2NormItem *c2nItem = createMenuItem<Cv2NormItem>("Input normalization", RIGHT_ARROW);
-		c2nItem->cv2Normalled = cv2Normalled;
-		menu->addChild(c2nItem);
-	}	
-	
-
 	void appendContextMenu(Menu *menu) override {
 		NoteEcho *module = static_cast<NoteEcho*>(this->module);
 		assert(module);
@@ -719,8 +743,6 @@ struct NoteEchoWidget : ModuleWidget {
 		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
 		
 		menu->addChild(createBoolPtrMenuItem("Echoes only", "", &module->wetOnly));
-
-		createCv2NormalizationMenu(menu, &(module->cv2NormalledVoltage));
 	}	
 
 	
@@ -750,6 +772,7 @@ struct NoteEchoWidget : ModuleWidget {
 		static const float col54 = col53 + col5d;
 		static const float col55 = col54 + col5d;
 		static const float col56 = col55 + col5d;
+		static const float col57 = col56 + col5d + 2.0f;
 		
 		static const float col54d = 2.0f;
 		static const float col41 = col51 + col54d;// Tap
@@ -757,7 +780,7 @@ struct NoteEchoWidget : ModuleWidget {
 		static const float col42 = (col41 + col43) / 2.0f;// Displays
 		
 		static const float row0 = 21.0f;// Clk, CV, Gate, CV2 inputs, and sampDelayClk
-		static const float row1 = row0 + 20.0f;// tap 1
+		static const float row1 = row0 + 22.0f;// tap 1
 		static const float row24d = 16.0f;// taps 2-4
 		static const float row5 = 110.5f;// Clk, CV, Gate, CV2 outputs
 		// static const float row4 = row5 - 20.0f;// CV inputs and poly knob
@@ -772,19 +795,17 @@ struct NoteEchoWidget : ModuleWidget {
 		polyKnobP->module = module;
 
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row0)), true, module, NoteEcho::CV_INPUT, mode));
-		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col52 + 3.3f, row0 - 6.6f)), module, NoteEcho::FILTER_LIGHT));
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row0)), true, module, NoteEcho::GATE_INPUT, mode));
-		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col53 + 5.6f, row0 - 6.6f)), module, NoteEcho::WET_LIGHT));
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row0)), true, module, NoteEcho::CV2_INPUT, mode));
-		addChild(createLightCentered<TinyLight<GreenRedLight>>(mm2px(Vec(col54 + 4.7f, row0 - 6.6f)), module, NoteEcho::CV2NORM_LIGHTS));
 		
-		// addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col55, row0)), true, module, NoteEcho::CLEAR_INPUT, mode));
+		addParam(createDynamicParamCentered<IMSmallKnob>(mm2px(Vec(col55, row0)), module, NoteEcho::CV2NORM_PARAM, mode));
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col56, row0)), true, module, NoteEcho::CLK_INPUT, mode));
-		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col56 + 4.3f, row0 - 6.6f)), module, NoteEcho::SD_LIGHT));
+		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col56 + 4.3f, row0 + 6.6f)), module, NoteEcho::SD_LIGHT));
 				
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col57, row0)), module, NoteEcho::DEL_MODE_PARAM, mode, svgPanel));
 
 		
 		// rows 1-4
@@ -823,6 +844,11 @@ struct NoteEchoWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row5)), false, module, NoteEcho::CV2_OUTPUT, mode));
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col55, row5 - 1.5f)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5 - 1.5f)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
+		
+		// right side column
+		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col57, row5)), module, NoteEcho::FILTER_LIGHT));
+		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col57, row5 - 16.6f)), module, NoteEcho::WET_LIGHT));
+
 
 		// gate lights
 		static const float gldx = 3.0f;
@@ -853,13 +879,6 @@ struct NoteEchoWidget : ModuleWidget {
 			// wet light
 			m->lights[NoteEcho::WET_LIGHT].setBrightness( m->wetOnly ? 1.0f : 0.0f );
 			
-			// CV2 norm light
-			bool cv2uncon = !(m->inputs[NoteEcho::CV2_INPUT].isConnected());
-			float green = cv2uncon ? (((float)(m->cv2NormalledVoltage)) / NoteEcho::cv2NormMax) : 0.0f;
-			float red =   cv2uncon ? (((float)(m->cv2NormalledVoltage)) / NoteEcho::cv2NormMin) : 0.0f;
-			m->lights[NoteEcho::CV2NORM_LIGHTS + 0].setBrightness(green);
-			m->lights[NoteEcho::CV2NORM_LIGHTS + 1].setBrightness(red);
-
 			// CV2 knobs' labels
 			m->refreshCv2ParamQuantities();
 		}

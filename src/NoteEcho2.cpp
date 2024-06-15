@@ -79,7 +79,7 @@ struct NoteEcho2 : Module {
 	// Constants
 	static constexpr float groupedProbsEpsilon = 0.02f;// time in seconds within which gates are considered grouped across polys, for when random mode is set to chord
 	static const int MAX_DEL = 32;
-	static const int MAX_QUEUE = MAX_DEL * 4;// assume quarter clocked note is finest resolution 
+	static const int DEL_MAX_QUEUE = MAX_DEL * 4;// assume quarter clocked note is finest resolution 
 	static constexpr float delayInfoTime = 3.0f;// seconds
 	static constexpr float cv2NormMin = -10.0f;
 	static constexpr float cv2NormMax = 10.0f;
@@ -366,7 +366,7 @@ struct NoteEcho2 : Module {
 					if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 						continue;
 					}
-					if (channel[t][p].size() >= MAX_QUEUE) {
+					if (channel[t][p].size() >= DEL_MAX_QUEUE) {
 						continue;// skip event if queue too full
 					}
 					// cv
