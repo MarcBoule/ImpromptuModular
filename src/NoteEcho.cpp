@@ -7,6 +7,17 @@
 //See ./res/fonts/ for font licenses
 //***********************************************************************************************
 
+// TODO:
+// rethink set-on-write or apply-on-read paradigm vs main mode (regarding Delay, Semi, CV2+-, p knobs)
+//   seems like SR is naturally apply-on-read while DELAY is naturally set-on-write
+// rethink wet-only in regards to freeze and poly output num chans (i.e. when wet only, we have less chans, but when freeze is pressed, must now use those chans, and last tap suddenly becomes deactivated? this is too messed up now, so 
+
+// TODO SR MODE:
+// reimplement freeze, should not kill gates for all sr slots not within freeze range, since when reduce freeze length knob, all those gates get lost (if single gate is in there when freeze length goes down, then lost it and nothing plays).
+
+// TODO DEL MODE:
+// make dry a separate write queue in order to support freeze
+
 
 #include "ImpromptuModular.hpp"
 #include <queue>
@@ -100,8 +111,8 @@ struct NoteEcho : Module {
 	float panelContrast;
 	
 	// Need to save, with reset
-	bool noteFilter;// TODO not replaced by a param since it's a trig button to toggle state
-	bool wetOnly;// TODO not replaced by a param since it's a trig button to toggle state
+	bool noteFilter;
+	bool wetOnly;// no effect when freeze (wetOnly implicitly taken as true since input ignored)
 	// float cv2NormalledVoltage;
 	int clkDelay;// SR Mode
 	float clkDelReg[2];// SR Mode
@@ -131,7 +142,7 @@ struct NoteEcho : Module {
 	Trigger freezeButtonTrigger;
 
 
-	bool isDelMode() {
+	bool getIsDelMode() {
 		return params[DEL_MODE_PARAM].getValue() >= 0.5f;
 	}
 	int getPolyKnob() {
@@ -417,7 +428,8 @@ struct NoteEcho : Module {
 		int poly = getPolyKnob();
 		int numActiveTaps = countActiveTaps();
 		bool lastTapAllowed = isLastTapAllowed();
-		int chans = std::min( poly * ( (wetOnly ? 0 : 1) + numActiveTaps ) , 16 );
+		int chans = std::min( poly * ( ((!wetOnly || freeze) ? 0 : 1) + numActiveTaps ) , 16 );
+		bool isDelMode = getIsDelMode();
 		if (outputs[CV_OUTPUT].getChannels() != chans) {
 			outputs[CV_OUTPUT].setChannels(chans);
 		}
@@ -446,10 +458,10 @@ struct NoteEcho : Module {
 			srClear();
 			delClear();
 		}
-		float clockSignal = clkDelay <= 0 ? inputs[CLK_INPUT].getVoltage() : clkDelReg[clkDelay - 1];
+		float clockSignal = (clkDelay <= 0 || isDelMode) ? inputs[CLK_INPUT].getVoltage() : clkDelReg[clkDelay - 1];
 		bool clkEdge = clkTrigger.process(clockSignal);
 		if (clkEdge) {
-			if (!isDelMode()) {
+			if (!isDelMode) {
 				// ** SR MODE
 				// sample the inputs
 				for (int p = 0; p < MAX_POLY; p++) {
@@ -457,17 +469,25 @@ struct NoteEcho : Module {
 					float inCv2;
 					bool inGate;
 					if (freeze) {
+						// problem with this method is that if reduce freeze length it kills all gates after it so they are permanently lost from the loop
 						int frzLen = getFreezeLengthKnob();
 						int lpIndex = (head - frzLen + 2 * SR_LENGTH) % SR_LENGTH;
 						inCv = cv[lpIndex][p];
 						inCv2 = cv2[lpIndex][p];
 						inGate = gate[lpIndex][p];
 						// turn off gates for any possible taps beyond freeze length
-						for (int r = lpIndex; r >= 0; r--) {
-							gate[r][p] = false;
+						if (head > lpIndex) {
+							for (int r = lpIndex; r >= 0; r--) {
+								gate[r][p] = false;
+							}
+							for (int r = SR_LENGTH - 1; r > head; r--) {
+								gate[r][p] = false;
+							}
 						}
-						for (int r = SR_LENGTH - 1; r > head; r--) {
-							gate[r][p] = false;
+						else {
+							for (int r = lpIndex; r > head; r--) {
+								gate[r][p] = false;
+							}							
 						}
 					}
 					else {
@@ -516,7 +536,7 @@ struct NoteEcho : Module {
 			}
 		}
 		
-		if (isDelMode()) {
+		if (isDelMode) {
 			// ** DEL MODE
 			// check the poly gate input for rising/falling gates, 
 			//   and enter proper events according to taps
@@ -618,9 +638,9 @@ struct NoteEcho : Module {
 		// outputs[CLK_OUTPUT].setVoltage(clockSignal);
 		// do tap0 outputs first
 		int c = 0;// running index for all poly cable writes
-		if (!isDelMode()) {
+		if (!isDelMode) {
 			// ** SR MODE
-			if (!wetOnly) {
+			if (!wetOnly || freeze) {
 				for (; c < poly; c++) {
 					int srIndex = (head - 1 + 2 * SR_LENGTH) % SR_LENGTH;
 					outputs[CV_OUTPUT].setVoltage(cv[srIndex][c],c);
@@ -660,7 +680,7 @@ struct NoteEcho : Module {
 		}
 		else {
 			// ** DEL MODE
-			if (!wetOnly) {
+			if (!wetOnly || freeze) {
 				for (; c < poly; c++) {
 					outputs[CV_OUTPUT].setVoltage(inputs[CV_INPUT].getVoltage(c), c);
 					outputs[GATE_OUTPUT].setVoltage(inputs[GATE_INPUT].getVoltage(c), c);
@@ -978,7 +998,7 @@ struct NoteEchoWidget : ModuleWidget {
 		
 		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
 		
-		menu->addChild(createBoolPtrMenuItem("Echoes only", "", &module->wetOnly));
+		menu->addChild(createBoolPtrMenuItem("Wet (echoes) only", "", &module->wetOnly));
 	}	
 
 	
