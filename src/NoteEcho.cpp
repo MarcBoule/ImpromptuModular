@@ -253,16 +253,16 @@ struct NoteEcho : Module {
 
 
 	void srClear() {
-		for (int j = 0; j < SR_LENGTH; j++) {
-			for (int i = 0; i < MAX_POLY; i++) {
-				cv[j][i] = 0.0f;
-				cv2[j][i] = 0.0f;
-				gate[j][i] = false;
+		for (int r = 0; r < SR_LENGTH; r++) {
+			for (int p = 0; p < MAX_POLY; p++) {
+				cv[r][p] = 0.0f;
+				cv2[r][p] = 0.0f;
+				gate[r][p] = false;
 			}
 		}
-		for (int j = 0; j < NUM_TAPS; j++) {
-			for (int i = 0; i < MAX_POLY; i++) {
-				gateEn[j][i] = false;
+		for (int t = 0; t < NUM_TAPS; t++) {
+			for (int p = 0; p < MAX_POLY; p++) {
+				gateEn[t][p] = false;
 			}
 		}
 		head = 0;
@@ -452,29 +452,29 @@ struct NoteEcho : Module {
 			if (!isDelMode()) {
 				// ** SR MODE
 				// sample the inputs
-				for (int i = 0; i < MAX_POLY; i++) {
-					cv[head][i] = inputs[CV_INPUT].getChannels() > i ? inputs[CV_INPUT].getVoltage(i) : 0.0f;
+				for (int p = 0; p < MAX_POLY; p++) {
+					cv[head][p] = inputs[CV_INPUT].getChannels() > p ? inputs[CV_INPUT].getVoltage(p) : 0.0f;
 					if (inputs[CV2_INPUT].getChannels() < 1) {
-						cv2[head][i] = cv2NormalledVoltage();
+						cv2[head][p] = cv2NormalledVoltage();
 					}
 					else {
-						cv2[head][i] = inputs[CV2_INPUT].getVoltage(std::min(i, inputs[CV2_INPUT].getChannels() - 1));
+						cv2[head][p] = inputs[CV2_INPUT].getVoltage(std::min(p, inputs[CV2_INPUT].getChannels() - 1));
 					}
 					// normalizing CV2 to 10V is not really useful here, since even if we also normal the pass-through (tap0) when CV2 input unconnected, it's value can't be controlled, so even if we can apply CV2 mod to the 4 true taps, a 10V value on the pass-through tap would have to coincide with that is desired and useful. So given this, forget normalizing CV input to 10V.
-					gate[head][i] = inputs[GATE_INPUT].getChannels() > i ? (inputs[GATE_INPUT].getVoltage(i) > 1.0f) : false;
+					gate[head][p] = inputs[GATE_INPUT].getChannels() > p ? (inputs[GATE_INPUT].getVoltage(p) > 1.0f) : false;
 				}
 				// step the head pointer
 				head = (head + 1) % SR_LENGTH;
 				// refill gateEn array
-				for (int j = 0; j < NUM_TAPS; j++) {
-					for (int i = 0; i < MAX_POLY; i++) {
-						if (i > 0 && isSingleProbs()) {
+				for (int t = 0; t < NUM_TAPS; t++) {
+					for (int p = 0; p < MAX_POLY; p++) {
+						if (p > 0 && isSingleProbs()) {
 							// single prob for all poly chans
-							gateEn[j][i] = gateEn[j][0];
+							gateEn[t][p] = gateEn[t][0];
 						}
 						else {
 							// separate probs for each poly chan
-							gateEn[j][i] = getGateProbEnableForTap(j);
+							gateEn[t][p] = getGateProbEnableForTap(t);
 						}
 					}
 				}
@@ -608,27 +608,27 @@ struct NoteEcho : Module {
 				}
 			}
 			// now do main tap outputs
-			for (int j = 0; j < NUM_TAPS; j++) {
-				if ( !isTapActive(j) || (j == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+			for (int t = 0; t < NUM_TAPS; t++) {
+				if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 					continue;
 				}
-				int srIndex = (head - getTapValue(j) - 1 + 2 * SR_LENGTH) % SR_LENGTH;
-				for (int i = 0; i < poly; i++, c++) {
+				int srIndex = (head - getTapValue(t) - 1 + 2 * SR_LENGTH) % SR_LENGTH;
+				for (int p = 0; p < poly; p++, c++) {
 					// cv
-					float cvWithSemi = cv[srIndex][i] + getSemiVolts(j);
+					float cvWithSemi = cv[srIndex][p] + getSemiVolts(t);
 					outputs[CV_OUTPUT].setVoltage(cvWithSemi, c);
 					
 					// gate
-					bool gateWithProb = gate[srIndex][i] && gateEn[j][i] && clockSignal > 1.0f;
+					bool gateWithProb = gate[srIndex][p] && gateEn[t][p] && clockSignal > 1.0f;
 					outputs[GATE_OUTPUT].setVoltage(gateWithProb ? 10.0f : 0.0f, c);
 					
 					// cv2
-					float cv2WithMod = cv2[srIndex][i];
+					float cv2WithMod = cv2[srIndex][p];
 					if (isCv2Offset()) {
-						cv2WithMod += params[CV2_PARAMS + j].getValue() * 10.0f;
+						cv2WithMod += params[CV2_PARAMS + t].getValue() * 10.0f;
 					}
 					else {
-						cv2WithMod *= params[CV2_PARAMS + j].getValue();
+						cv2WithMod *= params[CV2_PARAMS + t].getValue();
 					}
 					outputs[CV2_OUTPUT].setVoltage(cv2WithMod, c);
 				}
@@ -693,46 +693,46 @@ struct NoteEcho : Module {
 			// gate lights
 			if (notifyPoly > 0) {
 				// do tap0 outputs first
-				for (int i = 0; i < MAX_POLY; i++) {
-					lights[GATE_LIGHTS + i].setBrightness(i < poly && !wetOnly ? 1.0f : 0.0f);
+				for (int p = 0; p < MAX_POLY; p++) {
+					lights[GATE_LIGHTS + p].setBrightness(p < poly && !wetOnly ? 1.0f : 0.0f);
 				}
 				// now do main tap outputs
-				for (int j = 0; j < NUM_TAPS; j++) {
-					for (int i = 0; i < MAX_POLY; i++) {
-						bool lstate = i < poly && isTapActive(j);
-						if (j == (NUM_TAPS - 1) && !isLastTapAllowed()) {
+				for (int t = 0; t < NUM_TAPS; t++) {
+					for (int p = 0; p < MAX_POLY; p++) {
+						bool lstate = p < poly && isTapActive(t);
+						if (t == (NUM_TAPS - 1) && !isLastTapAllowed()) {
 							lstate = false;
 						}
-						lights[GATE_LIGHTS + 4 + j * MAX_POLY + i].setBrightness(lstate ? 1.0f : 0.0f);
+						lights[GATE_LIGHTS + 4 + t * MAX_POLY + p].setBrightness(lstate ? 1.0f : 0.0f);
 					}
 				}
 			}
 			else {
 				int c = 0;
 				// do tap0 outputs first
-				for (int i = 0; i < MAX_POLY; i++) {
-					bool lstate = i < poly && !wetOnly;
-					lights[GATE_LIGHTS + i].setBrightness(lstate && outputs[GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
+				for (int p = 0; p < MAX_POLY; p++) {
+					bool lstate = p < poly && !wetOnly;
+					lights[GATE_LIGHTS + p].setBrightness(lstate && outputs[GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
 					if (lstate) c++;
 				}
 				// now do main tap outputs
-				for (int j = 0; j < NUM_TAPS; j++) {
-					for (int i = 0; i < MAX_POLY; i++) {
-						bool lstate = i < poly && isTapActive(j);
-						if (j == (NUM_TAPS - 1) && !isLastTapAllowed()) {
+				for (int t = 0; t < NUM_TAPS; t++) {
+					for (int p = 0; p < MAX_POLY; p++) {
+						bool lstate = p < poly && isTapActive(t);
+						if (t == (NUM_TAPS - 1) && !isLastTapAllowed()) {
 							lstate = false;
 						}
-						lights[GATE_LIGHTS + 4 + j * MAX_POLY + i].setBrightness(lstate && outputs[GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
+						lights[GATE_LIGHTS + 4 + t * MAX_POLY + p].setBrightness(lstate && outputs[GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
 						if (lstate) c++;
 					}
 				}
 			}
 
 			// info notification counters
-			for (int i = 0; i < NUM_TAPS; i++) {
-				notifyInfo[i]--;
-				if (notifyInfo[i] < 0l) {
-					notifyInfo[i] = 0l;
+			for (int t = 0; t < NUM_TAPS; t++) {
+				notifyInfo[t]--;
+				if (notifyInfo[t] < 0l) {
+					notifyInfo[t] = 0l;
 				}
 			}
 			notifyPoly--;
