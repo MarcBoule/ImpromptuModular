@@ -453,15 +453,36 @@ struct NoteEcho : Module {
 				// ** SR MODE
 				// sample the inputs
 				for (int p = 0; p < MAX_POLY; p++) {
-					cv[head][p] = inputs[CV_INPUT].getChannels() > p ? inputs[CV_INPUT].getVoltage(p) : 0.0f;
-					if (inputs[CV2_INPUT].getChannels() < 1) {
-						cv2[head][p] = cv2NormalledVoltage();
+					float inCv;
+					float inCv2;
+					bool inGate;
+					if (freeze) {
+						int frzLen = getFreezeLengthKnob();
+						int lpIndex = (head - frzLen + 2 * SR_LENGTH) % SR_LENGTH;
+						inCv = cv[lpIndex][p];
+						inCv2 = cv2[lpIndex][p];
+						inGate = gate[lpIndex][p];
+						// turn off gates for any possible taps beyond freeze length
+						for (int r = lpIndex; r >= 0; r--) {
+							gate[r][p] = false;
+						}
+						for (int r = SR_LENGTH - 1; r > head; r--) {
+							gate[r][p] = false;
+						}
 					}
 					else {
-						cv2[head][p] = inputs[CV2_INPUT].getVoltage(std::min(p, inputs[CV2_INPUT].getChannels() - 1));
+						inCv = inputs[CV_INPUT].getChannels() > p ? inputs[CV_INPUT].getVoltage(p) : 0.0f;
+						if (inputs[CV2_INPUT].getChannels() < 1) {
+							inCv2 = cv2NormalledVoltage();
+						}
+						else {
+							inCv2 = inputs[CV2_INPUT].getVoltage(std::min(p, inputs[CV2_INPUT].getChannels() - 1));
+						}
+						inGate = inputs[GATE_INPUT].getChannels() > p ? (inputs[GATE_INPUT].getVoltage(p) > 1.0f) : false;
 					}
-					// normalizing CV2 to 10V is not really useful here, since even if we also normal the pass-through (tap0) when CV2 input unconnected, it's value can't be controlled, so even if we can apply CV2 mod to the 4 true taps, a 10V value on the pass-through tap would have to coincide with that is desired and useful. So given this, forget normalizing CV input to 10V.
-					gate[head][p] = inputs[GATE_INPUT].getChannels() > p ? (inputs[GATE_INPUT].getVoltage(p) > 1.0f) : false;
+					cv[head][p] = inCv;
+					cv2[head][p] = inCv2;
+					gate[head][p] = inGate;
 				}
 				// step the head pointer
 				head = (head + 1) % SR_LENGTH;
