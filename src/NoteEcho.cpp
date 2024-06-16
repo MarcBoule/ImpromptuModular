@@ -1,23 +1,12 @@
 //***********************************************************************************************
 //CV-Gate shift register / delay module for VCV Rack by Marc Boulé
+//Follows the set-on-write paradigm for both modes (regarding Delay, Semi, CV2+-, p knobs);
 //
 //Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics  
 //  from the Component Library by Pyer. 
 //See ./LICENSE.md for all licenses
 //See ./res/fonts/ for font licenses
 //***********************************************************************************************
-
-// TODO:
-// rethink set-on-write or apply-on-read paradigm vs main mode (regarding Delay, Semi, CV2+-, p knobs)
-//   seems like SR is naturally apply-on-read while DELAY is naturally set-on-write
-// rethink wet-only in regards to freeze and poly output num chans (i.e. when wet only, we have less chans, but when freeze is pressed, must now use those chans, and last tap suddenly becomes deactivated? this is too messed up now, so 
-
-// TODO SR MODE:
-// reimplement freeze, should not kill gates for all sr slots not within freeze range, since when reduce freeze length knob, all those gates get lost (if single gate is in there when freeze length goes down, then lost it and nothing plays).
-
-// TODO DEL MODE:
-// make dry a separate write queue in order to support freeze
-
 
 #include "ImpromptuModular.hpp"
 #include <queue>
@@ -77,7 +66,7 @@ struct NoteEcho : Module {
 		// an event is considered pending when gateOffFrame==0 (waiting for falling edge of a gate input), and ready when >0; when pending, rest of struct is populated
 		int64_t capturedFrame;
 		int64_t gateOnFrame;
-		int64_t gateOffFrame;// 0 when pending
+		int64_t gateOffFrame;// 0 when pending (DEL MODE)
 		float cv;
 		float cv2;
 		bool muted;// this is used to enter events that fail the probability gen so as to properly queue things for falling gate edges
@@ -112,7 +101,7 @@ struct NoteEcho : Module {
 	
 	// Need to save, with reset
 	bool noteFilter;
-	bool wetOnly;// no effect when freeze (wetOnly implicitly taken as true since input ignored)
+	bool wetOnly;// excludes tap0 from outputs, when freeze, this note will be missing in the loop, but all echoes as properly timed in the loop, will play)
 	// float cv2NormalledVoltage;
 	int clkDelay;// SR Mode
 	float clkDelReg[2];// SR Mode
@@ -120,26 +109,21 @@ struct NoteEcho : Module {
 
 	// No need to save, with reset
 	bool freeze;
-	// ** SR MODE
-	float cv[SR_LENGTH][MAX_POLY];
-	float cv2[SR_LENGTH][MAX_POLY];
-	bool gate[SR_LENGTH][MAX_POLY];
-	bool gateEn[NUM_TAPS][MAX_POLY];
-	int head;// points the next register to be written when next clock occurs
-	// ** DEL MODE
-	std::queue<NoteEvent> channel[NUM_TAPS][MAX_POLY];// all info here has semitone, cv2offset and prob applied 
+	std::queue<NoteEvent> channel[NUM_TAPS + 1][MAX_POLY];// all info here has semitone, cv2offset and prob applied, last tap is dry (tap 0)
 	int64_t lastRisingClkFrame;// -1 when none
+	int64_t clkCount;
 	int lastPoly;
+	bool lastDelMode;
 	
 	// No need to save, no reset
 	int notifySource[NUM_TAPS] = {};// 0 (normal), 1 (semi) 2 (CV2), 3 (prob), 4 (freeze length)
 	long notifyInfo[NUM_TAPS] = {};// downward step counter when semi, cv2, prob to be displayed, 0 when normal tap display
 	long notifyPoly = 0l;// downward step counter when notify poly size in leds, 0 when normal leds
 	RefreshCounter refresh;
-	Trigger clkTrigger;
-	Trigger clearTrigger;
+	TriggerRiseFall clkTrigger;
 	TriggerRiseFall gateTriggers[NUM_TAPS];
 	Trigger freezeButtonTrigger;
+	Trigger clearTrigger;
 
 
 	bool getIsDelMode() {
@@ -188,6 +172,7 @@ struct NoteEcho : Module {
 		return (random::uniform() < params[PROB_PARAMS + tapNum].getValue()); // random::uniform is [0.0, 1.0), see include/util/common.hpp
 	}
 	
+	
 	void refreshCv2ParamQuantities() {
 		// set the CV2 param units to either "V" or "", depending on the value of CV2MODE_PARAM (which must be setup when this method is called)
 		for (int i = 0; i < NUM_TAPS; i++) {
@@ -206,6 +191,57 @@ struct NoteEcho : Module {
 			}
 		}
 	}
+	
+	
+	void sampleCvs(int t, int p, float* cv, float* cv2) {
+		// this method supports t == NUM_TAPS in case it is called for tap0, in which case the cv semi knob and the cv2 mod knobs are not probed since they do not exist
+		// cv
+		*cv = inputs[CV_INPUT].getChannels() > p ? inputs[CV_INPUT].getVoltage(p) : 0.0f;
+		if (t < NUM_TAPS) {
+			*cv += getSemiVolts(t);
+		}
+		
+		// cv2
+		if (inputs[CV2_INPUT].getChannels() < 1) {
+			*cv2 = cv2NormalledVoltage();
+		}
+		else {
+			*cv2 = inputs[CV2_INPUT].getVoltage(std::min(p, inputs[CV2_INPUT].getChannels() - 1));
+		}
+		if (t < NUM_TAPS) {
+			if (isCv2Offset()) {
+				*cv2 += params[CV2_PARAMS + t].getValue() * 10.0f;
+			}
+			else {
+				*cv2 *= params[CV2_PARAMS + t].getValue();
+			}
+		}
+	}
+	
+	
+	void finishPending(int t, int p, int64_t argsFrame, bool isDelMode) {
+		if (!channel[t][p].empty()) {
+			if (channel[t][p].back().muted) {
+				channel[t][p].pop();
+			}
+			else {
+				if (channel[t][p].back().gateOffFrame == 0) {
+					// we have a pending event
+					if (isDelMode) {
+						int64_t gateFrames = argsFrame - channel[t][p].back().capturedFrame;
+						channel[t][p].back().gateOffFrame = channel[t][p].back().gateOnFrame + gateFrames;
+					}
+					else {
+						channel[t][p].back().gateOffFrame = channel[t][p].back().gateOnFrame + 1;// not really relevant, but for good form
+					}
+				}
+				else {
+					// error, back event already has a gateOffFrame, flush channel
+					clearChannel(t, p);
+				}
+			}
+		}
+	}	
 	
 	
 	
@@ -263,31 +299,17 @@ struct NoteEcho : Module {
 	}
 
 
-	void srClear() {
-		for (int r = 0; r < SR_LENGTH; r++) {
-			for (int p = 0; p < MAX_POLY; p++) {
-				cv[r][p] = 0.0f;
-				cv2[r][p] = 0.0f;
-				gate[r][p] = false;
-			}
-		}
-		for (int t = 0; t < NUM_TAPS; t++) {
-			for (int p = 0; p < MAX_POLY; p++) {
-				gateEn[t][p] = false;
-			}
-		}
-		head = 0;
-	}
 	
-	void delClearChannel(int t, int p) {
+	void clearChannel(int t, int p) {
 		while (!channel[t][p].empty()) {
 			channel[t][p].pop();
 		}
 	}
-	void delClear() {
-		for (int t = 0; t < NUM_TAPS; t++) {
+	void clear() {
+		for (int t = 0; t < NUM_TAPS + 1; t++) {
 			for (int p = 0; p < MAX_POLY; p++) {
-				delClearChannel(t, p);
+				// clear all including tap0 which is last tap
+				clearChannel(t, p);
 			}
 		}
 	}
@@ -304,10 +326,11 @@ struct NoteEcho : Module {
 	}
 	void resetNonJson() {
 		freeze = false;
-		srClear();
-		delClear();
+		clear();
 		lastRisingClkFrame = -1;// none
+		clkCount = 0;
 		lastPoly = getPolyKnob();
+		lastDelMode = getIsDelMode();
 	}
 
 	
@@ -398,38 +421,25 @@ struct NoteEcho : Module {
 	}
 
 
-	void filterOutputsForIdentNotes(int chans, int poly) {
-		// kill gates of redundant notes, first priority to lowest channel
-		// will kill redundant notes using gateEn, so that it does not need to be called on each sample, rather only on each clkEdge, after the outputs have been set for that edge
-		for (int c = 0; c < chans - 1; c++) {
-			if (outputs[GATE_OUTPUT].getVoltage(c) == 0.0f) continue;
-			int c2 = c - (c % poly) + poly;// check only with downstream taps
-			for (; c2 < chans; c2++) {
-				if (outputs[GATE_OUTPUT].getVoltage(c2) == 0.0f) continue;
-				if (outputs[CV_OUTPUT].getVoltage(c) == outputs[CV_OUTPUT].getVoltage(c2)) {
-					// kill redundant note
-					outputs[GATE_OUTPUT].setVoltage(0.0f, c2);
-					// and use its gateEn[][] to keep this persistent after the clock edge
-					int t = c2 / poly;
-					if (!wetOnly) t -= 1;
-					gateEn[t][c2 % poly] = false;
-				}
-			}
-		}
-	}
-
-
 	void onSampleRateChange() override {
-		delClear();
+		clear();
 	}		
 
 
 	void process(const ProcessArgs &args) override {
 		int poly = getPolyKnob();
+		if (poly != lastPoly) {
+			clear();
+			lastPoly = poly;
+		}
+		bool isDelMode = getIsDelMode();
+		if (isDelMode != lastDelMode) {
+			clear();
+			lastDelMode = isDelMode;
+		}
 		int numActiveTaps = countActiveTaps();
 		bool lastTapAllowed = isLastTapAllowed();
-		int chans = std::min( poly * ( ((!wetOnly || freeze) ? 0 : 1) + numActiveTaps ) , 16 );
-		bool isDelMode = getIsDelMode();
+		int chans = std::min( poly * ( (wetOnly ? 0 : 1) + numActiveTaps ) , 16 );
 		if (outputs[CV_OUTPUT].getChannels() != chans) {
 			outputs[CV_OUTPUT].setChannels(chans);
 		}
@@ -441,10 +451,6 @@ struct NoteEcho : Module {
 		}
 
 		if (refresh.processInputs()) {
-			if (poly != lastPoly) {
-				delClear();
-				lastPoly = poly;
-			}
 		}// userInputs refresh
 	
 		// Freeze
@@ -455,70 +461,14 @@ struct NoteEcho : Module {
 	
 		// clear and clock
 		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage())) {
-			srClear();
-			delClear();
+			clear();
 		}
 		float clockSignal = (clkDelay <= 0 || isDelMode) ? inputs[CLK_INPUT].getVoltage() : clkDelReg[clkDelay - 1];
-		bool clkEdge = clkTrigger.process(clockSignal);
-		if (clkEdge) {
+		int clkEdge = clkTrigger.process(clockSignal);
+		if (clkEdge == 1) {
 			if (!isDelMode) {
 				// ** SR MODE
-				// sample the inputs
-				for (int p = 0; p < MAX_POLY; p++) {
-					float inCv;
-					float inCv2;
-					bool inGate;
-					if (freeze) {
-						// problem with this method is that if reduce freeze length it kills all gates after it so they are permanently lost from the loop
-						int frzLen = getFreezeLengthKnob();
-						int lpIndex = (head - frzLen + 2 * SR_LENGTH) % SR_LENGTH;
-						inCv = cv[lpIndex][p];
-						inCv2 = cv2[lpIndex][p];
-						inGate = gate[lpIndex][p];
-						// turn off gates for any possible taps beyond freeze length
-						if (head > lpIndex) {
-							for (int r = lpIndex; r >= 0; r--) {
-								gate[r][p] = false;
-							}
-							for (int r = SR_LENGTH - 1; r > head; r--) {
-								gate[r][p] = false;
-							}
-						}
-						else {
-							for (int r = lpIndex; r > head; r--) {
-								gate[r][p] = false;
-							}							
-						}
-					}
-					else {
-						inCv = inputs[CV_INPUT].getChannels() > p ? inputs[CV_INPUT].getVoltage(p) : 0.0f;
-						if (inputs[CV2_INPUT].getChannels() < 1) {
-							inCv2 = cv2NormalledVoltage();
-						}
-						else {
-							inCv2 = inputs[CV2_INPUT].getVoltage(std::min(p, inputs[CV2_INPUT].getChannels() - 1));
-						}
-						inGate = inputs[GATE_INPUT].getChannels() > p ? (inputs[GATE_INPUT].getVoltage(p) > 1.0f) : false;
-					}
-					cv[head][p] = inCv;
-					cv2[head][p] = inCv2;
-					gate[head][p] = inGate;
-				}
-				// step the head pointer
-				head = (head + 1) % SR_LENGTH;
-				// refill gateEn array
-				for (int t = 0; t < NUM_TAPS; t++) {
-					for (int p = 0; p < MAX_POLY; p++) {
-						if (p > 0 && isSingleProbs()) {
-							// single prob for all poly chans
-							gateEn[t][p] = gateEn[t][0];
-						}
-						else {
-							// separate probs for each poly chan
-							gateEn[t][p] = getGateProbEnableForTap(t);
-						}
-					}
-				}
+				clkCount++;
 			}
 			else {
 				// ** DEL MODE
@@ -536,194 +486,181 @@ struct NoteEcho : Module {
 			}
 		}
 		
-		if (isDelMode) {
-			// ** DEL MODE
-			// check the poly gate input for rising/falling gates, 
-			//   and enter proper events according to taps
-			for (int p = 0; p < MAX_POLY; p++) {
-				int gateEdge = gateTriggers[p].process(inputs[GATE_INPUT].getVoltage(p));
-				if (p >= poly) {
-					continue;// must do all gateTriggers[p].process()
+		// sample the inputs on main clock (SR Mode) or poly gates (DEL Mode)
+		int gateEdges[MAX_POLY];
+		int64_t currFrameOrClk = isDelMode ? args.frame : clkCount;
+		for (int p = 0; p < MAX_POLY; p++) {
+			// keep triggers continually processed, just like clock/tempo, irrespective of mode
+			gateEdges[p] = gateTriggers[p].process(inputs[GATE_INPUT].getVoltage(p));
+		}
+		for (int p = 0; p < poly; p++) {
+			// ** SR MODE : sample the inputs on rising clock edge (finish job on falling)
+			// ** DEL MODE : sample the inputs on rising poly gate edges (finish job on falling)
+			int eventEdge = isDelMode ? gateEdges[p] : clkEdge;				
+			if (eventEdge == 1) {
+				// here we have a rising gate on poly p, or a rising clk
+				
+				// do dry first (tap0):
+				float cv, cv2;
+				sampleCvs(NUM_TAPS, p, &cv, &cv2);
+				int64_t capturedFrame = currFrameOrClk;
+				int64_t gateOnFrame = capturedFrame;
+				int64_t gateOffFrame = 0;// will be completed when gate/clk falls
+				bool muted = !wetOnly;
+				if (channel[NUM_TAPS][p].size() >= DEL_MAX_QUEUE) {
+					continue;// skip event if queue too full
 				}
-				if (gateEdge == 1) {
-					// here we have a rising gate on poly p
-					// now scan taps and prepare events for this gate on poly p 
-					for (int t = 0; t < NUM_TAPS; t++) {
-						if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
-							continue;
-						}
-						if (channel[t][p].size() >= DEL_MAX_QUEUE) {
-							continue;// skip event if queue too full
-						}
-						// cv
-						float cv = inputs[CV_INPUT].getChannels() > p ? inputs[CV_INPUT].getVoltage(p) : 0.0f;
-						cv += getSemiVolts(t);
-						
-						// cv2
-						float cv2;
-						if (inputs[CV2_INPUT].getChannels() < 1) {
-							cv2 = cv2NormalledVoltage();
-						}
-						else {
-							cv2 = inputs[CV2_INPUT].getVoltage(std::min(p, inputs[CV2_INPUT].getChannels() - 1));
-						}
-						if (isCv2Offset()) {
-							cv2 += params[CV2_PARAMS + t].getValue() * 10.0f;
-						}
-						else {
-							cv2 *= params[CV2_PARAMS + t].getValue();
-						}
+				NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
+				channel[NUM_TAPS][p].push(newEvent);// pushed at the end, get end using .back()
 
-						// frames
-						int64_t capturedFrame = args.frame;
-						int64_t gateOnFrame = capturedFrame + clockPeriod * (int64_t)getTapValue(t);
-						int64_t gateOffFrame = 0;// will be completed when gate falls
-						
-						// muted
-						bool muted = false;
-						bool gotMuted = false;
-						if (isSingleProbs()) {
-							// try to get muted prob from another poly if close enough time-wise
-							int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
-							for (int p2 = 0; p2 < poly; p2++) {
-								if (p2 == p || channel[t][p2].empty()) continue;
-								int64_t delta = channel[t][p2].back().capturedFrame - capturedFrame;
-								int64_t delta2 = channel[t][p2].back().gateOnFrame - gateOnFrame;
-								if (llabs(delta) < closenessFrames && llabs(delta2) < closenessFrames) {
-									muted = channel[t][p2].back().muted;
-									gotMuted = true;
-									break;
-								}
-							}
-						}
-						if (!gotMuted) {
-							// generate new muted according to prob
-							muted = !getGateProbEnableForTap(t);
-						}
+				// now scan taps:	
+				for (int t = 0; t < NUM_TAPS; t++) {
+					if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+						continue;
+					}
+					if (channel[t][p].size() >= DEL_MAX_QUEUE) {
+						continue;// skip event if queue too full
+					}
+					sampleCvs(t, p, &cv, &cv2);
 
-						NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
-						channel[t][p].push(newEvent);// pushed at the end, get end using .back()
-					}// tap t
-				}
-				else if (gateEdge == -1) {
-					// here we have a falling gate on poly p
-					for (int t = 0; t < NUM_TAPS; t++) {
-						// scan the taps to set the gateOffFrame
-						if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
-							continue;
-						}					
-						if (!channel[t][p].empty()) {
-							if (channel[t][p].back().muted) {
-								channel[t][p].pop();
+					// frames
+					capturedFrame = currFrameOrClk + (isDelMode ? 0 : 1);// 1 is since dry is clkCount
+					gateOnFrame = capturedFrame + (isDelMode ? clockPeriod : 1) * (int64_t)getTapValue(t);
+					gateOffFrame = 0;// will be completed when gate/clk falls
+					
+					// muted
+					muted = false;
+					bool gotMuted = false;
+					if (isSingleProbs()) {
+						// try to get muted prob from another poly if close enough time-wise
+						int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
+						for (int p2 = 0; p2 < poly; p2++) {
+							if (p2 == p || channel[t][p2].empty()) continue;
+							int64_t delta = channel[t][p2].back().capturedFrame - capturedFrame;
+							int64_t delta2 = channel[t][p2].back().gateOnFrame - gateOnFrame;
+							bool closeEnough;
+							if (isDelMode) {
+								closeEnough = llabs(delta) < closenessFrames && llabs(delta2) < closenessFrames;
 							}
 							else {
-								if (channel[t][p].back().gateOffFrame == 0) {
-									// we have a pending event
-									int64_t gateFrames = args.frame - channel[t][p].back().capturedFrame;
-									channel[t][p].back().gateOffFrame = channel[t][p].back().gateOnFrame + gateFrames;
-								}
-								else {
-									// error, back event already has a gateOffFrame, flush channel
-									delClearChannel(t, p);
-								}
+								closeEnough = (delta == 0 && delta2 == 0);
+							}
+							if (closeEnough) {
+								muted = channel[t][p2].back().muted;
+								gotMuted = true;
+								break;
 							}
 						}
-					}// tap t					
-				}
-			}// poly p
-		}
-		
+					}
+					if (!gotMuted) {
+						// generate new muted according to prob
+						muted = !getGateProbEnableForTap(t);
+					}
+
+					NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
+					channel[t][p].push(newEvent);// pushed at the end, get end using .back()
+				}// tap t
+			}
+			else if (eventEdge == -1) {
+				// here we have a falling gate on poly p, or falling clk
+				
+				// do dry first (tap0):	
+				finishPending(NUM_TAPS, p, args.frame, isDelMode);
+				// now scan taps:
+				for (int t = 0; t < NUM_TAPS; t++) {
+					// scan the taps to set the gateOffFrame
+					if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+						continue;
+					}					
+					finishPending(t, p, args.frame, isDelMode);
+				}// tap t					
+			}
+		}// poly p
+
 		
 		// outputs
 		// outputs[CLK_OUTPUT].setVoltage(clockSignal);
 		// do tap0 outputs first
 		int c = 0;// running index for all poly cable writes
-		if (!isDelMode) {
-			// ** SR MODE
-			if (!wetOnly || freeze) {
-				for (; c < poly; c++) {
-					int srIndex = (head - 1 + 2 * SR_LENGTH) % SR_LENGTH;
-					outputs[CV_OUTPUT].setVoltage(cv[srIndex][c],c);
-					outputs[GATE_OUTPUT].setVoltage(gate[srIndex][c] && clockSignal > 1.0f ? 10.0f : 0.0f,c);
-					outputs[CV2_OUTPUT].setVoltage(cv2[srIndex][c],c);
-				}
-			}
-			// now do main tap outputs
-			for (int t = 0; t < NUM_TAPS; t++) {
-				if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
-					continue;
-				}
-				int srIndex = (head - getTapValue(t) - 1 + 2 * SR_LENGTH) % SR_LENGTH;
-				for (int p = 0; p < poly; p++, c++) {
-					// cv
-					float cvWithSemi = cv[srIndex][p] + getSemiVolts(t);
-					outputs[CV_OUTPUT].setVoltage(cvWithSemi, c);
-					
-					// gate
-					bool gateWithProb = gate[srIndex][p] && gateEn[t][p] && clockSignal > 1.0f;
-					outputs[GATE_OUTPUT].setVoltage(gateWithProb ? 10.0f : 0.0f, c);
-					
-					// cv2
-					float cv2WithMod = cv2[srIndex][p];
-					if (isCv2Offset()) {
-						cv2WithMod += params[CV2_PARAMS + t].getValue() * 10.0f;
+		// do tap0
+		for (int p = 0; p < poly; p++, c++) {
+			bool gate = false;
+			if (!channel[NUM_TAPS][p].empty()) {
+				NoteEvent e = channel[NUM_TAPS][p].front();
+				if (currFrameOrClk >= e.gateOnFrame) {
+					gate = true;
+					if (e.gateOffFrame != 0 && currFrameOrClk >= e.gateOffFrame) {
+						// note is now done, remove it (CVs will stay held in the ports though)
+						gate = false;
+						channel[NUM_TAPS][p].pop();
 					}
-					else {
-						cv2WithMod *= params[CV2_PARAMS + t].getValue();
-					}
-					outputs[CV2_OUTPUT].setVoltage(cv2WithMod, c);
-				}
-			}
-			if (clkEdge && noteFilter) {
-				filterOutputsForIdentNotes(chans, poly); 
-			}
-		}
-		else {
-			// ** DEL MODE
-			if (!wetOnly || freeze) {
-				for (; c < poly; c++) {
-					outputs[CV_OUTPUT].setVoltage(inputs[CV_INPUT].getVoltage(c), c);
-					outputs[GATE_OUTPUT].setVoltage(inputs[GATE_INPUT].getVoltage(c), c);
-					outputs[CV2_OUTPUT].setVoltage(inputs[CV2_INPUT].getVoltage(c),c);
-				}
-			}
-			// now do main tap outputs
-			for (int t = 0; t < NUM_TAPS; t++) {
-				if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
-					continue;
-				}
-				for (int p = 0; p < poly; p++, c++) {
-					bool gate = false;
-					if (!channel[t][p].empty()) {
-						NoteEvent e = channel[t][p].front();
-						if (args.frame >= e.gateOnFrame) {
-							gate = true;
-							if (e.gateOffFrame != 0 && args.frame >= e.gateOffFrame) {
-								// note is now done, remove it (CVs will stay held in the ports though)
+					else if (noteFilter) {
+						// don't allow the gate to turn on if the same CV is already on another channel that has its gate high
+						for (int c2 = 0; c2 < c; c2++) {
+							if (outputs[GATE_OUTPUT].getVoltage(c2) != 0.0f &&
+								outputs[CV_OUTPUT].getVoltage(c2) == e.cv) {
 								gate = false;
-								channel[t][p].pop();
-							}
-							else if (noteFilter) {
-								// don't allow the gate to turn on if the same CV is already on another channel that has its gate high
-								for (int c2 = 0; c2 < c; c2++) {
-									if (outputs[GATE_OUTPUT].getVoltage(c2) != 0.0f &&
-										outputs[CV_OUTPUT].getVoltage(c2) == e.cv) {
-										gate = false;
-										channel[t][p].pop();
-										break;
-									}
-								}
-							}
-							if (gate) {
-								outputs[CV_OUTPUT].setVoltage(e.cv, c);
-								outputs[CV2_OUTPUT].setVoltage(e.cv2, c);							
+								channel[NUM_TAPS][p].pop();
+								break;
 							}
 						}
 					}
-					outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
+					if (gate && !wetOnly) {
+						outputs[CV_OUTPUT].setVoltage(e.cv, c);
+						outputs[CV2_OUTPUT].setVoltage(e.cv2, c);							
+					}
 				}
-			}			
+			}
+			if (!wetOnly) {
+				if (!isDelMode) {
+					gate &= clockSignal > 1.0f;
+				}
+				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
+			}
 		}
+		if (wetOnly) {
+			c = 0;
+		}
+		
+		// now do main tap outputs
+		for (int t = 0; t < NUM_TAPS; t++) {
+			if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+				continue;
+			}
+			for (int p = 0; p < poly; p++, c++) {
+				bool gate = false;
+				if (!channel[t][p].empty()) {
+					NoteEvent e = channel[t][p].front();
+					if (currFrameOrClk >= e.gateOnFrame) {
+						gate = true;
+						if (e.gateOffFrame != 0 && currFrameOrClk >= e.gateOffFrame) {
+							// note is now done, remove it (CVs will stay held in the ports though)
+							gate = false;
+							channel[t][p].pop();
+						}
+						else if (noteFilter) {
+							// don't allow the gate to turn on if the same CV is already on another channel that has its gate high
+							for (int c2 = 0; c2 < c; c2++) {
+								if (outputs[GATE_OUTPUT].getVoltage(c2) != 0.0f &&
+									outputs[CV_OUTPUT].getVoltage(c2) == e.cv) {
+									gate = false;
+									channel[t][p].pop();
+									break;
+								}
+							}
+						}
+						if (gate) {
+							outputs[CV_OUTPUT].setVoltage(e.cv, c);
+							outputs[CV2_OUTPUT].setVoltage(e.cv2, c);							
+						}
+					}
+				}
+				if (!isDelMode) {
+					gate &= clockSignal > 1.0f;
+				}
+				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
+			}
+		}			
 			
 		
 		// lights
@@ -787,6 +724,7 @@ struct NoteEcho : Module {
 		clkDelReg[0] = inputs[CLK_INPUT].getVoltage();	
 	}// process()
 };
+
 
 
 struct NoteEchoWidget : ModuleWidget {
