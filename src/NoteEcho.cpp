@@ -243,6 +243,44 @@ struct NoteEcho : Module {
 		}
 	}	
 	
+	void processOutputs(int t, int poly, int* c, bool isDelMode, int64_t currFrameOrClk, float clockSignal) {
+		for (int p = 0; p < poly; p++, (*c)++) {
+			bool gate = false;
+			if (!channel[t][p].empty()) {
+				NoteEvent e = channel[t][p].front();
+				if (currFrameOrClk >= e.gateOnFrame) {
+					gate = true;
+					if (e.gateOffFrame != 0 && currFrameOrClk >= e.gateOffFrame) {
+						// note is now done, remove it (CVs will stay held in the ports though)
+						gate = false;
+						channel[t][p].pop();
+					}
+					else if (noteFilter) {
+						// don't allow the gate to turn on if the same CV is already on another channel that has its gate high
+						for (int c2 = 0; c2 < *c; c2++) {
+							if (outputs[GATE_OUTPUT].getVoltage(c2) != 0.0f &&
+								outputs[CV_OUTPUT].getVoltage(c2) == e.cv) {
+								gate = false;
+								channel[t][p].pop();
+								break;
+							}
+						}
+					}
+					if (gate && (t != NUM_TAPS || !wetOnly)) {
+						outputs[CV_OUTPUT].setVoltage(e.cv, *c);
+						outputs[CV2_OUTPUT].setVoltage(e.cv2, *c);							
+					}
+				}
+			}
+			if (t != NUM_TAPS || !wetOnly) {
+				if (!isDelMode) {
+					gate &= clockSignal > 1.0f;
+				}
+				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, *c);
+			}
+		}	
+	}
+	
 	
 	
 	NoteEcho() {
@@ -583,7 +621,8 @@ struct NoteEcho : Module {
 		// do tap0 outputs first
 		int c = 0;// running index for all poly cable writes
 		// do tap0
-		for (int p = 0; p < poly; p++, c++) {
+		processOutputs(NUM_TAPS, poly, &c, isDelMode, currFrameOrClk, clockSignal);
+/*		for (int p = 0; p < poly; p++, c++) {
 			bool gate = false;
 			if (!channel[NUM_TAPS][p].empty()) {
 				NoteEvent e = channel[NUM_TAPS][p].front();
@@ -617,7 +656,7 @@ struct NoteEcho : Module {
 				}
 				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
 			}
-		}
+		}*/
 		if (wetOnly) {
 			c = 0;
 		}
@@ -627,7 +666,8 @@ struct NoteEcho : Module {
 			if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 				continue;
 			}
-			for (int p = 0; p < poly; p++, c++) {
+			processOutputs(t, poly, &c, isDelMode, currFrameOrClk, clockSignal);
+			/*for (int p = 0; p < poly; p++, c++) {
 				bool gate = false;
 				if (!channel[t][p].empty()) {
 					NoteEvent e = channel[t][p].front();
@@ -659,7 +699,7 @@ struct NoteEcho : Module {
 					gate &= clockSignal > 1.0f;
 				}
 				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
-			}
+			}*/
 		}			
 			
 		
