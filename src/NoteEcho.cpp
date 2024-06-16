@@ -1,5 +1,5 @@
 //***********************************************************************************************
-//CV-Gate shift register (a.k.a. note delay) for VCV Rack by Marc Boulé
+//CV-Gate shift register / delay module for VCV Rack by Marc Boulé
 //
 //Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics  
 //  from the Component Library by Pyer. 
@@ -28,6 +28,8 @@ struct NoteEcho : Module {
 		// ----
 		DEL_MODE_PARAM,// start of 2nd version of module with two modes
 		CV2NORM_PARAM,
+		FREEZE_PARAM,
+		FRZLEN_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -36,6 +38,8 @@ struct NoteEcho : Module {
 		CV2_INPUT,
 		CLK_INPUT,
 		CLEAR_INPUT,
+		// ----
+		FREEZE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -43,6 +47,7 @@ struct NoteEcho : Module {
 		GATE_OUTPUT,
 		CV2_OUTPUT,
 		// CLK_OUTPUT,// unused
+		// ----
 		NUM_OUTPUTS
 	};
 	enum LightIds {
@@ -50,6 +55,8 @@ struct NoteEcho : Module {
 		FILTER_LIGHT,
 		WET_LIGHT,
 		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
+		// ----
+		FREEZE_LIGHT,
 		NUM_LIGHTS
 	};
 	
@@ -101,6 +108,7 @@ struct NoteEcho : Module {
 	int64_t clockPeriod;// DEL Mode
 
 	// No need to save, with reset
+	bool freeze;
 	// ** SR MODE
 	float cv[SR_LENGTH][MAX_POLY];
 	float cv2[SR_LENGTH][MAX_POLY];
@@ -113,12 +121,14 @@ struct NoteEcho : Module {
 	int lastPoly;
 	
 	// No need to save, no reset
-	int notifySource[NUM_TAPS] = {};// 0 (normal), 1 (semi) 2 (CV2), 3 (prob)
+	int notifySource[NUM_TAPS] = {};// 0 (normal), 1 (semi) 2 (CV2), 3 (prob), 4 (freeze length)
 	long notifyInfo[NUM_TAPS] = {};// downward step counter when semi, cv2, prob to be displayed, 0 when normal tap display
 	long notifyPoly = 0l;// downward step counter when notify poly size in leds, 0 when normal leds
 	RefreshCounter refresh;
 	Trigger clkTrigger;
 	Trigger clearTrigger;
+	TriggerRiseFall gateTriggers[NUM_TAPS];
+	Trigger freezeButtonTrigger;
 
 
 	bool isDelMode() {
@@ -126,6 +136,9 @@ struct NoteEcho : Module {
 	}
 	int getPolyKnob() {
 		return (int)(params[POLY_PARAM].getValue() + 0.5f);
+	}
+	int getFreezeLengthKnob() {
+		return (int)(params[FRZLEN_PARAM].getValue() + 0.5f);
 	}
 	int getTapValue(int tapNum) {
 		return (int)(params[TAP_PARAMS + tapNum].getValue() + 0.5f);
@@ -148,11 +161,20 @@ struct NoteEcho : Module {
 	int getSemiValue(int tapNum) {
 		return (int)(std::round(params[ST_PARAMS + tapNum].getValue()));
 	}
+	float getSemiVolts(int tapNum) {
+		return params[ST_PARAMS + tapNum].getValue() / 12.0f;
+	}
 	bool isCv2Offset() {
 		return params[CV2MODE_PARAM].getValue() > 0.5f;
 	}
 	float cv2NormalledVoltage() {
 		return params[CV2NORM_PARAM].getValue();
+	}
+	bool isSingleProbs() {
+		return params[PMODE_PARAM].getValue() > 0.5f;
+	}
+	bool getGateProbEnableForTap(int tapNum) {
+		return (random::uniform() < params[PROB_PARAMS + tapNum].getValue()); // random::uniform is [0.0, 1.0), see include/util/common.hpp
 	}
 	
 	void refreshCv2ParamQuantities() {
@@ -184,7 +206,10 @@ struct NoteEcho : Module {
 		configSwitch(CV2MODE_PARAM, 0.0f, 1.0f, 1.0f, "CV2 mode", {"Scale", "Offset"});
 		configSwitch(PMODE_PARAM, 0.0f, 1.0f, 1.0f, "Random mode", {"Separate", "Chord"});
 		configSwitch(DEL_MODE_PARAM, 0.0f, 1.0f, 1.0f, "Main mode", {"Shift register", "Delay"});
-		configParam(CV2NORM_PARAM, -10.0f, 10.0f, 0.0f, "CV2 normalization", "");
+		configParam(CV2NORM_PARAM, -10.0f, 10.0f, 0.0f, "CV2 input normalization", "");
+		configParam(FREEZE_PARAM, 0.0f, 1.0f, 0.0f, "Freeze (loop)");
+		configParam(FRZLEN_PARAM, 1.0f, (float)(MAX_DEL), 4.0f, "Freeze length");
+		paramQuantities[FRZLEN_PARAM]->snapEnabled = true;
 		
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
@@ -205,6 +230,7 @@ struct NoteEcho : Module {
 		configInput(CV2_INPUT, "CV2/Velocity");
 		configInput(CLK_INPUT, "Clock");
 		configInput(CLEAR_INPUT, "Clear (reset)");
+		configInput(FREEZE_INPUT, "Freeze (loop)");
 
 		configOutput(CV_OUTPUT, "CV");
 		configOutput(GATE_OUTPUT, "Gate");
@@ -212,8 +238,8 @@ struct NoteEcho : Module {
 		// configOutput(CLK_OUTPUT, "Clock");
 		
 		configLight(SD_LIGHT, "Sample delay active");
-		configLight(FILTER_LIGHT, "Filter identical notes");
-		configLight(WET_LIGHT, "Echoes only");
+		// configLight(FILTER_LIGHT, "Filter identical notes");
+		// configLight(WET_LIGHT, "Echoes only");
 		
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
@@ -266,6 +292,7 @@ struct NoteEcho : Module {
 		resetNonJson();
 	}
 	void resetNonJson() {
+		freeze = false;
 		srClear();
 		delClear();
 		lastRisingClkFrame = -1;// none
@@ -408,6 +435,10 @@ struct NoteEcho : Module {
 			}
 		}// userInputs refresh
 	
+		// Freeze
+		if (freezeButtonTrigger.process(inputs[FREEZE_INPUT].getVoltage() + params[FREEZE_PARAM].getValue())) {
+			freeze = !freeze;
+		}
 	
 	
 		// clear and clock
@@ -418,33 +449,147 @@ struct NoteEcho : Module {
 		float clockSignal = clkDelay <= 0 ? inputs[CLK_INPUT].getVoltage() : clkDelReg[clkDelay - 1];
 		bool clkEdge = clkTrigger.process(clockSignal);
 		if (clkEdge) {
-			// sample the inputs
-			for (int i = 0; i < MAX_POLY; i++) {
-				cv[head][i] = inputs[CV_INPUT].getChannels() > i ? inputs[CV_INPUT].getVoltage(i) : 0.0f;
-				if (inputs[CV2_INPUT].getChannels() < 1) {
-					cv2[head][i] = cv2NormalledVoltage();
-				}
-				else {
-					cv2[head][i] = inputs[CV2_INPUT].getVoltage(std::min(i, inputs[CV2_INPUT].getChannels() - 1));
-				}
-				// normalizing CV2 to 10V is not really useful here, since even if we also normal the pass-through (tap0) when CV2 input unconnected, it's value can't be controlled, so even if we can apply CV2 mod to the 4 true taps, a 10V value on the pass-through tap would have to coincide with that is desired and useful. So given this, forget normalizing CV input to 10V.
-				gate[head][i] = inputs[GATE_INPUT].getChannels() > i ? (inputs[GATE_INPUT].getVoltage(i) > 1.0f) : false;
-			}
-			// step the head pointer
-			head = (head + 1) % SR_LENGTH;
-			// refill gateEn array
-			for (int j = 0; j < NUM_TAPS; j++) {
+			if (!isDelMode()) {
+				// ** SR MODE
+				// sample the inputs
 				for (int i = 0; i < MAX_POLY; i++) {
-					if (i > 0 && params[PMODE_PARAM].getValue() > 0.5f) {
-						// single prob for all poly chans
-						gateEn[j][i] = gateEn[j][0];
+					cv[head][i] = inputs[CV_INPUT].getChannels() > i ? inputs[CV_INPUT].getVoltage(i) : 0.0f;
+					if (inputs[CV2_INPUT].getChannels() < 1) {
+						cv2[head][i] = cv2NormalledVoltage();
 					}
 					else {
-						// separate probs for each poly chan
-						gateEn[j][i] = (random::uniform() < params[PROB_PARAMS + j].getValue()); // random::uniform is [0.0, 1.0), see include/util/common.hpp
+						cv2[head][i] = inputs[CV2_INPUT].getVoltage(std::min(i, inputs[CV2_INPUT].getChannels() - 1));
+					}
+					// normalizing CV2 to 10V is not really useful here, since even if we also normal the pass-through (tap0) when CV2 input unconnected, it's value can't be controlled, so even if we can apply CV2 mod to the 4 true taps, a 10V value on the pass-through tap would have to coincide with that is desired and useful. So given this, forget normalizing CV input to 10V.
+					gate[head][i] = inputs[GATE_INPUT].getChannels() > i ? (inputs[GATE_INPUT].getVoltage(i) > 1.0f) : false;
+				}
+				// step the head pointer
+				head = (head + 1) % SR_LENGTH;
+				// refill gateEn array
+				for (int j = 0; j < NUM_TAPS; j++) {
+					for (int i = 0; i < MAX_POLY; i++) {
+						if (i > 0 && isSingleProbs()) {
+							// single prob for all poly chans
+							gateEn[j][i] = gateEn[j][0];
+						}
+						else {
+							// separate probs for each poly chan
+							gateEn[j][i] = getGateProbEnableForTap(j);
+						}
 					}
 				}
 			}
+			else {
+				// ** DEL MODE
+				// update clockPeriod
+				if (lastRisingClkFrame != -1) {
+					int64_t deltaFrames = args.frame - lastRisingClkFrame;
+					float deltaFramesF = (float)deltaFrames;
+					if (deltaFramesF <= (args.sampleRate * 6.0f) && 
+						deltaFramesF >= (args.sampleRate / 5.0f)) {// 10-300 BPM tempo range
+						clockPeriod = deltaFrames;
+					}
+					// else, remember the previous clockPeriod so nothing to do
+				}
+				lastRisingClkFrame = args.frame;
+			}
+		}
+		
+		if (isDelMode()) {
+			// ** DEL MODE
+			// check the poly gate input for rising/falling gates, 
+			//   and enter proper events according to taps
+			for (int p = 0; p < MAX_POLY; p++) {
+				int gateEdge = gateTriggers[p].process(inputs[GATE_INPUT].getVoltage(p));
+				if (p >= poly) {
+					continue;// must do all gateTriggers[p].process()
+				}
+				if (gateEdge == 1) {
+					// here we have a rising gate on poly p
+					// now scan taps and prepare events for this gate on poly p 
+					for (int t = 0; t < NUM_TAPS; t++) {
+						if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+							continue;
+						}
+						if (channel[t][p].size() >= DEL_MAX_QUEUE) {
+							continue;// skip event if queue too full
+						}
+						// cv
+						float cv = inputs[CV_INPUT].getChannels() > p ? inputs[CV_INPUT].getVoltage(p) : 0.0f;
+						cv += getSemiVolts(t);
+						
+						// cv2
+						float cv2;
+						if (inputs[CV2_INPUT].getChannels() < 1) {
+							cv2 = cv2NormalledVoltage();
+						}
+						else {
+							cv2 = inputs[CV2_INPUT].getVoltage(std::min(p, inputs[CV2_INPUT].getChannels() - 1));
+						}
+						if (isCv2Offset()) {
+							cv2 += params[CV2_PARAMS + t].getValue() * 10.0f;
+						}
+						else {
+							cv2 *= params[CV2_PARAMS + t].getValue();
+						}
+
+						// frames
+						int64_t capturedFrame = args.frame;
+						int64_t gateOnFrame = capturedFrame + clockPeriod * (int64_t)getTapValue(t);
+						int64_t gateOffFrame = 0;// will be completed when gate falls
+						
+						// muted
+						bool muted = false;
+						bool gotMuted = false;
+						if (isSingleProbs()) {
+							// try to get muted prob from another poly if close enough time-wise
+							int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
+							for (int p2 = 0; p2 < poly; p2++) {
+								if (p2 == p || channel[t][p2].empty()) continue;
+								int64_t delta = channel[t][p2].back().capturedFrame - capturedFrame;
+								int64_t delta2 = channel[t][p2].back().gateOnFrame - gateOnFrame;
+								if (llabs(delta) < closenessFrames && llabs(delta2) < closenessFrames) {
+									muted = channel[t][p2].back().muted;
+									gotMuted = true;
+									break;
+								}
+							}
+						}
+						if (!gotMuted) {
+							// generate new muted according to prob
+							muted = !getGateProbEnableForTap(t);
+						}
+
+						NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
+						channel[t][p].push(newEvent);// pushed at the end, get end using .back()
+					}// tap t
+				}
+				else if (gateEdge == -1) {
+					// here we have a falling gate on poly p
+					for (int t = 0; t < NUM_TAPS; t++) {
+						// scan the taps to set the gateOffFrame
+						if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+							continue;
+						}					
+						if (!channel[t][p].empty()) {
+							if (channel[t][p].back().muted) {
+								channel[t][p].pop();
+							}
+							else {
+								if (channel[t][p].back().gateOffFrame == 0) {
+									// we have a pending event
+									int64_t gateFrames = args.frame - channel[t][p].back().capturedFrame;
+									channel[t][p].back().gateOffFrame = channel[t][p].back().gateOnFrame + gateFrames;
+								}
+								else {
+									// error, back event already has a gateOffFrame, flush channel
+									delClearChannel(t, p);
+								}
+							}
+						}
+					}// tap t					
+				}
+			}// poly p
 		}
 		
 		
@@ -452,42 +597,91 @@ struct NoteEcho : Module {
 		// outputs[CLK_OUTPUT].setVoltage(clockSignal);
 		// do tap0 outputs first
 		int c = 0;// running index for all poly cable writes
-		if (!wetOnly) {
-			for (; c < poly; c++) {
-				int srIndex = (head - 1 + 2 * SR_LENGTH) % SR_LENGTH;
-				outputs[CV_OUTPUT].setVoltage(cv[srIndex][c],c);
-				outputs[GATE_OUTPUT].setVoltage(gate[srIndex][c] && clockSignal > 1.0f ? 10.0f : 0.0f,c);
-				outputs[CV2_OUTPUT].setVoltage(cv2[srIndex][c],c);
+		if (!isDelMode()) {
+			// ** SR MODE
+			if (!wetOnly) {
+				for (; c < poly; c++) {
+					int srIndex = (head - 1 + 2 * SR_LENGTH) % SR_LENGTH;
+					outputs[CV_OUTPUT].setVoltage(cv[srIndex][c],c);
+					outputs[GATE_OUTPUT].setVoltage(gate[srIndex][c] && clockSignal > 1.0f ? 10.0f : 0.0f,c);
+					outputs[CV2_OUTPUT].setVoltage(cv2[srIndex][c],c);
+				}
+			}
+			// now do main tap outputs
+			for (int j = 0; j < NUM_TAPS; j++) {
+				if ( !isTapActive(j) || (j == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+					continue;
+				}
+				int srIndex = (head - getTapValue(j) - 1 + 2 * SR_LENGTH) % SR_LENGTH;
+				for (int i = 0; i < poly; i++, c++) {
+					// cv
+					float cvWithSemi = cv[srIndex][i] + getSemiVolts(j);
+					outputs[CV_OUTPUT].setVoltage(cvWithSemi, c);
+					
+					// gate
+					bool gateWithProb = gate[srIndex][i] && gateEn[j][i] && clockSignal > 1.0f;
+					outputs[GATE_OUTPUT].setVoltage(gateWithProb ? 10.0f : 0.0f, c);
+					
+					// cv2
+					float cv2WithMod = cv2[srIndex][i];
+					if (isCv2Offset()) {
+						cv2WithMod += params[CV2_PARAMS + j].getValue() * 10.0f;
+					}
+					else {
+						cv2WithMod *= params[CV2_PARAMS + j].getValue();
+					}
+					outputs[CV2_OUTPUT].setVoltage(cv2WithMod, c);
+				}
+			}
+			if (clkEdge && noteFilter) {
+				filterOutputsForIdentNotes(chans, poly); 
 			}
 		}
-		// now do main tap outputs
-		for (int j = 0; j < NUM_TAPS; j++) {
-			if ( !isTapActive(j) || (j == (NUM_TAPS - 1) && !lastTapAllowed) ) {
-				continue;
-			}
-			int srIndex = (head - getTapValue(j) - 1 + 2 * SR_LENGTH) % SR_LENGTH;
-			for (int i = 0; i < poly; i++, c++) {
-				// cv
-				float cvWithSemi = cv[srIndex][i] + params[ST_PARAMS + j].getValue() / 12.0f;
-				outputs[CV_OUTPUT].setVoltage(cvWithSemi, c);
-				
-				// gate
-				bool gateWithProb = gate[srIndex][i] && gateEn[j][i] && clockSignal > 1.0f;
-				outputs[GATE_OUTPUT].setVoltage(gateWithProb ? 10.0f : 0.0f, c);
-				
-				// cv2
-				float cv2WithMod = cv2[srIndex][i];
-				if (isCv2Offset()) {
-					cv2WithMod += params[CV2_PARAMS + j].getValue() * 10.0f;
+		else {
+			// ** DEL MODE
+			if (!wetOnly) {
+				for (; c < poly; c++) {
+					outputs[CV_OUTPUT].setVoltage(inputs[CV_INPUT].getVoltage(c), c);
+					outputs[GATE_OUTPUT].setVoltage(inputs[GATE_INPUT].getVoltage(c), c);
+					outputs[CV2_OUTPUT].setVoltage(inputs[CV2_INPUT].getVoltage(c),c);
 				}
-				else {
-					cv2WithMod *= params[CV2_PARAMS + j].getValue();
-				}
-				outputs[CV2_OUTPUT].setVoltage(cv2WithMod, c);
 			}
-		}
-		if (clkEdge && noteFilter) {
-			filterOutputsForIdentNotes(chans, poly); 
+			// now do main tap outputs
+			for (int t = 0; t < NUM_TAPS; t++) {
+				if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+					continue;
+				}
+				for (int p = 0; p < poly; p++, c++) {
+					bool gate = false;
+					if (!channel[t][p].empty()) {
+						NoteEvent e = channel[t][p].front();
+						if (args.frame >= e.gateOnFrame) {
+							gate = true;
+							if (e.gateOffFrame != 0 && args.frame >= e.gateOffFrame) {
+								// note is now done, remove it (CVs will stay held in the ports though)
+								gate = false;
+								channel[t][p].pop();
+							}
+							else if (noteFilter) {
+								// don't allow the gate to turn on if the same CV is already on another channel that has its gate high
+								for (int c2 = 0; c2 < c; c2++) {
+									if (outputs[GATE_OUTPUT].getVoltage(c2) != 0.0f &&
+										outputs[CV_OUTPUT].getVoltage(c2) == e.cv) {
+										gate = false;
+										channel[t][p].pop();
+										break;
+									}
+								}
+							}
+							if (gate) {
+								outputs[CV_OUTPUT].setVoltage(e.cv, c);
+								outputs[CV2_OUTPUT].setVoltage(e.cv2, c);							
+							}
+						}
+					}
+					outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
+				}
+			}			
 		}
 			
 		
@@ -570,6 +764,18 @@ struct NoteEchoWidget : ModuleWidget {
 		void onDragMove(const event::DragMove &e) override {
 			if (module) {
 				module->notifyInfo[tapNum] = 0l;
+			}
+			IMMediumKnob::onDragMove(e);
+		}
+	};
+	struct FreezeKnob : IMMediumKnob {
+		NoteEcho *module = nullptr;
+		void onDragMove(const event::DragMove &e) override {
+			if (module) {
+				for (int t = 0; t < NoteEcho::NUM_TAPS; t++) {
+					module->notifySource[t] = 4l;
+					module->notifyInfo[t] = (long) (NoteEcho::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
+				}
 			}
 			IMMediumKnob::onDragMove(e);
 		}
@@ -688,7 +894,7 @@ struct NoteEchoWidget : ModuleWidget {
 							}
 						}
 					}
-					else {
+					else if (module->notifySource[tapNum] == 3) {
 						// Prob
 						float prob = module->params[NoteEcho::PROB_PARAMS + tapNum].getValue();
 						unsigned int iprob100 = (unsigned)(std::round(prob * 100.0f));
@@ -700,6 +906,15 @@ struct NoteEchoWidget : ModuleWidget {
 						}	
 						else {
 							dispStr = "   0";
+						}
+					}
+					else {
+						// Freeze length
+						if (tapNum > 0) {
+							dispStr = "";
+						}
+						else {
+							dispStr = string::f("F %2u", (unsigned)(module->getFreezeLengthKnob()));	
 						}
 					}
 				}
@@ -845,9 +1060,19 @@ struct NoteEchoWidget : ModuleWidget {
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col55, row5 - 1.5f)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5 - 1.5f)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
 		
-		// right side column
-		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col57, row5)), module, NoteEcho::FILTER_LIGHT));
-		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col57, row5 - 16.6f)), module, NoteEcho::WET_LIGHT));
+		// right side column (excl. first row)
+		addParam(createParamCentered<LEDBezel>(mm2px(VecPx(col57, row1)), module, NoteEcho::FREEZE_PARAM));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(VecPx(col57, row1)), module, NoteEcho::FREEZE_LIGHT));
+		
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col57, row1 + row24d - 2.0f)), true, module, NoteEcho::FREEZE_INPUT, mode));
+		
+		FreezeKnob* frzLenKnobP;
+		addParam(frzLenKnobP = createDynamicParamCentered<FreezeKnob>(mm2px(Vec(col57, row1 + 2 * row24d)), module, NoteEcho::FRZLEN_PARAM, mode));	
+		frzLenKnobP->module = module;
+
+		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col57, row5 - 16.6f)), module, NoteEcho::FILTER_LIGHT));
+		
+		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col57, row5)), module, NoteEcho::WET_LIGHT));
 
 
 		// gate lights
@@ -881,6 +1106,10 @@ struct NoteEchoWidget : ModuleWidget {
 			
 			// CV2 knobs' labels
 			m->refreshCv2ParamQuantities();
+			
+			// Freeze light
+			m->lights[NoteEcho::FREEZE_LIGHT].setBrightness(m->freeze ? 1.0f : 0.0f);
+
 		}
 		ModuleWidget::step();
 	}
