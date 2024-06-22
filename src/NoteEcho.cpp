@@ -242,7 +242,7 @@ struct NoteEcho : Module {
 			if (!channel[t][p].empty()) {
 				NoteEvent e = channel[t][p].front();
 				if (currFrameOrClk >= e.gateOnFrame) {
-					gate = true;
+					gate = !e.muted;
 					if ( currFrameOrClk >= e.gateOffFrame && ((isDelMode && e.gateOffFrame != 0) || (!isDelMode && clockSignal < 1.0f)) ) {
 						// note is now done, remove it (CVs will stay held in the ports though)
 						gate = false;
