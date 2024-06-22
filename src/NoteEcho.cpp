@@ -206,6 +206,7 @@ struct NoteEcho : Module {
 			*cv2 = cv2NormalledVoltage();
 		}
 		else {
+			// copy last CV2 poly chan when not enough poly on input
 			*cv2 = inputs[CV2_INPUT].getVoltage(std::min(p, inputs[CV2_INPUT].getChannels() - 1));
 		}
 		if (t < NUM_TAPS) {
@@ -232,7 +233,7 @@ struct NoteEcho : Module {
 						channel[t][p].back().gateOffFrame = channel[t][p].back().gateOnFrame + gateFrames;
 					}
 					else {
-						channel[t][p].back().gateOffFrame = channel[t][p].back().gateOnFrame + 1;// not really relevant, but for good form
+						channel[t][p].back().gateOffFrame = channel[t][p].back().gateOnFrame + 1;
 					}
 				}
 				else {
@@ -504,12 +505,7 @@ struct NoteEcho : Module {
 		float clockSignal = (clkDelay <= 0 || isDelMode) ? inputs[CLK_INPUT].getVoltage() : clkDelReg[clkDelay - 1];
 		int clkEdge = clkTrigger.process(clockSignal);
 		if (clkEdge == 1) {
-			if (!isDelMode) {
-				// ** SR MODE
-				clkCount++;
-			}
-			else {
-				// ** DEL MODE
+			if (isDelMode) {
 				// update clockPeriod
 				if (lastRisingClkFrame != -1) {
 					int64_t deltaFrames = args.frame - lastRisingClkFrame;
@@ -521,6 +517,9 @@ struct NoteEcho : Module {
 					// else, remember the previous clockPeriod so nothing to do
 				}
 				lastRisingClkFrame = args.frame;
+			}
+			else {
+				clkCount++;
 			}
 		}
 		
@@ -537,20 +536,22 @@ struct NoteEcho : Module {
 			int eventEdge = isDelMode ? gateEdges[p] : clkEdge;				
 			if (eventEdge == 1) {
 				// here we have a rising gate on poly p, or a rising clk
+				bool gateState = (inputs[GATE_INPUT].getChannels() > p ? (inputs[GATE_INPUT].getVoltage(p) > 1.0f) : false);
 				
 				// do dry first (tap0):
 				float cv, cv2;
 				sampleCvs(NUM_TAPS, p, &cv, &cv2);
 				int64_t capturedFrame = currFrameOrClk;
-				int64_t gateOnFrame = capturedFrame;
+				int64_t gateOnFrame = capturedFrame + (isDelMode ? 0 : 1);
 				int64_t gateOffFrame = 0;// will be completed when gate/clk falls
-				bool muted = !wetOnly;
+				bool muted = wetOnly || (!isDelMode && !gateState);
 				if (channel[NUM_TAPS][p].size() >= DEL_MAX_QUEUE) {
 					continue;// skip event if queue too full
 				}
 				NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
 				channel[NUM_TAPS][p].push(newEvent);// pushed at the end, get end using .back()
-
+				DEBUG("pushed tap %i, poly %i, mute=%i",NUM_TAPS, p, muted);
+				
 				// now scan taps:	
 				for (int t = 0; t < NUM_TAPS; t++) {
 					if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
@@ -567,36 +568,39 @@ struct NoteEcho : Module {
 					gateOffFrame = 0;// will be completed when gate/clk falls
 					
 					// muted
-					muted = false;
-					bool gotMuted = false;
-					if (isSingleProbs()) {
-						// try to get muted prob from another poly if close enough time-wise
-						int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
-						for (int p2 = 0; p2 < poly; p2++) {
-							if (p2 == p || channel[t][p2].empty()) continue;
-							int64_t delta = channel[t][p2].back().capturedFrame - capturedFrame;
-							int64_t delta2 = channel[t][p2].back().gateOnFrame - gateOnFrame;
-							bool closeEnough;
-							if (isDelMode) {
-								closeEnough = llabs(delta) < closenessFrames && llabs(delta2) < closenessFrames;
-							}
-							else {
-								closeEnough = (delta == 0 && delta2 == 0);
-							}
-							if (closeEnough) {
-								muted = channel[t][p2].back().muted;
-								gotMuted = true;
-								break;
+					muted = (!isDelMode && !gateState);
+					if (!muted) {
+						bool gotMuted = false;
+						if (isSingleProbs()) {
+							// try to get muted prob from another poly if close enough time-wise
+							int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
+							for (int p2 = 0; p2 < poly; p2++) {
+								if (p2 == p || channel[t][p2].empty()) continue;
+								int64_t delta = channel[t][p2].back().capturedFrame - capturedFrame;
+								int64_t delta2 = channel[t][p2].back().gateOnFrame - gateOnFrame;
+								bool closeEnough;
+								if (isDelMode) {
+									closeEnough = llabs(delta) < closenessFrames && llabs(delta2) < closenessFrames;
+								}
+								else {
+									closeEnough = (delta == 0 && delta2 == 0);
+								}
+								if (closeEnough) {
+									muted = channel[t][p2].back().muted;
+									gotMuted = true;
+									break;
+								}
 							}
 						}
-					}
-					if (!gotMuted) {
-						// generate new muted according to prob
-						muted = !getGateProbEnableForTap(t);
+						if (!gotMuted) {
+							// generate new muted according to prob
+							muted = !getGateProbEnableForTap(t);
+						}
 					}
 
 					NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
 					channel[t][p].push(newEvent);// pushed at the end, get end using .back()
+					DEBUG("pushed tap %i, poly %i, mute=%i",t, p, muted);
 				}// tap t
 			}
 			else if (eventEdge == -1) {
@@ -604,6 +608,7 @@ struct NoteEcho : Module {
 				
 				// do dry first (tap0):	
 				finishPending(NUM_TAPS, p, args.frame, isDelMode);
+				DEBUG("  finished tap %i, poly %i",NUM_TAPS, p);
 				// now scan taps:
 				for (int t = 0; t < NUM_TAPS; t++) {
 					// scan the taps to set the gateOffFrame
@@ -611,6 +616,7 @@ struct NoteEcho : Module {
 						continue;
 					}					
 					finishPending(t, p, args.frame, isDelMode);
+					DEBUG("  finished tap %i, poly %i",NUM_TAPS, p);
 				}// tap t					
 			}
 		}// poly p
