@@ -63,13 +63,13 @@ struct NoteEcho : Module {
 	
 	struct NoteEvent {
 		// all info here has semitone, cv2offset and prob applied 
-		// an event is considered pending when gateOffFrame==0 (waiting for falling edge of a gate input), and ready when >0; when pending, rest of struct is populated
+		// in DEL MODE, an event is considered pending when gateOffFrame==0 (waiting for falling edge of a gate input), and ready when >0; when pending, rest of struct is populated
 		int64_t capturedFrame;
 		int64_t gateOnFrame;
-		int64_t gateOffFrame;// 0 when pending (DEL MODE)
+		int64_t gateOffFrame;// 0 when pending (DEL MODE), unused (SR MODE)
 		float cv;
 		float cv2;
-		bool muted;// this is used to enter events that fail the probability gen so as to properly queue things for falling gate edges
+		bool muted;// this is used to enter events that fail the probability gen so as to properly queue things for falling gate edges (also chord mode probs)
 		
 		NoteEvent(float _cv, float _cv2, int64_t _capturedFrame, int64_t _gateOnFrame, int64_t _gateOffFrame, bool _muted) {
 			cv = _cv;
@@ -87,12 +87,8 @@ struct NoteEcho : Module {
 
 	// Constants
 	static const int MAX_DEL = 32;
-	static const int SR_LENGTH = MAX_DEL + 1;
 	static const int DEL_MAX_QUEUE = MAX_DEL * 4;// assume quarter clocked note is finest resolution 
 	static constexpr float delayInfoTime = 3.0f;// seconds
-	static constexpr float cv2NormMin = -10.0f;
-	static constexpr float cv2NormMax = 10.0f;
-	static constexpr float cv2NormDefault = 0.0f;
 	static constexpr float groupedProbsEpsilon = 0.02f;// time in seconds within which gates are considered grouped across polys, for when random mode is set to chord, for DEL Mode
 	
 	// Need to save, no reset
@@ -220,7 +216,8 @@ struct NoteEcho : Module {
 	}
 	
 	
-	void finishPending(int t, int p, int64_t argsFrame, bool isDelMode) {
+	void finishPendingDel(int t, int p, int64_t argsFrame) {
+		// for DEL Mode (assumes isDelMode)
 		if (!channel[t][p].empty()) {
 			if (channel[t][p].back().muted) {
 				channel[t][p].pop();
@@ -228,13 +225,8 @@ struct NoteEcho : Module {
 			else {
 				if (channel[t][p].back().gateOffFrame == 0) {
 					// we have a pending event
-					if (isDelMode) {
-						int64_t gateFrames = argsFrame - channel[t][p].back().capturedFrame;
-						channel[t][p].back().gateOffFrame = channel[t][p].back().gateOnFrame + gateFrames;
-					}
-					else {
-						channel[t][p].back().gateOffFrame = channel[t][p].back().gateOnFrame + 1;
-					}
+					int64_t gateFrames = argsFrame - channel[t][p].back().capturedFrame;
+					channel[t][p].back().gateOffFrame = channel[t][p].back().gateOnFrame + gateFrames;
 				}
 				else {
 					// error, back event already has a gateOffFrame, flush channel
@@ -251,7 +243,7 @@ struct NoteEcho : Module {
 				NoteEvent e = channel[t][p].front();
 				if (currFrameOrClk >= e.gateOnFrame) {
 					gate = true;
-					if (e.gateOffFrame != 0 && currFrameOrClk >= e.gateOffFrame) {
+					if ( currFrameOrClk >= e.gateOffFrame && ((isDelMode && e.gateOffFrame != 0) || (!isDelMode && clockSignal < 1.0f)) ) {
 						// note is now done, remove it (CVs will stay held in the ports though)
 						gate = false;
 						channel[t][p].pop();
@@ -274,9 +266,6 @@ struct NoteEcho : Module {
 				}
 			}
 			if (t != NUM_TAPS || !wetOnly) {
-				if (!isDelMode) {
-					gate &= clockSignal > 1.0f;
-				}
 				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, *c);
 			}
 		}	
@@ -531,26 +520,36 @@ struct NoteEcho : Module {
 			gateEdges[p] = gateTriggers[p].process(inputs[GATE_INPUT].getVoltage(p));
 		}
 		for (int p = 0; p < poly; p++) {
-			// ** SR MODE : sample the inputs on rising clock edge (finish job on falling)
 			// ** DEL MODE : sample the inputs on rising poly gate edges (finish job on falling)
-			int eventEdge = isDelMode ? gateEdges[p] : clkEdge;				
+			// ** SR MODE : sample the inputs on rising clk edge (no falling needed)
+			int eventEdge;
+			if (isDelMode) {
+				eventEdge = gateEdges[p];
+			}
+			else {
+				if (clkEdge > 0) {
+					bool gateState = (inputs[GATE_INPUT].getChannels() > p ? (inputs[GATE_INPUT].getVoltage(p) > 1.0f) : false);				
+					eventEdge = gateState ? 1 : 0;
+				}
+				else {
+					eventEdge = 0;// eat any falling clkEdge in SR Mode
+				}
+			}
 			if (eventEdge == 1) {
-				// here we have a rising gate on poly p, or a rising clk
-				bool gateState = (inputs[GATE_INPUT].getChannels() > p ? (inputs[GATE_INPUT].getVoltage(p) > 1.0f) : false);
+				// here we have a rising gate on poly p, or a rising clk with a gate active on poly p
 				
 				// do dry first (tap0):
 				float cv, cv2;
 				sampleCvs(NUM_TAPS, p, &cv, &cv2);
 				int64_t capturedFrame = currFrameOrClk;
 				int64_t gateOnFrame = capturedFrame + (isDelMode ? 0 : 1);
-				int64_t gateOffFrame = 0;// will be completed when gate/clk falls
-				bool muted = wetOnly || (!isDelMode && !gateState);
+				int64_t gateOffFrame = 0;// will be completed when gate falls (DEL Mode), unused (SR Mode)
+				bool muted = wetOnly;
 				if (channel[NUM_TAPS][p].size() >= DEL_MAX_QUEUE) {
 					continue;// skip event if queue too full
 				}
 				NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
 				channel[NUM_TAPS][p].push(newEvent);// pushed at the end, get end using .back()
-				DEBUG("pushed tap %i, poly %i, mute=%i",NUM_TAPS, p, muted);
 				
 				// now scan taps:	
 				for (int t = 0; t < NUM_TAPS; t++) {
@@ -568,55 +567,50 @@ struct NoteEcho : Module {
 					gateOffFrame = 0;// will be completed when gate/clk falls
 					
 					// muted
-					muted = (!isDelMode && !gateState);
-					if (!muted) {
-						bool gotMuted = false;
-						if (isSingleProbs()) {
-							// try to get muted prob from another poly if close enough time-wise
-							int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
-							for (int p2 = 0; p2 < poly; p2++) {
-								if (p2 == p || channel[t][p2].empty()) continue;
-								int64_t delta = channel[t][p2].back().capturedFrame - capturedFrame;
-								int64_t delta2 = channel[t][p2].back().gateOnFrame - gateOnFrame;
-								bool closeEnough;
-								if (isDelMode) {
-									closeEnough = llabs(delta) < closenessFrames && llabs(delta2) < closenessFrames;
-								}
-								else {
-									closeEnough = (delta == 0 && delta2 == 0);
-								}
-								if (closeEnough) {
-									muted = channel[t][p2].back().muted;
-									gotMuted = true;
-									break;
-								}
+					muted = false;
+					bool gotMuted = false;
+					if (isSingleProbs()) {
+						// try to get muted prob from another poly if close enough time-wise
+						int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
+						for (int p2 = 0; p2 < poly; p2++) {
+							if (p2 == p || channel[t][p2].empty()) continue;
+							int64_t delta = channel[t][p2].back().capturedFrame - capturedFrame;
+							int64_t delta2 = channel[t][p2].back().gateOnFrame - gateOnFrame;
+							bool closeEnough;
+							if (isDelMode) {
+								closeEnough = llabs(delta) < closenessFrames && llabs(delta2) < closenessFrames;
+							}
+							else {
+								closeEnough = (delta == 0 && delta2 == 0);
+							}
+							if (closeEnough) {
+								muted = channel[t][p2].back().muted;
+								gotMuted = true;
+								break;
 							}
 						}
-						if (!gotMuted) {
-							// generate new muted according to prob
-							muted = !getGateProbEnableForTap(t);
-						}
 					}
-
-					NoteEvent newEvent(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
-					channel[t][p].push(newEvent);// pushed at the end, get end using .back()
-					DEBUG("pushed tap %i, poly %i, mute=%i",t, p, muted);
+					if (!gotMuted) {
+						// generate new muted according to prob
+						muted = !getGateProbEnableForTap(t);
+					}
+					
+					NoteEvent newEventTap(cv, cv2, capturedFrame, gateOnFrame, gateOffFrame, muted);
+					channel[t][p].push(newEventTap);// pushed at the end, get end using .back()
 				}// tap t
 			}
 			else if (eventEdge == -1) {
-				// here we have a falling gate on poly p, or falling clk
+				// here we have a falling gate on poly p, no falling clk though (eaten higher above)
 				
 				// do dry first (tap0):	
-				finishPending(NUM_TAPS, p, args.frame, isDelMode);
-				DEBUG("  finished tap %i, poly %i",NUM_TAPS, p);
+				finishPendingDel(NUM_TAPS, p, args.frame);
 				// now scan taps:
 				for (int t = 0; t < NUM_TAPS; t++) {
 					// scan the taps to set the gateOffFrame
 					if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 						continue;
 					}					
-					finishPending(t, p, args.frame, isDelMode);
-					DEBUG("  finished tap %i, poly %i",NUM_TAPS, p);
+					finishPendingDel(t, p, args.frame);
 				}// tap t					
 			}
 		}// poly p
@@ -628,84 +622,15 @@ struct NoteEcho : Module {
 		int c = 0;// running index for all poly cable writes
 		// do tap0
 		processOutputs(NUM_TAPS, poly, &c, isDelMode, currFrameOrClk, clockSignal);
-/*		for (int p = 0; p < poly; p++, c++) {
-			bool gate = false;
-			if (!channel[NUM_TAPS][p].empty()) {
-				NoteEvent e = channel[NUM_TAPS][p].front();
-				if (currFrameOrClk >= e.gateOnFrame) {
-					gate = true;
-					if (e.gateOffFrame != 0 && currFrameOrClk >= e.gateOffFrame) {
-						// note is now done, remove it (CVs will stay held in the ports though)
-						gate = false;
-						channel[NUM_TAPS][p].pop();
-					}
-					else if (noteFilter) {
-						// don't allow the gate to turn on if the same CV is already on another channel that has its gate high
-						for (int c2 = 0; c2 < c; c2++) {
-							if (outputs[GATE_OUTPUT].getVoltage(c2) != 0.0f &&
-								outputs[CV_OUTPUT].getVoltage(c2) == e.cv) {
-								gate = false;
-								channel[NUM_TAPS][p].pop();
-								break;
-							}
-						}
-					}
-					if (gate && !wetOnly) {
-						outputs[CV_OUTPUT].setVoltage(e.cv, c);
-						outputs[CV2_OUTPUT].setVoltage(e.cv2, c);							
-					}
-				}
-			}
-			if (!wetOnly) {
-				if (!isDelMode) {
-					gate &= clockSignal > 1.0f;
-				}
-				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
-			}
-		}*/
 		if (wetOnly) {
 			c = 0;
 		}
-		
 		// now do main tap outputs
 		for (int t = 0; t < NUM_TAPS; t++) {
 			if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 				continue;
 			}
 			processOutputs(t, poly, &c, isDelMode, currFrameOrClk, clockSignal);
-			/*for (int p = 0; p < poly; p++, c++) {
-				bool gate = false;
-				if (!channel[t][p].empty()) {
-					NoteEvent e = channel[t][p].front();
-					if (currFrameOrClk >= e.gateOnFrame) {
-						gate = true;
-						if (e.gateOffFrame != 0 && currFrameOrClk >= e.gateOffFrame) {
-							// note is now done, remove it (CVs will stay held in the ports though)
-							gate = false;
-							channel[t][p].pop();
-						}
-						else if (noteFilter) {
-							// don't allow the gate to turn on if the same CV is already on another channel that has its gate high
-							for (int c2 = 0; c2 < c; c2++) {
-								if (outputs[GATE_OUTPUT].getVoltage(c2) != 0.0f &&
-									outputs[CV_OUTPUT].getVoltage(c2) == e.cv) {
-									gate = false;
-									channel[t][p].pop();
-									break;
-								}
-							}
-						}
-						if (gate) {
-							outputs[CV_OUTPUT].setVoltage(e.cv, c);
-							outputs[CV2_OUTPUT].setVoltage(e.cv2, c);							
-						}
-					}
-				}
-				if (!isDelMode) {
-					gate &= clockSignal > 1.0f;
-				}
-				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
-			}*/
 		}			
 			
 		
@@ -732,7 +657,7 @@ struct NoteEcho : Module {
 				}
 			}
 			else {
-				int c = 0;
+				c = 0;
 				// do tap0 outputs first
 				for (int p = 0; p < MAX_POLY; p++) {
 					bool lstate = p < poly && !wetOnly;
@@ -844,7 +769,7 @@ struct NoteEchoWidget : ModuleWidget {
 		int tapNum = 0;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		std::string dispStr;
+		std::string dispStr = "    ";
 		static const int textFontSize = 15;
 		static constexpr float textOffsetY = 19.9f; // 18.2f for 14 pt, 19.7f for 15pt
 		
@@ -947,7 +872,7 @@ struct NoteEchoWidget : ModuleWidget {
 					dispStr = string::f("D %2u", (unsigned)(module->getTapValue(tapNum)));	
 				}
 				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &dispStr[1], NULL);
-				dispStr[1] = 0;
+				if (dispStr.size() > 1) dispStr[1] = 0;
 				nvgText(args.vg, textPos.x, textPos.y, dispStr.c_str(), NULL);
 			}
 		}
