@@ -236,6 +236,19 @@ struct NoteEcho : Module {
 		}
 	}	
 	
+	
+	void freezeFeedbackEvent(NoteEvent& e, int t, int p, bool isDelMode, int64_t currFrameOrClk) {
+		if (e.muted || channel[t][p].size() >= DEL_MAX_QUEUE) {
+			return;
+		}		
+		int64_t frzlen = (isDelMode ? clockPeriod : 1) * (int64_t)getFreezeLengthKnob();
+		e.capturedFrame += frzlen;
+		e.gateOnFrame += frzlen;
+		e.gateOffFrame += frzlen;
+		channel[t][p].push(e);// pushed at the end, get end using .back()
+	}
+	
+	
 	void processOutputs(int t, int poly, int* c, bool isDelMode, int64_t currFrameOrClk, float clockSignal) {
 		for (int p = 0; p < poly; p++, (*c)++) {
 			bool gate = false;
@@ -246,6 +259,9 @@ struct NoteEcho : Module {
 					if ( currFrameOrClk >= e.gateOffFrame && ((isDelMode && e.gateOffFrame != 0) || (!isDelMode && clockSignal < 1.0f)) ) {
 						// note is now done, remove it (CVs will stay held in the ports though)
 						gate = false;
+						if (freeze) {
+							freezeFeedbackEvent(e, t, p, isDelMode, currFrameOrClk);
+						}	
 						channel[t][p].pop();
 					}
 					else if (noteFilter) {
@@ -542,7 +558,7 @@ struct NoteEcho : Module {
 				float cv, cv2;
 				sampleCvs(NUM_TAPS, p, &cv, &cv2);
 				int64_t capturedFrame = currFrameOrClk;
-				int64_t gateOnFrame = capturedFrame + (isDelMode ? 0 : 1);
+				int64_t gateOnFrame = capturedFrame;
 				int64_t gateOffFrame = 0;// will be completed when gate falls (DEL Mode), unused (SR Mode)
 				bool muted = wetOnly;
 				if (channel[NUM_TAPS][p].size() >= DEL_MAX_QUEUE) {
@@ -562,7 +578,7 @@ struct NoteEcho : Module {
 					sampleCvs(t, p, &cv, &cv2);
 
 					// frames
-					capturedFrame = currFrameOrClk + (isDelMode ? 0 : 1);// 1 is since dry is clkCount
+					// capturedFrame already ok
 					gateOnFrame = capturedFrame + (isDelMode ? clockPeriod : 1) * (int64_t)getTapValue(t);
 					gateOffFrame = 0;// will be completed when gate/clk falls
 					
