@@ -241,7 +241,11 @@ struct NoteEcho : Module {
 		if (e.muted || channel[t][p].size() >= DEL_MAX_QUEUE) {
 			return;
 		}		
-		int64_t frzlen = (isDelMode ? clockPeriod : 1) * (int64_t)getFreezeLengthKnob();
+		int frzKnob = getFreezeLengthKnob();
+		if (getTapValue(t) > frzKnob) {
+			return;
+		}
+		int64_t frzlen = (isDelMode ? clockPeriod : 1) * (int64_t)frzKnob;
 		e.capturedFrame += frzlen;
 		e.gateOnFrame += frzlen;
 		e.gateOffFrame += frzlen;
@@ -250,6 +254,7 @@ struct NoteEcho : Module {
 	
 	
 	void processOutputs(int t, int poly, int* c, bool isDelMode, int64_t currFrameOrClk, float clockSignal) {
+		// supports t == NUM_TAPS
 		for (int p = 0; p < poly; p++, (*c)++) {
 			bool gate = false;
 			if (!channel[t][p].empty()) {
@@ -259,7 +264,7 @@ struct NoteEcho : Module {
 					if ( currFrameOrClk >= e.gateOffFrame && ((isDelMode && e.gateOffFrame != 0) || (!isDelMode && clockSignal < 1.0f)) ) {
 						// note is now done, remove it (CVs will stay held in the ports though)
 						gate = false;
-						if (freeze) {
+						if (freeze && t != NUM_TAPS) {
 							freezeFeedbackEvent(e, t, p, isDelMode, currFrameOrClk);
 						}	
 						channel[t][p].pop();
@@ -542,7 +547,7 @@ struct NoteEcho : Module {
 			if (isDelMode) {
 				eventEdge = gateEdges[p];
 			}
-			else {
+			else {// SR Mode
 				if (clkEdge > 0) {
 					bool gateState = (inputs[GATE_INPUT].getChannels() > p ? (inputs[GATE_INPUT].getVoltage(p) > 1.0f) : false);				
 					eventEdge = gateState ? 1 : 0;
@@ -551,7 +556,7 @@ struct NoteEcho : Module {
 					eventEdge = 0;// eat any falling clkEdge in SR Mode
 				}
 			}
-			if (eventEdge == 1) {
+			if (eventEdge == 1 && !freeze) {
 				// here we have a rising gate on poly p, or a rising clk with a gate active on poly p
 				
 				// do dry first (tap0):
