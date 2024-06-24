@@ -31,6 +31,7 @@ struct NoteEcho : Module {
 		CV2NORM_PARAM,
 		FREEZE_PARAM,
 		FRZLEN_PARAM,
+		WET_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -127,12 +128,12 @@ struct NoteEcho : Module {
 		}
 		void finishDelEvent(int64_t gateOffFrame) {
 			uint16_t index = prev(0);
-			if (index >= BUF_SIZE || events[index].gateOffFrame != 0) {
-				DEBUG("error, finishDelEvent() called on a finished event!");
-			}
-			else {
+			if (!(index >= BUF_SIZE || events[index].gateOffFrame != 0)) {
 				events[index].gateOffFrame = gateOffFrame;
 			}
+			//else {
+				//DEBUG("error, finishDelEvent() called on a finished event!");
+			// }
 		}
 		NoteEvent* findEvent(int64_t frameOrClk) {
 			for (uint16_t cnt = 0; ; cnt++) {
@@ -192,6 +193,7 @@ struct NoteEcho : Module {
 	TriggerRiseFall gateTriggers[MAX_POLY];
 	Trigger freezeButtonTrigger;
 	Trigger clearTrigger;
+	Trigger wetTrigger;
 
 
 	bool getIsDelMode() {
@@ -274,6 +276,7 @@ struct NoteEcho : Module {
 		configParam(FREEZE_PARAM, 0.0f, 1.0f, 0.0f, "Freeze (loop)");
 		configParam(FRZLEN_PARAM, 1.0f, (float)(MAX_DEL), 4.0f, "Freeze length");
 		paramQuantities[FRZLEN_PARAM]->snapEnabled = true;
+		configParam(WET_PARAM, 0.0f, 1.0f, 0.0f, "Wet only");
 		
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
@@ -437,6 +440,19 @@ struct NoteEcho : Module {
 
 
 	void process(const ProcessArgs &args) override {
+		// user inputs
+		if (refresh.processInputs()) {
+			if (wetTrigger.process(params[WET_PARAM].getValue()))
+				wetOnly = !wetOnly;
+
+		}// userInputs refresh
+		
+		// Freeze
+		if (freezeButtonTrigger.process(inputs[FREEZE_INPUT].getVoltage() + params[FREEZE_PARAM].getValue())) {
+			freeze = !freeze;
+		}
+	
+	
 		int poly = getPolyKnob();
 		if (poly != lastPoly) {
 			clear();
@@ -462,13 +478,6 @@ struct NoteEcho : Module {
 			outputs[CV2_OUTPUT].setChannels(chans);
 		}
 
-		if (refresh.processInputs()) {
-		}// userInputs refresh
-	
-		// Freeze
-		if (freezeButtonTrigger.process(inputs[FREEZE_INPUT].getVoltage() + params[FREEZE_PARAM].getValue())) {
-			freeze = !freeze;
-		}
 	
 	
 		// clear and clock
@@ -589,9 +598,8 @@ struct NoteEcho : Module {
 					if (event->muted[t] == -1) {
 						// event never seen by this tap
 						if (isSingleProbs()) {
-							// test for closeness in other taps, to steal that muted[]
+							// test for closeness in other polys, to steal that muted[]
 							// if so, set event->muted[t] to that other one
-							// try to get muted prob from another poly if close enough time-wise
 							int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
 							for (int p2 = 0; p2 < poly; p2++) {
 								if (p2 == p) continue;
@@ -623,13 +631,7 @@ struct NoteEcho : Module {
 					if (gate) {
 						outputs[CV_OUTPUT].setVoltage(event->cv + semi, c);
 						float cv2 = event->cv2;
-						if (cv2IsOffset) {
-							cv2 += cv2mod;// *10.0f already done
-						}
-						else {
-							cv2 *= cv2mod;
-						}
-						outputs[CV2_OUTPUT].setVoltage(cv2, c);	
+						outputs[CV2_OUTPUT].setVoltage(cv2IsOffset ? cv2 + cv2mod : cv2 * cv2mod, c);	
 					}						
 				}
 				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
@@ -910,7 +912,7 @@ struct NoteEchoWidget : ModuleWidget {
 		
 		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
 		
-		menu->addChild(createBoolPtrMenuItem("Wet (echoes) only", "", &module->wetOnly));
+		// menu->addChild(createBoolPtrMenuItem("Wet (echoes) only", "", &module->wetOnly));
 	}	
 
 	
@@ -1025,7 +1027,8 @@ struct NoteEchoWidget : ModuleWidget {
 
 		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col57, row5 - 16.6f)), module, NoteEcho::FILTER_LIGHT));
 		
-		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col57, row5)), module, NoteEcho::WET_LIGHT));
+		addParam(createParamCentered<LEDButton>(mm2px(Vec(col57, row5)), module, NoteEcho::WET_PARAM));
+		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col57, row5)), module, NoteEcho::WET_LIGHT));
 
 
 		// gate lights

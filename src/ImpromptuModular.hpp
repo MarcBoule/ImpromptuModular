@@ -38,7 +38,6 @@ extern Model *modelGateSeq64;
 extern Model *modelGateSeq64Expander;
 extern Model *modelHotkey;
 extern Model *modelNoteEcho;
-extern Model *modelNoteEcho2;
 extern Model *modelPart;
 extern Model *modelPhraseSeq16;
 extern Model *modelPhraseSeq32;

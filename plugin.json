@@ -127,13 +127,6 @@
 			"tags": ["Sample and hold", "Delay"]
 		},
 		{
-			"slug": "NoteEcho2",
-			"name": "NoteEcho2",
-			"description": "CV/Gate-based delay",
-			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#note-echo",
-			"tags": ["Sample and hold", "Delay"]
-		},
-		{
 			"slug": "Part-Gate-Split",
 			"name": "Part",
 			"description": "Polyphonic gate splitter",
