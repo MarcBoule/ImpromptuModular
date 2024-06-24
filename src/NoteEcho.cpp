@@ -69,7 +69,7 @@ struct NoteEcho : Module {
 		int64_t gateOffFrame = 0;// 0 when pending (DEL Mode only), is set on rising clk when SR Mode
 		float cv = 0.0f;
 		float cv2 = 0.0f;
-		int8_t muted[NUM_TAPS] = {-1, -1, -1, -1};// prob result for each proper tap (freeze and dry excluded), -1=unseen, 0=fail, 1=pass; processed by taps during output read, will only be set for a given tap when that tap first encounters the event (must check other taps for closeness)
+		int8_t muted[NUM_TAPS] = {-1, -1, -1, -1};// prob result for each proper tap (freeze and dry excluded), -1=unseen, 0=pass-prob (not muted), 1=fail-prob (muted); processed by taps during output read, will only be set to non -1 value for a given tap when that tap first encounters the event (must check other taps for closeness also)
 	};
 
 
@@ -135,25 +135,21 @@ struct NoteEcho : Module {
 			}
 		}
 		NoteEvent* findEvent(int64_t frameOrClk) {
-			NoteEvent* event = nullptr;
-			for (uint16_t cnt = 0; cnt < size; cnt++) {
+			for (uint16_t cnt = 0; ; cnt++) {
 				uint16_t test = prev(cnt);
 				if (test >= BUF_SIZE) {
-					break;
+					return nullptr;
 				}
 				if (frameOrClk >= events[test].gateOnFrame) {
-					event = &events[test];
-					break;
+					return &events[test];
 				}
 			}
-			return event;
+			return nullptr;
 		}
 		NoteEvent* findEventGateOn(int64_t frameOrClk) {
 			NoteEvent* event = findEvent(frameOrClk);
-			if (event != nullptr) {
-				if (event->gateOffFrame != 0 && frameOrClk >= event->gateOffFrame) {
-					event = nullptr;
-				}
+			if (event != nullptr && event->gateOffFrame != 0 && frameOrClk >= event->gateOffFrame) {
+				return nullptr;
 			}
 			return event;
 		}
@@ -263,28 +259,7 @@ struct NoteEcho : Module {
 			}
 		}
 	}
-		
-	
-	void processOutputs(int poly, int* c, bool isDelMode, int64_t tapFrameOrClk, float semi, float cv2mod, bool isOffset) {
-		for (int p = 0; p < poly; p++, (*c)++) {
-			bool gate = false;
-			NoteEvent* event = channel[p].findEventGateOn(tapFrameOrClk);
-			if (event != nullptr) {
-				gate = true;
-				outputs[CV_OUTPUT].setVoltage(event->cv + semi, *c);
-				float cv2 = event->cv2;
-				if (isOffset) {
-					cv2 += cv2mod;// *10.0f already done
-				}
-				else {
-					cv2 *= cv2mod;
-				}
-				outputs[CV2_OUTPUT].setVoltage(cv2, *c);							
-			}
-			outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, *c);
-		}	
-	}
-	
+
 	
 	
 	NoteEcho() {
@@ -583,10 +558,20 @@ struct NoteEcho : Module {
 				}					
 			}
 			else {
-				processOutputs(poly, &c, isDelMode, currFrameOrClk, 0.0f, 0.0f, true);
+				for (int p = 0; p < poly; p++, c++) {
+					float gate = 0.0f;
+					NoteEvent* event = channel[p].findEventGateOn(currFrameOrClk);
+					if (event != nullptr) {
+						gate = 10.0f;
+						outputs[CV_OUTPUT].setVoltage(event->cv, c);
+						outputs[CV2_OUTPUT].setVoltage(event->cv2, c);							
+					}
+					outputs[GATE_OUTPUT].setVoltage(gate, c);
+				}	
 			}
 		}
 		// now do main tap outputs
+		bool cv2IsOffset = isCv2Offset();
 		for (int t = 0; t < NUM_TAPS; t++) {
 			if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 				continue;
@@ -594,8 +579,61 @@ struct NoteEcho : Module {
 			int64_t tapFrameOrClk = currFrameOrClk - (isDelMode ? clockPeriod : 2) * (int64_t)getTapValue(t);
 			float semi = getSemiVolts(t);
 			float cv2mod = params[CV2_PARAMS + t].getValue();
-			if (isCv2Offset()) cv2mod *= 10.0f;
-			processOutputs(poly, &c, isDelMode, tapFrameOrClk, semi, cv2mod, isCv2Offset());
+			if (cv2IsOffset) cv2mod *= 10.0f;
+
+			for (int p = 0; p < poly; p++, c++) {
+				bool gate = false;
+				NoteEvent* event = channel[p].findEventGateOn(tapFrameOrClk);
+				if (event != nullptr) {
+					// check for probs here before giving high gate
+					if (event->muted[t] == -1) {
+						// event never seen by this tap
+						if (isSingleProbs()) {
+							// test for closeness in other taps, to steal that muted[]
+							// if so, set event->muted[t] to that other one
+							// try to get muted prob from another poly if close enough time-wise
+							int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
+							for (int p2 = 0; p2 < poly; p2++) {
+								if (p2 == p) continue;
+								NoteEvent* event2 = channel[p2].findEventGateOn(tapFrameOrClk);
+								if (event2 == nullptr) continue;
+								int64_t delta = event->gateOnFrame - event2->gateOnFrame;
+								bool closeEnough;
+								if (isDelMode) {
+									closeEnough = llabs(delta) < closenessFrames;
+								}
+								else {
+									closeEnough = delta == 0;
+								}
+								if (closeEnough) {
+									event->muted[t] = event2->muted[t];
+									break;
+								}
+							}
+						}
+						if (event->muted[t] == -1) {
+							event->muted[t] = getGateProbEnableForTap(t) ? 0 : 1;
+						}
+					}
+					else if (event->muted[t] == 0) {
+						gate = true;
+					}
+					// else muted[t] == 1
+					//    gate = false already setup
+					if (gate) {
+						outputs[CV_OUTPUT].setVoltage(event->cv + semi, c);
+						float cv2 = event->cv2;
+						if (cv2IsOffset) {
+							cv2 += cv2mod;// *10.0f already done
+						}
+						else {
+							cv2 *= cv2mod;
+						}
+						outputs[CV2_OUTPUT].setVoltage(cv2, c);	
+					}						
+				}
+				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
+			}	
 		}			
 			
 		
