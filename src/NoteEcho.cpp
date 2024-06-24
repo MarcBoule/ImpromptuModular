@@ -9,7 +9,6 @@
 //***********************************************************************************************
 
 #include "ImpromptuModular.hpp"
-#include <queue>
 
 
 struct NoteEcho : Module {	
@@ -466,11 +465,13 @@ struct NoteEcho : Module {
 		int poly = getPolyKnob();
 		if (poly != lastPoly) {
 			clear();
+			freeze = false;
 			lastPoly = poly;
 		}
 		bool isDelMode = getIsDelMode();
 		if (isDelMode != lastDelMode) {
 			clear();
+			freeze = false;
 			lastDelMode = isDelMode;
 		}
 		int numActiveTaps = countActiveTaps();
@@ -550,15 +551,21 @@ struct NoteEcho : Module {
 				// here we have a rising gate on poly p, or a rising clk with a gate active on poly p
 				int64_t gateOnFrame = currFrameOrClk;
 				int64_t gateOffFrame = isDelMode ? 0 : (gateOnFrame + 1);// will be completed when gate falls (DEL Mode), properly set (SR Mode)
-				float cv  = inputs[CV_INPUT ].getChannels() > p ? inputs[CV_INPUT ].getVoltage(p) : 0.0f;
-				float cv2 = inputs[CV2_INPUT].getChannels() > p ? inputs[CV2_INPUT].getVoltage(p) : cv2NormalledVoltage();
+				float cv;
+				float cv2;
+				if (freezeEvents[p] != nullptr) {
+					cv = freezeEvents[p]->cv;
+					cv2 = freezeEvents[p]->cv2;
+				}
+				else {
+					cv  = inputs[CV_INPUT ].getChannels() > p ? inputs[CV_INPUT ].getVoltage(p) : 0.0f;
+					cv2 = inputs[CV2_INPUT].getChannels() > p ? inputs[CV2_INPUT].getVoltage(p) : cv2NormalledVoltage();
+				}
 				channel[p].enterEvent(gateOnFrame, gateOffFrame, cv, cv2);
-				DEBUG("Enter event");
 			}
 			else if (eventEdge == -1 && isDelMode) {
 				// here we have a falling gate on poly p, no falling clk though
 				channel[p].finishDelEvent(currFrameOrClk);
-				DEBUG("Finish del event");
 			}
 		}// poly p
 
@@ -569,7 +576,15 @@ struct NoteEcho : Module {
 		int c = 0;// running index for all poly cable writes
 		// do tap0
 		if (!wetOnly) {
-			processOutputs(poly, &c, isDelMode, currFrameOrClk, 0.0f, 0.0f, true);
+			if (freeze) {
+				// don't play dry tap when freeze, but since poly chans are allocated when !wetOnly, then must write gates to zero
+				for (int p = 0; p < poly; p++, c++) {
+					outputs[GATE_OUTPUT].setVoltage(0.0f, c);
+				}					
+			}
+			else {
+				processOutputs(poly, &c, isDelMode, currFrameOrClk, 0.0f, 0.0f, true);
+			}
 		}
 		// now do main tap outputs
 		for (int t = 0; t < NUM_TAPS; t++) {
@@ -581,7 +596,6 @@ struct NoteEcho : Module {
 			float cv2mod = params[CV2_PARAMS + t].getValue();
 			if (isCv2Offset()) cv2mod *= 10.0f;
 			processOutputs(poly, &c, isDelMode, tapFrameOrClk, semi, cv2mod, isCv2Offset());
-			
 		}			
 			
 		
