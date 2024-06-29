@@ -32,6 +32,7 @@ struct NoteEcho : Module {
 		FREEZE_PARAM,
 		FRZLEN_PARAM,
 		WET_PARAM,
+		FILTER_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -89,14 +90,6 @@ struct NoteEcho : Module {
 			}
 			head = (head + 1) % BUF_SIZE;
 		}
-		/*uint16_t first() {
-			// get position of oldest entry
-			// returns BUF_SIZE if no entries
-			if (size == 0) {
-				return BUF_SIZE;// error code
-			}
-			return (head + BUF_SIZE - size) % BUF_SIZE;
-		}*/
 		uint16_t prev(uint16_t num) {
 			// get the previous index offset by num, prev(0) returns index right before head, which is the last entry, such that scanning can be done with prev(0) to prev(size-1)
 			// returns BUF_SIZE if num is too large (according to size)
@@ -105,16 +98,6 @@ struct NoteEcho : Module {
 			}
 			return (head - 1 - num) % BUF_SIZE;
 		}
-		/*uint16_t next(uint16_t index) {
-			// get the next event after given index
-			// returns BUF_SIZE when the next of given index reaches head
-			// not meant to be called on last entry, meant to be called in conjunction with first(), such that we always call next() referenced off of a first() (or at least a non-last)
-			index = (index + 1) % BUF_SIZE;
-			if (index == head) {
-				return BUF_SIZE;
-			}
-			return index;
-		}*/
 		void enterEvent(int64_t gateOnFrame, int64_t gateOffFrame, float cv, float cv2) {
 			// enters at head and then moves the head
 			events[head].gateOnFrame = gateOnFrame;
@@ -194,6 +177,7 @@ struct NoteEcho : Module {
 	Trigger freezeButtonTrigger;
 	Trigger clearTrigger;
 	Trigger wetTrigger;
+	Trigger filterTrigger;
 
 
 	bool getIsDelMode() {
@@ -277,6 +261,7 @@ struct NoteEcho : Module {
 		configParam(FRZLEN_PARAM, 1.0f, (float)(MAX_DEL), 4.0f, "Freeze length");
 		paramQuantities[FRZLEN_PARAM]->snapEnabled = true;
 		configParam(WET_PARAM, 0.0f, 1.0f, 0.0f, "Wet only");
+		configParam(FILTER_PARAM, 0.0f, 1.0f, 0.0f, "Identical note filter");
 		
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
@@ -444,6 +429,9 @@ struct NoteEcho : Module {
 		if (refresh.processInputs()) {
 			if (wetTrigger.process(params[WET_PARAM].getValue())) {
 				wetOnly = !wetOnly;
+			}
+			if (filterTrigger.process(params[FILTER_PARAM].getValue())) {
+				noteFilter = !noteFilter;
 			}
 		}// userInputs refresh
 		
@@ -616,15 +604,23 @@ struct NoteEcho : Module {
 								}
 							}
 						}
+						// here either "!singleProbs" or "singleProbs but no closeness", so generate a prob
 						if (event->muted[t] == -1) {
 							event->muted[t] = getGateProbEnableForTap(t) ? 0 : 1;
 						}
 					}
-					else if (event->muted[t] == 0) {
-						gate = true;
+					// here event->muted[t] is not -1 
+					if (noteFilter && event->muted[t] == 0) {
+						// note is not muted and filter is on
+						// see if this new note is already playing on a lower channel, if so, mute new
+						for (int c2 = 0; c2 < c; c2++) {
+							if (outputs[GATE_OUTPUT].getVoltage(c2 >= 1.0f)) {
+								event->muted[t] = 1;
+								break;
+							}
+						}
 					}
-					// else muted[t] == 1
-					//    gate = false already setup
+					gate = event->muted[t] == 0;
 					if (gate) {
 						outputs[CV_OUTPUT].setVoltage(event->cv + semi, c);
 						float cv2 = event->cv2;
@@ -907,10 +903,6 @@ struct NoteEchoWidget : ModuleWidget {
 				[=]() {module->clkDelay = 2;}
 			));
 		}));	
-		
-		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
-		
-		// menu->addChild(createBoolPtrMenuItem("Wet (echoes) only", "", &module->wetOnly));
 	}	
 
 	
@@ -971,7 +963,7 @@ struct NoteEchoWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMSmallKnob>(mm2px(Vec(col55, row0)), module, NoteEcho::CV2NORM_PARAM, mode));
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col56, row0)), true, module, NoteEcho::CLK_INPUT, mode));
-		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col56 + 4.3f, row0 + 6.6f)), module, NoteEcho::SD_LIGHT));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col56 + 4.3f, row0 - 6.6f)), module, NoteEcho::SD_LIGHT));
 				
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col57, row0)), module, NoteEcho::DEL_MODE_PARAM, mode, svgPanel));
 
@@ -1023,7 +1015,8 @@ struct NoteEchoWidget : ModuleWidget {
 		addParam(frzLenKnobP = createDynamicParamCentered<FreezeKnob>(mm2px(Vec(col57, row1 + 2 * row24d)), module, NoteEcho::FRZLEN_PARAM, mode));	
 		frzLenKnobP->module = module;
 
-		addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(col57, row5 - 16.6f)), module, NoteEcho::FILTER_LIGHT));
+		addParam(createParamCentered<LEDButton>(mm2px(Vec(col57, row5 - 16.6f)), module, NoteEcho::FILTER_PARAM));
+		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col57, row5 - 16.6f)), module, NoteEcho::FILTER_LIGHT));
 		
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col57, row5)), module, NoteEcho::WET_PARAM));
 		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col57, row5)), module, NoteEcho::WET_LIGHT));
