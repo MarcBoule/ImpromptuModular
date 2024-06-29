@@ -158,6 +158,7 @@ struct NoteEcho : Module {
 	int clkDelay;// SR Mode
 	float clkDelReg[2];// SR Mode
 	int64_t clockPeriod;// DEL Mode
+	int ecoMode;
 
 	// No need to save, with reset
 	bool freeze;
@@ -320,6 +321,7 @@ struct NoteEcho : Module {
 		clkDelReg[0] = 0.0f;
 		clkDelReg[1] = 0.0f;
 		clockPeriod = (int64_t)(APP->engine->getSampleRate());// 60 BPM until detected
+		ecoMode = 8;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -360,6 +362,9 @@ struct NoteEcho : Module {
 		// clockPeriod
 		json_object_set_new(rootJ, "clockPeriod", json_integer((long)clockPeriod));
 
+		// ecoMode
+		json_object_set_new(rootJ, "ecoMode", json_integer(ecoMode));
+		
 		return rootJ;
 	}
 
@@ -414,6 +419,11 @@ struct NoteEcho : Module {
 		json_t *clockPeriodJ = json_object_get(rootJ, "clockPeriod");
 		if (clockPeriodJ)
 			clockPeriod = (int64_t)json_integer_value(clockPeriodJ);
+
+		// ecoMode
+		json_t *ecoModeJ = json_object_get(rootJ, "ecoMode");
+		if (ecoModeJ)
+			ecoMode = json_integer_value(ecoModeJ);
 
 		resetNonJson();
 	}
@@ -546,90 +556,92 @@ struct NoteEcho : Module {
 		// outputs[CLK_OUTPUT].setVoltage(clockSignal);
 		// do tap0 outputs first
 		int c = 0;// running index for all poly cable writes
-		// do tap0
-		if (!wetOnly || freeze) {
-			for (int p = 0; p < poly; p++, c++) {
-				float gate = 0.0f;
-				NoteEvent* event = channel[p].findEventGateOn(currFrameOrClk);
-				if (event != nullptr) {
-					gate = 10.0f;
-					outputs[CV_OUTPUT].setVoltage(event->cv, c);
-					outputs[CV2_OUTPUT].setVoltage(event->cv2, c);							
-				}
-				outputs[GATE_OUTPUT].setVoltage(gate, c);
-			}	
-		}
-		else {
-			for (int p = 0; p < poly; p++, c++) {
-				outputs[GATE_OUTPUT].setVoltage(0.0f, c);
-			}					
-		}
-		// now do main tap outputs
-		bool cv2IsOffset = isCv2Offset();
-		for (int t = 0; t < NUM_TAPS; t++) {
-			if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
-				continue;
+		if (ecoMode == 1 || ((refresh.refreshCounter & 0x7) == 0) ) {
+			// do tap0
+			if (!wetOnly || freeze) {
+				for (int p = 0; p < poly; p++, c++) {
+					float gate = 0.0f;
+					NoteEvent* event = channel[p].findEventGateOn(currFrameOrClk);
+					if (event != nullptr) {
+						gate = 10.0f;
+						outputs[CV_OUTPUT].setVoltage(event->cv, c);
+						outputs[CV2_OUTPUT].setVoltage(event->cv2, c);							
+					}
+					outputs[GATE_OUTPUT].setVoltage(gate, c);
+				}	
 			}
-			int64_t tapFrameOrClk = currFrameOrClk - (isDelMode ? clockPeriod : 2) * (int64_t)getTapValue(t);
-			float semi = getSemiVolts(t);
-			float cv2mod = params[CV2_PARAMS + t].getValue();
-			if (cv2IsOffset) cv2mod *= 10.0f;
+			else {
+				for (int p = 0; p < poly; p++, c++) {
+					outputs[GATE_OUTPUT].setVoltage(0.0f, c);
+				}					
+			}
+			// now do main tap outputs
+			bool cv2IsOffset = isCv2Offset();
+			for (int t = 0; t < NUM_TAPS; t++) {
+				if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
+					continue;
+				}
+				int64_t tapFrameOrClk = currFrameOrClk - (isDelMode ? clockPeriod : 2) * (int64_t)getTapValue(t);
+				float semi = getSemiVolts(t);
+				float cv2mod = params[CV2_PARAMS + t].getValue();
+				if (cv2IsOffset) cv2mod *= 10.0f;
 
-			for (int p = 0; p < poly; p++, c++) {
-				bool gate = false;
-				NoteEvent* event = channel[p].findEventGateOn(tapFrameOrClk);
-				if (event != nullptr) {
-					// check for probs here before giving high gate
-					if (event->muted[t] == -1) {
-						// event never seen by this tap
-						if (isSingleProbs()) {
-							// test for closeness in other polys, to steal that muted[]
-							// if so, set event->muted[t] to that other one
-							int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
-							for (int p2 = 0; p2 < poly; p2++) {
-								if (p2 == p) continue;
-								NoteEvent* event2 = channel[p2].findEventGateOn(tapFrameOrClk);
-								if (event2 == nullptr) continue;
-								int64_t delta = event->gateOnFrame - event2->gateOnFrame;
-								bool closeEnough;
-								if (isDelMode) {
-									closeEnough = llabs(delta) < closenessFrames;
+				for (int p = 0; p < poly; p++, c++) {
+					bool gate = false;
+					NoteEvent* event = channel[p].findEventGateOn(tapFrameOrClk);
+					if (event != nullptr) {
+						// check for probs here before giving high gate
+						if (event->muted[t] == -1) {
+							// event never seen by this tap
+							if (isSingleProbs()) {
+								// test for closeness in other polys, to steal that muted[]
+								// if so, set event->muted[t] to that other one
+								int64_t closenessFrames = (int64_t)(groupedProbsEpsilon * args.sampleRate);
+								for (int p2 = 0; p2 < poly; p2++) {
+									if (p2 == p) continue;
+									NoteEvent* event2 = channel[p2].findEventGateOn(tapFrameOrClk);
+									if (event2 == nullptr) continue;
+									int64_t delta = event->gateOnFrame - event2->gateOnFrame;
+									bool closeEnough;
+									if (isDelMode) {
+										closeEnough = llabs(delta) < closenessFrames;
+									}
+									else {
+										closeEnough = delta == 0;
+									}
+									if (closeEnough) {
+										event->muted[t] = event2->muted[t];
+										break;
+									}
 								}
-								else {
-									closeEnough = delta == 0;
-								}
-								if (closeEnough) {
-									event->muted[t] = event2->muted[t];
+							}
+							// here either "!singleProbs" or "singleProbs but no closeness", so generate a prob
+							if (event->muted[t] == -1) {
+								event->muted[t] = getGateProbEnableForTap(t) ? 0 : 1;
+							}
+						}
+						// here event->muted[t] is not -1 
+						if (noteFilter && event->muted[t] == 0) {
+							// note is not muted and filter is on
+							// see if this new note is already playing on a lower channel, if so, mute new
+							for (int c2 = 0; c2 < c; c2++) {
+								if (outputs[GATE_OUTPUT].getVoltage(c2 >= 1.0f)) {
+									event->muted[t] = 1;
 									break;
 								}
 							}
 						}
-						// here either "!singleProbs" or "singleProbs but no closeness", so generate a prob
-						if (event->muted[t] == -1) {
-							event->muted[t] = getGateProbEnableForTap(t) ? 0 : 1;
-						}
+						gate = event->muted[t] == 0;
+						if (gate) {
+							outputs[CV_OUTPUT].setVoltage(event->cv + semi, c);
+							float cv2 = event->cv2;
+							outputs[CV2_OUTPUT].setVoltage(cv2IsOffset ? cv2 + cv2mod : cv2 * cv2mod, c);	
+						}						
 					}
-					// here event->muted[t] is not -1 
-					if (noteFilter && event->muted[t] == 0) {
-						// note is not muted and filter is on
-						// see if this new note is already playing on a lower channel, if so, mute new
-						for (int c2 = 0; c2 < c; c2++) {
-							if (outputs[GATE_OUTPUT].getVoltage(c2 >= 1.0f)) {
-								event->muted[t] = 1;
-								break;
-							}
-						}
-					}
-					gate = event->muted[t] == 0;
-					if (gate) {
-						outputs[CV_OUTPUT].setVoltage(event->cv + semi, c);
-						float cv2 = event->cv2;
-						outputs[CV2_OUTPUT].setVoltage(cv2IsOffset ? cv2 + cv2mod : cv2 * cv2mod, c);	
-					}						
-				}
-				outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
+					outputs[GATE_OUTPUT].setVoltage(gate ? 10.0f : 0.0f, c);
+				}	
 			}	
-		}			
+		}// eco mode		
 			
 		
 		// lights
@@ -909,6 +921,11 @@ struct NoteEchoWidget : ModuleWidget {
 				[=]() {module->clkDelay = 2;}
 			));
 		}));	
+		
+		menu->addChild(createCheckMenuItem("Eco mode", "",
+			[=]() {return module->ecoMode != 1;},
+			[=]() {module->ecoMode = (module->ecoMode == 1) ? 8 : 1;}
+		));
 	}	
 
 	
@@ -969,7 +986,7 @@ struct NoteEchoWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMSmallKnob>(mm2px(Vec(col55, row0)), module, NoteEcho::CV2NORM_PARAM, mode));
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col56, row0)), true, module, NoteEcho::CLK_INPUT, mode));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col56 + 4.3f, row0 - 6.6f)), module, NoteEcho::SD_LIGHT));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col56 + 4.3f, row0 - 7.0f)), module, NoteEcho::SD_LIGHT));
 				
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col57, row0)), module, NoteEcho::DEL_MODE_PARAM, mode, svgPanel));
 
