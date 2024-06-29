@@ -170,7 +170,7 @@ struct NoteEcho : Module {
 	
 	// Need to save, with reset
 	bool noteFilter;
-	bool wetOnly;// excludes tap0 from outputs, when freeze, this note will be missing in the loop, but all echoes as properly timed in the loop, will play)
+	bool wetOnly;// excludes tap0 from outputs (only when not freeze)
 	// float cv2NormalledVoltage;
 	int clkDelay;// SR Mode
 	float clkDelReg[2];// SR Mode
@@ -221,7 +221,7 @@ struct NoteEcho : Module {
 		return count;
 	}
 	bool isLastTapAllowed() {
-		return getPolyKnob() < MAX_POLY || countActiveTaps() < NUM_TAPS || wetOnly;
+		return getPolyKnob() < MAX_POLY || countActiveTaps() < NUM_TAPS;
 	}
 	int getSemiValue(int tapNum) {
 		return (int)(std::round(params[ST_PARAMS + tapNum].getValue()));
@@ -442,9 +442,9 @@ struct NoteEcho : Module {
 	void process(const ProcessArgs &args) override {
 		// user inputs
 		if (refresh.processInputs()) {
-			if (wetTrigger.process(params[WET_PARAM].getValue()))
+			if (wetTrigger.process(params[WET_PARAM].getValue())) {
 				wetOnly = !wetOnly;
-
+			}
 		}// userInputs refresh
 		
 		// Freeze
@@ -467,7 +467,7 @@ struct NoteEcho : Module {
 		}
 		int numActiveTaps = countActiveTaps();
 		bool lastTapAllowed = isLastTapAllowed();
-		int chans = std::min( poly * ( (wetOnly ? 0 : 1) + numActiveTaps ) , 16 );
+		int chans = std::min( poly * ( 1 + numActiveTaps ) , 16 );
 		if (outputs[CV_OUTPUT].getChannels() != chans) {
 			outputs[CV_OUTPUT].setChannels(chans);
 		}
@@ -559,25 +559,22 @@ struct NoteEcho : Module {
 		// do tap0 outputs first
 		int c = 0;// running index for all poly cable writes
 		// do tap0
-		if (!wetOnly) {
-			if (freeze) {
-				// don't play dry tap when freeze, but since poly chans are allocated when !wetOnly, then must write gates to zero
-				for (int p = 0; p < poly; p++, c++) {
-					outputs[GATE_OUTPUT].setVoltage(0.0f, c);
-				}					
-			}
-			else {
-				for (int p = 0; p < poly; p++, c++) {
-					float gate = 0.0f;
-					NoteEvent* event = channel[p].findEventGateOn(currFrameOrClk);
-					if (event != nullptr) {
-						gate = 10.0f;
-						outputs[CV_OUTPUT].setVoltage(event->cv, c);
-						outputs[CV2_OUTPUT].setVoltage(event->cv2, c);							
-					}
-					outputs[GATE_OUTPUT].setVoltage(gate, c);
-				}	
-			}
+		if (!wetOnly || freeze) {
+			for (int p = 0; p < poly; p++, c++) {
+				float gate = 0.0f;
+				NoteEvent* event = channel[p].findEventGateOn(currFrameOrClk);
+				if (event != nullptr) {
+					gate = 10.0f;
+					outputs[CV_OUTPUT].setVoltage(event->cv, c);
+					outputs[CV2_OUTPUT].setVoltage(event->cv2, c);							
+				}
+				outputs[GATE_OUTPUT].setVoltage(gate, c);
+			}	
+		}
+		else {
+			for (int p = 0; p < poly; p++, c++) {
+				outputs[GATE_OUTPUT].setVoltage(0.0f, c);
+			}					
 		}
 		// now do main tap outputs
 		bool cv2IsOffset = isCv2Offset();
@@ -646,9 +643,10 @@ struct NoteEcho : Module {
 			
 			// gate lights
 			if (notifyPoly > 0) {
+				// notify poly in gate lights
 				// do tap0 outputs first
 				for (int p = 0; p < MAX_POLY; p++) {
-					lights[GATE_LIGHTS + p].setBrightness(p < poly && !wetOnly ? 1.0f : 0.0f);
+					lights[GATE_LIGHTS + p].setBrightness(p < poly ? 1.0f : 0.0f);
 				}
 				// now do main tap outputs
 				for (int t = 0; t < NUM_TAPS; t++) {
@@ -661,11 +659,11 @@ struct NoteEcho : Module {
 					}
 				}
 			}
-			else {
+			else {// normal gate lights
 				c = 0;
 				// do tap0 outputs first
 				for (int p = 0; p < MAX_POLY; p++) {
-					bool lstate = p < poly && !wetOnly;
+					bool lstate = p < poly;
 					lights[GATE_LIGHTS + p].setBrightness(lstate && outputs[GATE_OUTPUT].getVoltage(c) ? 1.0f : 0.0f);
 					if (lstate) c++;
 				}
