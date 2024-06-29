@@ -96,7 +96,7 @@ struct NoteEcho : Module {
 			if (num > size - 1) {
 				return BUF_SIZE;// error code
 			}
-			return (head - 1 - num) % BUF_SIZE;
+			return (BUF_SIZE + head - 1 - num) % BUF_SIZE;
 		}
 		void enterEvent(int64_t gateOnFrame, int64_t gateOffFrame, float cv, float cv2) {
 			// enters at head and then moves the head
@@ -114,9 +114,9 @@ struct NoteEcho : Module {
 			if (!(index >= BUF_SIZE || events[index].gateOffFrame != 0)) {
 				events[index].gateOffFrame = gateOffFrame;
 			}
-			else {
-				DEBUG("error, finishDelEvent() called on a finished event!");
-			}
+			// else {
+				// DEBUG("error, finishDelEvent() called on a finished event!, h=%i, s=%i, i=%i", head, size, index);// h=0, s=128, i=65535
+			// }
 		}
 		NoteEvent* findEvent(int64_t frameOrClk) {
 			for (uint16_t cnt = 0; ; cnt++) {
