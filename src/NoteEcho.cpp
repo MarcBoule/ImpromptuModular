@@ -797,79 +797,85 @@ struct NoteEchoWidget : ModuleWidget {
 				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, initString.c_str(), NULL);
 				
 				nvgFillColor(args.vg, displayColOn);
-				if (!module || module->getTapValue(tapNum) < 1) {
-					dispStr = "  - ";
-				}
-				else if (tapNum == 3 && !module->isLastTapAllowed()) {
-					dispStr = "O VF";
-				}
-				else if (module->notifyInfo[tapNum] > 0l) {
-					if (module->notifySource[tapNum] == 1) {
-						// semitone
-						int ist = module->getSemiValue(tapNum);
-						dispStr = string::f("  %2u", (unsigned)(std::abs(ist)));
-						if (ist != 0) {
-							dispStr[0] = ist > 0 ? '+' : '-';
-						}
-					}
-					else if (module->notifySource[tapNum] == 2) {
-						// CV2
-						float cv2 = module->params[NoteEcho::CV2_PARAMS + tapNum].getValue();
-						if (module->isCv2Offset()) {
-							// CV2 mode is: offset
-							float cvValPrint = std::fabs(cv2) * 10.0f;
-							if (cvValPrint > 9.975f) {
-								dispStr = "  10";
+				if (module) {
+					if (module->notifyInfo[tapNum] > 0l) {
+						if (module->notifySource[tapNum] == 1) {
+							// semitone
+							int ist = module->getSemiValue(tapNum);
+							dispStr = string::f("  %2u", (unsigned)(std::abs(ist)));
+							if (ist != 0) {
+								dispStr[0] = ist > 0 ? '+' : '-';
 							}
-							else if (cvValPrint < 0.025f) {
-								dispStr = "   0";
+						}
+						else if (module->notifySource[tapNum] == 2) {
+							// CV2
+							float cv2 = module->params[NoteEcho::CV2_PARAMS + tapNum].getValue();
+							if (module->isCv2Offset()) {
+								// CV2 mode is: offset
+								float cvValPrint = std::fabs(cv2) * 10.0f;
+								if (cvValPrint > 9.975f) {
+									dispStr = "  10";
+								}
+								else if (cvValPrint < 0.025f) {
+									dispStr = "   0";
+								}
+								else {
+									dispStr = string::f("%3.2f", cvValPrint);// Three-wide, two positions after the decimal, left-justified
+									dispStr[1] = '.';// in case locals in printf
+								}								
 							}
 							else {
-								dispStr = string::f("%3.2f", cvValPrint);// Three-wide, two positions after the decimal, left-justified
-								dispStr[1] = '.';// in case locals in printf
-							}								
+								// CV2 mode is: scale
+								unsigned int iscale100 = (unsigned)(std::round(std::fabs(cv2) * 100.0f));
+								if ( iscale100 >= 100) {
+									dispStr = "   1";
+								}
+								else if (iscale100 >= 1) {
+									dispStr = string::f("0.%02u", (unsigned) iscale100);
+								}	
+								else {
+									dispStr = "   0";
+								}
+							}
 						}
-						else {
-							// CV2 mode is: scale
-							unsigned int iscale100 = (unsigned)(std::round(std::fabs(cv2) * 100.0f));
-							if ( iscale100 >= 100) {
+						else if (module->notifySource[tapNum] == 3) {
+							// Prob
+							float prob = module->params[NoteEcho::PROB_PARAMS + tapNum].getValue();
+							unsigned int iprob100 = (unsigned)(std::round(prob * 100.0f));
+							if ( iprob100 >= 100) {
 								dispStr = "   1";
 							}
-							else if (iscale100 >= 1) {
-								dispStr = string::f("0.%02u", (unsigned) iscale100);
+							else if (iprob100 >= 1) {
+								dispStr = string::f("0.%02u", (unsigned) iprob100);
 							}	
 							else {
 								dispStr = "   0";
 							}
 						}
-					}
-					else if (module->notifySource[tapNum] == 3) {
-						// Prob
-						float prob = module->params[NoteEcho::PROB_PARAMS + tapNum].getValue();
-						unsigned int iprob100 = (unsigned)(std::round(prob * 100.0f));
-						if ( iprob100 >= 100) {
-							dispStr = "   1";
-						}
-						else if (iprob100 >= 1) {
-							dispStr = string::f("0.%02u", (unsigned) iprob100);
-						}	
 						else {
-							dispStr = "   0";
+							// Freeze length
+							if (tapNum > 0) {
+								dispStr = "";
+							}
+							else {
+								dispStr = string::f("F %2u", (unsigned)(module->getFreezeLengthKnob()));	
+							}
 						}
+					}
+					else if (!module || module->getTapValue(tapNum) < 1) {
+						dispStr = "  - ";
+					}
+					else if (tapNum == 3 && !module->isLastTapAllowed()) {
+						dispStr = "O VF";
 					}
 					else {
-						// Freeze length
-						if (tapNum > 0) {
-							dispStr = "";
-						}
-						else {
-							dispStr = string::f("F %2u", (unsigned)(module->getFreezeLengthKnob()));	
-						}
+						dispStr = string::f("D %2u", (unsigned)(module->getTapValue(tapNum)));	
 					}
-				}
+				}// if (module)
 				else {
-					dispStr = string::f("D %2u", (unsigned)(module->getTapValue(tapNum)));	
+					dispStr = string::f("D %2u", (unsigned)(tapNum));
 				}
+				
 				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &dispStr[1], NULL);
 				if (dispStr.size() > 1) dispStr[1] = 0;
 				nvgText(args.vg, textPos.x, textPos.y, dispStr.c_str(), NULL);
@@ -926,13 +932,13 @@ struct NoteEchoWidget : ModuleWidget {
 
 
 		static const float col5d = 14.5f;
-		static const float col51 = 9.47f;
+		static const float col51 = 8.47f;
 		static const float col52 = col51 + col5d;
 		static const float col53 = col52 + col5d;
 		static const float col54 = col53 + col5d;
 		static const float col55 = col54 + col5d;
 		static const float col56 = col55 + col5d;
-		static const float col57 = col56 + col5d + 2.0f;
+		static const float col57 = col56 + col5d + 1.5f;
 		
 		static const float col54d = 2.0f;
 		static const float col41 = col51 + col54d;// Tap
@@ -1006,20 +1012,20 @@ struct NoteEchoWidget : ModuleWidget {
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5 - 1.5f)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
 		
 		// right side column (excl. first row)
-		addParam(createParamCentered<LEDBezel>(mm2px(VecPx(col57, row1)), module, NoteEcho::FREEZE_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(VecPx(col57, row1)), module, NoteEcho::FREEZE_LIGHT));
-		
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col57, row1 + row24d - 2.0f)), true, module, NoteEcho::FREEZE_INPUT, mode));
-		
 		FreezeKnob* frzLenKnobP;
-		addParam(frzLenKnobP = createDynamicParamCentered<FreezeKnob>(mm2px(Vec(col57, row1 + 2 * row24d)), module, NoteEcho::FRZLEN_PARAM, mode));	
+		addParam(frzLenKnobP = createDynamicParamCentered<FreezeKnob>(mm2px(Vec(col57, row1 + 0 * row24d)), module, NoteEcho::FRZLEN_PARAM, mode));	
 		frzLenKnobP->module = module;
 
+		addParam(createParamCentered<LEDBezel>(mm2px(VecPx(col57, row1 + 1 * row24d + 5.0f)), module, NoteEcho::FREEZE_PARAM));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(VecPx(col57, row1 + 1 * row24d + 5.0f)), module, NoteEcho::FREEZE_LIGHT));
+		
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col57, row1 + 2 * row24d + 3.0f)), true, module, NoteEcho::FREEZE_INPUT, mode));
+		
 		addParam(createParamCentered<LEDButton>(mm2px(Vec(col57, row5 - 16.6f)), module, NoteEcho::FILTER_PARAM));
 		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col57, row5 - 16.6f)), module, NoteEcho::FILTER_LIGHT));
 		
-		addParam(createParamCentered<LEDButton>(mm2px(Vec(col57, row5)), module, NoteEcho::WET_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col57, row5)), module, NoteEcho::WET_LIGHT));
+		addParam(createParamCentered<LEDButton>(mm2px(Vec(col57, row5 - 1.5f)), module, NoteEcho::WET_PARAM));
+		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col57, row5 - 1.5f)), module, NoteEcho::WET_LIGHT));
 
 
 		// gate lights
