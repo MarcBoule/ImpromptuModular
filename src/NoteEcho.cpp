@@ -114,9 +114,9 @@ struct NoteEcho : Module {
 			if (!(index >= BUF_SIZE || events[index].gateOffFrame != 0)) {
 				events[index].gateOffFrame = gateOffFrame;
 			}
-			//else {
-				//DEBUG("error, finishDelEvent() called on a finished event!");
-			// }
+			else {
+				DEBUG("error, finishDelEvent() called on a finished event!");
+			}
 		}
 		NoteEvent* findEvent(int64_t frameOrClk) {
 			for (uint16_t cnt = 0; ; cnt++) {
@@ -291,8 +291,6 @@ struct NoteEcho : Module {
 		// configOutput(CLK_OUTPUT, "Clock");
 		
 		configLight(SD_LIGHT, "Sample delay active");
-		// configLight(FILTER_LIGHT, "Filter identical notes");
-		// configLight(WET_LIGHT, "Echoes only");
 		
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
@@ -625,7 +623,9 @@ struct NoteEcho : Module {
 							// note is not muted and filter is on
 							// see if this new note is already playing on a lower channel, if so, mute new
 							for (int c2 = 0; c2 < c; c2++) {
-								if (outputs[GATE_OUTPUT].getVoltage(c2 >= 1.0f)) {
+								if ( outputs[GATE_OUTPUT].getVoltage(c2 >= 1.0f) && 
+									 (outputs[CV_OUTPUT].getVoltage(c) && 
+									  outputs[CV_OUTPUT].getVoltage(c2) ) ) {
 									event->muted[t] = 1;
 									break;
 								}
