@@ -32,7 +32,7 @@ struct NoteEcho : Module {
 		FREEZE_PARAM,
 		FRZLEN_PARAM,
 		WET_PARAM,
-		FILTER_PARAM,
+		CLEAR_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -55,7 +55,7 @@ struct NoteEcho : Module {
 	};
 	enum LightIds {
 		SD_LIGHT,
-		FILTER_LIGHT,
+		CLEAR_LIGHT,
 		WET_LIGHT,
 		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
 		// ----
@@ -172,6 +172,7 @@ struct NoteEcho : Module {
 	int notifySource[NUM_TAPS] = {};// 0 (normal), 1 (semi) 2 (CV2), 3 (prob), 4 (freeze length)
 	long notifyInfo[NUM_TAPS] = {};// downward step counter when semi, cv2, prob to be displayed, 0 when normal tap display
 	long notifyPoly = 0l;// downward step counter when notify poly size in leds, 0 when normal leds
+	float clearLight = 0.0f;
 	RefreshCounter refresh;
 	TriggerRiseFall clkTrigger;
 	TriggerRiseFall gateTriggers[MAX_POLY];
@@ -262,7 +263,7 @@ struct NoteEcho : Module {
 		configParam(FRZLEN_PARAM, 1.0f, (float)(MAX_DEL), 4.0f, "Freeze length");
 		paramQuantities[FRZLEN_PARAM]->snapEnabled = true;
 		configParam(WET_PARAM, 0.0f, 1.0f, 0.0f, "Wet only");
-		configParam(FILTER_PARAM, 0.0f, 1.0f, 0.0f, "Identical note filter");
+		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "Clear");
 		
 		for (int i = 0; i < NUM_TAPS; i++) {
 			// tap knobs
@@ -282,7 +283,7 @@ struct NoteEcho : Module {
 		configInput(GATE_INPUT, "Gate");
 		configInput(CV2_INPUT, "CV2/Velocity");
 		configInput(CLK_INPUT, "Clock");
-		configInput(CLEAR_INPUT, "Clear (reset)");
+		configInput(CLEAR_INPUT, "Clear buffer");
 		configInput(FREEZE_INPUT, "Freeze (loop)");
 
 		configOutput(CV_OUTPUT, "CV");
@@ -438,9 +439,6 @@ struct NoteEcho : Module {
 			if (wetTrigger.process(params[WET_PARAM].getValue())) {
 				wetOnly = !wetOnly;
 			}
-			if (filterTrigger.process(params[FILTER_PARAM].getValue())) {
-				noteFilter = !noteFilter;
-			}
 		}// userInputs refresh
 		
 		// Freeze
@@ -477,8 +475,9 @@ struct NoteEcho : Module {
 	
 	
 		// clear and clock
-		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage())) {
+		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage() + params[CLEAR_PARAM].getValue())) {
 			clear();
+			clearLight = 1.0f;
 		}
 		float clockSignal = (clkDelay <= 0 || isDelMode) ? inputs[CLK_INPUT].getVoltage() : clkDelReg[clkDelay - 1];
 		int clkEdge = clkTrigger.process(clockSignal);
@@ -700,6 +699,8 @@ struct NoteEcho : Module {
 				notifyPoly = 0l;
 			}
 
+			lights[CLEAR_LIGHT].setSmoothBrightness(clearLight, args.sampleTime * (RefreshCounter::displayRefreshStepSkips >> 2));	
+			clearLight = 0.0f;
 		}// lightRefreshCounter
 		
 		clkDelReg[1] = clkDelReg[0];
@@ -922,6 +923,8 @@ struct NoteEchoWidget : ModuleWidget {
 			));
 		}));	
 		
+		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
+		
 		menu->addChild(createCheckMenuItem("Eco mode", "",
 			[=]() {return module->ecoMode != 1;},
 			[=]() {module->ecoMode = (module->ecoMode == 1) ? 8 : 1;}
@@ -1021,10 +1024,13 @@ struct NoteEchoWidget : ModuleWidget {
 		
 		// row 5
 		// addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row5)), false, module, NoteEcho::CLK_OUTPUT, mode));
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row5)), true, module, NoteEcho::CLEAR_INPUT, mode));
+		addParam(createParamCentered<LEDButton>(mm2px(Vec(col51, row5)), module, NoteEcho::WET_PARAM));
+		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col51, row5)), module, NoteEcho::WET_LIGHT));
+
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row5)), false, module, NoteEcho::CV_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row5)), false, module, NoteEcho::GATE_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row5)), false, module, NoteEcho::CV2_OUTPUT, mode));
+		
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col55, row5 - 1.5f)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5 - 1.5f)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
 		
@@ -1038,11 +1044,11 @@ struct NoteEchoWidget : ModuleWidget {
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col57, row1 + 2 * row24d + 3.0f)), true, module, NoteEcho::FREEZE_INPUT, mode));
 		
-		addParam(createParamCentered<LEDButton>(mm2px(Vec(col57, row5 - 16.6f)), module, NoteEcho::FILTER_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col57, row5 - 16.6f)), module, NoteEcho::FILTER_LIGHT));
+		addParam(createParamCentered<LEDBezel>(mm2px(Vec(col57, row5 - 14.0f)), module, NoteEcho::CLEAR_PARAM));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(Vec(col57, row5 - 14.0f)), module, NoteEcho::CLEAR_LIGHT));
 		
-		addParam(createParamCentered<LEDButton>(mm2px(Vec(col57, row5 - 1.5f)), module, NoteEcho::WET_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col57, row5 - 1.5f)), module, NoteEcho::WET_LIGHT));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col57, row5)), true, module, NoteEcho::CLEAR_INPUT, mode));
+
 
 
 		// gate lights
@@ -1067,9 +1073,6 @@ struct NoteEchoWidget : ModuleWidget {
 			
 			// sample delay light
 			m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f );
-			
-			// filter light
-			m->lights[NoteEcho::FILTER_LIGHT].setBrightness( m->noteFilter ? 1.0f : 0.0f );
 			
 			// wet light
 			m->lights[NoteEcho::WET_LIGHT].setBrightness( m->wetOnly ? 1.0f : 0.0f );
