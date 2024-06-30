@@ -54,7 +54,7 @@ struct NoteEcho : Module {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		SD_LIGHT,
+		// SD_LIGHT,
 		CLEAR_LIGHT,
 		WET_LIGHT,
 		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
@@ -146,6 +146,9 @@ struct NoteEcho : Module {
 	// Constants
 	static constexpr float delayInfoTime = 3.0f;// seconds
 	static constexpr float groupedProbsEpsilon = 0.02f;// time in seconds within which gates are considered grouped across polys, for when random mode is set to chord, for DEL Mode
+	static const int numMults = 7;    // 1/2  2/3 3/4  1   4/3  3/2  2
+	static const int64_t multNum[numMults];
+	static const int64_t multDen[numMults];
 	
 	// Need to save, no reset
 	int panelTheme;
@@ -159,6 +162,7 @@ struct NoteEcho : Module {
 	float clkDelReg[2];// SR Mode
 	int64_t clockPeriod;// DEL Mode
 	int ecoMode;
+	int delMult;
 
 	// No need to save, with reset
 	bool freeze;
@@ -291,7 +295,7 @@ struct NoteEcho : Module {
 		configOutput(CV2_OUTPUT, "CV2/Velocity");
 		// configOutput(CLK_OUTPUT, "Clock");
 		
-		configLight(SD_LIGHT, "Sample delay active");
+		// configLight(SD_LIGHT, "Sample delay active");
 		
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
@@ -316,11 +320,12 @@ struct NoteEcho : Module {
 		noteFilter = false;
 		wetOnly = false;
 		// cv2NormalledVoltage = 0.0f;
-		clkDelay = 0;
+		clkDelay = 2;
 		clkDelReg[0] = 0.0f;
 		clkDelReg[1] = 0.0f;
 		clockPeriod = (int64_t)(APP->engine->getSampleRate());// 60 BPM until detected
 		ecoMode = 1;
+		delMult = 3;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -363,6 +368,9 @@ struct NoteEcho : Module {
 
 		// ecoMode
 		json_object_set_new(rootJ, "ecoMode", json_integer(ecoMode));
+		
+		// delMult
+		json_object_set_new(rootJ, "delMult", json_integer(delMult));
 		
 		return rootJ;
 	}
@@ -423,6 +431,11 @@ struct NoteEcho : Module {
 		json_t *ecoModeJ = json_object_get(rootJ, "ecoMode");
 		if (ecoModeJ)
 			ecoMode = json_integer_value(ecoModeJ);
+
+		// delMult
+		json_t *delMultJ = json_object_get(rootJ, "delMult");
+		if (delMultJ)
+			delMult = json_integer_value(delMultJ);
 
 		resetNonJson();
 	}
@@ -489,7 +502,7 @@ struct NoteEcho : Module {
 					float deltaFramesF = (float)deltaFrames;
 					if (deltaFramesF <= (args.sampleRate * 6.0f) && 
 						deltaFramesF >= (args.sampleRate / 5.0f)) {// 10-300 BPM tempo range
-						clockPeriod = deltaFrames;
+						clockPeriod = (deltaFrames * multNum[delMult]) / multDen[delMult];
 					}
 					// else, remember the previous clockPeriod so nothing to do
 				}
@@ -709,6 +722,10 @@ struct NoteEcho : Module {
 };
 
 
+const int64_t NoteEcho::multNum[numMults] = {1, 2, 3, 1, 4, 3, 2};
+const int64_t NoteEcho::multDen[numMults] = {2, 3, 4, 1, 3, 2, 1};
+
+
 
 struct NoteEchoWidget : ModuleWidget {
 	struct PolyKnob : IMFourPosSmallKnob {
@@ -907,6 +924,34 @@ struct NoteEchoWidget : ModuleWidget {
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
+		
+		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
+		
+		menu->addChild(createCheckMenuItem("Eco mode", "",
+			[=]() {return module->ecoMode != 1;},
+			[=]() {module->ecoMode = (module->ecoMode == 1) ? 8 : 1;}
+		));
+		
+		
+		menu->addChild(new MenuSeparator());
+		menu->addChild(createMenuLabel("Settings (Delay Mode)"));
+
+		menu->addChild(createSubmenuItem("Tempo multiplier", "", [=](Menu* menu) {
+			for (int i = 0; i < NoteEcho::numMults; i++) {
+				std::string label = string::f("x %i", (int)NoteEcho::multNum[i]);
+				if (NoteEcho::multDen[i] != 1) {
+					label += string::f("/%i", (int)NoteEcho::multDen[i]);
+				}
+				menu->addChild(createCheckMenuItem(label, "",
+					[=]() {return module->delMult == i;},
+					[=]() {module->delMult = i;}
+				));
+			}
+		}));	
+
+
+		menu->addChild(new MenuSeparator());
+		menu->addChild(createMenuLabel("Settings (Shift Register Mode)"));
 
 		menu->addChild(createSubmenuItem("Sample delay on clock input", "", [=](Menu* menu) {
 			menu->addChild(createCheckMenuItem("0", "",
@@ -922,13 +967,7 @@ struct NoteEchoWidget : ModuleWidget {
 				[=]() {module->clkDelay = 2;}
 			));
 		}));	
-		
-		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
-		
-		menu->addChild(createCheckMenuItem("Eco mode", "",
-			[=]() {return module->ecoMode != 1;},
-			[=]() {module->ecoMode = (module->ecoMode == 1) ? 8 : 1;}
-		));
+
 	}	
 
 	
@@ -989,7 +1028,7 @@ struct NoteEchoWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMSmallKnob>(mm2px(Vec(col55, row0)), module, NoteEcho::CV2NORM_PARAM, mode));
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col56, row0)), true, module, NoteEcho::CLK_INPUT, mode));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col56 + 4.3f, row0 - 7.0f)), module, NoteEcho::SD_LIGHT));
+		// addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col56 + 4.3f, row0 - 7.0f)), module, NoteEcho::SD_LIGHT));
 				
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col57, row0)), module, NoteEcho::DEL_MODE_PARAM, mode, svgPanel));
 
@@ -1072,7 +1111,7 @@ struct NoteEchoWidget : ModuleWidget {
 			// gate lights done in process() since they look at output[], and when connecting/disconnecting cables the cable sizes are reset (and buffers cleared), which makes the gate lights flicker
 			
 			// sample delay light
-			m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f );
+			// m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f );
 			
 			// wet light
 			m->lights[NoteEcho::WET_LIGHT].setBrightness( m->wetOnly ? 1.0f : 0.0f );
