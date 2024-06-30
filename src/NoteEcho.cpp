@@ -319,7 +319,7 @@ struct NoteEcho : Module {
 		clkDelReg[0] = 0.0f;
 		clkDelReg[1] = 0.0f;
 		clockPeriod = (int64_t)(APP->engine->getSampleRate());// 60 BPM until detected
-		ecoMode = 8;
+		ecoMode = 1;
 		resetNonJson();
 	}
 	void resetNonJson() {
