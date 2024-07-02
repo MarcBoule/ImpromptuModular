@@ -186,7 +186,6 @@ struct NoteEcho : Module {
 	Trigger freezeButtonTrigger;
 	Trigger clearTrigger;
 	Trigger wetTrigger;
-	Trigger filterTrigger;
 
 
 	bool getIsDelMode() {
@@ -818,7 +817,6 @@ struct NoteEchoWidget : ModuleWidget {
 		int tapNum = 0;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
-		std::string dispStr = "    ";
 		static const int textFontSize = 15;
 		static constexpr float textOffsetY = 19.9f; // 18.2f for 14 pt, 19.7f for 15pt
 		
@@ -847,6 +845,7 @@ struct NoteEchoWidget : ModuleWidget {
 				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, initString.c_str(), NULL);
 				
 				nvgFillColor(args.vg, displayColOn);
+				std::string dispStr = "    ";
 				if (module) {
 					if (module->notifyInfo[tapNum] > 0l) {
 						if (module->notifySource[tapNum] == 1) {
@@ -912,7 +911,7 @@ struct NoteEchoWidget : ModuleWidget {
 							}
 						}
 					}
-					else if (!module || module->getTapValue(tapNum) < 1) {
+					else if (module->getTapValue(tapNum) < 1) {
 						dispStr = "  - ";
 					}
 					else if (tapNum == 3 && !module->isLastTapAllowed()) {
@@ -926,8 +925,10 @@ struct NoteEchoWidget : ModuleWidget {
 					dispStr = string::f("D %2u", (unsigned)(tapNum));
 				}
 				
-				nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &dispStr[1], NULL);
-				if (dispStr.size() > 1) dispStr[1] = 0;
+				if (dispStr.size() > 1) {
+					nvgText(args.vg, textPos.x + offsetXfrac, textPos.y, &dispStr[1], NULL);
+					dispStr[1] = 0;
+				}
 				nvgText(args.vg, textPos.x, textPos.y, dispStr.c_str(), NULL);
 			}
 		}
