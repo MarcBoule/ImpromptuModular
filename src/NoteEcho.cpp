@@ -60,6 +60,7 @@ struct NoteEcho : Module {
 		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
 		// ----
 		FREEZE_LIGHT,
+		ENUMS(CLK_LIGHT, 2),
 		NUM_LIGHTS
 	};
 	
@@ -147,6 +148,7 @@ struct NoteEcho : Module {
 	static constexpr float delayInfoTime = 3.0f;// seconds
 	static constexpr float groupedProbsEpsilon = 0.02f;// time in seconds within which gates are considered grouped across polys, for when random mode is set to chord, for DEL Mode
 	static const int numMults = 7;    // 1/2  2/3 3/4  1   4/3  3/2  2
+	static const int numMultsUnityIndex = 3;    
 	static const int64_t multNum[numMults];
 	static const int64_t multDen[numMults];
 	
@@ -163,6 +165,7 @@ struct NoteEcho : Module {
 	int64_t clockPeriod;// DEL Mode
 	int ecoMode;
 	int delMult;
+	int tempoIsBpmCv;
 
 	// No need to save, with reset
 	bool freeze;
@@ -286,7 +289,7 @@ struct NoteEcho : Module {
 		configInput(CV_INPUT, "CV");
 		configInput(GATE_INPUT, "Gate");
 		configInput(CV2_INPUT, "CV2/Velocity");
-		configInput(CLK_INPUT, "Clock");
+		configInput(CLK_INPUT, "Tempo/Clock");
 		configInput(CLEAR_INPUT, "Clear buffer");
 		configInput(FREEZE_INPUT, "Freeze (loop)");
 
@@ -295,7 +298,7 @@ struct NoteEcho : Module {
 		configOutput(CV2_OUTPUT, "CV2/Velocity");
 		// configOutput(CLK_OUTPUT, "Clock");
 		
-		// configLight(SD_LIGHT, "Sample delay active");
+		configLight(CLK_LIGHT, "Tempo/Clk modifier (see menu)");
 		
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
@@ -325,7 +328,8 @@ struct NoteEcho : Module {
 		clkDelReg[1] = 0.0f;
 		clockPeriod = (int64_t)(APP->engine->getSampleRate());// 60 BPM until detected
 		ecoMode = 1;
-		delMult = 3;
+		delMult = numMultsUnityIndex;
+		tempoIsBpmCv = 0;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -371,6 +375,9 @@ struct NoteEcho : Module {
 		
 		// delMult
 		json_object_set_new(rootJ, "delMult", json_integer(delMult));
+		
+		// tempoIsBpmCv
+		json_object_set_new(rootJ, "tempoIsBpmCv", json_integer(tempoIsBpmCv));
 		
 		return rootJ;
 	}
@@ -437,6 +444,11 @@ struct NoteEcho : Module {
 		if (delMultJ)
 			delMult = json_integer_value(delMultJ);
 
+		// tempoIsBpmCv
+		json_t *tempoIsBpmCvJ = json_object_get(rootJ, "tempoIsBpmCv");
+		if (tempoIsBpmCvJ)
+			tempoIsBpmCv = json_integer_value(tempoIsBpmCvJ);
+
 		resetNonJson();
 	}
 
@@ -495,14 +507,22 @@ struct NoteEcho : Module {
 		float clockSignal = (clkDelay <= 0 || isDelMode) ? inputs[CLK_INPUT].getVoltage() : clkDelReg[clkDelay - 1];
 		int clkEdge = clkTrigger.process(clockSignal);
 		if (isDelMode) {
-			if (clkEdge == 1) {
-				// update clockPeriod
+			// update clockPeriod
+			if (tempoIsBpmCv != 0) {
+				if ((args.frame & 0x3F) == 0) {// fs/64
+					clockPeriod = (int64_t)(args.sampleRate * 0.5f / std::pow(2.0f, inputs[CLK_INPUT].getVoltage()));
+					if (delMult != numMultsUnityIndex) {
+						clockPeriod = clockPeriod * multDen[delMult] / multNum[delMult];
+					}
+				}
+			}
+			else if (clkEdge == 1) {
 				if (lastRisingClkFrame != -1) {
 					int64_t deltaFrames = args.frame - lastRisingClkFrame;
 					float deltaFramesF = (float)deltaFrames;
 					if (deltaFramesF <= (args.sampleRate * 6.0f) && 
 						deltaFramesF >= (args.sampleRate / 5.0f)) {// 10-300 BPM tempo range
-						clockPeriod = (deltaFrames * multNum[delMult]) / multDen[delMult];
+						clockPeriod = (deltaFrames * multDen[delMult]) / multNum[delMult];
 					}
 					// else, remember the previous clockPeriod so nothing to do
 				}
@@ -947,13 +967,19 @@ struct NoteEchoWidget : ModuleWidget {
 					[=]() {module->delMult = i;}
 				));
 			}
-		}));	
+		}));
+
+		menu->addChild(createCheckMenuItem("Tempo input is BPM CV", "",
+			[=]() {return module->tempoIsBpmCv != 0;},
+			[=]() {module->tempoIsBpmCv ^= 0x1;}
+		));
+		
 
 
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings (Shift Register Mode)"));
 
-		menu->addChild(createSubmenuItem("Sample delay on clock input", "", [=](Menu* menu) {
+		menu->addChild(createSubmenuItem("Clk input sample delay", "", [=](Menu* menu) {
 			menu->addChild(createCheckMenuItem("0", "",
 				[=]() {return module->clkDelay == 0;},
 				[=]() {module->clkDelay = 0;}
@@ -1028,7 +1054,7 @@ struct NoteEchoWidget : ModuleWidget {
 		addParam(createDynamicParamCentered<IMSmallKnob>(mm2px(Vec(col55, row0)), module, NoteEcho::CV2NORM_PARAM, mode));
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col56, row0)), true, module, NoteEcho::CLK_INPUT, mode));
-		// addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col56 + 4.3f, row0 - 7.0f)), module, NoteEcho::SD_LIGHT));
+		addChild(createLightCentered<SmallLight<YellowGreenLightIM>>(mm2px(Vec(col56 + 7.5f, row0)), module, NoteEcho::CLK_LIGHT));
 				
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col57, row0)), module, NoteEcho::DEL_MODE_PARAM, mode, svgPanel));
 
@@ -1110,9 +1136,16 @@ struct NoteEchoWidget : ModuleWidget {
 			
 			// gate lights done in process() since they look at output[], and when connecting/disconnecting cables the cable sizes are reset (and buffers cleared), which makes the gate lights flicker
 			
-			// sample delay light
-			// m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f );
-			
+			// clock light (yellow green)
+			if (m->getIsDelMode()) {
+				m->lights[NoteEcho::CLK_LIGHT + 0].setBrightness(m->tempoIsBpmCv != 0 ? 1.0f : 0.0f);
+				m->lights[NoteEcho::CLK_LIGHT + 1].setBrightness(0.0f);
+			}
+			else {
+				m->lights[NoteEcho::CLK_LIGHT + 0].setBrightness(0.0f);
+				m->lights[NoteEcho::CLK_LIGHT + 1].setBrightness( ((float)(m->clkDelay)) / 2.0f );
+			}
+						
 			// wet light
 			m->lights[NoteEcho::WET_LIGHT].setBrightness( m->wetOnly ? 1.0f : 0.0f );
 			
