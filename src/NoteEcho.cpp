@@ -15,7 +15,7 @@ struct NoteEcho : Module {
 	static const int NUM_TAPS = 4;
 	static const int MAX_POLY = 4;
 	static const int MAX_DEL = 32;
-	static const int BUF_SIZE = MAX_DEL * 4;  
+	static const int BUF_SIZE = MAX_DEL * 2;  
 
 	enum ParamIds {
 		ENUMS(TAP_PARAMS, NUM_TAPS),
@@ -28,7 +28,7 @@ struct NoteEcho : Module {
 		// ----
 		DEL_MODE_PARAM,// start of 2nd version of module with two modes
 		CV2NORM_PARAM,
-		FREEZE_PARAM,
+		FREEZE_PARAM,// aka LOOP
 		FRZLEN_PARAM,
 		WET_PARAM,
 		CLEAR_PARAM,
@@ -65,7 +65,6 @@ struct NoteEcho : Module {
 	
 	
 	struct NoteEvent {
-		// all info here has semitone, cv2offset and prob applied 
 		// DEL Mode: an event is considered pending when gateOffFrame==0 (waiting for falling edge of the clk or a gate  input), and ready when >0; when pending, rest of struct is populated
 		int64_t gateOnFrame = 0;
 		int64_t gateOffFrame = 0;// 0 when pending (DEL Mode only), is set on rising clk when SR Mode
@@ -259,8 +258,8 @@ struct NoteEcho : Module {
 		configSwitch(PMODE_PARAM, 0.0f, 1.0f, 1.0f, "Random mode", {"Separate", "Chord"});
 		configSwitch(DEL_MODE_PARAM, 0.0f, 1.0f, 1.0f, "Main mode", {"Shift register", "Delay"});
 		configParam(CV2NORM_PARAM, -10.0f, 10.0f, 0.0f, "CV2 input normalization", "");
-		configParam(FREEZE_PARAM, 0.0f, 1.0f, 0.0f, "Freeze (loop)");
-		configParam(FRZLEN_PARAM, 1.0f, (float)(MAX_DEL), 4.0f, "Freeze length");
+		configParam(FREEZE_PARAM, 0.0f, 1.0f, 0.0f, "Loop");
+		configParam(FRZLEN_PARAM, 1.0f, (float)(MAX_DEL), 4.0f, "Loop length");
 		paramQuantities[FRZLEN_PARAM]->snapEnabled = true;
 		configParam(WET_PARAM, 0.0f, 1.0f, 0.0f, "Wet only");
 		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "Clear");
@@ -284,7 +283,7 @@ struct NoteEcho : Module {
 		configInput(CV2_INPUT, "CV2/Velocity");
 		configInput(CLK_INPUT, "Tempo/Clock");
 		configInput(CLEAR_INPUT, "Clear buffer");
-		configInput(FREEZE_INPUT, "Freeze (loop)");
+		configInput(FREEZE_INPUT, "Loop");
 
 		configOutput(CV_OUTPUT, "CV");
 		configOutput(GATE_OUTPUT, "Gate");
