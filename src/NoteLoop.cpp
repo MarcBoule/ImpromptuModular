@@ -41,6 +41,7 @@ struct NoteLoop : Module {
 		CLEAR_LIGHT,
 		FREEZE_LIGHT,
 		CLK_LIGHT,
+		ENUMS(FRZLEN_LIGHTS, 6),
 		NUM_LIGHTS
 	};
 	
@@ -533,6 +534,16 @@ struct NoteLoopWidget : ModuleWidget {
 		addChild(createLightCentered<SmallLight<YellowLightIM>>(mm2px(Vec(col1 + 7.5f, row0)), module, NoteLoop::CLK_LIGHT));
 
 		addParam(createParamCentered<FreezeKnob>(mm2px(Vec(col2, row0)), module, NoteLoop::FRZLEN_PARAM));	
+		
+		static const float ldx = 1.5f;
+		static const float ly = 9.0f;
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 3 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 0));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 2 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 1));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 1 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 2));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 0 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 3));
+		//addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 - 1 * ldx, row0 + ly)), module, NoteLoop::CLK_LIGHT + 0));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 - 2 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 4));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 - 3 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 5));
 
 		// row 1
 		addParam(createParamCentered<LEDBezel>(mm2px(Vec(col1, row1)), module, NoteLoop::CLEAR_PARAM));
@@ -573,6 +584,13 @@ struct NoteLoopWidget : ModuleWidget {
 			
 			// Freeze light
 			m->lights[NoteLoop::FREEZE_LIGHT].setBrightness(m->freeze ? 1.0f : 0.0f);
+			
+			// Freeze length light
+			int len = m->getFreezeLengthKnob();
+			for (int i = 0; i < 6; i++) {
+				bool lstate = ((len >> i) & 0x1) != 0;
+				m->lights[NoteLoop::FRZLEN_LIGHTS + i].setBrightness(lstate ? 1.0f : 0.0f);
+			}
 
 		}
 		ModuleWidget::step();
