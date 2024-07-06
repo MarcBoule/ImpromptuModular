@@ -31,7 +31,7 @@ Each module is available in light or dark panels with contrast adjusment, select
 
 * [Hotkey](#hotkey): A utility module that sends a trigger when a given key is pressed (mouse must be over module).
 
-* [NoteEcho](#note-echo): A 32-step CV/Gate shift register with 4 taps to create a CV/Gate-based delay effect.
+* [NoteEcho/NoteLoop](#note-echo-loop): CV/Gate based delay/looper modules with sample and held inputs.
 
 * [Part](#part): A gate splitter module based on an input CV and split point.
 
@@ -618,7 +618,7 @@ The current hotkey is visible in the right-click menu of the module and is autom
 
 
 
-<a id="note-echo"></a>
+<a id="note-echo-loop"></a>
 ## NoteEcho
 
 ![IM](res/img/NoteEcho.jpg)

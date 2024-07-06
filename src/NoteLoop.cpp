@@ -1,5 +1,5 @@
 //***********************************************************************************************
-//CV-Gate shift register / delay module for VCV Rack by Marc Boulé
+//CV-Gate loop module for VCV Rack by Marc Boulé
 //
 //Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics  
 //  from the Component Library by Pyer. 
@@ -10,7 +10,7 @@
 #include "ImpromptuModular.hpp"
 
 
-struct NoteEcho : Module {	
+struct NoteLoop : Module {	
 
 	static const int NUM_TAPS = 4;
 	static const int MAX_POLY = 4;
@@ -250,7 +250,7 @@ struct NoteEcho : Module {
 
 	
 	
-	NoteEcho() {
+	NoteLoop() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
 		configParam(POLY_PARAM, 1, MAX_POLY, 1, "Input polyphony");
@@ -674,7 +674,7 @@ struct NoteEcho : Module {
 		// lights
 		if (refresh.processLights()) {
 			// lights
-			// simple ones done in NoteEchoWidget::step(), gate lights must be here (see detailed comment in step():
+			// simple ones done in NoteLoopWidget::step(), gate lights must be here (see detailed comment in step():
 			
 			// gate lights
 			if (notifyPoly > 0) {
@@ -737,23 +737,23 @@ struct NoteEcho : Module {
 };
 
 
-const int64_t NoteEcho::multNum[numMults] = {1, 2, 3, 1, 4, 3, 2};
-const int64_t NoteEcho::multDen[numMults] = {2, 3, 4, 1, 3, 2, 1};
+const int64_t NoteLoop::multNum[numMults] = {1, 2, 3, 1, 4, 3, 2};
+const int64_t NoteLoop::multDen[numMults] = {2, 3, 4, 1, 3, 2, 1};
 
 
 
-struct NoteEchoWidget : ModuleWidget {
+struct NoteLoopWidget : ModuleWidget {
 	struct PolyKnob : IMFourPosSmallKnob {
-		NoteEcho *module = nullptr;
+		NoteLoop *module = nullptr;
 		void onDragMove(const event::DragMove &e) override {
 			if (module) {
-				module->notifyPoly = (long) (NoteEcho::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
+				module->notifyPoly = (long) (NoteLoop::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
 			}
 			IMFourPosSmallKnob::onDragMove(e);
 		}
 	};
 	struct TapKnob : IMMediumKnob {
-		NoteEcho *module = nullptr;
+		NoteLoop *module = nullptr;
 		int tapNum = 0;
 		void onDragMove(const event::DragMove &e) override {
 			if (module) {
@@ -763,60 +763,60 @@ struct NoteEchoWidget : ModuleWidget {
 		}
 	};
 	struct FreezeKnob : IMMediumKnob {
-		NoteEcho *module = nullptr;
+		NoteLoop *module = nullptr;
 		void onDragMove(const event::DragMove &e) override {
 			if (module) {
-				for (int t = 0; t < NoteEcho::NUM_TAPS; t++) {
+				for (int t = 0; t < NoteLoop::NUM_TAPS; t++) {
 					module->notifySource[t] = 4l;
-					module->notifyInfo[t] = (long) (NoteEcho::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
+					module->notifyInfo[t] = (long) (NoteLoop::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
 				}
 			}
 			IMMediumKnob::onDragMove(e);
 		}
 	};
 	struct SemitoneKnob : IMMediumKnob {
-		NoteEcho *module = nullptr;
+		NoteLoop *module = nullptr;
 		int tapNum = 0;
 		void onDragMove(const event::DragMove &e) override {
 			if (module) {
 				module->notifySource[tapNum] = 1l;
-				module->notifyInfo[tapNum] = (long) (NoteEcho::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
+				module->notifyInfo[tapNum] = (long) (NoteLoop::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
 			}
 			IMMediumKnob::onDragMove(e);
 		}
 	};
 	struct Cv2Knob : IMSmallKnob {
-		NoteEcho *module = nullptr;
+		NoteLoop *module = nullptr;
 		int tapNum = 0;
 		void onDragMove(const event::DragMove &e) override {
 			if (module) {
 				module->notifySource[tapNum] = 2l;
-				module->notifyInfo[tapNum] = (long) (NoteEcho::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
+				module->notifyInfo[tapNum] = (long) (NoteLoop::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
 			}
 			IMSmallKnob::onDragMove(e);
 		}
 	};
 	struct ProbKnob : IMSmallKnob {
-		NoteEcho *module = nullptr;
+		NoteLoop *module = nullptr;
 		int tapNum = 0;
 		void onDragMove(const event::DragMove &e) override {
 			if (module) {
 				module->notifySource[tapNum] = 3l;
-				module->notifyInfo[tapNum] = (long) (NoteEcho::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
+				module->notifyInfo[tapNum] = (long) (NoteLoop::delayInfoTime * APP->engine->getSampleRate() / RefreshCounter::displayRefreshStepSkips);
 			}
 			IMSmallKnob::onDragMove(e);
 		}
 	};
 	
 	struct TapDisplayWidget : TransparentWidget {// a centered display, must derive from this
-		NoteEcho *module = nullptr;
+		NoteLoop *module = nullptr;
 		int tapNum = 0;
 		std::shared_ptr<Font> font;
 		std::string fontPath;
 		static const int textFontSize = 15;
 		static constexpr float textOffsetY = 19.9f; // 18.2f for 14 pt, 19.7f for 15pt
 		
-		TapDisplayWidget(int _tapNum, Vec _pos, Vec _size, NoteEcho *_module) {
+		TapDisplayWidget(int _tapNum, Vec _pos, Vec _size, NoteLoop *_module) {
 			tapNum = _tapNum;
 			box.size = _size;
 			box.pos = _pos.minus(_size.div(2));
@@ -854,7 +854,7 @@ struct NoteEchoWidget : ModuleWidget {
 						}
 						else if (module->notifySource[tapNum] == 2) {
 							// CV2
-							float cv2 = module->params[NoteEcho::CV2_PARAMS + tapNum].getValue();
+							float cv2 = module->params[NoteLoop::CV2_PARAMS + tapNum].getValue();
 							if (module->isCv2Offset()) {
 								// CV2 mode is: offset
 								float cvValPrint = std::fabs(cv2) * 10.0f;
@@ -885,7 +885,7 @@ struct NoteEchoWidget : ModuleWidget {
 						}
 						else if (module->notifySource[tapNum] == 3) {
 							// Prob
-							float prob = module->params[NoteEcho::PROB_PARAMS + tapNum].getValue();
+							float prob = module->params[NoteLoop::PROB_PARAMS + tapNum].getValue();
 							unsigned int iprob100 = (unsigned)(std::round(prob * 100.0f));
 							if ( iprob100 >= 100) {
 								dispStr = "   1";
@@ -932,7 +932,7 @@ struct NoteEchoWidget : ModuleWidget {
 	
 
 	void appendContextMenu(Menu *menu) override {
-		NoteEcho *module = static_cast<NoteEcho*>(this->module);
+		NoteLoop *module = static_cast<NoteLoop*>(this->module);
 		assert(module);
 
 		menu->addChild(new MenuSeparator());
@@ -954,10 +954,10 @@ struct NoteEchoWidget : ModuleWidget {
 		menu->addChild(createMenuLabel("Settings (Delay Mode)"));
 
 		menu->addChild(createSubmenuItem("Tempo multiplier", "", [=](Menu* menu) {
-			for (int i = 0; i < NoteEcho::numMults; i++) {
-				std::string label = string::f("x %i", (int)NoteEcho::multNum[i]);
-				if (NoteEcho::multDen[i] != 1) {
-					label += string::f("/%i", (int)NoteEcho::multDen[i]);
+			for (int i = 0; i < NoteLoop::numMults; i++) {
+				std::string label = string::f("x %i", (int)NoteLoop::multNum[i]);
+				if (NoteLoop::multDen[i] != 1) {
+					label += string::f("/%i", (int)NoteLoop::multDen[i]);
 				}
 				menu->addChild(createCheckMenuItem(label, "",
 					[=]() {return module->delMult == i;},
@@ -995,13 +995,13 @@ struct NoteEchoWidget : ModuleWidget {
 
 	
 	
-	NoteEchoWidget(NoteEcho *module) {
+	NoteLoopWidget(NoteLoop *module) {
 		setModule(module);
 		int* mode = module ? &module->panelTheme : NULL;
 		float* cont = module ? &module->panelContrast : NULL;
 		
 		// Main panel from Inkscape
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/NoteEcho.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/panels/NoteLoop.svg")));
 		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size, cont));
 		svgPanel->fb->addChild(new InverterWidget(svgPanel, mode));	
@@ -1013,148 +1013,83 @@ struct NoteEchoWidget : ModuleWidget {
 		svgPanel->fb->addChild(createDynamicScrew<IMScrew>(VecPx(box.size.x-30, 365), mode));
 
 
-		static const float col5d = 14.5f;
-		static const float col51 = 8.47f;
-		static const float col52 = col51 + col5d;
-		static const float col53 = col52 + col5d;
-		static const float col54 = col53 + col5d;
-		static const float col55 = col54 + col5d;
-		static const float col56 = col55 + col5d;
-		static const float col57 = col56 + col5d + 1.5f;
 		
-		static const float col54d = 2.0f;
-		static const float col41 = col51 + col54d;// Tap
-		static const float col43 = col54 - col54d;// Semitone
-		static const float col42 = (col41 + col43) / 2.0f;// Displays
+		static const float col1 = 8.5f;
+		static const float col2 = 5.08f * 7.0f - col1;
 		
-		static const float row0 = 21.0f;// Clk, CV, Gate, CV2 inputs, and sampDelayClk
-		static const float row1 = row0 + 22.0f;// tap 1
-		static const float row24d = 16.0f;// taps 2-4
-		static const float row5 = 110.5f;// Clk, CV, Gate, CV2 outputs
-		// static const float row4 = row5 - 20.0f;// CV inputs and poly knob
+		static const float row0 = 21.0f;// Clk, Freeze knob
+		static const float row1 = row0 + 21.0f;// Clear+Freeze buttons
+		static const float row2 = row1 + 14.0f;// Clear+Freeze inputs
 		
-		static const float displayWidths = 48; // 43 for 14pt, 46 for 15pt
-		static const float displayHeights = 24; // 22 for 14pt, 24 for 15pt
-
+		static const float row5 = 110.5f;// CV2
+		static const float row4 = row5 - 18.0f;// Gate
+		static const float row3 = row4 - 18.0f;// CV
+		
 		
 		// row 0
-		PolyKnob* polyKnobP;
-		addParam(polyKnobP = createDynamicParamCentered<PolyKnob>(mm2px(Vec(col51, row0)), module, NoteEcho::POLY_PARAM, mode));
-		polyKnobP->module = module;
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row0)), true, module, NoteLoop::CLK_INPUT, mode));
+		addChild(createLightCentered<SmallLight<YellowGreenLightIM>>(mm2px(Vec(col1 + 7.5f, row0)), module, NoteLoop::CLK_LIGHT));
 
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row0)), true, module, NoteEcho::CV_INPUT, mode));
-		
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row0)), true, module, NoteEcho::GATE_INPUT, mode));
-		
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row0)), true, module, NoteEcho::CV2_INPUT, mode));
-		
-		addParam(createDynamicParamCentered<IMSmallKnob>(mm2px(Vec(col55, row0)), module, NoteEcho::CV2NORM_PARAM, mode));
-		
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col56, row0)), true, module, NoteEcho::CLK_INPUT, mode));
-		addChild(createLightCentered<SmallLight<YellowGreenLightIM>>(mm2px(Vec(col56 + 7.5f, row0)), module, NoteEcho::CLK_LIGHT));
-				
-		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col57, row0)), module, NoteEcho::DEL_MODE_PARAM, mode, svgPanel));
-
-		
-		// rows 1-4
-		for (int i = 0; i < NoteEcho::NUM_TAPS; i++) {
-			TapKnob* tapKnobP;
-			addParam(tapKnobP = createDynamicParamCentered<TapKnob>(mm2px(Vec(col41, row1 + i * row24d)), module, NoteEcho::TAP_PARAMS + i, mode));	
-			tapKnobP->module = module;
-			tapKnobP->tapNum = i;
-			
-			// displays
-			TapDisplayWidget* tapDisplayWidget = new TapDisplayWidget(i, mm2px(Vec(col42, row1 + i * row24d)), VecPx(displayWidths + 4, displayHeights), module);
-			addChild(tapDisplayWidget);
-			svgPanel->fb->addChild(new DisplayBackground(tapDisplayWidget->box.pos, tapDisplayWidget->box.size, mode));
-			
-			SemitoneKnob* stKnobP;
-			addParam(stKnobP = createDynamicParamCentered<SemitoneKnob>(mm2px(Vec(col43, row1 + i * row24d)), module, NoteEcho::ST_PARAMS + i, mode));
-			stKnobP->module = module;
-			stKnobP->tapNum = i;
-			
-			Cv2Knob* cv2KnobP;			
-			addParam(cv2KnobP = createDynamicParamCentered<Cv2Knob>(mm2px(Vec(col55, row1 + i * row24d)), module, NoteEcho::CV2_PARAMS + i, mode));
-			cv2KnobP->module = module;
-			cv2KnobP->tapNum = i;
-			
-			ProbKnob* probKnobP;			
-			addParam(probKnobP = createDynamicParamCentered<ProbKnob>(mm2px(Vec(col56, row1 + i * row24d)), module, NoteEcho::PROB_PARAMS + i, mode));
-			probKnobP->module = module;
-			probKnobP->tapNum = i;
-		}
-		
-		// row 5
-		// addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row5)), false, module, NoteEcho::CLK_OUTPUT, mode));
-		addParam(createParamCentered<LEDButton>(mm2px(Vec(col51, row5)), module, NoteEcho::WET_PARAM));
-		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col51, row5)), module, NoteEcho::WET_LIGHT));
-
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row5)), false, module, NoteEcho::CV_OUTPUT, mode));
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row5)), false, module, NoteEcho::GATE_OUTPUT, mode));
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row5)), false, module, NoteEcho::CV2_OUTPUT, mode));
-		
-		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col55, row5 - 1.5f)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
-		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5 - 1.5f)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
-		
-		// right side column (excl. first row)
 		FreezeKnob* frzLenKnobP;
-		addParam(frzLenKnobP = createDynamicParamCentered<FreezeKnob>(mm2px(Vec(col57, row1 + 0 * row24d)), module, NoteEcho::FRZLEN_PARAM, mode));	
+		addParam(frzLenKnobP = createDynamicParamCentered<FreezeKnob>(mm2px(Vec(col2, row0)), module, NoteLoop::FRZLEN_PARAM, mode));	
 		frzLenKnobP->module = module;
 
-		addParam(createParamCentered<LEDBezel>(mm2px(VecPx(col57, row1 + 1 * row24d + 5.0f)), module, NoteEcho::FREEZE_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(VecPx(col57, row1 + 1 * row24d + 5.0f)), module, NoteEcho::FREEZE_LIGHT));
+		// row 1
+		addParam(createParamCentered<LEDBezel>(mm2px(Vec(col1, row1)), module, NoteLoop::CLEAR_PARAM));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(Vec(col1, row1)), module, NoteLoop::CLEAR_LIGHT));
 		
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col57, row1 + 2 * row24d + 3.0f)), true, module, NoteEcho::FREEZE_INPUT, mode));
+		addParam(createParamCentered<LEDBezel>(mm2px(VecPx(col2, row1)), module, NoteLoop::FREEZE_PARAM));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(VecPx(col2, row1)), module, NoteLoop::FREEZE_LIGHT));		
 		
-		addParam(createParamCentered<LEDBezel>(mm2px(Vec(col57, row5 - 14.0f)), module, NoteEcho::CLEAR_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(Vec(col57, row5 - 14.0f)), module, NoteEcho::CLEAR_LIGHT));
+		// row 2
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row2)), true, module, NoteLoop::CLEAR_INPUT, mode));
 		
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col57, row5)), true, module, NoteEcho::CLEAR_INPUT, mode));
-
-
-
-		// gate lights
-		static const float gldx = 3.0f;
-		static const float glto = -7.0f;
-		static const float posy[5] = {28.0f, row1 + glto, row1 + glto + row24d, row1 + glto + 2 * row24d, row1 + glto + 3 * row24d};
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row2)), true, module, NoteLoop::FREEZE_INPUT, mode));
+	
+		// row 3
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row3)), true, module, NoteLoop::CV_INPUT, mode));
 		
-		for (int j = 0; j < 5; j++) {
-			float posx = col42 - gldx * 1.5f;
-			for (int i = 0; i < NoteEcho::MAX_POLY; i++) {
-				addChild(createLightCentered<SmallLight<GreenLight>>(mm2px(Vec(posx, posy[j])), module, NoteEcho::GATE_LIGHTS + j * NoteEcho::MAX_POLY + i));
-				posx += gldx;
-			}
-		}
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row3)), false, module, NoteLoop::CV_OUTPUT, mode));
+		
+		// row 4
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row4)), true, module, NoteLoop::GATE_INPUT, mode));
+		
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row4)), false, module, NoteLoop::GATE_OUTPUT, mode));
+		
+		// row 5
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row5)), true, module, NoteLoop::CV2_INPUT, mode));
+		
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row5)), false, module, NoteLoop::CV2_OUTPUT, mode));		
 	}
 	
 	void step() override {
 		if (module) {
-			NoteEcho* m = static_cast<NoteEcho*>(module);
+			NoteLoop* m = static_cast<NoteLoop*>(module);
 			
 			// gate lights done in process() since they look at output[], and when connecting/disconnecting cables the cable sizes are reset (and buffers cleared), which makes the gate lights flicker
 			
 			// clock light (yellow green)
 			if (m->getIsDelMode()) {
-				m->lights[NoteEcho::CLK_LIGHT + 0].setBrightness(m->tempoIsBpmCv != 0 ? 1.0f : 0.0f);
-				m->lights[NoteEcho::CLK_LIGHT + 1].setBrightness(0.0f);
+				m->lights[NoteLoop::CLK_LIGHT + 0].setBrightness(m->tempoIsBpmCv != 0 ? 1.0f : 0.0f);
+				m->lights[NoteLoop::CLK_LIGHT + 1].setBrightness(0.0f);
 			}
 			else {
-				m->lights[NoteEcho::CLK_LIGHT + 0].setBrightness(0.0f);
-				m->lights[NoteEcho::CLK_LIGHT + 1].setBrightness( ((float)(m->clkDelay)) / 2.0f );
+				m->lights[NoteLoop::CLK_LIGHT + 0].setBrightness(0.0f);
+				m->lights[NoteLoop::CLK_LIGHT + 1].setBrightness( ((float)(m->clkDelay)) / 2.0f );
 			}
 						
 			// wet light
-			m->lights[NoteEcho::WET_LIGHT].setBrightness( m->wetOnly ? 1.0f : 0.0f );
+			m->lights[NoteLoop::WET_LIGHT].setBrightness( m->wetOnly ? 1.0f : 0.0f );
 			
 			// CV2 knobs' labels
 			m->refreshCv2ParamQuantities();
 			
 			// Freeze light
-			m->lights[NoteEcho::FREEZE_LIGHT].setBrightness(m->freeze ? 1.0f : 0.0f);
+			m->lights[NoteLoop::FREEZE_LIGHT].setBrightness(m->freeze ? 1.0f : 0.0f);
 
 		}
 		ModuleWidget::step();
 	}
 };
 
-Model *modelNoteEcho = createModel<NoteEcho, NoteEchoWidget>("NoteEcho");
+Model *modelNoteLoop = createModel<NoteLoop, NoteLoopWidget>("NoteLoop");

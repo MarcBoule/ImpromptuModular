@@ -122,9 +122,16 @@
 		{
 			"slug": "NoteEcho",
 			"name": "NoteEcho",
-			"description": "CV/Gate-based delay",
-			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#note-echo",
-			"tags": ["Sample and hold", "Delay"]
+			"description": "CV/Gate-based delay and looper",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#note-echo-loop",
+			"tags": ["Sample and hold", "Delay", "Polyphonic"]
+		},
+		{
+			"slug": "NoteLoop",
+			"name": "NoteLoop",
+			"description": "CV/Gate-based looper",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#note-echo-loop",
+			"tags": ["Sample and hold", "Polyphonic"]
 		},
 		{
 			"slug": "Part-Gate-Split",
