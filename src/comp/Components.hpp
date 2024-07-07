@@ -33,6 +33,12 @@ struct OrangeLightIM : GrayModuleLightWidget {
 	}
 };
 
+struct YellowLightIM : GrayModuleLightWidget {
+	YellowLightIM() {
+		addBaseColor(SCHEME_YELLOW);
+	}
+};
+
 struct WhiteLightIM : GrayModuleLightWidget {
 	WhiteLightIM() {
 		addBaseColor(SCHEME_WHITE);

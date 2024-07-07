@@ -228,7 +228,7 @@ struct FourView : Module {
 			// From Mother
 			float *messagesFromMother = static_cast<float*>(leftExpander.consumerMessage);
 			memcpy(displayValues, messagesFromMother, 4 * 4);
-			panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 1);
+			panelTheme = clamp((int)(messagesFromMother[4] + 0.5f), 0, 2);
 			panelContrast = clamp(messagesFromMother[5], 0.0f, 255.0f);
 		}	
 		else {
