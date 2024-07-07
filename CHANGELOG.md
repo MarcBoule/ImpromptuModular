@@ -1,6 +1,10 @@
 ### 2.4.4 (in development)
 
-- Remove SMS16, which was deprecated 2024-02-11
+- SMS16: remove module, which was deprecated 2024-02-11
+- NoteEcho: add new Delay mode, add Looping ability
+- NoteLoop: create new module
+- Expanders: fix panel theme bug
+- Add adoption policy to license file
 
 
 ### 2.4.3 (2024-04-01)
