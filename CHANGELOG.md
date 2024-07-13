@@ -1,9 +1,10 @@
 ### 2.4.4 (in development)
 
 - SMS16: remove module, which was deprecated 2024-02-11
-- NoteEcho: add new Delay mode, add Looping ability
+- NoteEcho: change internal mechanism to support variable note length duration, this is now a proper note echo instead of a shift register, but the former shift register behavior should mainly still work; in some cases, backward compatibility with saved patches may not be conserved
 - NoteLoop: create new module
 - Expanders: fix panel theme bug
+- TwelveKey: implement autopaching when two modules are placed side-by-side
 - Add adoption policy to license file
 
 

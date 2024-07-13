@@ -565,6 +565,63 @@ struct TwelveKeyWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR1, rowRuler2), false, module, TwelveKey::GATE_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(VecPx(columnRulerR2, rowRuler2), false, module, TwelveKey::VEL_OUTPUT, mode));
 	}
+	
+	
+	void autopatch(TwelveKey* m){
+		Module* module0 = m->leftExpander.module;
+		if (module0 && module0->model == modelTwelveKey) {
+			TwelveKey* m0 = static_cast<TwelveKey*>(module0);
+			
+			// if any of this module's inputs are connected, abort
+			for (int i = 0; i < 4; i++) {
+				if (m->inputs[i].isConnected()) {
+					return;
+				}
+			}
+			// if any of the left module's outputs are connected, abort
+			for (int i = 0; i < 4; i++) {
+				if (m0->outputs[i].isConnected()) {
+					return;
+				}
+			}
+
+			ModuleWidget* mw0 = APP->scene->rack->getModule(m0->id);
+
+			PortWidget* mw0Outputs[4];
+			for (PortWidget* outputWidget : mw0->getOutputs()) {
+				int outId = outputWidget->portId;
+				if (outId >= 0 && outId <= 3) {
+					mw0Outputs[outId] = outputWidget;
+				}
+			}
+
+			PortWidget* mwInputs[4];
+			for (PortWidget* inputWidget : this->getInputs()) {
+				int inId = inputWidget->portId;
+				if (inId >= 0 && inId <= 3) {
+					mwInputs[inId] = inputWidget;
+				}
+			}
+			
+			for (int i = 0; i < 4; i++) {
+				CableWidget* cw = new CableWidget();
+				cw->color = APP->scene->rack->getNextCableColor();
+				cw->inputPort = mwInputs[i];
+				cw->outputPort = mw0Outputs[i];
+				cw->updateCable();
+				APP->scene->rack->addCable(cw);
+			}
+		}		
+	}// autopatch
+	
+	
+	void step() override {
+		if (module) {
+			TwelveKey* m = static_cast<TwelveKey*>(module);
+			autopatch(m);
+		}								
+		ModuleWidget::step();	
+	}
 };
 
 Model *modelTwelveKey = createModel<TwelveKey, TwelveKeyWidget>("Twelve-Key");
