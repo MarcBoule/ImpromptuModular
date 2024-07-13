@@ -35,6 +35,7 @@ struct NoteLoop : Module {
 		CV_OUTPUT,
 		GATE_OUTPUT,
 		CV2_OUTPUT,
+		CLEAR_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
@@ -176,6 +177,7 @@ struct NoteLoop : Module {
 		configOutput(CV_OUTPUT, "CV");
 		configOutput(GATE_OUTPUT, "Gate");
 		configOutput(CV2_OUTPUT, "CV2/Velocity");
+		configOutput(CLEAR_OUTPUT, "Clear");
 		
 		configLight(CLK_LIGHT, "Tempo modifier (see menu)");
 		

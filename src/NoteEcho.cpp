@@ -1067,8 +1067,8 @@ struct NoteEchoWidget : ModuleWidget {
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row5)), true, module, NoteEcho::CV2_INPUT, mode));	
 
-		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col55, row5 - 1.5f)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
-		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5 - 1.5f)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col55, row5 - 0.0f)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5 - 0.0f)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
 	
 
 		// row 6
