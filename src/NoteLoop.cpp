@@ -524,7 +524,7 @@ struct NoteLoopWidget : ModuleWidget {
 		static const float row1 = row0 + 21.0f;// Clear+Freeze buttons
 		static const float row2 = row1 + 14.0f;// Clear+Freeze inputs
 		
-		static const float row5 = 110.5f;// CV2
+		static const float row5 = 111.0f;// CV2
 		static const float row4 = row5 - 17.0f;// Gate
 		static const float row3 = row4 - 17.0f;// CV
 		

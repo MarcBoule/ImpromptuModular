@@ -850,7 +850,7 @@ struct NoteEchoWidget : ModuleWidget {
 					}
 				}// if (module)
 				else {
-					dispStr = string::f("D %2u", (unsigned)(tapNum));
+					dispStr = string::f("D %2u", (unsigned)(tapNum)+1);
 				}
 				
 				if (dispStr.size() > 1) {
@@ -1016,76 +1016,81 @@ struct NoteEchoWidget : ModuleWidget {
 		static const float col43 = col54 - col54d;// Semitone
 		static const float col42 = (col41 + col43) / 2.0f;// Displays
 		
-		static const float row0 = 21.0f;// Clk, CV, Gate, CV2 inputs, and sampDelayClk
-		static const float row1 = row0 + 22.0f;// tap 1
+		static const float row1 = 23.0f;// tap 1
 		static const float row24d = 16.0f;// taps 2-4
-		static const float row5 = 111.0f;// Clk, CV, Gate, CV2 outputs
-		// static const float row4 = row5 - 20.0f;// CV inputs and poly knob
+		static const float row5 = 91.0f;// Clk, CV, Gate, CV2 inputs, and sampDelayClk
+		static const float row6 = 110.0f;// Clk, CV, Gate, CV2 outputs
 		
 		static const float displayWidths = 48; // 43 for 14pt, 46 for 15pt
 		static const float displayHeights = 24; // 22 for 14pt, 24 for 15pt
 
-		
-		// row 0
-		PolyKnob* polyKnobP;
-		addParam(polyKnobP = createDynamicParamCentered<PolyKnob>(mm2px(Vec(col51, row0)), module, NoteEcho::POLY_PARAM, mode));
-		polyKnobP->module = module;
-
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row0)), true, module, NoteEcho::CV_INPUT, mode));
-		
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row0)), true, module, NoteEcho::GATE_INPUT, mode));
-		
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row0)), true, module, NoteEcho::CV2_INPUT, mode));
-				
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col55, row0)), true, module, NoteEcho::CLK_INPUT, mode));
-		addChild(createLightCentered<SmallLight<YellowGreenLightIM>>(mm2px(Vec(col55 + 7.5f, row0)), module, NoteEcho::CLK_LIGHT));
-				
-		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row0)), module, NoteEcho::DEL_MODE_PARAM, mode, svgPanel));
-
+	
 		
 		// rows 1-4
 		for (int i = 0; i < NoteEcho::NUM_TAPS; i++) {
 			TapKnob* tapKnobP;
-			addParam(tapKnobP = createDynamicParamCentered<TapKnob>(mm2px(Vec(col41, row1 + i * row24d)), module, NoteEcho::TAP_PARAMS + i, mode));	
+			int j = NoteEcho::NUM_TAPS - 1 - i;
+			addParam(tapKnobP = createDynamicParamCentered<TapKnob>(mm2px(Vec(col41, row1 + j * row24d)), module, NoteEcho::TAP_PARAMS + i, mode));	
 			tapKnobP->module = module;
 			tapKnobP->tapNum = i;
 			
 			// displays
-			TapDisplayWidget* tapDisplayWidget = new TapDisplayWidget(i, mm2px(Vec(col42, row1 + i * row24d)), VecPx(displayWidths + 4, displayHeights), module);
+			TapDisplayWidget* tapDisplayWidget = new TapDisplayWidget(i, mm2px(Vec(col42, row1 + j * row24d)), VecPx(displayWidths + 4, displayHeights), module);
 			addChild(tapDisplayWidget);
 			svgPanel->fb->addChild(new DisplayBackground(tapDisplayWidget->box.pos, tapDisplayWidget->box.size, mode));
 			
 			SemitoneKnob* stKnobP;
-			addParam(stKnobP = createDynamicParamCentered<SemitoneKnob>(mm2px(Vec(col43, row1 + i * row24d)), module, NoteEcho::ST_PARAMS + i, mode));
+			addParam(stKnobP = createDynamicParamCentered<SemitoneKnob>(mm2px(Vec(col43, row1 + j * row24d)), module, NoteEcho::ST_PARAMS + i, mode));
 			stKnobP->module = module;
 			stKnobP->tapNum = i;
 			
 			Cv2Knob* cv2KnobP;			
-			addParam(cv2KnobP = createDynamicParamCentered<Cv2Knob>(mm2px(Vec(col55, row1 + i * row24d)), module, NoteEcho::CV2_PARAMS + i, mode));
+			addParam(cv2KnobP = createDynamicParamCentered<Cv2Knob>(mm2px(Vec(col55, row1 + j * row24d)), module, NoteEcho::CV2_PARAMS + i, mode));
 			cv2KnobP->module = module;
 			cv2KnobP->tapNum = i;
 			
 			ProbKnob* probKnobP;			
-			addParam(probKnobP = createDynamicParamCentered<ProbKnob>(mm2px(Vec(col56, row1 + i * row24d)), module, NoteEcho::PROB_PARAMS + i, mode));
+			addParam(probKnobP = createDynamicParamCentered<ProbKnob>(mm2px(Vec(col56, row1 + j * row24d)), module, NoteEcho::PROB_PARAMS + i, mode));
 			probKnobP->module = module;
 			probKnobP->tapNum = i;
 		}
 		
-		// row 5
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row5)), true, module, NoteEcho::CLEAR_INPUT, mode));
-
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row5)), false, module, NoteEcho::CV_OUTPUT, mode));
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row5)), false, module, NoteEcho::GATE_OUTPUT, mode));
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row5)), false, module, NoteEcho::CV2_OUTPUT, mode));
 		
+		// row 5
+		PolyKnob* polyKnobP;
+		addParam(polyKnobP = createDynamicParamCentered<PolyKnob>(mm2px(Vec(col51, row5)), module, NoteEcho::POLY_PARAM, mode));
+		polyKnobP->module = module;
+
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row5)), true, module, NoteEcho::CV_INPUT, mode));
+		
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row5)), true, module, NoteEcho::GATE_INPUT, mode));
+		
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row5)), true, module, NoteEcho::CV2_INPUT, mode));	
+
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col55, row5 - 1.5f)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5 - 1.5f)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
+	
 
+		// row 6
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col51, row6)), true, module, NoteEcho::CLEAR_INPUT, mode));
+
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col52, row6)), false, module, NoteEcho::CV_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col53, row6)), false, module, NoteEcho::GATE_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row6)), false, module, NoteEcho::CV2_OUTPUT, mode));
+		
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col55, row6)), true, module, NoteEcho::CLK_INPUT, mode));
+		addChild(createLightCentered<SmallLight<YellowGreenLightIM>>(mm2px(Vec(col55 + 7.5f, row6)), module, NoteEcho::CLK_LIGHT));
+				
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row6)), module, NoteEcho::DEL_MODE_PARAM, mode, svgPanel));
 
 		// gate lights
 		static const float gldx = 3.0f;
 		static const float glto = -7.0f;
-		static const float posy[5] = {28.0f, row1 + glto, row1 + glto + row24d, row1 + glto + 2 * row24d, row1 + glto + 3 * row24d};
+		static const float posy[5] = {row5 - 11.0f, 
+									  row1 + glto + 3 * row24d, 
+									  row1 + glto + 2 * row24d, 
+									  row1 + glto + 1 * row24d, 
+									  row1 + glto + 0 * row24d};
 		
 		for (int j = 0; j < 5; j++) {
 			float posx = col42 - gldx * 1.5f;
