@@ -26,12 +26,13 @@ struct NoteEcho : Module {
 		CV2MODE_PARAM,
 		PMODE_PARAM,// end of 1st version of module
 		// ----
-		DEL_MODE_PARAM,// start of 2nd version of module with two modes
+		// DEL_MODE_PARAM,// start of 2nd version of module with two modes
 		// CV2NORM_PARAM,
 		// FREEZE_PARAM,// aka LOOP
 		// FRZLEN_PARAM,
 		// WET_PARAM,
 		// CLEAR_PARAM,
+		TEMPOCV_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -57,8 +58,8 @@ struct NoteEcho : Module {
 		// CLEAR_LIGHT,
 		// WET_LIGHT,
 		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
-		FREEZE_LIGHT,
-		ENUMS(CLK_LIGHT, 2),
+		// FREEZE_LIGHT,
+		// ENUMS(CLK_LIGHT, 2),
 		NUM_LIGHTS
 	};
 	
@@ -155,19 +156,19 @@ struct NoteEcho : Module {
 	bool noteFilter;
 	bool wetOnly;// excludes tap0 from outputs
 	float cv2NormalledVoltage;
-	int clkDelay;// SR Mode
+	// int clkDelay;// SR Mode
 	float clkDelReg[2];// SR Mode
 	int64_t clockPeriod;// DEL Mode
 	int ecoMode;
 	int delMult;
-	int tempoIsBpmCv;
+	// int tempoIsBpmCv;
 
 	// No need to save, with reset
 	EventBuffer channel[MAX_POLY];
 	int64_t lastRisingClkFrame;// -1 when none
-	int64_t clkCount;// this counts rising and falling edges, used for SR Mode
+	// int64_t clkCount;// this counts rising and falling edges, used for SR Mode
 	int lastPoly;
-	bool lastDelMode;
+	// bool lastDelMode;
 	
 	// No need to save, no reset
 	int notifySource[NUM_TAPS] = {};// 0 (normal), 1 (semi) 2 (CV2), 3 (prob), 4 (freeze length)
@@ -180,9 +181,9 @@ struct NoteEcho : Module {
 	Trigger clearTrigger;
 
 
-	bool getIsDelMode() {
-		return params[DEL_MODE_PARAM].getValue() >= 0.5f;
-	}
+	// bool getIsDelMode() {
+		// return params[DEL_MODE_PARAM].getValue() >= 0.5f;
+	// }
 	int getPolyKnob() {
 		return (int)(params[POLY_PARAM].getValue() + 0.5f);
 	}
@@ -212,6 +213,10 @@ struct NoteEcho : Module {
 	}
 	bool isCv2Offset() {
 		return params[CV2MODE_PARAM].getValue() > 0.5f;
+	}
+	bool isTempoCV() {
+		// return tempoIsBpmCv != 0;
+		return params[TEMPOCV_PARAM].getValue() > 0.5f;
 	}
 	bool isSingleProbs() {
 		return params[PMODE_PARAM].getValue() > 0.5f;
@@ -249,7 +254,8 @@ struct NoteEcho : Module {
 		paramQuantities[POLY_PARAM]->snapEnabled = true;
 		configSwitch(CV2MODE_PARAM, 0.0f, 1.0f, 1.0f, "CV2 mode", {"Scale", "Offset"});
 		configSwitch(PMODE_PARAM, 0.0f, 1.0f, 1.0f, "Random mode", {"Separate", "Chord"});
-		configSwitch(DEL_MODE_PARAM, 0.0f, 1.0f, 1.0f, "Main mode", {"Shift register", "Delay"});
+		configSwitch(TEMPOCV_PARAM, 0.0f, 1.0f, 0.0f, "Tempo input mode", {"Clock pulses", "BPM CV"});
+		// configSwitch(DEL_MODE_PARAM, 0.0f, 1.0f, 1.0f, "Main mode", {"Shift register", "Delay"});
 		// configParam(CV2NORM_PARAM, -10.0f, 10.0f, 0.0f, "CV2 input normalization", "");
 		// configParam(FREEZE_PARAM, 0.0f, 1.0f, 0.0f, "Loop");
 		// configParam(FRZLEN_PARAM, 1.0f, (float)(MAX_DEL), 4.0f, "Loop length");
@@ -282,7 +288,7 @@ struct NoteEcho : Module {
 		configOutput(CV2_OUTPUT, "CV2/Velocity");
 		// configOutput(CLK_OUTPUT, "Clock");
 		
-		configLight(CLK_LIGHT, "Tempo/Clk modifier (see menu)");
+		// configLight(CLK_LIGHT, "Tempo/Clk modifier (see menu)");
 		
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
@@ -307,21 +313,21 @@ struct NoteEcho : Module {
 		noteFilter = false;
 		wetOnly = false;
 		cv2NormalledVoltage = 0.0f;
-		clkDelay = 2;
+		// clkDelay = 2;
 		clkDelReg[0] = 0.0f;
 		clkDelReg[1] = 0.0f;
 		clockPeriod = (int64_t)(APP->engine->getSampleRate());// 60 BPM until detected
 		ecoMode = 1;
 		delMult = numMultsUnityIndex;
-		tempoIsBpmCv = 0;
+		// tempoIsBpmCv = 0;
 		resetNonJson();
 	}
 	void resetNonJson() {
 		clear();
 		lastRisingClkFrame = -1;// none
-		clkCount = 0;
+		// clkCount = 0;
 		lastPoly = getPolyKnob();
-		lastDelMode = getIsDelMode();
+		// lastDelMode = getIsDelMode();
 	}
 
 	
@@ -344,7 +350,7 @@ struct NoteEcho : Module {
 		json_object_set_new(rootJ, "cv2NormalledVoltage", json_real(cv2NormalledVoltage));
 
 		// clkDelay
-		json_object_set_new(rootJ, "clkDelay", json_integer(clkDelay));
+		// json_object_set_new(rootJ, "clkDelay", json_integer(clkDelay));
 		
 		// clkDelReg[]
 		json_object_set_new(rootJ, "clkDelReg0", json_real(clkDelReg[0]));
@@ -360,7 +366,7 @@ struct NoteEcho : Module {
 		json_object_set_new(rootJ, "delMult", json_integer(delMult));
 		
 		// tempoIsBpmCv
-		json_object_set_new(rootJ, "tempoIsBpmCv", json_integer(tempoIsBpmCv));
+		// json_object_set_new(rootJ, "tempoIsBpmCv", json_integer(tempoIsBpmCv));
 		
 		return rootJ;
 	}
@@ -393,9 +399,9 @@ struct NoteEcho : Module {
 			cv2NormalledVoltage = json_number_value(cv2NormalledVoltageJ);
 
 		// clkDelay
-		json_t *clkDelayJ = json_object_get(rootJ, "clkDelay");
-		if (clkDelayJ)
-			clkDelay = json_integer_value(clkDelayJ);
+		// json_t *clkDelayJ = json_object_get(rootJ, "clkDelay");
+		// if (clkDelayJ)
+			// clkDelay = json_integer_value(clkDelayJ);
 
 		// clkDelReg[]
 		json_t *clkDelRegJ = json_object_get(rootJ, "clkDelReg0");
@@ -415,10 +421,10 @@ struct NoteEcho : Module {
 		if (ecoModeJ) {
 			ecoMode = json_integer_value(ecoModeJ);
 		}
-		else {
+		// else {
 			// old version marker
-			params[DEL_MODE_PARAM].setValue(0.0f);// force SR Mode since this is a 1st version load
-		}
+			// params[DEL_MODE_PARAM].setValue(0.0f);// force SR Mode since this is a 1st version load
+		// }
 
 		// delMult
 		json_t *delMultJ = json_object_get(rootJ, "delMult");
@@ -426,9 +432,9 @@ struct NoteEcho : Module {
 			delMult = json_integer_value(delMultJ);
 
 		// tempoIsBpmCv
-		json_t *tempoIsBpmCvJ = json_object_get(rootJ, "tempoIsBpmCv");
-		if (tempoIsBpmCvJ)
-			tempoIsBpmCv = json_integer_value(tempoIsBpmCvJ);
+		// json_t *tempoIsBpmCvJ = json_object_get(rootJ, "tempoIsBpmCv");
+		// if (tempoIsBpmCvJ)
+			// tempoIsBpmCv = json_integer_value(tempoIsBpmCvJ);
 
 		resetNonJson();
 	}
@@ -449,11 +455,11 @@ struct NoteEcho : Module {
 			clear();
 			lastPoly = poly;
 		}
-		bool isDelMode = getIsDelMode();
-		if (isDelMode != lastDelMode) {
-			clear();
-			lastDelMode = isDelMode;
-		}
+		// bool isDelMode = getIsDelMode();
+		// if (isDelMode != lastDelMode) {
+			// clear();
+			// lastDelMode = isDelMode;
+		// }
 		int numActiveTaps = countActiveTaps();
 		bool lastTapAllowed = isLastTapAllowed();
 		int chans = std::min( poly * ( (wetOnly ? 0 : 1) + numActiveTaps ) , 16 );
@@ -473,11 +479,11 @@ struct NoteEcho : Module {
 		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage())) {
 			clear();
 		}
-		float clockSignal = (clkDelay <= 0 || isDelMode) ? inputs[CLK_INPUT].getVoltage() : clkDelReg[clkDelay - 1];
+		float clockSignal = /*(clkDelay <= 0 || isDelMode) ?*/ inputs[CLK_INPUT].getVoltage() /*: clkDelReg[clkDelay - 1]*/;
 		int clkEdge = clkTrigger.process(clockSignal);
-		if (isDelMode) {
+		// if (isDelMode) {
 			// update clockPeriod
-			if (tempoIsBpmCv != 0) {
+			if (isTempoCV()) {
 				if ((args.frame & 0x3F) == 0) {// fs/64
 					clockPeriod = (int64_t)(args.sampleRate * 0.5f / std::pow(2.0f, inputs[CLK_INPUT].getVoltage()));
 					if (delMult != numMultsUnityIndex) {
@@ -497,22 +503,22 @@ struct NoteEcho : Module {
 				}
 				lastRisingClkFrame = args.frame;
 			}
-		}
-		else {
-			if (clkEdge != 0) {
-				clkCount++;// count both edges
-			}
-		}
+		// }
+		// else {
+			// if (clkEdge != 0) {
+				// clkCount++;// count both edges
+			// }
+		// }
 		
 		// sample the inputs on main clock (SR Mode) or poly gates (DEL Mode)
-		int64_t currFrameOrClk = isDelMode ? args.frame : clkCount;
+		int64_t currFrameOrClk = /*isDelMode ? */args.frame/* : clkCount*/;
 		float gateIn[MAX_POLY];
 		for (int p = 0; p < poly; p++) {
 			gateIn[p] = inputs[GATE_INPUT].getChannels() > p ? inputs[GATE_INPUT].getVoltage(p) : 0.0f;
-			if (!isDelMode && !(clkEdge == 1)) {
-				// gateTriggers will only see pulses one sample in length, but still ok
-				gateIn[p] = 0.0f;
-			}
+			// if (!isDelMode && !(clkEdge == 1)) {
+				// // gateTriggers will only see pulses one sample in length, but still ok
+				// gateIn[p] = 0.0f;
+			// }
 		}
 		for (int p = 0; p < poly; p++) {
 			int eventEdge = gateTriggers[p].process(gateIn[p]);
@@ -522,7 +528,7 @@ struct NoteEcho : Module {
 				// here we have a rising gate on poly p, or a rising clk with a gate active on poly p
 				NoteEvent e;
 				e.gateOnFrame = currFrameOrClk;
-				e.gateOffFrame = isDelMode ? 0 : (e.gateOnFrame + 1);// will be completed when gate falls (DEL Mode), properly set (SR Mode)
+				e.gateOffFrame = /*isDelMode ?*/ 0 /*: (e.gateOnFrame + 1)*/;// will be completed when gate falls (DEL Mode), properly set (SR Mode)
 				e.cv  = inputs[CV_INPUT ].getChannels() > p ? inputs[CV_INPUT ].getVoltage(p) : 0.0f;
 				e.cv2 = inputs[CV2_INPUT].getChannels() > p ? inputs[CV2_INPUT].getVoltage(p) : cv2NormalledVoltage;
 				for (int i = 0; i < NUM_TAPS; i++) {
@@ -530,7 +536,7 @@ struct NoteEcho : Module {
 				}
 				channel[p].enterEvent(e);
 			}
-			else if (eventEdge == -1 && isDelMode) {
+			else if (eventEdge == -1/* && isDelMode*/) {
 				// here we have a falling gate on poly p, no falling clk though
 				channel[p].finishDelEvent(currFrameOrClk);
 			}
@@ -561,7 +567,7 @@ struct NoteEcho : Module {
 				if ( !isTapActive(t) || (t == (NUM_TAPS - 1) && !lastTapAllowed) ) {
 					continue;
 				}
-				int64_t tapFrameOrClk = currFrameOrClk - (isDelMode ? clockPeriod : 2) * (int64_t)getTapValue(t);
+				int64_t tapFrameOrClk = currFrameOrClk - (/*isDelMode ?*/ clockPeriod /*: 2*/) * (int64_t)getTapValue(t);
 				float semi = getSemiVolts(t);
 				float cv2mod = params[CV2_PARAMS + t].getValue();
 				if (cv2IsOffset) cv2mod *= 10.0f;
@@ -583,12 +589,12 @@ struct NoteEcho : Module {
 									if (event2 == nullptr) continue;
 									int64_t delta = event->gateOnFrame - event2->gateOnFrame;
 									bool closeEnough;
-									if (isDelMode) {
+									// if (isDelMode) {
 										closeEnough = llabs(delta) < closenessFrames;
-									}
-									else {
-										closeEnough = delta == 0;
-									}
+									// }
+									// else {
+										// closeEnough = delta == 0;
+									// }
 									if (closeEnough) {
 										event->muted[t] = event2->muted[t];
 										break;
@@ -933,15 +939,9 @@ struct NoteEchoWidget : ModuleWidget {
 		menu->addChild(createBoolPtrMenuItem("Echoes only", "", &module->wetOnly));
 		
 		createCv2NormalizationMenu(menu, &(module->cv2NormalledVoltage));
-		
-		menu->addChild(createCheckMenuItem("Eco mode", "",
-			[=]() {return module->ecoMode != 1;},
-			[=]() {module->ecoMode = (module->ecoMode == 1) ? 8 : 1;}
-		));
-		
-		
-		menu->addChild(new MenuSeparator());
-		menu->addChild(createMenuLabel("Settings (Delay Mode)"));
+				
+		// menu->addChild(new MenuSeparator());
+		// menu->addChild(createMenuLabel("Settings (Delay Mode)"));
 
 		menu->addChild(createSubmenuItem("Tempo multiplier", "", [=](Menu* menu) {
 			for (int i = 0; i < NoteEcho::numMults; i++) {
@@ -956,31 +956,36 @@ struct NoteEchoWidget : ModuleWidget {
 			}
 		}));
 
-		menu->addChild(createCheckMenuItem("Tempo input is BPM CV", "",
-			[=]() {return module->tempoIsBpmCv != 0;},
-			[=]() {module->tempoIsBpmCv ^= 0x1;}
-		));
+		// menu->addChild(createCheckMenuItem("Tempo input is BPM CV", "",
+			// [=]() {return module->tempoIsBpmCv != 0;},
+			// [=]() {module->tempoIsBpmCv ^= 0x1;}
+		// ));
 		
 
 
-		menu->addChild(new MenuSeparator());
-		menu->addChild(createMenuLabel("Settings (Shift Register Mode)"));
+		// menu->addChild(new MenuSeparator());
+		// menu->addChild(createMenuLabel("Settings (Shift Register Mode)"));
 
-		menu->addChild(createSubmenuItem("Clk input sample delay", "", [=](Menu* menu) {
-			menu->addChild(createCheckMenuItem("0", "",
-				[=]() {return module->clkDelay == 0;},
-				[=]() {module->clkDelay = 0;}
-			));
-			menu->addChild(createCheckMenuItem("1", "",
-				[=]() {return module->clkDelay == 1;},
-				[=]() {module->clkDelay = 1;}
-			));
-			menu->addChild(createCheckMenuItem("2", "",
-				[=]() {return module->clkDelay == 2;},
-				[=]() {module->clkDelay = 2;}
-			));
-		}));	
+		// menu->addChild(createSubmenuItem("Clk input sample delay", "", [=](Menu* menu) {
+			// menu->addChild(createCheckMenuItem("0", "",
+				// [=]() {return module->clkDelay == 0;},
+				// [=]() {module->clkDelay = 0;}
+			// ));
+			// menu->addChild(createCheckMenuItem("1", "",
+				// [=]() {return module->clkDelay == 1;},
+				// [=]() {module->clkDelay = 1;}
+			// ));
+			// menu->addChild(createCheckMenuItem("2", "",
+				// [=]() {return module->clkDelay == 2;},
+				// [=]() {module->clkDelay = 2;}
+			// ));
+		// }));	
 
+		menu->addChild(createCheckMenuItem("Low CPU mode", "",
+			[=]() {return module->ecoMode != 1;},
+			[=]() {module->ecoMode = (module->ecoMode == 1) ? 8 : 1;}
+		));
+		
 	}	
 
 	
@@ -1079,9 +1084,11 @@ struct NoteEchoWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row6)), false, module, NoteEcho::CV2_OUTPUT, mode));
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col55, row6)), true, module, NoteEcho::CLK_INPUT, mode));
-		addChild(createLightCentered<SmallLight<YellowGreenLightIM>>(mm2px(Vec(col55 + 7.5f, row6)), module, NoteEcho::CLK_LIGHT));
+		// addChild(createLightCentered<SmallLight<YellowGreenLightIM>>(mm2px(Vec(col55 + 7.5f, row6)), module, NoteEcho::CLK_LIGHT));
 				
-		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row6)), module, NoteEcho::DEL_MODE_PARAM, mode, svgPanel));
+		// addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row6)), module, NoteEcho::DEL_MODE_PARAM, mode, svgPanel));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row6 - 0.0f)), module, NoteEcho::TEMPOCV_PARAM, mode, svgPanel));
+
 
 		// gate lights
 		static const float gldx = 3.0f;
@@ -1108,14 +1115,14 @@ struct NoteEchoWidget : ModuleWidget {
 			// gate lights done in process() since they look at output[], and when connecting/disconnecting cables the cable sizes are reset (and buffers cleared), which makes the gate lights flicker
 			
 			// clock light (yellow green)
-			if (m->getIsDelMode()) {
-				m->lights[NoteEcho::CLK_LIGHT + 0].setBrightness(m->tempoIsBpmCv != 0 ? 1.0f : 0.0f);
-				m->lights[NoteEcho::CLK_LIGHT + 1].setBrightness(0.0f);
-			}
-			else {
-				m->lights[NoteEcho::CLK_LIGHT + 0].setBrightness(0.0f);
-				m->lights[NoteEcho::CLK_LIGHT + 1].setBrightness( ((float)(m->clkDelay)) / 2.0f );
-			}
+			// if (m->getIsDelMode()) {
+				// m->lights[NoteEcho::CLK_LIGHT + 0].setBrightness(m->tempoIsBpmCv != 0 ? 1.0f : 0.0f);
+				// m->lights[NoteEcho::CLK_LIGHT + 1].setBrightness(0.0f);
+			// }
+			// else {
+				// m->lights[NoteEcho::CLK_LIGHT + 0].setBrightness(0.0f);
+				// m->lights[NoteEcho::CLK_LIGHT + 1].setBrightness( ((float)(m->clkDelay)) / 2.0f );
+			// }
 						
 			// sample delay light
 			// m->lights[NoteEcho::SD_LIGHT].setBrightness( ((float)(m->clkDelay)) / 2.0f );
