@@ -132,7 +132,7 @@ struct NoteLoop : Module {
 	
 	// Need to save, with reset
 	float cv2NormalledVoltage;
-	int64_t clockPeriod;// DEL Mode
+	int64_t clockPeriod;
 	int ecoMode;
 	int delMult;
 	int tempoIsBpmCv;
@@ -142,6 +142,8 @@ struct NoteLoop : Module {
 	EventBuffer channel[MAX_POLY];
 	EventBuffer loopStart;
 	int64_t lastRisingClkFrame;// -1 when none
+	int64_t clockPeriodForLoop;// no need to save since loop is off when reload patch, and this is set when loop turns on
+	int64_t lengthForLoop;// no need to save since loop is off when reload patch, and this is set when loop turns on
 	
 	// No need to save, no reset
 	float clearLight = 0.0f;
@@ -215,6 +217,8 @@ struct NoteLoop : Module {
 		loop = false;
 		clear();
 		lastRisingClkFrame = -1;// none
+		clockPeriodForLoop = 0;
+		lengthForLoop = 0;
 	}
 
 	
@@ -300,12 +304,25 @@ struct NoteLoop : Module {
 		if (loopButtonTrigger.process(inputs[LOOP_INPUT].getVoltage() + params[LOOP_PARAM].getValue())) {
 			loop = !loop;
 			if (loop) {
+				// enter event in loopStart special channel
 				NoteEvent e;
 				e.gateOnFrame = args.frame;
 				e.gateOffFrame = args.frame + (int64_t)(0.0011f * args.sampleRate);
 				e.cv = 0.0f;// unused
 				e.cv2 = 0.0f;// unused
 				loopStart.enterEvent(e);
+				
+				// sample clockPeriod and loop length so that it never changes during looping
+				if (tempoIsBpmCv != 0) {
+					float clockPeriodF = (args.sampleRate * 0.5f / std::pow(2.0f, inputs[CLK_INPUT].getVoltage()));
+					clockPeriod = (int64_t)clamp(clockPeriodF, args.sampleRate / 5.0f, args.sampleRate * 6.0f);
+					if (delMult != numMultsUnityIndex) {
+						clockPeriod = clockPeriod * multDen[delMult] / multNum[delMult];
+					}
+				}
+				//else clockPeriod already set since non BPM-CV always processing tempo edges further below
+				clockPeriodForLoop = clockPeriod;
+				lengthForLoop = (int64_t)getLoopLengthKnob();
 			}
 			else {
 				loopStart.clear();
@@ -333,12 +350,7 @@ struct NoteLoop : Module {
 		int clkEdge = clkTrigger.process(inputs[CLK_INPUT].getVoltage());
 		// update clockPeriod
 		if (tempoIsBpmCv != 0) {
-			if ((args.frame & 0x3F) == 0) {// fs/64
-				clockPeriod = (int64_t)(args.sampleRate * 0.5f / std::pow(2.0f, inputs[CLK_INPUT].getVoltage()));
-				if (delMult != numMultsUnityIndex) {
-					clockPeriod = clockPeriod * multDen[delMult] / multNum[delMult];
-				}
-			}
+			// nothing to do since BPM-CV is sampled further above when loop turns on
 		}
 		else if (clkEdge == 1) {
 			if (lastRisingClkFrame != -1) {
@@ -359,7 +371,7 @@ struct NoteLoop : Module {
 		float gateIn[MAX_POLY];
 		float loopStartIn;
 		if (loop) {
-			int64_t loopFrameOrClk = args.frame - clockPeriod * (int64_t)getLoopLengthKnob();
+			int64_t loopFrameOrClk = args.frame - clockPeriodForLoop * lengthForLoop;
 			for (int p = 0; p < poly; p++) {
 				loopEvents[p] = channel[p].findEventGateOn(loopFrameOrClk);
 				gateIn[p] = (loopEvents[p] == nullptr ? 0.0f : 10.0f);
@@ -421,8 +433,9 @@ struct NoteLoop : Module {
 		}// eco mode		
 		outputs[CLEAR_OUTPUT].setVoltage((clearPulse.process(args.sampleTime) ? 10.0f : 0.0f));
 		
-		NoteEvent* sole = loopStart.findEventGateOn(args.frame);
-		outputs[LOOPSTART_OUTPUT].setVoltage(sole != nullptr ? 10.0f : 0.0f);
+		NoteEvent* sole = loopStart.findEventGateOn(args.frame);// v1 (hit on loop press, can be used as Start Of Loop = SOL)
+		outputs[LOOPSTART_OUTPUT].setVoltage(sole != nullptr ? 10.0f : 0.0f);// v1 (cont')
+		// outputs[LOOPSTART_OUTPUT].setVoltage(loopStartTrigger.state ? 10.0f : 0.0f);//v2 (no hit on loop press, can be used as EOL)
 		
 		// lights
 		if (refresh.processLights()) {
