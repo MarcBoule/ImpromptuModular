@@ -17,8 +17,8 @@ struct NoteLoop : Module {
 	static const int BUF_SIZE = MAX_DEL * 2;  
 
 	enum ParamIds {
-		FREEZE_PARAM,// aka LOOP
-		FRZLEN_PARAM,
+		LOOP_PARAM,
+		LEN_PARAM,
 		CLEAR_PARAM,
 		NUM_PARAMS
 	};
@@ -28,7 +28,7 @@ struct NoteLoop : Module {
 		CV2_INPUT,
 		CLK_INPUT,
 		CLEAR_INPUT,
-		FREEZE_INPUT,
+		LOOP_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -36,21 +36,22 @@ struct NoteLoop : Module {
 		GATE_OUTPUT,
 		CV2_OUTPUT,
 		CLEAR_OUTPUT,
+		LOOPSTART_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
 		CLEAR_LIGHT,
-		FREEZE_LIGHT,
+		LOOP_LIGHT,
 		CLK_LIGHT,
-		ENUMS(FRZLEN_LIGHTS, 6),
+		ENUMS(LEN_LIGHTS, 6),
 		NUM_LIGHTS
 	};
 	
 	
 	struct NoteEvent {
-		// DEL Mode: an event is considered pending when gateOffFrame==0 (waiting for falling edge of the clk or a gate  input), and ready when >0; when pending, rest of struct is populated
+		// An event is considered pending when gateOffFrame==0 (waiting for falling edge of the gate  input), and ready when >0; when pending, rest of struct is populated
 		int64_t gateOnFrame = 0;
-		int64_t gateOffFrame = 0;// 0 when pending (DEL Mode only), is set on rising clk when SR Mode
+		int64_t gateOffFrame = 0;
 		float cv = 0.0f;
 		float cv2 = 0.0f;
 	};
@@ -87,12 +88,9 @@ struct NoteLoop : Module {
 		}
 		void finishDelEvent(int64_t gateOffFrame) {
 			uint16_t index = prev(0);
-			if (!(index >= BUF_SIZE || events[index].gateOffFrame != 0)) {
+			if (index < BUF_SIZE && events[index].gateOffFrame == 0) {
 				events[index].gateOffFrame = gateOffFrame;
 			}
-			// else {
-				// DEBUG("error, finishDelEvent() called on a finished event!, h=%i, s=%i, i=%i", head, size, index);// h=0, s=128, i=65535
-			// }
 		}
 		NoteEvent* findEvent(int64_t frameOrClk) {
 			for (uint16_t cnt = 0; ; cnt++) {
@@ -140,8 +138,9 @@ struct NoteLoop : Module {
 	int tempoIsBpmCv;
 
 	// No need to save, with reset
-	bool freeze;
+	bool loop;
 	EventBuffer channel[MAX_POLY];
+	EventBuffer loopStart;
 	int64_t lastRisingClkFrame;// -1 when none
 	
 	// No need to save, no reset
@@ -149,12 +148,14 @@ struct NoteLoop : Module {
 	RefreshCounter refresh;
 	TriggerRiseFall clkTrigger;
 	TriggerRiseFall gateTriggers[MAX_POLY];
-	Trigger freezeButtonTrigger;
+	Trigger loopButtonTrigger;
+	Trigger loopStartTrigger;
 	Trigger clearTrigger;
+	dsp::PulseGenerator clearPulse;
 
 
-	int getFreezeLengthKnob() {
-		return (int)(params[FRZLEN_PARAM].getValue() + 0.5f);
+	int getLoopLengthKnob() {
+		return (int)(params[LEN_PARAM].getValue() + 0.5f);
 	}
 
 	
@@ -162,9 +163,9 @@ struct NoteLoop : Module {
 	NoteLoop() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-		configParam(FREEZE_PARAM, 0.0f, 1.0f, 0.0f, "Loop");
-		configParam(FRZLEN_PARAM, 1.0f, (float)(MAX_DEL), 4.0f, "Loop length");
-		paramQuantities[FRZLEN_PARAM]->snapEnabled = true;
+		configParam(LOOP_PARAM, 0.0f, 1.0f, 0.0f, "Loop");
+		configParam(LEN_PARAM, 1.0f, (float)(MAX_DEL), 4.0f, "Loop length");
+		paramQuantities[LEN_PARAM]->snapEnabled = true;
 		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "Clear");
 				
 		configInput(CV_INPUT, "CV");
@@ -172,12 +173,13 @@ struct NoteLoop : Module {
 		configInput(CV2_INPUT, "CV2/Velocity");
 		configInput(CLK_INPUT, "Tempo");
 		configInput(CLEAR_INPUT, "Clear buffer");
-		configInput(FREEZE_INPUT, "Loop");
+		configInput(LOOP_INPUT, "Loop");
 
 		configOutput(CV_OUTPUT, "CV");
 		configOutput(GATE_OUTPUT, "Gate");
 		configOutput(CV2_OUTPUT, "CV2/Velocity");
 		configOutput(CLEAR_OUTPUT, "Clear");
+		configOutput(LOOPSTART_OUTPUT, "Start of loop");
 		
 		configLight(CLK_LIGHT, "Tempo modifier (see menu)");
 		
@@ -197,6 +199,8 @@ struct NoteLoop : Module {
 			channel[p].clear();
 			gateTriggers[p].reset();
 		}
+		loopStart.clear();
+		loopStartTrigger.reset();
 	}
 
 	void onReset() override final {
@@ -208,7 +212,7 @@ struct NoteLoop : Module {
 		resetNonJson();
 	}
 	void resetNonJson() {
-		freeze = false;
+		loop = false;
 		clear();
 		lastRisingClkFrame = -1;// none
 	}
@@ -292,9 +296,20 @@ struct NoteLoop : Module {
 		if (refresh.processInputs()) {
 		}// userInputs refresh
 		
-		// Freeze
-		if (freezeButtonTrigger.process(inputs[FREEZE_INPUT].getVoltage() + params[FREEZE_PARAM].getValue())) {
-			freeze = !freeze;
+		// Loop
+		if (loopButtonTrigger.process(inputs[LOOP_INPUT].getVoltage() + params[LOOP_PARAM].getValue())) {
+			loop = !loop;
+			if (loop) {
+				NoteEvent e;
+				e.gateOnFrame = args.frame;
+				e.gateOffFrame = args.frame + (int64_t)(0.0011f * args.sampleRate);
+				e.cv = 0.0f;// unused
+				e.cv2 = 0.0f;// unused
+				loopStart.enterEvent(e);
+			}
+			else {
+				loopStart.clear();
+			}
 		}
 	
 		int poly = inputs[GATE_INPUT].getChannels();
@@ -313,6 +328,7 @@ struct NoteLoop : Module {
 		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage() + params[CLEAR_PARAM].getValue())) {
 			clear();
 			clearLight = 1.0f;
+			clearPulse.trigger(0.001f);
 		}
 		int clkEdge = clkTrigger.process(inputs[CLK_INPUT].getVoltage());
 		// update clockPeriod
@@ -337,32 +353,37 @@ struct NoteLoop : Module {
 			lastRisingClkFrame = args.frame;
 		}
 		
-		// sample the inputs on main clock (SR Mode) or poly gates (DEL Mode)
-		NoteEvent* freezeEvents[MAX_POLY] = {};
+		// sample the inputs on poly gates
+		NoteEvent* loopEvents[MAX_POLY] = {};
+		NoteEvent* loopStartEvent = nullptr;
 		float gateIn[MAX_POLY];
-		if (freeze) {
-			int64_t freezeFrameOrClk = args.frame - clockPeriod * (int64_t)getFreezeLengthKnob();
+		float loopStartIn;
+		if (loop) {
+			int64_t loopFrameOrClk = args.frame - clockPeriod * (int64_t)getLoopLengthKnob();
 			for (int p = 0; p < poly; p++) {
-				freezeEvents[p] = channel[p].findEventGateOn(freezeFrameOrClk);
-				gateIn[p] = (freezeEvents[p] == nullptr ? 0.0f : 10.0f);
+				loopEvents[p] = channel[p].findEventGateOn(loopFrameOrClk);
+				gateIn[p] = (loopEvents[p] == nullptr ? 0.0f : 10.0f);
 			}
+			loopStartEvent = loopStart.findEventGateOn(loopFrameOrClk);
+			loopStartIn = (loopStartEvent == nullptr ? 0.0f : 10.0f);
 		}
 		else {
 			for (int p = 0; p < poly; p++) {
 				gateIn[p] = inputs[GATE_INPUT].getChannels() > p ? inputs[GATE_INPUT].getVoltage(p) : 0.0f;
 			}
+			loopStartIn = 0.0f;
 		}
 		for (int p = 0; p < poly; p++) {
 			int eventEdge = gateTriggers[p].process(gateIn[p]);
 			// sample the inputs on rising poly gate edges (finish job on falling)
 			if (eventEdge == 1) {
-				// here we have a rising gate on poly p, or a rising clk with a gate active on poly p
+				// here we have a rising gate on poly p
 				NoteEvent e;
 				e.gateOnFrame = args.frame;
-				e.gateOffFrame = 0;// will be completed when gate falls (DEL Mode), properly set (SR Mode)
-				if (freezeEvents[p] != nullptr) {
-					e.cv = freezeEvents[p]->cv;
-					e.cv2 = freezeEvents[p]->cv2;
+				e.gateOffFrame = 0;// will be completed when gate falls
+				if (loopEvents[p] != nullptr) {
+					e.cv = loopEvents[p]->cv;
+					e.cv2 = loopEvents[p]->cv2;
 				}
 				else {
 					e.cv  = inputs[CV_INPUT ].getChannels() > p ? inputs[CV_INPUT ].getVoltage(p) : 0.0f;
@@ -375,6 +396,14 @@ struct NoteLoop : Module {
 				channel[p].finishDelEvent(args.frame);
 			}
 		}// poly p
+		if (loopStartTrigger.process(loopStartIn)) {
+			NoteEvent e;
+			e.gateOnFrame = args.frame;
+			e.gateOffFrame = args.frame + (int64_t)(0.0011f * args.sampleRate);
+			e.cv = 0.0f;
+			e.cv2 = 0.0f;
+			loopStart.enterEvent(e);
+		}
 
 		
 		// outputs
@@ -390,7 +419,10 @@ struct NoteLoop : Module {
 				outputs[GATE_OUTPUT].setVoltage(gate, p);
 			}	
 		}// eco mode		
-			
+		outputs[CLEAR_OUTPUT].setVoltage((clearPulse.process(args.sampleTime) ? 10.0f : 0.0f));
+		
+		NoteEvent* sole = loopStart.findEventGateOn(args.frame);
+		outputs[LOOPSTART_OUTPUT].setVoltage(sole != nullptr ? 10.0f : 0.0f);
 		
 		// lights
 		if (refresh.processLights()) {
@@ -411,7 +443,7 @@ const int64_t NoteLoop::multDen[numMults] = {2, 3, 4, 1, 3, 2, 1};
 
 
 struct NoteLoopWidget : ModuleWidget {
-	typedef IMMediumKnob FreezeKnob;
+	typedef IMMediumKnob LoopKnob;
 
 
 	void createCv2NormalizationMenu(ui::Menu* menu, float* cv2Normalled) {
@@ -521,10 +553,12 @@ struct NoteLoopWidget : ModuleWidget {
 		
 		static const float col1 = 9.5f;
 		static const float col2 = 5.08f * 7.0f - col1;
+		static const float col3 = col2 + 15.0f;
 		
-		static const float row0 = 23.0f;// Clk, Freeze knob
-		static const float row1 = row0 + 21.0f;// Clear+Freeze buttons
-		static const float row2 = row1 + 14.0f;// Clear+Freeze inputs
+		
+		static const float row0 = 23.0f;// Clk, Loop knob
+		static const float row1 = row0 + 21.0f;// Clear+Loop buttons
+		static const float row2 = row1 + 14.0f;// Clear+Loop inputs
 		
 		static const float row5 = 111.0f;// CV2
 		static const float row4 = row5 - 17.0f;// Gate
@@ -535,29 +569,29 @@ struct NoteLoopWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row0)), true, module, NoteLoop::CLK_INPUT, mode));
 		addChild(createLightCentered<SmallLight<YellowLightIM>>(mm2px(Vec(col1 + 7.5f, row0)), module, NoteLoop::CLK_LIGHT));
 
-		addParam(createParamCentered<FreezeKnob>(mm2px(Vec(col2, row0)), module, NoteLoop::FRZLEN_PARAM));	
+		addParam(createParamCentered<LoopKnob>(mm2px(Vec(col2, row0)), module, NoteLoop::LEN_PARAM));	
 		
 		static const float ldx = 1.5f;
 		static const float ly = 9.0f;
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 3 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 0));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 2 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 1));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 1 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 2));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 0 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 3));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 3 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 0));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 2 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 1));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 1 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 2));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 0 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 3));
 		//addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 - 1 * ldx, row0 + ly)), module, NoteLoop::CLK_LIGHT + 0));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 - 2 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 4));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 - 3 * ldx, row0 + ly)), module, NoteLoop::FRZLEN_LIGHTS + 5));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 - 2 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 4));
+		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 - 3 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 5));
 
 		// row 1
 		addParam(createParamCentered<LEDBezel>(mm2px(Vec(col1, row1)), module, NoteLoop::CLEAR_PARAM));
 		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(Vec(col1, row1)), module, NoteLoop::CLEAR_LIGHT));
 		
-		addParam(createParamCentered<LEDBezel>(mm2px(VecPx(col2, row1)), module, NoteLoop::FREEZE_PARAM));
-		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(VecPx(col2, row1)), module, NoteLoop::FREEZE_LIGHT));		
+		addParam(createParamCentered<LEDBezel>(mm2px(VecPx(col2, row1)), module, NoteLoop::LOOP_PARAM));
+		addChild(createLightCentered<LEDBezelLight<GreenLightIM>>(mm2px(VecPx(col2, row1)), module, NoteLoop::LOOP_LIGHT));		
 		
 		// row 2
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row2)), true, module, NoteLoop::CLEAR_INPUT, mode));
 		
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row2)), true, module, NoteLoop::FREEZE_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row2)), true, module, NoteLoop::LOOP_INPUT, mode));
 	
 		// row 3
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row3)), true, module, NoteLoop::CV_INPUT, mode));
@@ -573,6 +607,11 @@ struct NoteLoopWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row5)), true, module, NoteLoop::CV2_INPUT, mode));
 		
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row5)), false, module, NoteLoop::CV2_OUTPUT, mode));		
+		
+		
+		
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row4)), false, module, NoteLoop::LOOPSTART_OUTPUT, mode));		
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row5)), false, module, NoteLoop::CLEAR_OUTPUT, mode));		
 	}
 	
 	void step() override {
@@ -584,14 +623,14 @@ struct NoteLoopWidget : ModuleWidget {
 			// clock light (yellow green)
 			m->lights[NoteLoop::CLK_LIGHT].setBrightness(m->tempoIsBpmCv != 0 ? 1.0f : 0.0f);
 			
-			// Freeze light
-			m->lights[NoteLoop::FREEZE_LIGHT].setBrightness(m->freeze ? 1.0f : 0.0f);
+			// Loop light
+			m->lights[NoteLoop::LOOP_LIGHT].setBrightness(m->loop ? 1.0f : 0.0f);
 			
-			// Freeze length light
-			int len = m->getFreezeLengthKnob();
+			// Loop length light
+			int len = m->getLoopLengthKnob();
 			for (int i = 0; i < 6; i++) {
 				bool lstate = ((len >> i) & 0x1) != 0;
-				m->lights[NoteLoop::FRZLEN_LIGHTS + i].setBrightness(lstate ? 1.0f : 0.0f);
+				m->lights[NoteLoop::LEN_LIGHTS + i].setBrightness(lstate ? 1.0f : 0.0f);
 			}
 
 		}

@@ -105,12 +105,9 @@ struct NoteEcho : Module {
 		}
 		void finishDelEvent(int64_t gateOffFrame) {
 			uint16_t index = prev(0);
-			if (!(index >= BUF_SIZE || events[index].gateOffFrame != 0)) {
+			if (index < BUF_SIZE && events[index].gateOffFrame == 0) {
 				events[index].gateOffFrame = gateOffFrame;
 			}
-			// else {
-				// DEBUG("error, finishDelEvent() called on a finished event!, h=%i, s=%i, i=%i", head, size, index);// h=0, s=128, i=65535
-			// }
 		}
 		NoteEvent* findEvent(int64_t frameOrClk) {
 			for (uint16_t cnt = 0; ; cnt++) {
