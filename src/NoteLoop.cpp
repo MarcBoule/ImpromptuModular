@@ -431,11 +431,11 @@ struct NoteLoop : Module {
 				outputs[GATE_OUTPUT].setVoltage(gate, p);
 			}	
 		}// eco mode		
-		outputs[CLEAR_OUTPUT].setVoltage((clearPulse.process(args.sampleTime) ? 10.0f : 0.0f));
+		// outputs[CLEAR_OUTPUT].setVoltage((clearPulse.process(args.sampleTime) ? 10.0f : 0.0f));
 		
-		NoteEvent* sole = loopStart.findEventGateOn(args.frame);// v1 (hit on loop press, can be used as Start Of Loop = SOL)
-		outputs[LOOPSTART_OUTPUT].setVoltage(sole != nullptr ? 10.0f : 0.0f);// v1 (cont')
-		// outputs[LOOPSTART_OUTPUT].setVoltage(loopStartTrigger.state ? 10.0f : 0.0f);//v2 (no hit on loop press, can be used as EOL)
+		// NoteEvent* sole = loopStart.findEventGateOn(args.frame);// v1 (hit on loop press, can be used as Start Of Loop = SOL)
+		// outputs[LOOPSTART_OUTPUT].setVoltage(sole != nullptr ? 10.0f : 0.0f);// v1 (cont')
+		// // outputs[LOOPSTART_OUTPUT].setVoltage(loopStartTrigger.state ? 10.0f : 0.0f);//v2 (no hit on loop press, can be used as EOL)
 		
 		// lights
 		if (refresh.processLights()) {
@@ -623,8 +623,8 @@ struct NoteLoopWidget : ModuleWidget {
 		
 		
 		
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row4)), false, module, NoteLoop::LOOPSTART_OUTPUT, mode));		
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row5)), false, module, NoteLoop::CLEAR_OUTPUT, mode));		
+		// addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row4)), false, module, NoteLoop::LOOPSTART_OUTPUT, mode));		
+		// addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row5)), false, module, NoteLoop::CLEAR_OUTPUT, mode));		
 	}
 	
 	void step() override {
