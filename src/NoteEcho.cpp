@@ -21,18 +21,19 @@ struct NoteEcho : Module {
 		ENUMS(TAP_PARAMS, NUM_TAPS),
 		ENUMS(ST_PARAMS, NUM_TAPS),
 		ENUMS(CV2_PARAMS, NUM_TAPS),
-		ENUMS(PROB_PARAMS, NUM_TAPS),
+		ENUMS(GATEP_PARAMS, NUM_TAPS),
 		POLY_PARAM,
 		CV2MODE_PARAM,
 		PMODE_PARAM,// end of 1st version of module
 		// ----
 		// DEL_MODE_PARAM,// start of 2nd version of module with two modes
-		// CV2NORM_PARAM,
+		CV2NORM_PARAM,
 		// FREEZE_PARAM,// aka LOOP
 		// FRZLEN_PARAM,
-		// WET_PARAM,
+		WET_PARAM,
 		// CLEAR_PARAM,
 		TEMPOCV_PARAM,
+		ENUMS(STP_PARAMS, NUM_TAPS),
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -56,7 +57,7 @@ struct NoteEcho : Module {
 	enum LightIds {
 		// SD_LIGHT,
 		// CLEAR_LIGHT,
-		// WET_LIGHT,
+		WET_LIGHT,
 		ENUMS(GATE_LIGHTS, (NUM_TAPS + 1) * MAX_POLY),
 		// FREEZE_LIGHT,
 		// ENUMS(CLK_LIGHT, 2),
@@ -70,7 +71,8 @@ struct NoteEcho : Module {
 		int64_t gateOffFrame = 0;// 0 when pending (DEL Mode only), is set on rising clk when SR Mode
 		float cv = 0.0f;
 		float cv2 = 0.0f;
-		int8_t muted[NUM_TAPS] = {};// prob result for each proper tap (freeze and dry excluded), -1=unseen, 0=pass-prob (not muted), 1=fail-prob (muted); processed by taps during output read, will only be set to non -1 value for a given tap when that tap first encounters the event (must check other taps for closeness also)
+		int8_t muted[NUM_TAPS] = {};// gate prob result for each proper tap (freeze and dry excluded), -1=unseen, 0=pass-prob (not muted), 1=fail-prob (muted); processed by taps during output read, will only be set to non -1 value for a given tap when that tap first encounters the event (must check other taps for closeness also)
+		int8_t semip[NUM_TAPS] = {};// random semitone offset, 127=unseen
 	};
 
 
@@ -152,9 +154,9 @@ struct NoteEcho : Module {
 	// Need to save, with reset
 	bool noteFilter;
 	bool wetOnly;// excludes tap0 from outputs
-	float cv2NormalledVoltage;
+	// float cv2NormalledVoltage;
 	// int clkDelay;// SR Mode
-	float clkDelReg[2];// SR Mode
+	// float clkDelReg[2];// SR Mode
 	int64_t clockPeriod;// DEL Mode
 	int ecoMode;
 	int delMult;
@@ -176,6 +178,7 @@ struct NoteEcho : Module {
 	TriggerRiseFall gateTriggers[MAX_POLY];
 	Trigger freezeButtonTrigger;
 	Trigger clearTrigger;
+	Trigger wetTrigger;
 
 
 	// bool getIsDelMode() {
@@ -205,6 +208,31 @@ struct NoteEcho : Module {
 	int getSemiValue(int tapNum) {
 		return (int)(std::round(params[ST_PARAMS + tapNum].getValue()));
 	}
+	int8_t getSemiProbedOffset(int tapNum) {
+		int stpSwitch = (int)(std::round(params[STP_PARAMS + tapNum].getValue()));
+		int semiKnob = getSemiValue(tapNum);
+		if (stpSwitch == 1) {
+			return semiKnob;
+		}
+		int8_t ret;
+		if (stpSwitch == 0) {
+			// unipolar
+			bool flip = false;
+			if (semiKnob < 0){
+				semiKnob *= -1;
+				flip = true;
+			}	
+			ret = random::u32() % (semiKnob + 1);
+			if (flip) {
+				ret *= -1;
+			}
+		}
+		else {
+			// bipolar
+			ret = random::u32() % (semiKnob * 2 + 1) - semiKnob;
+		}
+		return ret;
+	}
 	float getSemiVolts(int tapNum) {
 		return params[ST_PARAMS + tapNum].getValue() / 12.0f;
 	}
@@ -219,7 +247,7 @@ struct NoteEcho : Module {
 		return params[PMODE_PARAM].getValue() > 0.5f;
 	}
 	bool getGateProbEnableForTap(int tapNum) {
-		return (random::uniform() < params[PROB_PARAMS + tapNum].getValue()); // random::uniform is [0.0, 1.0), see include/util/common.hpp
+		return (random::uniform() < params[GATEP_PARAMS + tapNum].getValue()); // random::uniform is [0.0, 1.0), see include/util/common.hpp
 	}
 	
 	
@@ -253,7 +281,8 @@ struct NoteEcho : Module {
 		configSwitch(PMODE_PARAM, 0.0f, 1.0f, 1.0f, "Random mode", {"Separate", "Chord"});
 		configSwitch(TEMPOCV_PARAM, 0.0f, 1.0f, 0.0f, "Tempo input mode", {"Clock pulses", "BPM CV"});
 		// configSwitch(DEL_MODE_PARAM, 0.0f, 1.0f, 1.0f, "Main mode", {"Shift register", "Delay"});
-		// configParam(CV2NORM_PARAM, -10.0f, 10.0f, 0.0f, "CV2 input normalization", "");
+		configParam(CV2NORM_PARAM, -10.0f, 10.0f, 0.0f, "CV2 input normalization", "");
+		configParam(WET_PARAM, 0.0f, 1.0f, 0.0f, "Wet only");
 		// configParam(FREEZE_PARAM, 0.0f, 1.0f, 0.0f, "Loop");
 		// configParam(FRZLEN_PARAM, 1.0f, (float)(MAX_DEL), 4.0f, "Loop length");
 		// paramQuantities[FRZLEN_PARAM]->snapEnabled = true;
@@ -268,8 +297,10 @@ struct NoteEcho : Module {
 			paramQuantities[ST_PARAMS + i]->snapEnabled = true;
 			// CV2 knobs
 			configParam(CV2_PARAMS + i, -1.0f, 1.0f, 0.0f, "CV2", "");// temporary labels, good values done in refreshCv2ParamQuantities() below (CV2MODE_PARAM must be setup at this point)
-			// CV2 knobs
-			configParam(PROB_PARAMS + i, 0.0f, 1.0f, 1.0f, string::f("Tap %i probability", i + 1));		
+			// GATE PROB knobs
+			configParam(GATEP_PARAMS + i, 0.0f, 1.0f, 1.0f, string::f("Tap %i gate probability", i + 1));
+			// SEMI PROB switches
+			configSwitch(STP_PARAMS + i, 0.0f, 2.0f, 1.0f, string::f("Tap %i semi probability", i + 1), {"unipolar", "none", "bipolar"});
 		}
 		refreshCv2ParamQuantities();
 		
@@ -309,10 +340,10 @@ struct NoteEcho : Module {
 	void onReset() override final {
 		noteFilter = false;
 		wetOnly = false;
-		cv2NormalledVoltage = 0.0f;
+		// cv2NormalledVoltage = 0.0f;
 		// clkDelay = 2;
-		clkDelReg[0] = 0.0f;
-		clkDelReg[1] = 0.0f;
+		// clkDelReg[0] = 0.0f;
+		// clkDelReg[1] = 0.0f;
 		clockPeriod = (int64_t)(APP->engine->getSampleRate());// 60 BPM until detected
 		ecoMode = 1;
 		delMult = numMultsUnityIndex;
@@ -344,14 +375,14 @@ struct NoteEcho : Module {
 		json_object_set_new(rootJ, "wetOnly", json_boolean(wetOnly));
 
 		// cv2NormalledVoltage
-		json_object_set_new(rootJ, "cv2NormalledVoltage", json_real(cv2NormalledVoltage));
+		// json_object_set_new(rootJ, "cv2NormalledVoltage", json_real(cv2NormalledVoltage));
 
 		// clkDelay
 		// json_object_set_new(rootJ, "clkDelay", json_integer(clkDelay));
 		
 		// clkDelReg[]
-		json_object_set_new(rootJ, "clkDelReg0", json_real(clkDelReg[0]));
-		json_object_set_new(rootJ, "clkDelReg1", json_real(clkDelReg[1]));
+		// json_object_set_new(rootJ, "clkDelReg0", json_real(clkDelReg[0]));
+		// json_object_set_new(rootJ, "clkDelReg1", json_real(clkDelReg[1]));
 		
 		// clockPeriod
 		json_object_set_new(rootJ, "clockPeriod", json_integer((long)clockPeriod));
@@ -392,8 +423,10 @@ struct NoteEcho : Module {
 
 		// cv2NormalledVoltage (also the flag for 1st version)
 		json_t *cv2NormalledVoltageJ = json_object_get(rootJ, "cv2NormalledVoltage");
-		if (cv2NormalledVoltageJ) 
-			cv2NormalledVoltage = json_number_value(cv2NormalledVoltageJ);
+		if (cv2NormalledVoltageJ) {
+			params[CV2NORM_PARAM].setValue(json_number_value(cv2NormalledVoltageJ));
+			// cv2NormalledVoltage = json_number_value(cv2NormalledVoltageJ);
+		}
 
 		// clkDelay
 		// json_t *clkDelayJ = json_object_get(rootJ, "clkDelay");
@@ -401,12 +434,12 @@ struct NoteEcho : Module {
 			// clkDelay = json_integer_value(clkDelayJ);
 
 		// clkDelReg[]
-		json_t *clkDelRegJ = json_object_get(rootJ, "clkDelReg0");
-		if (clkDelRegJ)
-			clkDelReg[0] = json_number_value(clkDelRegJ);
-		clkDelRegJ = json_object_get(rootJ, "clkDelReg1");
-		if (clkDelRegJ)
-			clkDelReg[1] = json_number_value(clkDelRegJ);
+		// json_t *clkDelRegJ = json_object_get(rootJ, "clkDelReg0");
+		// if (clkDelRegJ)
+			// clkDelReg[0] = json_number_value(clkDelRegJ);
+		// clkDelRegJ = json_object_get(rootJ, "clkDelReg1");
+		// if (clkDelRegJ)
+			// clkDelReg[1] = json_number_value(clkDelRegJ);
 
 		// clockPeriod
 		json_t *clockPeriodJ = json_object_get(rootJ, "clockPeriod");
@@ -445,8 +478,11 @@ struct NoteEcho : Module {
 	void process(const ProcessArgs &args) override {
 		// user inputs
 		if (refresh.processInputs()) {
+			if (wetTrigger.process(params[WET_PARAM].getValue())) {
+				wetOnly = !wetOnly;
+			}
 		}// userInputs refresh
-			
+		
 		int poly = getPolyKnob();
 		if (poly != lastPoly) {
 			clear();
@@ -527,9 +563,10 @@ struct NoteEcho : Module {
 				e.gateOnFrame = currFrameOrClk;
 				e.gateOffFrame = /*isDelMode ?*/ 0 /*: (e.gateOnFrame + 1)*/;// will be completed when gate falls (DEL Mode), properly set (SR Mode)
 				e.cv  = inputs[CV_INPUT ].getChannels() > p ? inputs[CV_INPUT ].getVoltage(p) : 0.0f;
-				e.cv2 = inputs[CV2_INPUT].getChannels() > p ? inputs[CV2_INPUT].getVoltage(p) : cv2NormalledVoltage;
+				e.cv2 = inputs[CV2_INPUT].getChannels() > p ? inputs[CV2_INPUT].getVoltage(p) : params[CV2NORM_PARAM].getValue();
 				for (int i = 0; i < NUM_TAPS; i++) {
 					e.muted[i] = -1;
+					e.semip[i] = 127;
 				}
 				channel[p].enterEvent(e);
 			}
@@ -565,7 +602,7 @@ struct NoteEcho : Module {
 					continue;
 				}
 				int64_t tapFrameOrClk = currFrameOrClk - (/*isDelMode ?*/ clockPeriod /*: 2*/) * (int64_t)getTapValue(t);
-				float semi = getSemiVolts(t);
+				// float semi = getSemiVolts(t);
 				float cv2mod = params[CV2_PARAMS + t].getValue();
 				if (cv2IsOffset) cv2mod *= 10.0f;
 
@@ -617,8 +654,12 @@ struct NoteEcho : Module {
 							}
 						}
 						gate = event->muted[t] == 0;
+						if (event->semip[t] == 127) {
+							event->semip[t] = getSemiProbedOffset(t);
+						}
 						if (gate) {
-							outputs[CV_OUTPUT].setVoltage(event->cv + semi, c);
+							float cv = event->cv + ((float)event->semip[t]) / 12.0f;
+							outputs[CV_OUTPUT].setVoltage(cv, c);
 							float cv2 = event->cv2;
 							outputs[CV2_OUTPUT].setVoltage(cv2IsOffset ? cv2 + cv2mod : cv2 * cv2mod, c);	
 						}						
@@ -687,8 +728,8 @@ struct NoteEcho : Module {
 
 		}// lightRefreshCounter
 		
-		clkDelReg[1] = clkDelReg[0];
-		clkDelReg[0] = inputs[CLK_INPUT].getVoltage();	
+		// clkDelReg[1] = clkDelReg[0];
+		// clkDelReg[0] = inputs[CLK_INPUT].getVoltage();	
 	}// process()
 };
 
@@ -829,7 +870,7 @@ struct NoteEchoWidget : ModuleWidget {
 						}
 						else {//if (module->notifySource[tapNum] == 3) {
 							// Prob
-							float prob = module->params[NoteEcho::PROB_PARAMS + tapNum].getValue();
+							float prob = module->params[NoteEcho::GATEP_PARAMS + tapNum].getValue();
 							unsigned int iprob100 = (unsigned)(std::round(prob * 100.0f));
 							if ( iprob100 >= 100) {
 								dispStr = "   1";
@@ -933,9 +974,9 @@ struct NoteEchoWidget : ModuleWidget {
 		
 		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
 		
-		menu->addChild(createBoolPtrMenuItem("Echoes only", "", &module->wetOnly));
+		// menu->addChild(createBoolPtrMenuItem("Echoes only", "", &module->wetOnly));
 		
-		createCv2NormalizationMenu(menu, &(module->cv2NormalledVoltage));
+		// createCv2NormalizationMenu(menu, &(module->cv2NormalledVoltage));
 				
 		// menu->addChild(new MenuSeparator());
 		// menu->addChild(createMenuLabel("Settings (Delay Mode)"));
@@ -1012,6 +1053,7 @@ struct NoteEchoWidget : ModuleWidget {
 		static const float col54 = col53 + col5d;
 		static const float col55 = col54 + col5d;
 		static const float col56 = col55 + col5d;
+		static const float col57 = col56 + col5d;
 		
 		static const float col54d = 2.0f;
 		static const float col41 = col51 + col54d;// Tap
@@ -1045,16 +1087,18 @@ struct NoteEchoWidget : ModuleWidget {
 			addParam(stKnobP = createDynamicParamCentered<SemitoneKnob>(mm2px(Vec(col43, row1 + j * row24d)), module, NoteEcho::ST_PARAMS + i, mode));
 			stKnobP->module = module;
 			stKnobP->tapNum = i;
-			
-			Cv2Knob* cv2KnobP;			
-			addParam(cv2KnobP = createDynamicParamCentered<Cv2Knob>(mm2px(Vec(col55, row1 + j * row24d)), module, NoteEcho::CV2_PARAMS + i, mode));
-			cv2KnobP->module = module;
-			cv2KnobP->tapNum = i;
+		
+			addParam(createDynamicSwitchCentered<IMSwitch3VInv>(mm2px(Vec(col55, row1 + j * row24d)), module, NoteEcho::STP_PARAMS + i, mode, svgPanel));
 			
 			ProbKnob* probKnobP;			
-			addParam(probKnobP = createDynamicParamCentered<ProbKnob>(mm2px(Vec(col56, row1 + j * row24d)), module, NoteEcho::PROB_PARAMS + i, mode));
+			addParam(probKnobP = createDynamicParamCentered<ProbKnob>(mm2px(Vec(col56, row1 + j * row24d)), module, NoteEcho::GATEP_PARAMS + i, mode));
 			probKnobP->module = module;
 			probKnobP->tapNum = i;
+			
+			Cv2Knob* cv2KnobP;			
+			addParam(cv2KnobP = createDynamicParamCentered<Cv2Knob>(mm2px(Vec(col57, row1 + j * row24d)), module, NoteEcho::CV2_PARAMS + i, mode));
+			cv2KnobP->module = module;
+			cv2KnobP->tapNum = i;
 		}
 		
 		
@@ -1069,8 +1113,10 @@ struct NoteEchoWidget : ModuleWidget {
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col54, row5)), true, module, NoteEcho::CV2_INPUT, mode));	
 
-		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col55, row5 - 0.0f)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
+		addParam(createDynamicParamCentered<IMSmallKnob>(mm2px(Vec(col55, row5)), module, NoteEcho::CV2NORM_PARAM, mode));
+
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row5 - 0.0f)), module, NoteEcho::PMODE_PARAM, mode, svgPanel));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col57, row5 - 0.0f)), module, NoteEcho::CV2MODE_PARAM, mode, svgPanel));
 	
 
 		// row 6
@@ -1085,6 +1131,9 @@ struct NoteEchoWidget : ModuleWidget {
 				
 		// addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row6)), module, NoteEcho::DEL_MODE_PARAM, mode, svgPanel));
 		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col56, row6 - 0.0f)), module, NoteEcho::TEMPOCV_PARAM, mode, svgPanel));
+		
+		addParam(createParamCentered<LEDButton>(mm2px(Vec(col57, row6)), module, NoteEcho::WET_PARAM));
+		addChild(createLightCentered<MediumLight<GreenLightIM>>(mm2px(Vec(col57, row6)), module, NoteEcho::WET_LIGHT));
 
 
 		// gate lights
@@ -1128,7 +1177,7 @@ struct NoteEchoWidget : ModuleWidget {
 			// m->lights[NoteEcho::FILTER_LIGHT].setBrightness( m->noteFilter ? 1.0f : 0.0f );
 
 			// wet light
-			// m->lights[NoteEcho::WET_LIGHT].setBrightness( m->wetOnly ? 1.0f : 0.0f );
+			m->lights[NoteEcho::WET_LIGHT].setBrightness( m->wetOnly ? 1.0f : 0.0f );
 			
 			// CV2 norm light
 			// bool cv2uncon = !(m->inputs[NoteEcho::CV2_INPUT].isConnected());

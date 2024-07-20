@@ -64,6 +64,13 @@
 			"tags": ["Clock generator", "Expander"]
 		},
 		{
+			"slug": "Clocked-Clkd2",
+			"name": "Clkd2",
+			"description": "Chainable master clock 2",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#clocked",
+			"tags": ["Clock generator"]
+		},
+		{
 			"slug": "Clocked-Clkd",
 			"name": "Clkd",
 			"description": "Chainable master clock",
