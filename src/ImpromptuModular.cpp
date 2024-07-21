@@ -27,7 +27,6 @@ void init(Plugin *p) {
 	p->addModel(modelClocked);
 	p->addModel(modelClockedExpander);
 	p->addModel(modelClkd);
-	p->addModel(modelClkd2);
 	p->addModel(modelCvPad);
 	p->addModel(modelFoundry);
 	p->addModel(modelFoundryExpander);

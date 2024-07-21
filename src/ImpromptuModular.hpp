@@ -30,7 +30,6 @@ extern Model *modelChordKeyExpander;
 extern Model *modelClocked;
 extern Model *modelClockedExpander;
 extern Model *modelClkd;
-extern Model *modelClkd2;
 extern Model *modelCvPad;
 extern Model *modelFoundry;
 extern Model *modelFoundryExpander;
