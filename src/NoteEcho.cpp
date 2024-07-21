@@ -451,7 +451,7 @@ struct NoteEcho : Module {
 				int64_t deltaFrames = args.frame - lastRisingClkFrame;
 				float deltaFramesF = (float)deltaFrames;
 				if (deltaFramesF <= (args.sampleRate * 6.0f) && 
-					deltaFramesF >= (args.sampleRate / 5.0f)) {// 10-300 BPM tempo range
+					deltaFramesF >= (args.sampleRate / 20.0f)) {// 10-1200 BPM tempo range
 					clockPeriod = (deltaFrames * multDen[delMult]) / multNum[delMult];
 				}
 				// else, remember the previous clockPeriod so nothing to do
