@@ -20,6 +20,7 @@ struct NoteLoop : Module {
 		LOOP_PARAM,
 		LEN_PARAM,
 		CLEAR_PARAM,
+		TEMPOCV_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -42,8 +43,6 @@ struct NoteLoop : Module {
 	enum LightIds {
 		CLEAR_LIGHT,
 		LOOP_LIGHT,
-		CLK_LIGHT,
-		ENUMS(LEN_LIGHTS, 6),
 		NUM_LIGHTS
 	};
 	
@@ -135,7 +134,6 @@ struct NoteLoop : Module {
 	int64_t clockPeriod;
 	int ecoMode;
 	int delMult;
-	int tempoIsBpmCv;
 
 	// No need to save, with reset
 	bool loop;
@@ -159,6 +157,9 @@ struct NoteLoop : Module {
 	int getLoopLengthKnob() {
 		return (int)(params[LEN_PARAM].getValue() + 0.5f);
 	}
+	bool isTempoCV() {
+		return params[TEMPOCV_PARAM].getValue() > 0.5f;
+	}
 
 	
 	
@@ -169,6 +170,7 @@ struct NoteLoop : Module {
 		configParam(LEN_PARAM, 1.0f, (float)(MAX_DEL), 4.0f, "Loop length");
 		paramQuantities[LEN_PARAM]->snapEnabled = true;
 		configParam(CLEAR_PARAM, 0.0f, 1.0f, 0.0f, "Clear");
+		configSwitch(TEMPOCV_PARAM, 0.0f, 1.0f, 0.0f, "Tempo input mode", {"Clock pulses", "BPM CV"});
 				
 		configInput(CV_INPUT, "CV");
 		configInput(GATE_INPUT, "Gate");
@@ -182,8 +184,6 @@ struct NoteLoop : Module {
 		configOutput(CV2_OUTPUT, "CV2/Velocity");
 		configOutput(CLEAR_OUTPUT, "Clear");
 		configOutput(LOOPSTART_OUTPUT, "Start of loop");
-		
-		configLight(CLK_LIGHT, "Tempo modifier (see menu)");
 		
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
@@ -210,7 +210,6 @@ struct NoteLoop : Module {
 		clockPeriod = (int64_t)(APP->engine->getSampleRate());// 60 BPM until detected
 		ecoMode = 1;
 		delMult = numMultsUnityIndex;
-		tempoIsBpmCv = 0;
 		resetNonJson();
 	}
 	void resetNonJson() {
@@ -242,9 +241,6 @@ struct NoteLoop : Module {
 		
 		// delMult
 		json_object_set_new(rootJ, "delMult", json_integer(delMult));
-		
-		// tempoIsBpmCv
-		json_object_set_new(rootJ, "tempoIsBpmCv", json_integer(tempoIsBpmCv));
 		
 		return rootJ;
 	}
@@ -281,11 +277,6 @@ struct NoteLoop : Module {
 		if (delMultJ)
 			delMult = json_integer_value(delMultJ);
 
-		// tempoIsBpmCv
-		json_t *tempoIsBpmCvJ = json_object_get(rootJ, "tempoIsBpmCv");
-		if (tempoIsBpmCvJ)
-			tempoIsBpmCv = json_integer_value(tempoIsBpmCvJ);
-
 		resetNonJson();
 	}
 
@@ -313,7 +304,7 @@ struct NoteLoop : Module {
 				loopStart.enterEvent(e);
 				
 				// sample clockPeriod and loop length so that it never changes during looping
-				if (tempoIsBpmCv != 0) {
+				if (isTempoCV()) {
 					float clockPeriodF = (args.sampleRate * 0.5f / std::pow(2.0f, inputs[CLK_INPUT].getVoltage()));
 					clockPeriod = (int64_t)clamp(clockPeriodF, args.sampleRate / 5.0f, args.sampleRate * 6.0f);
 					if (delMult != numMultsUnityIndex) {
@@ -349,7 +340,7 @@ struct NoteLoop : Module {
 		}
 		int clkEdge = clkTrigger.process(inputs[CLK_INPUT].getVoltage());
 		// update clockPeriod
-		if (tempoIsBpmCv != 0) {
+		if (isTempoCV()) {
 			// nothing to do since BPM-CV is sampled further above when loop turns on
 		}
 		else if (clkEdge == 1) {
@@ -458,6 +449,45 @@ const int64_t NoteLoop::multDen[numMults] = {2, 3, 4, 1, 3, 2, 1};
 struct NoteLoopWidget : ModuleWidget {
 	typedef IMMediumKnob LoopKnob;
 
+	struct LenDisplayWidget : TransparentWidget {// a centered display
+		NoteLoop *module = nullptr;
+		std::shared_ptr<Font> font;
+		std::string fontPath;
+		static const int textFontSize = 15;
+		static constexpr float textOffsetY = 19.9f; // 18.2f for 14 pt, 19.7f for 15pt
+		
+		LenDisplayWidget(Vec _pos, Vec _size, NoteLoop *_module) {
+			box.size = _size;
+			box.pos = _pos.minus(_size.div(2));
+			module = _module;
+			fontPath = std::string(asset::plugin(pluginInstance, "res/fonts/Segment14.ttf"));
+		}
+		
+		void drawLayer(const DrawArgs &args, int layer) override {
+			if (layer == 1) {
+				if (!(font = APP->window->loadFont(fontPath))) {
+					return;
+				}
+				nvgFontSize(args.vg, textFontSize);
+				nvgFontFaceId(args.vg, font->handle);
+				nvgTextLetterSpacing(args.vg, -0.4);
+
+				Vec textPos = VecPx(5.7f, textOffsetY);
+				nvgFillColor(args.vg, nvgTransRGBA(displayColOn, 23));
+				std::string initString(2,'~');
+				nvgText(args.vg, textPos.x, textPos.y, initString.c_str(), NULL);
+				
+				nvgFillColor(args.vg, displayColOn);
+				std::string dispStr = " 4";
+				if (module != NULL) {
+					int len = module->getLoopLengthKnob();
+					dispStr = string::f("%2u", (unsigned)len);
+				}
+				nvgText(args.vg, textPos.x, textPos.y, dispStr.c_str(), NULL);
+			}
+		}
+	};	
+	
 
 	void createCv2NormalizationMenu(ui::Menu* menu, float* cv2Normalled) {
 			
@@ -537,11 +567,6 @@ struct NoteLoopWidget : ModuleWidget {
 			}
 		}));
 
-		menu->addChild(createCheckMenuItem("Tempo input is BPM CV", "",
-			[=]() {return module->tempoIsBpmCv != 0;},
-			[=]() {module->tempoIsBpmCv ^= 0x1;}
-		));
-		
 		createCv2NormalizationMenu(menu, &(module->cv2NormalledVoltage));
 	}	
 
@@ -566,33 +591,25 @@ struct NoteLoopWidget : ModuleWidget {
 		
 		static const float col1 = 9.5f;
 		static const float col2 = 5.08f * 7.0f - col1;
-		static const float col3 = col2 + 15.0f;
+		// static const float col3 = col2 + 15.0f;
 		
 		
-		static const float row0 = 23.0f;// Clk, Loop knob
-		static const float row1 = row0 + 21.0f;// Clear+Loop buttons
-		static const float row2 = row1 + 14.0f;// Clear+Loop inputs
+		static const float row0 = 22.0f;// Len
+		static const float row1 = row0 + 16.0f;// Clear+Loop buttons
+		static const float row2 = row1 + 10.0f;// Clear+Loop inputs
+		static const float row3 = 64.5f;// tempo
 		
-		static const float row5 = 111.0f;// CV2
-		static const float row4 = row5 - 17.0f;// Gate
-		static const float row3 = row4 - 17.0f;// CV
+		static const float row6 = 112.0f;// CV2
+		static const float row5 = row6 - 15.0f;// Gate
+		static const float row4 = row5 - 15.0f;// CV
 		
 		
 		// row 0
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row0)), true, module, NoteLoop::CLK_INPUT, mode));
-		addChild(createLightCentered<SmallLight<YellowLightIM>>(mm2px(Vec(col1 + 7.5f, row0)), module, NoteLoop::CLK_LIGHT));
-
-		addParam(createParamCentered<LoopKnob>(mm2px(Vec(col2, row0)), module, NoteLoop::LEN_PARAM));	
+		LenDisplayWidget* lenDisplayWidget = new LenDisplayWidget(mm2px(Vec(col1, row0)), VecPx(35, 24), module);
+		addChild(lenDisplayWidget);
+		svgPanel->fb->addChild(new DisplayBackground(lenDisplayWidget->box.pos, lenDisplayWidget->box.size, mode));
 		
-		static const float ldx = 1.5f;
-		static const float ly = 9.0f;
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 3 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 0));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 2 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 1));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 1 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 2));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 + 0 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 3));
-		//addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 - 1 * ldx, row0 + ly)), module, NoteLoop::CLK_LIGHT + 0));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 - 2 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 4));
-		addChild(createLightCentered<TinyLight<GreenLightIM>>(mm2px(Vec(col1 - 3 * ldx, row0 + ly)), module, NoteLoop::LEN_LIGHTS + 5));
+		addParam(createParamCentered<LoopKnob>(mm2px(Vec(col2, row0)), module, NoteLoop::LEN_PARAM));	
 
 		// row 1
 		addParam(createParamCentered<LEDBezel>(mm2px(Vec(col1, row1)), module, NoteLoop::CLEAR_PARAM));
@@ -605,21 +622,25 @@ struct NoteLoopWidget : ModuleWidget {
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row2)), true, module, NoteLoop::CLEAR_INPUT, mode));
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row2)), true, module, NoteLoop::LOOP_INPUT, mode));
-	
+		
 		// row 3
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row3)), true, module, NoteLoop::CV_INPUT, mode));
-		
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row3)), false, module, NoteLoop::CV_OUTPUT, mode));
-		
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row3)), true, module, NoteLoop::CLK_INPUT, mode));
+		addParam(createDynamicSwitchCentered<IMSwitch2V>(mm2px(Vec(col2, row3)), module, NoteLoop::TEMPOCV_PARAM, mode, svgPanel));
+	
 		// row 4
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row4)), true, module, NoteLoop::GATE_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row4)), true, module, NoteLoop::CV_INPUT, mode));
 		
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row4)), false, module, NoteLoop::GATE_OUTPUT, mode));
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row4)), false, module, NoteLoop::CV_OUTPUT, mode));
 		
 		// row 5
-		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row5)), true, module, NoteLoop::CV2_INPUT, mode));
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row5)), true, module, NoteLoop::GATE_INPUT, mode));
 		
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row5)), false, module, NoteLoop::CV2_OUTPUT, mode));		
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row5)), false, module, NoteLoop::GATE_OUTPUT, mode));
+		
+		// row 6
+		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row6)), true, module, NoteLoop::CV2_INPUT, mode));
+		
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row6)), false, module, NoteLoop::CV2_OUTPUT, mode));		
 		
 		
 		
@@ -631,21 +652,8 @@ struct NoteLoopWidget : ModuleWidget {
 		if (module) {
 			NoteLoop* m = static_cast<NoteLoop*>(module);
 			
-			// gate lights done in process() since they look at output[], and when connecting/disconnecting cables the cable sizes are reset (and buffers cleared), which makes the gate lights flicker
-			
-			// clock light (yellow green)
-			m->lights[NoteLoop::CLK_LIGHT].setBrightness(m->tempoIsBpmCv != 0 ? 1.0f : 0.0f);
-			
 			// Loop light
 			m->lights[NoteLoop::LOOP_LIGHT].setBrightness(m->loop ? 1.0f : 0.0f);
-			
-			// Loop length light
-			int len = m->getLoopLengthKnob();
-			for (int i = 0; i < 6; i++) {
-				bool lstate = ((len >> i) & 0x1) != 0;
-				m->lights[NoteLoop::LEN_LIGHTS + i].setBrightness(lstate ? 1.0f : 0.0f);
-			}
-
 		}
 		ModuleWidget::step();
 	}

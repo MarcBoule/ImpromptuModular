@@ -621,6 +621,8 @@ The current hotkey is visible in the right-click menu of the module and is autom
 
 ![IM](res/img/NoteEchoLoop.jpg)
 
+**NOTE**: These two modules are under active development and this section of the manual may not refect the version of the plugin that is currently in the library.
+
 NoteEcho is a 4-tap CV/Gate-based delay/looper module with sample-and-held inputs, offering two modes of operation (Delay and Shift Register), while NoteLoop has the same core as NoteEcho but without the delay taps and without the shift-register mode. An initial version of NoteEcho with only the Shift Register mode is shown in this ([video by Omri Cohen](https://www.youtube.com/watch?v=y4zKtH15Pzg)).
 
 Typical delay modules function with audio signals, whereas NoteEcho is an exploration of a similar effect, but for CV/Gate pairs instead. The module also has a second CV (called CV2) that can be used for velocity or panning levels in the delays. The CV/Gate/CV2 inputs are sampled on the rising edge of the clock signal, in Shift Register mode, whereas the CV/CV2 inputs are sampled on the rising edges of the Gate input channels, in Delay mode. This sampling-and-holding of the inputs means that no continuous modulation of the inputs is recorded by the modules. NoteEcho has a maximum input polyphony of 4, since delay taps are generated as other channels in the polyphonic output signals, while NoteLoop supports a maximum polyphony of 16 channels.
