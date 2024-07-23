@@ -358,7 +358,7 @@ struct NoteLoop : Module {
 		
 		// sample the inputs on poly gates
 		NoteEvent* loopEvents[MAX_POLY] = {};
-		NoteEvent* loopStartEvent = nullptr;
+		const NoteEvent* loopStartEvent = nullptr;
 		float gateIn[MAX_POLY];
 		float loopStartIn;
 		if (loop) {

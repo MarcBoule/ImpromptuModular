@@ -1,5 +1,5 @@
 Virtual Eurorack modules for [VCV Rack](https://vcvrack.com), available in the [plugin library](https://library.vcvrack.com/).
-Version 2.4.3  ![GitHub repo size](https://img.shields.io/github/repo-size/MarcBoule/ImpromptuModular)
+Version 2.5.0  ![GitHub repo size](https://img.shields.io/github/repo-size/MarcBoule/ImpromptuModular)
 
 Feedback and bug reports (and [donations](https://www.paypal.me/marcboule)) are always appreciated!
 
@@ -31,7 +31,7 @@ Each module is available in light or dark panels with contrast adjusment, select
 
 * [Hotkey](#hotkey): A utility module that sends a trigger when a given key is pressed (mouse must be over module).
 
-* [NoteEcho/NoteLoop](#note-echo): CV/Gate based delay/looper modules with sample-and-held inputs.
+* [NoteEcho/NoteLoop](#note-echo-loop): CV/Gate based delay/looper modules with sample-and-held inputs.
 
 * [Part](#part): A gate splitter module based on an input CV and split point.
 
@@ -616,30 +616,28 @@ The current hotkey is visible in the right-click menu of the module and is autom
 
 
 
-<a id="note-echo"></a>
+<a id="note-echo-loop"></a>
 ## NoteEcho/NoteLoop
 
 ![IM](res/img/NoteEchoLoop.jpg)
 
-**NOTE**: These two modules are under active development and this section of the manual may not refect the version of the plugin that is currently in the library.
+NoteEcho is a 4-tap CV/Gate-based delay module with sample-and-held inputs, while NoteLoop is a CV/Gate-based looper. An initial version of NoteEcho with a previous Shift Register mode was shown in this ([video by Omri Cohen](https://www.youtube.com/watch?v=y4zKtH15Pzg)), but is no longer available. Prior patches should generally not be affected, but slight tweaks may be required in some cases.
 
-NoteEcho is a 4-tap CV/Gate-based delay/looper module with sample-and-held inputs, offering two modes of operation (Delay and Shift Register), while NoteLoop has the same core as NoteEcho but without the delay taps and without the shift-register mode. An initial version of NoteEcho with only the Shift Register mode is shown in this ([video by Omri Cohen](https://www.youtube.com/watch?v=y4zKtH15Pzg)).
+Typical delay and looping modules function with audio signals, whereas NoteEcho and NoteLoop are an exploration of a similar effect, but for CV/Gate pairs instead. The modules also have a second CV (called CV2) that can be used for velocity or panning levels in the delays/loops. The CV/CV2 inputs are sampled on the rising edges of the respective Gate input channels. This sampling-and-holding of the inputs means that no continuous modulation of the inputs is recorded by the modules. NoteEcho has a maximum input polyphony of 4, since delay taps are generated as other channels in the polyphonic output signals, while NoteLoop supports a maximum polyphony of 16 channels.
 
-Typical delay modules function with audio signals, whereas NoteEcho is an exploration of a similar effect, but for CV/Gate pairs instead. The module also has a second CV (called CV2) that can be used for velocity or panning levels in the delays. The CV/Gate/CV2 inputs are sampled on the rising edge of the clock signal, in Shift Register mode, whereas the CV/CV2 inputs are sampled on the rising edges of the Gate input channels, in Delay mode. This sampling-and-holding of the inputs means that no continuous modulation of the inputs is recorded by the modules. NoteEcho has a maximum input polyphony of 4, since delay taps are generated as other channels in the polyphonic output signals, while NoteLoop supports a maximum polyphony of 16 channels.
+The NoteEcho module has four user-selectable taps. The taps have controllable delay positions in the delay tape. An implicit 5th tap is also present, called tap 0, for the sampled inputs, and is not user-controllable.
 
-The NoteEcho module has four user-selectable taps. The taps have controllable delay positions in the shift register / delay tape. An implicit 5th tap is also present, called tap 0, for the sampled inputs, and is not user-controllable.
+To best understand the functioning of both modules, one can imagine a very long tape running, where the inputs get written to the tape with a write head, and where the delay taps (NoteEcho only) and the loop tap (NoteLoop only) are seen as read heads. The knobs and switches function as follows:
 
-To best understand the functioning of this module, one can imagine a very long tape/shift-register running, where the inputs get written to the tape/register with a write head, and where the delay taps (NoteEcho only) and the loop tap are seen as read heads. The gate outputs mimic the clock input in shift register mode (for active gates), whereas the true start/stop positions of the gates are recorded and rendered in the Delay mode. The knobs and switches function as follows:
+* **TEMPO**: Clock signal for giving the tempo to the module. The clock sets the speed of the delay tape (affecting the delay taps and looping). In the default setting this should be a proper clock signal, but when the corresponding switch is set to CV mode, the tempo input expects a BPM-CV (as provided by the BPM output of Clocked, for example), according to the LFO and clock [CV standard](https://vcvrack.com/manual/VoltageStandards#Pitch-and-Frequencies).
 
-* **DELAY / S. REG**: This is the main mode switch for NoteEcho, allowing it to function as a true delay module or a clocked shift register. This switch is not available in the NodeLoop module, which is inherently in Delay mode.
+* **POLY**: This sets the polyphony of the CV, Gate and CV2 inputs for the NoteEcho module, and has a maximum value of 4. When the input polyphony is set to 4, one of the user-selectable taps (A, B, C, or D) must be deactivated, or the WET-ONLY button must be activated, in order for the total number of channels to not exceed 16. When the input polyphony is set to 3, all taps can be used and the output cables will have a polyphony of 15 (5 taps x 3). The NoteLoop module, having no delay taps, supports full 16 channel polyphony.
 
-* **TEMPO / CLK INPUT**: Clock signal for both the Shift Register or Delay modes. In the shift register mode, the CV/Gate/CV2 inputs are sampled on the rising edges of the clock. In the Delay mode, the clock sets the speed of the delay tape (affecting the delay taps and looping), but since nothing is sampled on the clock input in Delay mode, it's instead referred to as the Tempo input for clarity.
+* **NORM**: Normalizes an unconnected CV2 input to the value set by this knob. In NoteLoop, this is a menu option.
 
-* **POLY**: This sets the polyphony of the CV, Gate and CV2 inputs for the NoteEcho module, and has a maximum value of 4. When the input polyphony is set to 4, one of the user-selectable taps (A, B, C, or D) must be deactivated in order for the total number of channels to not exceed 16. When the input polyphony is set to 3, all taps can be used and the output cables will have a polyphony of 15 (5 taps x 3). The NoteLoop module, having no delay taps, supports full 16 channel polyphony.
+* **DELAY KNOBS**: Set the number of tempo step delays for the given tap (i.e. position in the delay tape), from 1 to 32.
 
-* **NORM**: Normalizes an unconnected CV2 input to the value set by this knob.
-
-* **DELAY KNOBS**: Set the number of clock cycle or tempo step delays for the given tap (i.e. position in the shift register / delay tape), from 1 to 32.
+* **RND**: Apply a random semitone offset to the CV of the given tap. When turned to the right, a random bipolar semitone offset is applied, when turned to the left (up to &plusmn;2 octaves), a random unipolar semitone offset is applied (up to +2 octaves).
 
 * **SEMI**: Offset the CV of the given tap by a number of semitones, from -48 to 48 (&plusmn;4 octaves). 
 
@@ -647,22 +645,17 @@ To best understand the functioning of this module, one can imagine a very long t
 
 * **_p_**: Apply probability to the output gate of the given tap. When polyphony is used, the switch below the probability knobs allows a single probability event to be used for all channels of the given tap, or separate probability events. When NoteEcho is used to delay chords, for example, it is advisable to set this switch to the "Chord" setting (top position), such that all the notes play in a grouped manner (either all or none).
 
-* **LEN**: Determines the length of the loopback, in clock cycles or tempo steps, when Loop is activated. In NoteLoop, since there are not displays, the hexadecimal value of the length knob can be seen in a set of 6 small lights.
+* **LEN**: Determines the length of the loopback in the NoteLoop module, in tempo steps, when Loop is activated.
 
-* **LOOP**: This button (and it's trigger input), when turned on, will tap the delay tape/register at the position determined by the LEN knob, and will send it to the input, thus ignoring any actual inputs on the CV/Gate/CV2 input jacks. When this loop mode is activated, the tape continues onwards such that any delay taps that exist beyond the loop point will continue to play, but such taps may be turned of if this behavior is not desired.
+* **LOOP**: This button (and it's trigger input), when turned on, will tap the delay tape at the position determined by the LENGTH knob, and will send it to the input, thus ignoring any actual inputs on the CV/Gate/CV2 input jacks.
 
-* **CLEAR**: This button (and it's trigger input), are used to erase the tape/register.
+* **CLEAR**: This button and/or its trigger input are used to erase the tapes in NoteLoop/NoteEcho.
 
-The loop features NoteEcho and NoteLoop are meant for a live play context, and thus the internal tape/registers are not stored in the patch, and the Loop button is always off when reloading a patch. This is by design.
+The loop feature of NoteEcho is meant for a live play context, and thus the internal tape is not stored in the patch, and the Loop button is always off when reloading a patch. This is by design.
 
-When NoteEcho is set to Shift Register mode and is used after a sequencer, it is important to delay the clock signal going into NoteEcho by using the built-in option in the module's menu (and/or a separate utility module). This is required so that the clock signal arrives at the same time (or after) the notes produced by the sequencer. Usually only a few sample delays are sufficient. Since that sequencer is likely clocked by the same clock as NoteEcho, connecting the same clock signal directly to NoteEcho would not allow it to sample the sequencer's outputs with the proper timing, resulting in an extra clock cycle delay in the outputs, or even worse, no gates being sampled at all.
-
-In Delay mode, it’s theoretically possible for timings across different NoteEcho/NoteLoop modules to drift slightly from one another when different loop lengths are used and/or when tempo multipliers are used (internal menu option), and thus the modules can potentially become unsynched after a long running time. If ever drifting occurs, to alleviate this, an alternate Tempo input mode is available in the right-click menu of the module, to allow receiving the tempo with a BPM-CV instead of clock pulses, thus guaranteeing perfect alignment over time (integer tempo multipliers only). Patch trick: Use the BPM output from Clocked/Clkd as the tempo voltage (i.e. the BPM-CV).
+In NoteLoop, it’s theoretically possible for timings across different instances to drift slightly from one another when different loop lengths are used and/or when tempo multipliers are used (internal menu option), and thus the modules can potentially become unsynchronized after a long running time. If ever drifting occurs, to alleviate this, an alternate Tempo input mode is available in the right-click menu of the module, to allow receiving the tempo with a BPM-CV instead of clock pulses, thus guaranteeing perfect alignment over time (integer tempo multipliers only).
 
 NoteEcho pairs particularly well with the [ProbKey](#prob-key) module, when using a low density setting on ProbKey. NoteEcho is well adapted to generative music, either controlling instrument VSTs through the VCV-Host module, or synth voices patched in Rack. For patched voices, the usual polyphonic ADSRs, oscillators, quantizers, etc. can easily be used down-chain of NoteEcho. An option in the right-click menu called "Filter out identical notes", when activated, allows a certain amount of redundant note elimination, to avoid multiply hitting the same note when delays interact with the incoming notes. Low CPU mode, also an option in the right-click menu, decreases the rate at which the outputs are refreshed, but does not alter the input processing of the module. 
-
-Important: When using NoteEcho with any of the Impromptu sequencers, be sure to turn off the option "Retrigger gates on reset" in the sequencers, or else the first gate after a reset may not be registered by NoteEcho.
-
 
 ([Back to module list](#modules))
 

@@ -1,4 +1,4 @@
-### 2.4.4 (in development)
+### 2.5.0 (2024-07-22)
 
 - SMS16: remove module, which was deprecated 2024-02-11
 - NoteEcho: change internal mechanism to support variable note length duration, this is now a proper note echo instead of a shift register, but the former shift register behavior should mainly still work; in some cases, backward compatibility with saved patches may not be conserved
