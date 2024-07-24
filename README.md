@@ -647,7 +647,7 @@ To best understand the functioning of both modules, one can imagine a very long 
 
 * **LEN**: Determines the length of the loopback in the NoteLoop module, in tempo steps, when Loop is activated.
 
-* **LOOP**: This button (and it's trigger input), when turned on, will tap the delay tape at the position determined by the LENGTH knob, and will send it to the input, thus ignoring any actual inputs on the CV/Gate/CV2 input jacks.
+* **LOOP**: This button (and it's trigger input), when turned on, will tap the delay tape at the position determined by the LENGTH knob, and will send it to the input, thus ignoring any actual inputs on the CV/Gate/CV2 input jacks. While NoteLoop is looping, any tempo and length changes are ignored.
 
 * **CLEAR**: This button and/or its trigger input are used to erase the tapes in NoteLoop/NoteEcho.
 
