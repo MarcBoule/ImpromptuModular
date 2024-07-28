@@ -1,5 +1,5 @@
 //***********************************************************************************************
-//CV-Gate shift register / delay module for VCV Rack by Marc Boulé
+//CV-Gate delay module for VCV Rack by Marc Boulé
 //
 //Based on code from the Fundamental and Audible Instruments plugins by Andrew Belt and graphics  
 //  from the Component Library by Pyer. 
@@ -144,7 +144,7 @@ struct NoteEcho : Module {
 	float panelContrast;
 	
 	// Need to save, with reset
-	bool noteFilter;
+	// bool noteFilter;
 	bool wetOnly;// excludes tap0 from outputs
 	// float cv2NormalledVoltage;
 	int64_t clockPeriod;
@@ -303,7 +303,7 @@ struct NoteEcho : Module {
 	}
 
 	void onReset() override final {
-		noteFilter = false;
+		// noteFilter = false;
 		wetOnly = false;
 		// cv2NormalledVoltage = 0.0f;
 		clockPeriod = (int64_t)(APP->engine->getSampleRate());// 60 BPM until detected
@@ -328,7 +328,7 @@ struct NoteEcho : Module {
 		json_object_set_new(rootJ, "panelContrast", json_real(panelContrast));
 		
 		// noteFilter
-		json_object_set_new(rootJ, "noteFilter", json_boolean(noteFilter));
+		// json_object_set_new(rootJ, "noteFilter", json_boolean(noteFilter));
 
 		// wetOnly
 		json_object_set_new(rootJ, "wetOnly", json_boolean(wetOnly));
@@ -361,9 +361,9 @@ struct NoteEcho : Module {
 			panelContrast = json_number_value(panelContrastJ);
 
 		// noteFilter
-		json_t *noteFilterJ = json_object_get(rootJ, "noteFilter");
-		if (noteFilterJ)
-			noteFilter = json_is_true(noteFilterJ);
+		// json_t *noteFilterJ = json_object_get(rootJ, "noteFilter");
+		// if (noteFilterJ)
+			// noteFilter = json_is_true(noteFilterJ);
 
 		// wetOnly
 		json_t *wetOnlyJ = json_object_get(rootJ, "wetOnly");
@@ -543,18 +543,18 @@ struct NoteEcho : Module {
 							}
 						}
 						// here event->muted[t] is not -1 
-						if (noteFilter && event->muted[t] == 0) {
+						// if (noteFilter && event->muted[t] == 0) {
 							// note is not muted and filter is on
 							// see if this new note is already playing on a lower channel, if so, mute new
-							for (int c2 = 0; c2 < c; c2++) {
-								if ( outputs[GATE_OUTPUT].getVoltage(c2 >= 1.0f) && 
-									 (outputs[CV_OUTPUT].getVoltage(c) && 
-									  outputs[CV_OUTPUT].getVoltage(c2) ) ) {
-									event->muted[t] = 1;
-									break;
-								}
-							}
-						}
+							// for (int c2 = 0; c2 < c; c2++) {
+								// if ( outputs[GATE_OUTPUT].getVoltage(c2 >= 1.0f) && 
+									 // (outputs[CV_OUTPUT].getVoltage(c) && 
+									  // outputs[CV_OUTPUT].getVoltage(c2) ) ) {
+									// event->muted[t] = 1;
+									// break;
+								// }
+							// }
+						// }
 						gate = event->muted[t] == 0;
 						if (event->semip[t] == 127) {
 							event->semip[t] = getSemiProbedOffset(t);
@@ -887,7 +887,7 @@ struct NoteEchoWidget : ModuleWidget {
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
 		
-		menu->addChild(createBoolPtrMenuItem("Filter out identical notes (experimental)", "", &module->noteFilter));
+		// menu->addChild(createBoolPtrMenuItem("Filter out identical notes (experimental)", "", &module->noteFilter));
 		
 		menu->addChild(createSubmenuItem("Tempo multiplier", "", [=](Menu* menu) {
 			for (int i = 0; i < NoteEcho::numMults; i++) {

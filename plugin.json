@@ -122,15 +122,22 @@
 		{
 			"slug": "NoteEcho",
 			"name": "NoteEcho",
-			"description": "CV/Gate-based delay and looper",
-			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#note-echo-loop",
+			"description": "CV/Gate-based delay",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#note-echo-loop-filter",
 			"tags": ["Sample and hold", "Delay", "Polyphonic"]
+		},
+		{
+			"slug": "NoteFilter", 
+			"name": "NoteFilter",
+			"description": "Eliminates polyphony of identical overlapping notes",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#note-echo-loop-filter",
+			"tags": ["Sample and hold", "Polyphonic"]
 		},
 		{
 			"slug": "NoteLoop",
 			"name": "NoteLoop",
 			"description": "CV/Gate-based looper",
-			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#note-echo-loop",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#note-echo-loop-filter",
 			"tags": ["Sample and hold", "Polyphonic"]
 		},
 		{

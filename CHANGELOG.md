@@ -6,6 +6,7 @@
 - Expanders: fix panel theme bug
 - TwelveKey: implement autopatching when two modules are placed side-by-side
 - Add adoption policy to license file
+- NoteFilter: create new module to filter out identical redundant notes in a polyphonic CV/Gate/CV2 note
 
 
 ### 2.4.3 (2024-04-01)

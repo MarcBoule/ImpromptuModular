@@ -31,7 +31,7 @@ Each module is available in light or dark panels with contrast adjusment, select
 
 * [Hotkey](#hotkey): A utility module that sends a trigger when a given key is pressed (mouse must be over module).
 
-* [NoteEcho/NoteLoop](#note-echo-loop): CV/Gate based delay/looper modules with sample-and-held inputs.
+* [NoteEcho/NoteLoop/NoteFilter](#note-echo-loop-filter): CV/Gate based delay/looper/filter modules with sample-and-held inputs.
 
 * [Part](#part): A gate splitter module based on an input CV and split point.
 
@@ -616,12 +616,14 @@ The current hotkey is visible in the right-click menu of the module and is autom
 
 
 
-<a id="note-echo-loop"></a>
-## NoteEcho/NoteLoop
+<a id="note-echo-loop-filter"></a>
+## NoteEcho/NoteLoop/NoteFilter
 
-![IM](res/img/NoteEchoLoop.jpg)
+![IM](res/img/NoteEchoLoopFilter.jpg)
 
-NoteEcho is a 4-tap CV/Gate-based delay module with sample-and-held inputs, while NoteLoop is a CV/Gate-based looper. An initial version of NoteEcho with a previous Shift Register mode was shown in this ([video by Omri Cohen](https://www.youtube.com/watch?v=y4zKtH15Pzg)), but is no longer available. Prior patches should generally not be affected, but slight tweaks may be required in some cases.
+NoteFilter is a simple module to filter out identical redundant notes in a polyphonic CV/Gate/CV2 note. The module can also add a user-selectable sample delay (from 0 to 5 samples) to the input gate for when upstream modules have differing signal path delays between Gate and CV. Inputs are sampled-and-held, thus no continuous modulation present on the inputs will pass through this module.
+
+NoteEcho is a 4-tap CV/Gate-based delay module with sampled-and-held inputs, while NoteLoop is a CV/Gate-based looper with sampled-and-held inputs. An initial version of NoteEcho with a previous Shift Register mode was shown in this ([video by Omri Cohen](https://www.youtube.com/watch?v=y4zKtH15Pzg)), but is no longer available. Prior patches should generally not be affected, but slight tweaks may be required in some cases.
 
 Typical delay and looping modules function with audio signals, whereas NoteEcho and NoteLoop are an exploration of a similar effect, but for CV/Gate pairs instead. The modules also have a second CV (called CV2) that can be used for velocity or panning levels in the delays/loops. The CV/CV2 inputs are sampled on the rising edges of the respective Gate input channels. This sampling-and-holding of the inputs means that no continuous modulation of the inputs is recorded by the modules. NoteEcho has a maximum input polyphony of 4, since delay taps are generated as other channels in the polyphonic output signals, while NoteLoop supports a maximum polyphony of 16 channels.
 
