@@ -80,6 +80,8 @@ struct NoteFilter : Module {
 		configBypass(CV_INPUT, CV_OUTPUT);
 		configBypass(GATE_INPUT, GATE_OUTPUT);
 		configBypass(CV2_INPUT, CV2_OUTPUT);
+		
+		configLight(FILTER_LIGHT, "Note filtered");
 
 		onReset();
 		
