@@ -887,7 +887,7 @@ struct NoteEchoWidget : ModuleWidget {
 		menu->addChild(new MenuSeparator());
 		menu->addChild(createMenuLabel("Settings"));
 		
-		menu->addChild(createBoolPtrMenuItem("Filter out identical notes", "", &module->noteFilter));
+		menu->addChild(createBoolPtrMenuItem("Filter out identical notes (experimental)", "", &module->noteFilter));
 		
 		menu->addChild(createSubmenuItem("Tempo multiplier", "", [=](Menu* menu) {
 			for (int i = 0; i < NoteEcho::numMults; i++) {
