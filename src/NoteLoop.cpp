@@ -640,9 +640,7 @@ struct NoteLoopWidget : ModuleWidget {
 		// row 6
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row6)), true, module, NoteLoop::CV2_INPUT, mode));
 		
-		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row6)), false, module, NoteLoop::CV2_OUTPUT, mode));		
-		
-		
+		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col2, row6)), false, module, NoteLoop::CV2_OUTPUT, mode));			
 		
 		// addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row4)), false, module, NoteLoop::LOOPSTART_OUTPUT, mode));		
 		// addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col3, row5)), false, module, NoteLoop::CLEAR_OUTPUT, mode));		

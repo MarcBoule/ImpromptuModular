@@ -29,6 +29,7 @@ struct NoteFilter : Module {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
+		FILTER_LIGHT,
 		NUM_LIGHTS
 	};
 
@@ -45,15 +46,16 @@ struct NoteFilter : Module {
 	
 	// Need to save, with reset
 	float currCv[16];
-	float currGate[16];
 	float currCv2[16];
 	
 	// No need to save, with reset
 	float gateDelReg[16][MAXSD];
+	float currGate[16];
+	TriggerRiseFall gateTriggers[16];
 
 	// No need to save, no reset
 	RefreshCounter refresh;
-	TriggerRiseFall gateTriggers[16];
+	float filterLight = 0.0f;
 
 
 	int getSdKnob() {
@@ -88,7 +90,6 @@ struct NoteFilter : Module {
 	void onReset() override final {
 		for (int p = 0; p < 16; p++) {
 			currCv[p] = 0.0f;
-			currGate[p] = 0.0f;
 			currCv2[p] = 0.0f;
 		}
 		resetNonJson();
@@ -98,6 +99,8 @@ struct NoteFilter : Module {
 			for (int d = 0; d < MAXSD; d++) {
 				gateDelReg[p][d] = 0.0f;
 			}
+			currGate[p] = 0.0f;
+			gateTriggers[p].reset();
 		}
 	}
 
@@ -116,12 +119,6 @@ struct NoteFilter : Module {
 		for (int i = 0; i < 16; i++)
 			json_array_insert_new(currCvJ, i, json_real(currCv[i]));
 		json_object_set_new(rootJ, "currCv", currCvJ);
-
-		// currGate
-		json_t *currGateJ = json_array();
-		for (int i = 0; i < 16; i++)
-			json_array_insert_new(currGateJ, i, json_real(currGate[i]));
-		json_object_set_new(rootJ, "currGate", currGateJ);
 
 		// currCv2
 		json_t *currCv2J = json_array();
@@ -152,17 +149,6 @@ struct NoteFilter : Module {
 				json_t *currCvArrayJ = json_array_get(currCvJ, i);
 				if (currCvArrayJ)
 					currCv[i] = json_number_value(currCvArrayJ);
-			}
-		}
-
-		// currGate
-		json_t *currGateJ = json_object_get(rootJ, "currGate");
-		if (currGateJ) {
-			for (int i = 0; i < 16; i++)
-			{
-				json_t *currGateArrayJ = json_array_get(currGateJ, i);
-				if (currGateArrayJ)
-					currGate[i] = json_number_value(currGateArrayJ);
 			}
 		}
 
@@ -225,6 +211,7 @@ struct NoteFilter : Module {
 					if (p2 == p) continue;
 					if ((newCv == currCv[p2]) && (currGate[p2] > 0.5f)) {
 						foundSame = true;
+						filterLight = 1.0f;
 						break;
 					}
 				}
@@ -250,8 +237,8 @@ struct NoteFilter : Module {
 		// lights
 		if (refresh.processLights()) {
 			// lights
-			// simple ones done in NoteFilterWidget::step()
-
+			lights[FILTER_LIGHT].setSmoothBrightness(filterLight, args.sampleTime * (RefreshCounter::displayRefreshStepSkips >> 2));	
+			filterLight = 0.0f;
 		}// lightRefreshCounter
 
 		// sd the gate
@@ -262,7 +249,6 @@ struct NoteFilter : Module {
 			gateDelReg[p][1] = gateDelReg[p][0];
 			gateDelReg[p][0] = inputs[GATE_INPUT].getVoltage(p);
 		}
-
 	}// process()
 };
 
@@ -311,6 +297,7 @@ struct NoteFilterWidget : ModuleWidget {
 		
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row0)), true, module, NoteFilter::CV_INPUT, mode));
+		addChild(createLightCentered<SmallLight<RedLight>>(mm2px(Vec(col1 + 5.7f, row0 - 7.0f)), module, NoteFilter::FILTER_LIGHT));
 		
 		addInput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row1)), true, module, NoteFilter::GATE_INPUT, mode));
 		addParam(createParamCentered<IMSmallKnob>(mm2px(Vec(col1, row2)), module, NoteFilter::GATESD_PARAM));	
@@ -320,7 +307,6 @@ struct NoteFilterWidget : ModuleWidget {
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row4)), false, module, NoteFilter::CV_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row5)), false, module, NoteFilter::GATE_OUTPUT, mode));
 		addOutput(createDynamicPortCentered<IMPort>(mm2px(Vec(col1, row6)), false, module, NoteFilter::CV2_OUTPUT, mode));		
-
 	}
 };
 
