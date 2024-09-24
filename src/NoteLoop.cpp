@@ -132,7 +132,7 @@ struct NoteLoop : Module {
 	// Need to save, with reset
 	float cv2NormalledVoltage;
 	int64_t clockPeriod;
-	int ecoMode;
+	int monoMode;
 	int delMult;
 
 	// No need to save, with reset
@@ -151,7 +151,7 @@ struct NoteLoop : Module {
 	Trigger loopButtonTrigger;
 	Trigger loopStartTrigger;
 	Trigger clearTrigger;
-	dsp::PulseGenerator clearPulse;
+	//dsp::PulseGenerator clearPulse;
 
 
 	int getLoopLengthKnob() {
@@ -208,7 +208,7 @@ struct NoteLoop : Module {
 	void onReset() override final {
 		cv2NormalledVoltage = 0.0f;
 		clockPeriod = (int64_t)(APP->engine->getSampleRate());// 60 BPM until detected
-		ecoMode = 1;
+		monoMode = 0;
 		delMult = numMultsUnityIndex;
 		resetNonJson();
 	}
@@ -236,8 +236,8 @@ struct NoteLoop : Module {
 		// clockPeriod
 		json_object_set_new(rootJ, "clockPeriod", json_integer((long)clockPeriod));
 
-		// ecoMode
-		json_object_set_new(rootJ, "ecoMode", json_integer(ecoMode));
+		// monoMode
+		json_object_set_new(rootJ, "monoMode", json_integer(monoMode));
 		
 		// delMult
 		json_object_set_new(rootJ, "delMult", json_integer(delMult));
@@ -267,10 +267,10 @@ struct NoteLoop : Module {
 		if (clockPeriodJ)
 			clockPeriod = (int64_t)json_integer_value(clockPeriodJ);
 
-		// ecoMode
-		json_t *ecoModeJ = json_object_get(rootJ, "ecoMode");
-		if (ecoModeJ)
-			ecoMode = json_integer_value(ecoModeJ);
+		// monoMode
+		json_t *monoModeJ = json_object_get(rootJ, "monoMode");
+		if (monoModeJ)
+			monoMode = json_integer_value(monoModeJ);
 
 		// delMult
 		json_t *delMultJ = json_object_get(rootJ, "delMult");
@@ -321,14 +321,15 @@ struct NoteLoop : Module {
 		}
 	
 		int poly = inputs[GATE_INPUT].getChannels();
-		if (outputs[CV_OUTPUT].getChannels() != poly) {
-			outputs[CV_OUTPUT].setChannels(poly);
+		int actualPolyOut = monoMode == 1 ? 1 : poly;
+		if (outputs[CV_OUTPUT].getChannels() != actualPolyOut) {
+			outputs[CV_OUTPUT].setChannels(actualPolyOut);
 		}
-		if (outputs[GATE_OUTPUT].getChannels() != poly) {
-			outputs[GATE_OUTPUT].setChannels(poly);
+		if (outputs[GATE_OUTPUT].getChannels() != actualPolyOut) {
+			outputs[GATE_OUTPUT].setChannels(actualPolyOut);
 		}
-		if (outputs[CV2_OUTPUT].getChannels() != poly) {
-			outputs[CV2_OUTPUT].setChannels(poly);
+		if (outputs[CV2_OUTPUT].getChannels() != actualPolyOut) {
+			outputs[CV2_OUTPUT].setChannels(actualPolyOut);
 		}
 
 	
@@ -336,7 +337,7 @@ struct NoteLoop : Module {
 		if (clearTrigger.process(inputs[CLEAR_INPUT].getVoltage() + params[CLEAR_PARAM].getValue())) {
 			clear();
 			clearLight = 1.0f;
-			clearPulse.trigger(0.001f);
+			//clearPulse.trigger(0.001f);
 		}
 		int clkEdge = clkTrigger.process(inputs[CLK_INPUT].getVoltage());
 		// update clockPeriod
@@ -410,7 +411,7 @@ struct NoteLoop : Module {
 
 		
 		// outputs
-		if (ecoMode == 1 || ((refresh.refreshCounter & 0x7) == 0) ) {
+		if (monoMode != 1) {
 			for (int p = 0; p < poly; p++) {
 				float gate = 0.0f;
 				NoteEvent* event = channel[p].findEventGateOn(args.frame);
@@ -421,7 +422,25 @@ struct NoteLoop : Module {
 				}
 				outputs[GATE_OUTPUT].setVoltage(gate, p);
 			}	
-		}// eco mode		
+		}
+		else {
+			// find last CV and CV2
+			NoteEvent* lastEvent = nullptr;// closest last event where gate is high
+			for (int p = 0; p < poly; p++) {
+				NoteEvent* event = channel[p].findEventGateOn(args.frame);
+				if (event != nullptr) {
+					if (lastEvent == nullptr || event->gateOnFrame > lastEvent->gateOnFrame) {
+						lastEvent = event;
+					}
+				}
+			}
+			if (lastEvent != nullptr) {
+				outputs[CV_OUTPUT].setVoltage(lastEvent->cv);
+				outputs[CV2_OUTPUT].setVoltage(lastEvent->cv2);							
+			}
+			outputs[GATE_OUTPUT].setVoltage(lastEvent != nullptr ? 10.0f : 0.0f);
+		}
+
 		// outputs[CLEAR_OUTPUT].setVoltage((clearPulse.process(args.sampleTime) ? 10.0f : 0.0f));
 		
 		// NoteEvent* sole = loopStart.findEventGateOn(args.frame);// v1 (hit on loop press, can be used as Start Of Loop = SOL)
@@ -566,6 +585,11 @@ struct NoteLoopWidget : ModuleWidget {
 				));
 			}
 		}));
+
+		menu->addChild(createCheckMenuItem("Mono legato mode", "",
+			[=]() {return module->monoMode == 1;},
+			[=]() {module->monoMode ^= 0x1;}
+		));
 
 		createCv2NormalizationMenu(menu, &(module->cv2NormalledVoltage));
 	}	
