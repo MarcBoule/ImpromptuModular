@@ -1,3 +1,8 @@
+### 2.5.1 (in development)
+
+- NoteLoop: added a mono legato output mode
+
+
 ### 2.5.0 (2024-07-22)
 
 - SMS16: remove module, which was deprecated 2024-02-11
