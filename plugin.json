@@ -176,6 +176,13 @@
 			"tags": ["Sequencer", "Random", "Polyphonic"]
 		},
 		{
+			"slug": "Prob-Note",
+			"name": "ProbNote",
+			"description": "Random note from a chord",
+			"manualUrl": "https://marcboule.github.io/ImpromptuModular/#prob-key",
+			"tags": ["Sequencer", "Random", "Polyphonic"]
+		},
+		{
 			"slug": "Sygen",
 			"name": "Sygen",
 			"description": "Synchronous gate enable",
